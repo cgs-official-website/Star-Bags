@@ -1,0 +1,221 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.ProductCart-section{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
+.ProductCart-section::-webkit-scrollbar{
+    display: none;
+}
+
+.ProductCart-section .container{
+    padding:1% 1.5% ;
+    display: flex;
+    flex-wrap: nowrap;    
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    gap: 1.2rem;
+    padding-bottom: 10px;
+}
+
+.card{
+    position: relative;
+    border-color: var(--border-gray);
+    border-radius: 0 20% 2% 2%;
+    border-top: none;
+    min-width: 14rem;
+    max-width: 14rem;
+    transition: 0.3s ease;
+    flex-shrink: 0;         
+}
+
+.card:hover{
+    transform: translateY(-4px);
+}
+
+.card img{
+    width: 100%;
+    height: 14rem;
+    object-fit: cover;
+    padding: 1px;
+    border-radius: 0 20% 0 20%;
+}
+
+.card-body h6{
+    font-weight: bolder;
+    font-size: 1.1rem;
+}
+
+.card-body p{
+    font-weight: bold;
+    margin-bottom: 0;
+}
+
+.card-body span del{
+    color: var(--text-dark);
+    opacity: 0.6;
+}
+
+.card-body span b{
+    color: green;
+}
+
+.card-body a{
+    color: var(--white-color);
+    background-color: var(--levender);
+    width: 100%;
+    border-radius: 20px;
+}
+
+.card-body .btn:hover{
+    color: var(--white-color);
+}
+
+.card-body button{
+    padding: 0.6rem;
+}
+
+.icon-btn{
+    border: none;
+    border-radius: 50%;
+    background-color: #f3f3f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* WISHLIST */
+.wishlist{
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 4%;
+    right: 6%;
+}
+
+.wishlist button{
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--white-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+/* .wishlist button:hover{
+    color: red;
+} */
+ .heart-icon{
+    color:red;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.heart-icon:hover{
+    color: red;
+}
+
+.heart-icon:hover::before{
+    content: "\F415"; 
+    font-family: bootstrap-icons;
+}
+
+/* TABLET */
+@media (max-width: 992px){
+
+    .ProductCart-section .container{
+
+        gap: 1rem;
+    }
+
+    .card{
+        min-width: 13rem;
+        max-width: 13rem;
+    }
+
+    .card img{
+        height: 12rem;
+    }
+
+    .card-body h6{
+        font-size: 1rem;
+    }
+
+}
+
+/* MOBILE */
+@media (max-width: 576px){
+
+    .ProductCart-section .container{
+        padding: 2%;
+        padding-bottom: 10px; 
+     }
+
+    .card{
+        min-width: 12rem;
+        max-width: 12rem;
+    }
+
+    .card img{
+        height: 11rem;
+    }
+
+    .card-body{
+        padding: 0.8rem;
+    }
+
+    .card-body h6{
+        font-size: 0.95rem;
+    }
+
+    .card-body p,
+    .card-body span{
+        font-size: 0.85rem;
+    }
+
+    .card-body button{
+        padding: 0.5rem;
+    }
+
+    .card-body a{
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+}
+
+/* SMALL MOBILE */
+@media (max-width: 400px){
+    .ProductCart-section .container{
+        padding: 1.5%;
+    }
+
+    .card{
+        min-width: 11rem;
+        max-width: 11rem;
+    }
+
+    .card img{
+        height: 10rem;
+    }
+
+    .card-body h6{
+        font-size: 0.85rem;
+    }
+
+}

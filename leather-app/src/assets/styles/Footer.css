@@ -1,0 +1,37 @@
+footer{
+    background-color:var(--levender);
+    color:var(--white-color);
+}
+.details p{
+    text-align: justify;
+    opacity: 0.8;
+}
+
+.social-icons{
+    list-style-type: none;
+    display: flex;
+    padding: 0;
+    font-size: 1.5rem;
+    gap: 5%;
+
+}
+.social-icons a{
+    color: white;
+    opacity: 0.8;
+
+}
+.footer-link{
+    list-style-type: none;
+    padding: 0;
+}
+.footer-link a{
+    text-decoration: none;
+    opacity: 0.8;
+    color: white;
+}
+.footer-link a:hover ,.social-icons a:hover{
+    opacity: 1;
+}
+.address p{
+    opacity: 0.8;
+}

@@ -1,0 +1,63 @@
+import '../assets/styles/Footer.css'
+import { FaLocationDot } from "react-icons/fa6";
+import { FaInstagram ,FaTwitter,FaWhatsapp , } from "react-icons/fa";
+ 
+const Footer = () => {
+  const year = new Date().getFullYear();
+  return (
+    <footer>
+      <div  className="container">
+        <div className=" row py-3 " >
+          <div className="col-lg-4 col-12 details pe-4">
+            <h5>Krish Leather factory</h5>
+            <p>Crafted with passion, our leather goods are designed to bring elegance and durability to your everyday life. We believe in quality that lasts a lifetime.</p>
+            <ul className="social-icons">
+              <li><a href="#"><FaInstagram /></a></li>
+              <li><a href="#"><FaWhatsapp /></a></li>
+              <li><a href="#"><FaTwitter /></a></li>
+            </ul>
+          </div>
+          <div className="col-lg-2 col-6  product-details">
+            <h6>Sections</h6>
+            <ul className='footer-link'>
+              <li><a href="#">Home</a></li>
+              <li><a href="#">All Products</a></li>
+              <li><a href="#">Contact</a></li>
+              <li><a href="#">faq</a></li>
+            </ul>
+          </div>
+          <div className="col-lg-2 col-6  product-details">
+            <h6>Products</h6>
+            <ul className='footer-link'>
+              <li><a href="#">Bags</a></li>
+              <li><a href="#">wallets</a></li>
+              <li><a href="#">belts</a></li>
+            </ul>
+          </div>
+          <div className="col-lg-2 col-6  product-details">
+            <h6>Services</h6>
+            <ul className='footer-link'>
+              <li><a href="#">COD</a></li>
+            </ul>
+          </div>
+          <div className="col-lg-2 col-6 address  " >
+            <h6>Address of Company,</h6>
+            <p><FaLocationDot />Krish Leather factory
+            No.24, Anna Salai, T.Nagar,
+            Chennai, TamilNadu-600017,
+            India.</p>
+          </div>
+        </div>
+        <div className='d-md-flex justify-content-between border-top text-center py-3'>
+          <h5>Krish Leather factory</h5>
+          <div className='d-md-flex gap-5 '>
+            <p>privacy policy </p>
+            <p>Copyright&copy;{year}</p> 
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+export default Footer

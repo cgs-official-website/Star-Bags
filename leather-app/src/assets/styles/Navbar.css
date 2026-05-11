@@ -1,0 +1,162 @@
+
+/* NAVBAR */
+
+.navbar {
+    background: white;
+}
+
+/* LOGO */
+
+.logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+/* NAV LINKS */
+
+.nav-links {
+    gap: 10px;
+}
+
+.nav-links .nav-link {
+    color: black !important;
+    padding: 10px 16px !important;
+    border-radius: 10px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+/* SEARCH WRAPPER */
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* SEARCH */
+
+.nav-form {
+    position: relative;
+    width: 100%;
+}
+
+.nav-form input {
+    width: 100%;
+    height: 45px;
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    padding: 0 45px 0 16px;
+    outline: none;
+}
+
+.nav-form button {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+}
+
+/* ICON BUTTON */
+
+.icon-btn {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f1f1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+/* MOBILE SEARCH ICONS */
+
+.mobile-search-icons {
+    gap: 8px;
+}
+
+/* TOGGLE BUTTON */
+
+
+.navbar-toggler {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    font-size: 1.8rem;
+    padding: 0;
+    line-height: 1;
+    color: black;
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* MOBILE VIEW */
+
+@media (max-width: 991px) {
+
+    .navbar-collapse {
+        padding-top: 20px;
+    }
+
+    /* MOBILE HOVER EFFECT */
+
+    .nav-links .nav-link:hover,
+    .nav-links .nav-link:focus,
+    .nav-links .nav-link:active {
+
+        background: #0d6efd;
+        color: white !important;
+    }
+
+    /* SEARCH + ICONS SAME LINE */
+
+    .search-wrapper {
+        margin-top: 15px;
+    }
+}
+
+/* DESKTOP VIEW */
+
+@media (min-width: 992px) {
+
+    /* REMOVE DESKTOP HOVER */
+
+    .nav-links .nav-link:hover {
+        background: transparent;
+        color: black !important;
+    }
+
+    .search-wrapper {
+        max-width: 420px;
+    }
+}
+
+/* SMALL MOBILE */
+
+@media (max-width: 576px) {
+
+    .icon-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .nav-form input {
+        height: 42px;
+    }
+
+    .navbar-toggler {
+        font-size: 1.6rem;
+    }
+}
