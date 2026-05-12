@@ -1,4 +1,7 @@
 leather-app/.env
+leather-app/node_modules
+
+
 
 
 
@@ -7,3 +10,12 @@ leather-app/.env
 
 
 Backend/.env
+Backend/node_modules
+
+
+
+
+
+
+admin/.env
+admin/node_modules
