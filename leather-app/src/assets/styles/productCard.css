@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-.ProductCart-section{
+.ProductCard-section{
     width: 100%;
     overflow-x: auto;
     overflow-y: hidden;
@@ -12,11 +12,11 @@
     scroll-behavior: smooth;
 }
 
-.ProductCart-section::-webkit-scrollbar{
+.ProductCard-section::-webkit-scrollbar{
     display: none;
 }
 
-.ProductCart-section .container{
+.ProductCard-section .container{
     padding:1% 1.5% ;
     display: flex;
     flex-wrap: nowrap;    
