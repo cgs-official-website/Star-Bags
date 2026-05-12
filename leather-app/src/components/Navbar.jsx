@@ -7,21 +7,35 @@ import "../assets/styles/Navbar.css";
 export const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm">
-      <div className="container">
-        {/* LOGO */}
+      <div className="container navbar-container">
+        {/* LEFT SIDE LOGO */}
         <a className="navbar-brand" href="#">
           <img
-            src="hello.jng"
+            src="../src/assets/images/brand-logo-light.png"
             alt="logo"
             className="logo"
           />
         </a>
 
-        {/* MOBILE RIGHT SIDE */}
-        <div className="mobile-top d-flex align-items-center gap-2 d-lg-none">
+        {/* RIGHT SIDE */}
+        <div className="mobile-top">
+          {/* SEARCH BAR */}
+          <form className="nav-form mobile-search">
+            <input type="search" placeholder="Search..." />
+
+            <button type="submit">
+              <IoSearch />
+            </button>
+          </form>
+
           {/* USER */}
           <button className="icon-btn">
             <FaUserCircle />
+          </button>
+
+          {/* CART */}
+          <button className="icon-btn">
+            <IoMdCart />
           </button>
 
           {/* TOGGLE */}
@@ -58,9 +72,8 @@ export const Navbar = () => {
             </li>
           </ul>
 
-          {/* SEARCH + MOBILE ICONS */}
-          <div className="search-wrapper">
-            {/* SEARCH */}
+          {/* DESKTOP SEARCH */}
+          <div className="search-wrapper d-none d-lg-flex">
             <form className="nav-form">
               <input type="search" placeholder="Search products..." />
 
@@ -68,17 +81,6 @@ export const Navbar = () => {
                 <IoSearch />
               </button>
             </form>
-
-            {/* MOBILE ICONS */}
-            <div className="mobile-search-icons d-flex d-lg-none">
-              <button className="icon-btn">
-                <IoNotificationsOutline />
-              </button>
-
-              <button className="icon-btn">
-                 <IoMdCart />
-              </button>
-            </div>
           </div>
 
           {/* DESKTOP ICONS */}

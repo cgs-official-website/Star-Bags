@@ -16,7 +16,6 @@ export const Hero = () => {
           data-bs-interval="5000"
           data-bs-pause="false"
         >
-
           {/* CAROUSEL */}
 
           <div className="carousel-inner rounded-4 overflow-hidden">
@@ -30,17 +29,13 @@ export const Hero = () => {
               />
 
               <div className="hero-overlay"></div>
-
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
-
-                <h1>Crafted in Leather, Designed for Life.</h1>
-
+                <h2>Crafted in Leather, Designed for Life.</h2>
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-
                 <button className="btn hero-btn">Shop Now →</button>
               </div>
             </div>
@@ -49,19 +44,15 @@ export const Hero = () => {
 
             <div className="carousel-item">
               <img src={walletImg} className="hero-img" alt="Wallet" />
-
               <div className="hero-overlay"></div>
 
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
-
-                <h1>Crafted in Leather, Designed for Life.</h1>
-
+                <h2>Crafted in Leather, Designed for Life.</h2>
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-
                 <button className="btn hero-btn">Shop Now →</button>
               </div>
             </div>
@@ -70,19 +61,14 @@ export const Hero = () => {
 
             <div className="carousel-item">
               <img src={bagImg} className="hero-img" alt="Bag" />
-
               <div className="hero-overlay"></div>
-
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
-
-                <h1>Crafted in Leather, Designed for Life.</h1>
-
+                <h2>Crafted in Leather, Designed for Life.</h2>
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-
                 <button className="btn hero-btn">Shop Now →</button>
               </div>
             </div>
@@ -91,19 +77,14 @@ export const Hero = () => {
 
             <div className="carousel-item">
               <img src={beltImg} className="hero-img" alt="Belt" />
-
               <div className="hero-overlay"></div>
-
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
-
-                <h1>Crafted in Leather, Designed for Life.</h1>
-
+                <h2>Crafted in Leather, Designed for Life.</h2>
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-
                 <button className="btn hero-btn">Shop Now →</button>
               </div>
             </div>

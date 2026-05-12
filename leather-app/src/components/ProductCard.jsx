@@ -1,9 +1,8 @@
 import { IoMdCart } from "react-icons/io";
-import '../assets/styles/productCart.css'
-// import { FaRegHeart } from "react-icons/fa";
+import '../assets/styles/productCard.css'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
-export const ProductCart = () => {
+export const ProductCard = () => {
   const productCart = [
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
@@ -17,7 +16,7 @@ export const ProductCart = () => {
   return (
     <>
       <section>
-          <div className="ProductCart-section my-3 ">
+          <div className="ProductCard-section my-3 ">
               <div className="container d-flex gap-3 flex-nowrap">
                 {productCart.map((pro,index) => (
                   <div key={index} className="card" style={{width: "15rem"}}>
