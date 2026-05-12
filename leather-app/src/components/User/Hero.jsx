@@ -1,9 +1,10 @@
-import "../assets/styles/Hero.css";
+import '../../assets/styles/Hero.css'
 
-import productImg from "../assets/images/product.png";
-import walletImg from "../assets/images/Wallet.png";
-import bagImg from "../assets/images/bag.png";
-import beltImg from "../assets/images/Belt.png";
+
+import productImg from "../../assets/images/product.png";
+import walletImg from "../../assets/images/Wallet.png";
+import bagImg from "../../assets/images/bag.png";
+import beltImg from "../../assets/images/Belt.png";
 
 export const Hero = () => {
   return (

@@ -1,7 +1,7 @@
 import { BiSolidWallet } from "react-icons/bi";
 import { GiSchoolBag, GiBelt } from "react-icons/gi";
 
-import "../../src/assets/styles/Categories.css"
+import "../../../src/assets/styles/Categories.css"
 
 export const Categories = () => {
   const categories = [

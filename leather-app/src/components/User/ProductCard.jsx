@@ -1,9 +1,9 @@
 import { IoMdCart } from "react-icons/io";
-import '../assets/styles/productCard.css'
+import '../../assets/styles/productCard.css'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export const ProductCard = () => {
-  const productCart = [
+  const productCard = [
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
@@ -18,7 +18,7 @@ export const ProductCard = () => {
       <section>
           <div className="ProductCard-section my-3 ">
               <div className="container d-flex gap-3 flex-nowrap">
-                {productCart.map((pro,index) => (
+                {productCard.map((pro,index) => (
                   <div key={index} className="card" style={{width: "15rem"}}>
                     <img src={pro.image} className="card-img-top" alt="..." />
                     <div className="card-body ">

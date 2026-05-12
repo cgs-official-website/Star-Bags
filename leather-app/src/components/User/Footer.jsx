@@ -1,4 +1,4 @@
-import '../assets/styles/Footer.css'
+import '../../assets/styles/Footer.css'
 import { FaLocationDot } from "react-icons/fa6";
 import { FaInstagram ,FaWhatsapp , } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";

@@ -1,9 +1,9 @@
-import { Categories } from "../components/Categories";
-import { Faq } from "../components/Faq";
-import Footer from "../components/Footer";
-import { Hero } from "../components/Hero";
-import { Navbar } from "../components/Navbar";
-import { ProductCard } from "../components/ProductCard";
+import { Categories } from "../components/User/Categories";
+import { Faq } from "../components/User/Faq";
+import Footer from "../components/User/Footer";
+import { Hero } from "../components/User/Hero";
+import { Navbar } from "../components/User/Navbar";
+import { ProductCard } from "../components/User/ProductCard";
 
 export const Home = () => {
   return (

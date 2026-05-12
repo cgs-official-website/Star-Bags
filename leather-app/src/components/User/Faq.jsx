@@ -1,5 +1,6 @@
 import { useState } from "react";
-import "../assets/styles/Faq.css";
+import '../../assets/styles/Faq.css'
+
 
 export const Faq = () => {
   const [active, setActive] = useState(null);

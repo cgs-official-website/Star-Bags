@@ -1,8 +1,8 @@
 import { IoNotificationsOutline, IoSearch } from "react-icons/io5";
 import { IoMdCart } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
+import '../../assets/styles/Navbar.css'
 
-import "../assets/styles/Navbar.css";
 
 export const Navbar = () => {
   return (
