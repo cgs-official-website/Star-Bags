@@ -3,11 +3,11 @@ import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { icon: 'bi-grid-1x2-fill',            label: 'Dashboard',              path: '/admin' },
-  { icon: 'bi-box-seam-fill',            label: 'Product Management',     path: '/admin/products' },
-  { icon: 'bi-cart-check-fill',          label: 'Order Management',       path: '/admin/orders' },
+  { icon: 'bi-box-seam-fill',            label: 'Product Management',     path: '/admin/product-management' },
+  { icon: 'bi-cart-check-fill',          label: 'Order Management',       path: '/admin/order-management' },
   { icon: 'bi-tag-fill',                 label: 'Coupons',                path: '/admin/coupons' },
-  { icon: 'bi-credit-card-2-front-fill', label: 'Payment Management',     path: '/admin/payments' },
-  { icon: 'bi-bar-chart-line-fill',      label: 'Reports & Analytics',    path: '/admin/reports' },
+  { icon: 'bi-credit-card-2-front-fill', label: 'Payment Management',     path: '/admin/payment-details' },
+  { icon: 'bi-bar-chart-line-fill',      label: 'Reports & Analytics',    path: '/admin/report-analysis' },
   { icon: 'bi-gear-fill',                label: 'Settings',               path: '/admin/settings' },
   // { icon: 'bi-box-arrow-left',           label: 'Logout',                 path: '/admin/login' },
 ];

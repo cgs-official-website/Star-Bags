@@ -77,7 +77,7 @@ function ForgetPassword() {
           >
             {/* Back to login */}
             <Link
-              to="/admin/login"
+              to="/admin"
               className="d-inline-flex align-items-center gap-2 text-decoration-none mb-5"
               style={{ fontSize: "14px", color: "#374151", fontWeight: 500 }}
             >
