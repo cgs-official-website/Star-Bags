@@ -1,6 +1,7 @@
 import { IoNotificationsOutline, IoSearch } from "react-icons/io5";
 import { IoMdCart } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
 import '../../assets/styles/Navbar.css'
 
 
@@ -54,19 +55,19 @@ export const Navbar = () => {
           {/* NAV LINKS */}
           <ul className="navbar-nav mx-auto nav-links">
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a className="nav-link" href="/">
                 Home
               </a>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
-                Products
+              <a className="nav-link" href="/product">
+                All Products
               </a>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a className="nav-link" href="/contact">
                 Contact
               </a>
             </li>
@@ -93,9 +94,9 @@ export const Navbar = () => {
               <IoMdCart />
             </button>
 
-            <button className="icon-btn">
+            <NavLink to="/signin" className="icon-btn">
               <FaUserCircle />
-            </button>
+            </NavLink>
           </div>
         </div>
       </div>

@@ -67,9 +67,9 @@ export const Faq = () => {
 
   return (
     <>
-      <section className="faq-section container ">
+      <section className="faq-section container  "  id="faq-section">
         
-          <div className="faq-title text-center">
+          <div className="faq-title text-center"  >
             <h3>Frequently Asked Questions</h3>
             <p>
               Everything you need to know about our leather products and services.

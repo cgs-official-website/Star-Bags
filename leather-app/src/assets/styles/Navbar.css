@@ -1,6 +1,9 @@
 /* NAVBAR */
 
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 3 ;
     background: white;
     padding: 8px 0;
 }
