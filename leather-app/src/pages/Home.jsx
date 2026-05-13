@@ -5,6 +5,7 @@ import { Hero } from "../components/User/Hero";
 import { Navbar } from "../components/User/Navbar";
 import { ProductCard } from "../components/User/ProductCard";
 
+
 export const Home = () => {
   return (
     <div>
