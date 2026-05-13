@@ -1,12 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
+build/
+dist/
+dist-ssr/
+
+# Environment variables
 .env
-leather-app/node_modules
-Backend/node_modules
+.env.*
+!.env.example
 
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-leather-app/.env
-leather-app/node_modules
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-Backend/.env
-Backend/node_modules
-admin/.env
-admin/node_modules
+# Miscellaneous
+.eslintcache
+*.local
