@@ -52,7 +52,7 @@ const AdminSidebar = () => {
         style={{
           width: 240,
           minHeight: '100vh',
-          background: '#7c3aed',
+          background: '#22074F',
           transition: 'width 0.28s ease',
           flexShrink: 0,
           position: 'sticky',
@@ -67,25 +67,14 @@ const AdminSidebar = () => {
           className="d-flex align-items-center gap-2 px-3"
           style={{ height: 70, borderBottom: '1px solid rgba(255,255,255,0.15)' }}
         >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              background: 'rgba(255,255,255,0.2)',
-              borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <i className="bi bi-bag-heart-fill text-white" style={{ fontSize: 17 }} />
-          </div>
+          {/* <div> */}
+           <img src="/src/assets/images/brand-logo-dark-cropped.png" alt=" Brand logo" style={{ width: '30%', height: '70%' }} />
+          {/* </div> */}
           <span
             className="fw-bold text-white"
             style={{ fontSize: 16, whiteSpace: 'nowrap', letterSpacing: 0.3 }}
           >
-            Star<span style={{ color: 'rgba(255,255,255,0.7)' }}>Bags</span>
+            <span style={{ color: 'rgba(255, 255, 255, 1)' }}>Star Bags</span>
           </span>
         </div>
 
@@ -138,8 +127,9 @@ const AdminSidebar = () => {
 
         {/* Bottom — Logout */}
         <div className="px-2 mb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 12 }}>
-          <button
-            className="d-flex align-items-center gap-2 btn w-100 py-2 px-2"
+          <NavLink
+            to="/admin"
+            className="d-flex align-items-center gap-2 btn w-100 py-2 px-2 text-decoration-none"
             style={{
               color: 'rgba(255,255,255,0.75)',
               background: 'transparent',
@@ -162,7 +152,7 @@ const AdminSidebar = () => {
           >
             <i className="bi bi-box-arrow-left" style={{ fontSize: 17, flexShrink: 0, minWidth: 20, textAlign: 'center' }} />
             <span>Logout</span>
-          </button>
+          </NavLink>
         </div> 
       </nav>
 
@@ -181,12 +171,12 @@ const AdminSidebar = () => {
         }
 
         .admin-nav-link:hover {
-          background: #ffffff !important;
-          color: #7c3aed !important;
+          background: #7c3aed !important;
+          color: #ffffff !important;
           box-shadow: 0 2px 10px rgba(0,0,0,0.15) !important;
         }
         .admin-nav-link:hover i {
-          color: #7c3aed !important;
+          color: #ffffff !important;
         }
       `}</style>
     </>

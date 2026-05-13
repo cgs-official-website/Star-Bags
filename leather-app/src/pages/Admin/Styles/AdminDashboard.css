@@ -181,7 +181,7 @@
   flex-direction: column;
   gap: 14px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f5;
+  border: 1px solid #d9d9d9;
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
@@ -257,7 +257,7 @@
 }
 
 .chart-tooltip {
-  background: #1e1b4b;
+  background: #ffffff;
   border-radius: 10px;
   padding: 10px 14px;
   box-shadow: 0 4px 16px rgba(30,27,75,0.25);
@@ -271,8 +271,9 @@
 }
 
 .tooltip-label {
-  color: rgba(255,255,255,0.65);
+  color: #111827;
   font-size: 11px;
+  font-weight: 700;
   margin: 0 0 4px 0;
   text-transform: uppercase;
   letter-spacing: 0.8px;
@@ -300,7 +301,7 @@
   font-weight: 600;
   color: #9ca3af;
   padding: 10px 14px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1.5px solid #d9d9d9;
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.6px;
@@ -310,7 +311,7 @@
   padding: 13px 14px;
   font-size: 13px;
   color: #374151;
-  border-bottom: 1px solid #f9fafb;
+  border-bottom: 1.5px solid #d9d9d9;
   vertical-align: middle;
 }
 
