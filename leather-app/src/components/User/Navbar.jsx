@@ -1,27 +1,42 @@
 import { IoNotificationsOutline, IoSearch } from "react-icons/io5";
 import { IoMdCart } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
+import '../../assets/styles/Navbar.css'
 
-import "../assets/styles/Navbar.css";
 
 export const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm">
-      <div className="container">
-        {/* LOGO */}
+      <div className="container navbar-container">
+        {/* LEFT SIDE LOGO */}
         <a className="navbar-brand" href="#">
           <img
-            src="hello.jng"
+            src="../src/assets/images/brand-logo-light.png"
             alt="logo"
             className="logo"
           />
         </a>
 
-        {/* MOBILE RIGHT SIDE */}
-        <div className="mobile-top d-flex align-items-center gap-2 d-lg-none">
+        {/* RIGHT SIDE */}
+        <div className="mobile-top">
+          {/* SEARCH BAR */}
+          <form className="nav-form mobile-search">
+            <input type="search" placeholder="Search..." />
+
+            <button type="submit">
+              <IoSearch />
+            </button>
+          </form>
+
           {/* USER */}
           <button className="icon-btn">
             <FaUserCircle />
+          </button>
+
+          {/* CART */}
+          <button className="icon-btn">
+            <IoMdCart />
           </button>
 
           {/* TOGGLE */}
@@ -40,27 +55,26 @@ export const Navbar = () => {
           {/* NAV LINKS */}
           <ul className="navbar-nav mx-auto nav-links">
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a className="nav-link" href="/">
                 Home
               </a>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
-                Products
+              <a className="nav-link" href="/product">
+                All Products
               </a>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <a className="nav-link" href="/contact">
                 Contact
               </a>
             </li>
           </ul>
 
-          {/* SEARCH + MOBILE ICONS */}
-          <div className="search-wrapper">
-            {/* SEARCH */}
+          {/* DESKTOP SEARCH */}
+          <div className="search-wrapper d-none d-lg-flex">
             <form className="nav-form">
               <input type="search" placeholder="Search products..." />
 
@@ -68,17 +82,6 @@ export const Navbar = () => {
                 <IoSearch />
               </button>
             </form>
-
-            {/* MOBILE ICONS */}
-            <div className="mobile-search-icons d-flex d-lg-none">
-              <button className="icon-btn">
-                <IoNotificationsOutline />
-              </button>
-
-              <button className="icon-btn">
-                 <IoMdCart />
-              </button>
-            </div>
           </div>
 
           {/* DESKTOP ICONS */}
@@ -91,9 +94,9 @@ export const Navbar = () => {
               <IoMdCart />
             </button>
 
-            <button className="icon-btn">
+            <NavLink to="/signin" className="icon-btn">
               <FaUserCircle />
-            </button>
+            </NavLink>
           </div>
         </div>
       </div>

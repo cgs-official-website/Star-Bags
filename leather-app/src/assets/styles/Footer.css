@@ -2,6 +2,12 @@ footer{
     background-color:var(--levender);
     color:var(--white-color);
 }
+.footer-logo img{
+    /* border: 1px solid; */
+    background-color: var(--white-color);
+    border-radius: 50%;
+
+}
 .details p{
     text-align: justify;
     opacity: 0.8;
@@ -34,4 +40,17 @@ footer{
 }
 .address p{
     opacity: 0.8;
+}
+
+@media(max-width:400px){
+    .footer-end{
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer-end .policy{
+        display: flex;
+        flex-direction: column;
+        gap: 0 !important;
+    }
 }
