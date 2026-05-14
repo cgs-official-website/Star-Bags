@@ -29,9 +29,9 @@ import '../../assets/styles/Navbar.css'
           </form>
 
           {/* USER */}
-          <button className="icon-btn">
-            <FaUserCircle />
-          </button>
+          <NavLink to="/signup" className="icon-btn text-dark" >
+              <FaUserCircle />
+            </NavLink>
 
           {/* CART */}
           <button className="icon-btn">
@@ -93,7 +93,7 @@ import '../../assets/styles/Navbar.css'
               <IoMdCart />
             </button>
 
-            <NavLink to="/signin" className="icon-btn">
+            <NavLink to="/signup" className="icon-btn text-dark" >
               <FaUserCircle />
             </NavLink>
           </div>
