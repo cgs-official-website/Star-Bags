@@ -2,7 +2,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import { FaPhoneAlt, FaClock } from "react-icons/fa";
 import { MdMarkEmailUnread } from "react-icons/md";
 import { CgAsterisk } from "react-icons/cg";
-import { Navbar } from "../components/User/Navbar";
+import Navbar from "../components/User/Navbar";
 import Footer from "../components/User/Footer";
 
 import ContactImage from "../assets/images/contact-image.png";

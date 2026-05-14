@@ -4,8 +4,7 @@ import { FaUserCircle } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import '../../assets/styles/Navbar.css'
 
-
-export const Navbar = () => {
+ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm">
       <div className="container navbar-container">
@@ -103,3 +102,6 @@ export const Navbar = () => {
     </nav>
   );
 };
+
+
+export default Navbar;

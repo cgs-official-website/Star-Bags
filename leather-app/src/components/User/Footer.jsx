@@ -13,11 +13,11 @@ const Footer = () => {
         <div className=" row py-3 ">
           <div className="col-lg-4 col-12 details pe-4">
             <div className="d-flex align-items-end footer-logo gap-2">
-              <img
+              {/* <img
                 src="../src/assets/images/brand-logo-light.png"
                 alt=""
                 height={"40px"}
-              />
+              /> */}
               <h5>Star Bags</h5>
             </div>
             <p>
@@ -100,8 +100,8 @@ const Footer = () => {
         <div className="d-flex justify-content-between border-top text-center py-3  footer-end">
           <h6>Star Bags</h6>
           <div className="d-flex gap-3 policy">
-            <p>privacy policy </p>
-            <p>Copyright&copy;{year}</p>
+            <p>Privacy Policy </p>
+            <p>All rights reserved &copy; {year}</p>
           </div>
         </div>
       </div>

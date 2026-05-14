@@ -1,6 +1,6 @@
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
-import { Home } from './pages/Home';
+import Home from './pages/Home';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
@@ -33,7 +33,7 @@ const App = () => {
         <Route path="/orders" element={<Orders />} />
         <Route path="/contact" element={<Contact />} />
         {/* <Route path="/allProduct" element={<Product />} /> */}
-        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/product" element={<ProductDetails />} />
         <Route path="/wishlist" element={<WishList />} />
 
         {/* Admin Routes */}
