@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../../assets/styles/Faq.css'
+import { IoIosArrowDown } from "react-icons/io";
 
 
 export const Faq = () => {
@@ -85,7 +86,7 @@ export const Faq = () => {
                 <div className="faq-question" onClick={() => toggleFaq(index)}>
                   <h5>{item.question}</h5>
 
-                  <div className="faq-icon">+</div>
+                  <div className="faq-icon"><span><IoIosArrowDown /></span></div>
                 </div>
 
                 <div className="faq-answer">

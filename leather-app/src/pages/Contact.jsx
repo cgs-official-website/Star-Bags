@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { FaLocationDot } from "react-icons/fa6";
 import { FaPhoneAlt, FaClock } from "react-icons/fa";
 import { MdMarkEmailUnread } from "react-icons/md";
@@ -10,7 +12,8 @@ import ContactImage from "../assets/images/contact-image.png";
 import "../assets/styles/Contact.css";
 
 const Contact = () => {
-  
+  const [problemType, setProblemType] = useState("Product Damage");
+
   return (
     <>
       <Navbar />
@@ -30,86 +33,138 @@ const Contact = () => {
       </div>
 
       {/* CONTACT SECTION */}
-      <div className="container py-5">
+      <div className="container py-4">
         <div className="row g-4 align-items-start">
           {/* FORM */}
           <div className="col-12 col-lg-6">
             <div className="contact-form-box">
-              <h3>Contact Us</h3>
+              <h3>Customer Support</h3>
 
               <form>
-                <div className="mb-3">
-                  <label className="form-label">E-mail Address<sup><CgAsterisk /></sup></label>
+                {/* <div className="mb-3">
+                  <label className="form-label">
+                    E-mail Address
+                    <sup>
+                      <CgAsterisk />
+                    </sup>
+                  </label>
 
                   <input
                     type="email"
                     className="form-control"
                     placeholder="Enter your e-mail"
                   />
-                  <div className="error-message"></div>
-                </div>
 
-                <div className="row">
+                  <div className="error-message"></div>
+                </div> */}
+
+                {/* <div className="row">
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="form-label">First Name<sup><CgAsterisk /></sup></label>
+                    <label className="form-label">
+                      First Name
+                      <sup>
+                        <CgAsterisk />
+                      </sup>
+                    </label>
 
                     <input
                       type="text"
                       className="form-control"
                       placeholder="First name"
                     />
-                  <div className="error-message"></div>
+
+                    <div className="error-message"></div>
                   </div>
 
                   <div className="col-12 col-md-6 mb-3">
-                    <label className="form-label">Last Name<sup><CgAsterisk /></sup></label>
+                    <label className="form-label">
+                      Last Name
+                      <sup>
+                        <CgAsterisk />
+                      </sup>
+                    </label>
 
                     <input
                       type="text"
                       className="form-control"
                       placeholder="Last name"
                     />
-                  <div className="error-message"></div>
+
+                    <div className="error-message"></div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="mb-3">
-                  <label className="form-label">Product Order Id<sup><CgAsterisk /></sup></label>
+                  <label className="form-label">
+                    Product Order Id
+                    <sup>
+                      <CgAsterisk />
+                    </sup>
+                  </label>
 
                   <input
                     type="tel"
                     className="form-control"
                     placeholder="Enter your Order ID"
                   />
+
                   <div className="error-message"></div>
                 </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Contact Number<sup><CgAsterisk /></sup></label>
+                {/* <div className="mb-3">
+                  <label className="form-label">
+                    Contact Number
+                    <sup>
+                      <CgAsterisk />
+                    </sup>
+                  </label>
 
                   <input
                     type="tel"
                     className="form-control"
                     placeholder="Enter your contact number"
                   />
+
                   <div className="error-message"></div>
-                </div>
+                </div> */}
 
                 <div className="mb-3">
-                  <label className="form-label">What is your problem<sup><CgAsterisk /></sup></label>
+                  <label className="form-label">
+                    What is your problem
+                    <sup>
+                      <CgAsterisk />
+                    </sup>
+                  </label>
 
-                  <select className="form-select form-control" aria-label="Default select ">
-                    <option value="selected">Product Damage</option>
-                    <option value="1">Product Mismatch</option>
-                    <option value="2">Quality Issues</option>
-                    <option value="3">Other</option>
+                  <select
+                    className="form-select"
+                    value={problemType}
+                    onChange={(e) => setProblemType(e.target.value)}
+                  >
+                    <option>Product Damage</option>
+                    <option>Product Mismatch</option>
+                    <option>Quality Issues</option>
+                    <option>Other</option>
                   </select>
-                  <label className="form-label mt-2">Other<sup><CgAsterisk /></sup></label>
-                  <input
-                    type="tel"
-                    className="form-control "
-                    placeholder="Enter Other Problem  "
-                  />
+
+                  {/* SHOW ONLY WHEN OTHER IS SELECTED */}
+                  {problemType === "Other" && (
+                    <>
+                      <label className="form-label mt-2">
+                        Other
+                        <sup>
+                          <CgAsterisk />
+                        </sup>
+                      </label>
+
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Enter Other Problem"
+                      />
+                    </>
+                  )}
+
                   <div className="error-message"></div>
                 </div>
 
@@ -133,7 +188,7 @@ const Contact = () => {
           </div>
 
           {/* GET IN TOUCH */}
-          <div className="col-12 col-lg-5 offset-lg-1 p-5 ">
+          <div className="col-12 col-lg-5 offset-lg-1  ">
             <div className="get-touch">
               <h1>Get in Touch</h1>
 
@@ -141,9 +196,10 @@ const Contact = () => {
                 <span>
                   <FaLocationDot />
                 </span>
+
                 <div>
                   <h5>STORE LOCATION</h5>
-                  <p>42 Artisan Way, Heritage Quarter Florence, Italy 50123.</p>
+                  <p>Perundhurai - Bhavani Rd, Perundurai,<br /> Tamil Nadu-638052</p>
                 </div>
               </div>
 
@@ -151,9 +207,10 @@ const Contact = () => {
                 <span>
                   <FaPhoneAlt />
                 </span>
+
                 <div>
                   <h5>PHONE</h5>
-                  <p>+39 055 123 4567</p>
+                  <p>+91 99655 12123</p>
                 </div>
               </div>
 
@@ -161,8 +218,10 @@ const Contact = () => {
                 <span>
                   <FaClock />
                 </span>
+
                 <div>
                   <h5>BUSINESS HOURS</h5>
+
                   <p>
                     Mon - Fri: 09:00 - 18:00
                     <br />
@@ -175,6 +234,7 @@ const Contact = () => {
                 <span>
                   <MdMarkEmailUnread />
                 </span>
+
                 <div>
                   <h5>EMAIL</h5>
                   <p>demo12@gmail.com</p>

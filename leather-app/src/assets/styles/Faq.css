@@ -92,7 +92,7 @@
 
 
 .faq-card.active .faq-icon{
-    transform: rotate(45deg) scale(1.08);
+    transform: rotate(180deg) scale(1.08);
     background: var(--levender);
     color: white;
     box-shadow:

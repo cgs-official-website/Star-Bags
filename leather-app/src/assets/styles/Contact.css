@@ -33,14 +33,15 @@
 
 .contact-content h1{
     font-size: 3.5rem;
-    font-weight: 600;
+    font-weight: 800;
     margin-bottom: 15px;
 }
 
 .contact-content p{
-    font-size: 0.9rem;
+    font-size: 1rem;
+    letter-spacing: 1px;
     line-height: 1.7;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 /* CONTACT FORM */
@@ -48,15 +49,16 @@
 .contact-form-box{
     background: var(--white-color);
     border-radius: 20px;
-    padding: 25px;
+    padding: 10px 25px;
     box-shadow:0 0 10px var(--levender-shade );
 }
 
 .contact-form-box h3{
     font-size: 2rem;
-    font-weight: 600; 
-    margin-bottom: 20px;
-    color: var(--levender);
+    /* font-weight: 600;  */
+    margin-bottom: 10px;
+    font-weight: 800;
+    color: var(--text-dark);
 }
 
 .form-label{
@@ -68,7 +70,7 @@
 .form-label sup{
     color: red;
 }
-.form-control{
+.form-control, .form-select{
     height: 50px;
     border-radius: 12px;
     border: 1px solid #ddd;
@@ -76,7 +78,7 @@
     box-shadow: none !important;
 }
 
-.form-control:focus{
+.form-control:focus,.form-select:focus{
     border-color: var(--levender-shade);
     box-shadow: 0 0 0 3px rgba(170,145,255,0.15) !important;
 }
@@ -90,20 +92,20 @@ textarea.form-control{
     height: 50px;
     border: none;
     border-radius: 12px;
-    background: var(--levender);
+    background: var(--levender-light);
     font-weight: 700;
 }
 
 .btn-dark:hover{
-    background:var(--levender-light);
+    background:var(--levender);
 }
 
 /* GET IN TOUCH */
 
 .get-touch h1{
     font-size: 2.5rem;
-    font-weight: 600;
-    color: var(--levender);
+    font-weight: 700;
+    color: var(--text-dark);
     margin-bottom: 25px;
 }
 
@@ -111,16 +113,16 @@ textarea.form-control{
     display: flex;
     gap: 15px;
     padding: 18px;
-    border-radius: 18px;
-    background: #faf7ff;
-    border: 1px solid rgba(170,145,255,0.15);
-    margin-bottom: 18px;
+    /* border-radius: 18px; */
+    /* background: #faf7ff; */
+    /* border: 1px solid rgba(170,145,255,0.15); */
+    margin-bottom: 10px;
 }
 
 .contact-info-box span{
     width: 50px;
     height: 50px;
-    background: var(--levender);
+    background: var(--levender-light);
     color: #fff;
     border-radius: 50%;
     display: flex;
