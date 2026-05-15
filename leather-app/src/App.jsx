@@ -11,6 +11,16 @@ import CreateAccount from './pages/CreateAccount';
 import Login from './pages/Login';
 import ResetPassword from './pages/Resetpassword';
 import ForgotPassword from './pages/ForgotPassword';
+import Profile from './pages/Profile';
+import SavedAddress from './pages/SavedAddress';
+import TrackOrder from './pages/TrackOrder';
+
+
+
+
+
+
+
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminSignup from './pages/Admin/AdminSignup';
@@ -42,6 +52,23 @@ const App = () => {
         {/* <Route path="/allProduct" element={<Product />} /> */}
         <Route path="/product" element={<ProductDetails />} />
         <Route path="/wishlist" element={<WishList />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/address" element={<SavedAddress />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />

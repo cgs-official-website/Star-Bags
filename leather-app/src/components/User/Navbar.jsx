@@ -1,6 +1,9 @@
 import { IoNotificationsOutline, IoSearch } from "react-icons/io5";
 import { IoMdCart } from "react-icons/io";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaRegUserCircle, FaRegHeart } from "react-icons/fa";
+import { FiBox, FiLogOut } from "react-icons/fi";
+import { GrLocation } from "react-icons/gr";
+import { BsSun } from "react-icons/bs";
 import { NavLink } from "react-router-dom";
 import '../../assets/styles/Navbar.css'
 
@@ -9,7 +12,7 @@ import '../../assets/styles/Navbar.css'
     <nav className="navbar navbar-expand-lg bg-white shadow-sm">
       <div className="container navbar-container">
         {/* LEFT SIDE LOGO */}
-        <a className="navbar-brand" href="#">
+        <a className="navbar-brand" href="/">
           <img
             src="../src/assets/images/brand-logo-light.png"
             alt="logo"
@@ -29,9 +32,48 @@ import '../../assets/styles/Navbar.css'
           </form>
 
           {/* USER */}
-          <NavLink to="/signup" className="icon-btn text-dark" >
+          <div className="dropdown">
+            <button className="icon-btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <FaUserCircle />
-            </NavLink>
+            </button>
+            <ul className="dropdown-menu dropdown-menu-end shadow-sm" style={{minWidth: "180px", borderRadius: "10px", marginTop: "8px"}}>
+              <li>
+                <NavLink to="/profile" className="dropdown-item d-flex align-items-center py-1 px-3" style={{fontSize: "0.95rem"}}>
+                  <FaRegUserCircle className="me-2 text-muted" style={{fontSize: "1rem"}} /> My profile
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/orders" className="dropdown-item d-flex align-items-center py-1 px-3" style={{fontSize: "0.95rem"}}>
+                  <FiBox className="me-2 text-muted" style={{fontSize: "1rem"}} /> My orders
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/wishlist" className="dropdown-item d-flex align-items-center py-1 px-3" style={{fontSize: "0.95rem"}}>
+                  <FaRegHeart className="me-2 text-muted" style={{fontSize: "1rem"}} /> Wish list
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/address" className="dropdown-item d-flex align-items-center py-1 px-3" style={{fontSize: "0.95rem"}}>
+                  <GrLocation className="me-2 text-muted" style={{fontSize: "1rem"}} /> Saved address
+                </NavLink>
+              </li>
+              <li><hr className="dropdown-divider my-1" /></li>
+              <li>
+                <div className="dropdown-item d-flex align-items-center justify-content-between py-1 px-3" style={{cursor: "default", fontSize: "0.95rem"}}>
+                  <div className="d-flex align-items-center"><BsSun className="me-2 text-muted" style={{fontSize: "1rem"}} /> Dark Theme</div>
+                  <div className="form-check form-switch m-0">
+                    <input className="form-check-input" type="checkbox" role="switch" />
+                  </div>
+                </div>
+              </li>
+              <li><hr className="dropdown-divider my-1" /></li>
+              <li>
+                <NavLink to="/login" className="dropdown-item d-flex align-items-center text-danger py-1 px-3" style={{fontSize: "0.95rem"}}>
+                  <FiLogOut className="me-2" style={{transform: "rotate(180deg)", fontSize: "1rem"}} /> Log out
+                </NavLink>
+              </li>
+            </ul>
+          </div>
 
           {/* CART */}
           <button className="icon-btn">
@@ -93,7 +135,7 @@ import '../../assets/styles/Navbar.css'
               <IoMdCart />
             </button>
 
-            <NavLink to="/signup" className="icon-btn text-dark" >
+            <NavLink to="/profile" className="icon-btn">
               <FaUserCircle />
             </NavLink>
           </div>

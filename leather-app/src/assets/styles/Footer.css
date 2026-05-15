@@ -42,6 +42,23 @@ footer{
     opacity: 0.8;
 }
 
+@media(max-width:768px){
+    footer p, 
+    footer .footer-link a {
+        font-size: 0.85rem;
+    }
+    footer h5 {
+        font-size: 1.1rem;
+    }
+    footer h6 {
+        font-size: 0.95rem;
+        margin-top: 15px;
+    }
+    .social-icons {
+        font-size: 1.3rem;
+    }
+}
+
 @media(max-width:400px){
     .footer-end{
         display: flex;
