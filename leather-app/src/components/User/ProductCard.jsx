@@ -1,14 +1,9 @@
 import { IoMdCart } from "react-icons/io";
-
-// import '../assets/styles/productCard.css'
-
 import '../../assets/styles/productCard.css'
-// >>>>>>>> b2dde8ac3872c5cfcb51a7ade4b0b18d213de40d:leather-app/src/components/User/ProductCard.jsx
 import 'bootstrap-icons/font/bootstrap-icons.css';
-
-export const ProductCard = () => {
+import { MdOutlineShoppingCart } from "react-icons/md";
+const ProductCard = () => {
   const productCard = [
-    {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
@@ -29,17 +24,17 @@ export const ProductCard = () => {
                     <div className="card-body ">
                       <div className="d-flex  justify-content-between pt-2">
                         <h6 className="card-title">{pro.name}</h6>
-                        <span>⭐ {pro.rating}</span>
+                        <span>⭐ {pro.rating}</span> 
                       </div>
-                      <div className="price-details d-flex gap-3 pt-2">
-                      <p>${pro.price} <span><del>${pro.realPrice}</del></span></p>    
-                      <span><b>{pro.offer}off</b></span>
+                      <div className="price-details d-flex align-items-center gap-5 pt-1">
+                      <p className="mb-1" style={{color:'#1A1A1A', fontWeight:'600'}}>₹{pro.price} <span> <del  style={{color:'#7d7d7dff', fontWeight:'500'}}>₹{pro.realPrice}</del></span></p>    
+                      <span className="mb-1"><b>{pro.offer}off</b></span>
                       </div>
-                      <div className="d-flex gap-3 pt-2">
-                        <button className="icon-btn">
-                          <IoMdCart />
+                      <div className="d-flex gap-3 pt-1">
+                         <a href="#" className="btn  ">Buy Now</a>
+                        <button className="icon-btn" style={{  border: "1px solid #8B5CF6" ,color:"#8B5CF6",fontSize: "1.4rem"}} >
+                          <MdOutlineShoppingCart />
                         </button>
-                        <a href="#" className="btn  ">Buy Now</a>
                       </div>
                       <div className="wishlist"><button><i className="bi bi-heart heart-icon"></i></button></div>
                     </div>
@@ -51,3 +46,5 @@ export const ProductCard = () => {
     </>
   )
 }
+
+export default ProductCard;

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import '../../assets/styles/Faq.css'
+import { IoIosArrowDown } from "react-icons/io";
 
 
 export const Faq = () => {
@@ -67,9 +68,9 @@ export const Faq = () => {
 
   return (
     <>
-      <section className="faq-section container ">
+      <section className="faq-section container  "  id="faq-section">
         
-          <div className="faq-title text-center">
+          <div className="faq-title text-center"  >
             <h3>Frequently Asked Questions</h3>
             <p>
               Everything you need to know about our leather products and services.
@@ -85,7 +86,7 @@ export const Faq = () => {
                 <div className="faq-question" onClick={() => toggleFaq(index)}>
                   <h5>{item.question}</h5>
 
-                  <div className="faq-icon">+</div>
+                  <div className="faq-icon"><span><IoIosArrowDown /></span></div>
                 </div>
 
                 <div className="faq-answer">
@@ -99,3 +100,4 @@ export const Faq = () => {
     </>
   );
 };
+

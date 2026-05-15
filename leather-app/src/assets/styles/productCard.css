@@ -56,13 +56,15 @@
 }
 
 .card-body h6{
-    font-weight: bolder;
+    font-weight: 500;
     font-size: 1.1rem;
+    color: black;
 }
 
 .card-body p{
     font-weight: bold;
     margin-bottom: 0;
+    
 }
 
 .card-body span del{
@@ -72,13 +74,14 @@
 
 .card-body span b{
     color: green;
+    font-weight: 400;
 }
 
 .card-body a{
     color: var(--white-color);
     background-color: var(--levender);
     width: 100%;
-    border-radius: 20px;
+    border-radius: 7px;
 }
 
 .card-body .btn:hover{
@@ -91,11 +94,12 @@
 
 .icon-btn{
     border: none;
-    border-radius: 50%;
+    border-radius: 10%;
     background-color: #f3f3f3;
     display: flex;
     align-items: center;
     justify-content: center;
+  
 }
 
 

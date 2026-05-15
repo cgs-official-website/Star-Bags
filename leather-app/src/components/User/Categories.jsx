@@ -1,66 +1,46 @@
-import React, { useState } from "react";
 
-import { Navbar } from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import { ProductCard } from "../components/User/ProductCard";
+import { BiSolidWallet } from "react-icons/bi";
+import { GiSchoolBag, GiBelt } from "react-icons/gi";
 
-import Filtersidebar from "../components/User/Filtersidebar";
-import FilterButton from "../components/User/FilterButton";
+import "../../../src/assets/styles/Categories.css"
 
-import "../assets/styles/allproducts.css";
-import "../assets/styles/filterbutton.css";
-
-export const Allproducts = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const [filters, setFilters] = useState({
-    category: "",
-    size: "",
-    pattern: "",
-    colors: [],
-    priceRange: [0, 860],
-  });
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
-  const handleApply = () => {
-    console.log(filters);
-    setIsSidebarOpen(false); // close sidebar after applying
-  };
+export const Categories = () => {
+  const categories = [
+    {
+      name: "Belts",
+      icon: <GiBelt />,
+    },
+    {
+      name: "Bags",
+      icon: <GiSchoolBag />,
+    },
+    {
+      name: "Wallets",
+      icon: <BiSolidWallet />,
+    },
+  ];
 
   return (
-    <>
-      <Navbar />
+    <section className="categories-section">
+      <div className="container">
+        <h1 className="category-title">Categories</h1>
 
-      <div className="all-products-page">
-        {/* TOP SECTION */}
-        <div className="all-products-header">
-          <h1>All Products</h1>
-          <FilterButton toggleSidebar={toggleSidebar} isOpen={isSidebarOpen} />
-        </div>
-
-        {/* MAIN CONTENT */}
-        <div className={`products-layout ${isSidebarOpen ? "sidebar-open" : ""}`}>
-          {/* FILTER SIDEBAR - only when open */}
-          {isSidebarOpen && (
-            <Filtersidebar
-              filters={filters}
-              onChange={setFilters}
-              onApply={handleApply}
-              isOpen={isSidebarOpen}
-            />
-          )}
-
-          {/* PRODUCT CONTENT */}
-          <div className="products-content">
-            <div className={`product-grid ${isSidebarOpen ? "three-grid" : "four-grid"}`}>
-              <ProductCard />
+        <div className="categories-wrapper">
+          {categories.map((cat, index) => (
+            
+            <div key={index} className="category-card">
+              {/* ICON */}
+              <div className="category-icon">
+                <a href="#">{cat.icon}</a>
+              </div>
+              
+              {/* NAME */}
+              <h5>{cat.name}</h5>
             </div>
-          </div>
+          ))}
         </div>
       </div>
+    </section>
 
-      <Footer />
-    </>
   );
 };
