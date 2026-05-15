@@ -29,7 +29,7 @@ import '../../assets/styles/Navbar.css'
           </form>
 
           {/* USER */}
-          <NavLink to="/signup" className="icon-btn text-dark" >
+          <NavLink to={"/signup"} className="icon-btn text-dark" >
               <FaUserCircle />
             </NavLink>
 

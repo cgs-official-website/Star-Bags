@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TbTruckDelivery } from "react-icons/tb";
-// import { CiCirclePlus } from "react-icons/ci";
-import { FaPlusCircle } from "react-icons/fa";
+import { GiPartyPopper } from "react-icons/gi";
+import { NavLink } from "react-router-dom";
 import {
   FaRegHeart,
   FaHeart,
@@ -9,16 +9,15 @@ import {
   FaPlus,
   FaMinus,
   // FaTruck,
-  FaRegCopy,
+  
 } from "react-icons/fa";
 
 import Navbar from "../components/User/Navbar";
 import Footer from "../components/User/Footer";
 
 import "../assets/styles/Cart.css";
-import { NavLink } from "react-router-dom";
 
-const CartPage = () => {
+const BillAddress = () => {
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -26,7 +25,7 @@ const CartPage = () => {
       price: 120,
       oldPrice: 120,
       discount: "20% off",
-      image:"./src/assets/images/product.png",
+      image: "./src/assets/images/product.png",
       qty: 1,
       rating: 4.2,
       wishlist: false,
@@ -37,7 +36,7 @@ const CartPage = () => {
       price: 120,
       oldPrice: 120,
       discount: "20% off",
-      image:"./src/assets/images/bag.png",
+      image: "./src/assets/images/bag.png",
       qty: 1,
       rating: 4.2,
       wishlist: true,
@@ -48,7 +47,7 @@ const CartPage = () => {
       price: 120,
       oldPrice: 120,
       discount: "20% off",
-      image:"./src/assets/images/belt.png",
+      image: "./src/assets/images/belt.png",
       qty: 1,
       rating: 4.2,
       wishlist: false,
@@ -59,39 +58,14 @@ const CartPage = () => {
       price: 120,
       oldPrice: 120,
       discount: "20% off",
-      image:"./src/assets/images/wallet.png",
+      image: "./src/assets/images/wallet.png",
       qty: 1,
       rating: 4.2,
       wishlist: false,
     },
   ]);
 
-  const coupons = [
-    {
-      id: 1,
-      offer: "30% off",
-      code: "PRO456DFR",
-      save: "₹45",
-      description:
-        "If you want to Claim Coupon Add minimum $5999 Product, If not , you can’t claim this coupon",
-    },
-    {
-      id: 2,
-      offer: "30% off",
-      code: "PRO456DFR",
-      save: "₹45",
-      description:
-        "If you want to Claim Coupon Add minimum $5999 Product, If not , you can’t claim this coupon",
-    },
-    {
-      id: 3,
-      offer: "30% off",
-      code: "PRO456DFR",
-      save: "₹45",
-      description:
-        "If you want to Claim Coupon Add minimum $5999 Product, If not , you can’t claim this coupon",
-    },
-  ];
+ 
 
   const increaseQty = (id) => {
     setCartItems((prev) =>
@@ -109,10 +83,6 @@ const CartPage = () => {
     );
   };
 
-  const removeItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
   const toggleWishlist = (id) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -127,21 +97,19 @@ const CartPage = () => {
 
       <div className="cart-page">
         <h2 className="cart-title">
-          Your cart{" "}
-          <span className="cart-count">({cartItems.length} items)</span>
+          Billing and Address
         </h2>
-        <p className="cart-subtitle">
-          Review your items and proceed to checkout
-        </p>
-        <div className="cart-wrapper">
+        <NavLink className="back-btn" to={"/cart"}  >
+          Back
+        </NavLink>
+        <div className="cart-wrapper mt-5">
           {/* LEFT SECTION */}
           <div className="cart-left">
             {/* CART ITEMS */}
             <div className="cart-items">
               {cartItems.map((item) => (
                 <div key={item.id} className="cart-card">
-                  {/* CHECKBOX */}
-                  <input type="checkbox" defaultChecked className="cart-check" />
+                  
 
                   {/* IMAGE */}
                   <div className="cart-image">
@@ -182,56 +150,46 @@ const CartPage = () => {
                         <div className="price-row">
                           <h5 className="current-price">₹ {item.price}</h5>
 
-                        <span className="old-price">₹ {item.oldPrice}</span>
+                          <span className="old-price">₹ {item.oldPrice}</span>
 
-                        <span className="discount">{item.discount}</span>
+                          <span className="discount">{item.discount}</span>
                         </div>
 
                         {/* QTY */}
-                      <div className="qty-box">
-                        <button
-                          onClick={() => decreaseQty(item.id)}
-                          className="qty-btn"
-                        >
-                          <FaMinus />
-                        </button>
+                        <div className="qty-box">
+                          <button
+                            onClick={() => decreaseQty(item.id)}
+                            className="qty-btn"
+                          >
+                            <FaMinus />
+                          </button>
 
-                        <div className="qty-number">{item.qty}</div>
+                          <div className="qty-number">{item.qty}</div>
 
-                        <button
-                          onClick={() => increaseQty(item.id)}
-                          className="qty-btn"
-                        >
-                          <FaPlus />
-                        </button>
-                      </div>
+                          <button
+                            onClick={() => increaseQty(item.id)}
+                            className="qty-btn"
+                          >
+                            <FaPlus />
+                          </button>
+                        </div>
                       </div>
 
                       <p className="pattern-text">Pattern : Leather</p>
 
                       <div className="cod-box">
                         {/* <FaTruck /> */}
-                        
-                        <p><span><TbTruckDelivery /></span> Cash On Delivery Available</p>
+
+                        <p>
+                          <span>
+                            <TbTruckDelivery />
+                          </span>{" "}
+                          Cash On Delivery Available
+                        </p>
                       </div>
                     </div>
 
-                    {/* BOTTOM */}
-                    <div className="cart-bottom">
-                      {/* BUTTONS */}
-                      <div className="cart-buttons">
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="remove-btn"
-                        >
-                          Remove
-                        </button>
-
-                        <button className="buy-btn">Buy this now</button>
-                      </div>
-
-                      
-                    </div>
+                    
                   </div>
                 </div>
               ))}
@@ -265,56 +223,15 @@ const CartPage = () => {
                 <span>₹240</span>
               </div>
 
-
               <div className="total-row">
                 <span>Total</span>
 
                 <span className="total-price">₹1000.00</span>
               </div>
 
-              <NavLink to={"/checkout"} className="checkout-btn text-decoration-none ">Proceed to checkout →</NavLink>
+              <h4 className="save-content btn"><GiPartyPopper /> Yay! you saved ₹500.00 </h4>
             </div>
 
-            {/* APPLY COUPON */}
-            <div className="coupon-section">
-              <h5 className="coupon-title">Apply coupon</h5>
-
-              <div className="coupon-input-box">
-                <input
-                  type="text"
-                  placeholder="Enter coupon code"
-                  className="coupon-input"
-                />
-
-                <button className="apply-btn">Apply</button>
-              </div>
-
-              {/* COUPON LIST */}
-              <div className="coupon-list">
-                {coupons.map((coupon) => (
-                  <div key={coupon.id} className="coupon-card">
-                    <div className="coupon-top">
-                      <span className="offer-tag">{coupon.offer}</span>
-
-                      <button className="coupon-apply-btn">Apply</button>
-                    </div>
-
-                    <div className="coupon-code">
-                      <span className="code-text">{coupon.code}</span>
-
-                      <FaRegCopy />
-                    </div>
-
-                    <p className="save-text">Save ₹45 on this order</p>
-
-                    <hr style={{ marginBottom: "15px" }} />
-
-                    <p className="coupon-description">{coupon.description}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="more-coupon"><FaPlusCircle /> More Coupons</p>
-            </div>
           </div>
         </div>
       </div>
@@ -324,4 +241,4 @@ const CartPage = () => {
   );
 };
 
-export default CartPage;
+export default BillAddress;

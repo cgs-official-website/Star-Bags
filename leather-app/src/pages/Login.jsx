@@ -77,7 +77,7 @@ const Login = () => {
               </div>
 
               {/* FORGOT PASSWORD  */}
-              <div className="forgot-password my-3 text-end">
+              <div className="forgot-password my-2 text-end">
                 <NavLink to={"/forgotPassword"} className="navigate">Forgot password?</NavLink>
               </div>
               

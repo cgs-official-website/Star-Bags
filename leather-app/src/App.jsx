@@ -2,7 +2,7 @@ import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
 import Home from './pages/Home';
 import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
+// import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import ProductDetails from './pages/ProductDetails';
 import WishList from './pages/WishList';
@@ -24,6 +24,9 @@ import AdminSettings from './pages/Admin/Settings';
 import ReportAnalysis from './pages/Admin/ReportAnalysis';
 import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
+import BillAddress from './pages/BillAddress';
+// import CartPage from './pages/Cart';
+// import YourCart from './components/User/YourCart';
 
 const App = () => {
   return (
@@ -35,8 +38,9 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword/>} />
         <Route path="/resetPassword" element={<ResetPassword/>} />
-        {/* <Route path="/login" element={<Login />} /> */}
-        <Route path="/checkout" element={<Checkout />} />
+        {/* <Route path="/checkout" element={<Checkout />} /> */}
+        <Route path="/checkout" element={<BillAddress />} />
+        {/* <Route path="/yourCart" element={<YourCart/>} /> */}
         <Route path="/orders" element={<Orders />} />
         <Route path="/contact" element={<Contact />} />
         {/* <Route path="/allProduct" element={<Product />} /> */}
