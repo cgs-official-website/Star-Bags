@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../assets/styles/FilterSidebar.css";
+import "../../assets/styles/filtersidebar.css";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 const CATEGORIES = ["Bags", "Wallet", "Belt"];
@@ -53,7 +53,12 @@ function FilterDropdown({ label, options, value, onChange }) {
 }
 
 // ── Main FilterSidebar ────────────────────────────────────────────────────────
-export default function FilterSidebar({ filters, onChange, onApply }) {
+export default function FilterSidebar({
+  filters,
+  onChange,
+  onApply,
+  isOpen
+}) {
   const { category, size, pattern, colors, priceRange } = filters;
 
   const toggleColor = (name) => {
@@ -64,7 +69,7 @@ export default function FilterSidebar({ filters, onChange, onApply }) {
   };
 
   return (
-    <aside className="fs-sidebar">
+    <aside className={`fs-sidebar ${isOpen ? "open" : ""}`}>
       {/* Title */}
       <h6 className="fs-main-title">Product Categories</h6>
 

@@ -210,12 +210,13 @@
 .fs-apply-btn:hover {
   background: var(--text-h);
   transform: translateY(-1px);
+  
 }
 
 /* ── Responsive: hide sidebar on mobile, show as overlay toggle ── */
 @media (max-width: 768px) {
   .fs-sidebar {
-    width: 100%;
+    width: 50%;
     position: fixed;
     top: 0;
     left: 0;

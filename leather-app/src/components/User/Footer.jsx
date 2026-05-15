@@ -1,6 +1,9 @@
-import '../assets/styles/Footer.css'
+import '../../assets/styles/Footer.css'
 import { FaLocationDot } from "react-icons/fa6";
-import { FaInstagram ,FaTwitter,FaWhatsapp , } from "react-icons/fa";
+import { FaInstagram ,FaWhatsapp , } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
+
  
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -9,12 +12,15 @@ const Footer = () => {
       <div  className="container">
         <div className=" row py-3 " >
           <div className="col-lg-4 col-12 details pe-4">
-            <h5>Krish Leather factory</h5>
+            <div className='d-flex align-items-end footer-logo gap-1' >
+              <img src="../src/assets/images/brand-logo-light.png" alt="" height={"40px"}/>
+              <h5>Star Bags</h5>
+            </div>
             <p>Crafted with passion, our leather goods are designed to bring elegance and durability to your everyday life. We believe in quality that lasts a lifetime.</p>
             <ul className="social-icons">
               <li><a href="#"><FaInstagram /></a></li>
               <li><a href="#"><FaWhatsapp /></a></li>
-              <li><a href="#"><FaTwitter /></a></li>
+              <li><a href="#"><FaXTwitter /></a></li>
             </ul>
           </div>
           <div className="col-lg-2 col-6  product-details">
@@ -40,17 +46,23 @@ const Footer = () => {
               <li><a href="#">COD</a></li>
             </ul>
           </div>
-          <div className="col-lg-2 col-6 address  " >
-            <h6>Address of Company,</h6>
-            <p><FaLocationDot />Krish Leather factory
-            No.24, Anna Salai, T.Nagar,
-            Chennai, TamilNadu-600017,
-            India.</p>
+          <div className="col-lg-2 col-6 address   " >
+            <h6 className='text'>Address of Company,</h6>
+            <div className='d-flex gap-2'>
+              <span><FaLocationDot /></span>
+              <div>
+                <p>Star Bags <br />
+                  No.24, Anna Salai, T.Nagar,
+                  Chennai, TamilNadu-600017,
+                  India.</p>
+              </div>
+              
+            </div>
           </div>
         </div>
-        <div className='d-md-flex justify-content-between border-top text-center py-3'>
-          <h5>Krish Leather factory</h5>
-          <div className='d-md-flex gap-5 '>
+        <div className='d-flex justify-content-between border-top text-center py-3  footer-end'>
+          <h6>Star Bags</h6>
+          <div className='d-flex gap-3 policy'>
             <p>privacy policy </p>
             <p>Copyright&copy;{year}</p> 
           </div>

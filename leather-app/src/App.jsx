@@ -1,12 +1,14 @@
+import React from 'react'
+import { Orders } from "./pages/Orders";
 
-import { ProductDetails } from "./pages/ProductDetails"
 
 
-const App = () => {
+
+
+ const App = () => {
   return (
     <>
-      <ProductDetails/>
-    
+    <Orders/>
     </>
   )
 }

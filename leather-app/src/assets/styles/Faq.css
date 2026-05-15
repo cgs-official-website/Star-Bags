@@ -2,6 +2,13 @@
     padding: 90px 0;
 }
 
+
+.faq-container{
+   box-shadow: 0 10px 22px var(--hover-color);
+    border-radius: 20px;
+    /* border: 1px solid; */
+
+}
 /* TITLE */
 
 .faq-title{
@@ -31,7 +38,8 @@
 /* WRAPPER */
 
 .faq-wrapper{
-    max-width: 900px;
+    /* margin: ; */
+    /* max-width: 900px; */
     margin-inline: auto;
 }
 

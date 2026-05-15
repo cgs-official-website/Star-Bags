@@ -1,10 +1,14 @@
 import { IoMdCart } from "react-icons/io";
-import '../assets/styles/productCard.css'
-// import { FaRegHeart } from "react-icons/fa";
+
+// import '../assets/styles/productCard.css'
+
+import '../../assets/styles/productCard.css'
+// >>>>>>>> b2dde8ac3872c5cfcb51a7ade4b0b18d213de40d:leather-app/src/components/User/ProductCard.jsx
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 export const ProductCard = () => {
   const productCard = [
+    {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},
