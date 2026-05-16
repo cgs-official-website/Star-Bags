@@ -1,6 +1,8 @@
 import  { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
-import loginImage from "../assets/images/login-image.png";
+import loginImage from "../../assets/images/login-image.png";
+import "../../assets/styles/Login.css";
+
 
 function ForgetPassword() {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -79,9 +81,10 @@ function ForgetPassword() {
 
         {/* Right Side: OTP Form */}
         <div
-          className="col-12 col-lg-5 p-5 h-100"
+          className="col-12 col-lg-5 p-5 h-100 d-flex flex-column gap-4  "
           style={{ overflowY: "auto" }}
         >
+          {/* Back to login */}
           <Link
               to="/login"
               className="d-inline-flex align-items-center gap-2 text-decoration-none mb-5 fw-bolder"
@@ -91,10 +94,9 @@ function ForgetPassword() {
               Back to login
             </Link>
           <div
-            className="w-100"
-            style={{ maxWidth: "520px", padding: "1.5rem" }}
-          >
-            {/* Back to login */}
+            className="w-100 align-self-center  "
+            style={{ maxWidth: "520px",  }}
+          >      
             
 
             <h2
@@ -141,13 +143,13 @@ function ForgetPassword() {
               ))}
             </div>
             <span
-              style={{ fontSize: "14px", color: "#ef4444", fontWeight: "600" }}
+              style={{ fontSize: "14px", color: "#ef4444",fontWeight: "600" }}
             >
               The code you entered is incorrect. Please try again.
             </span>
             {/* Resend + Timer */}
-            <div className="d-flex justify-content-between align-items-center mb-4 fw-bolder" style={{ width: '320px' }}>
-              <span style={{ fontSize: "13px", color: "#6b7280" }}>
+            <div className="d-flex justify-content-between align-items-center mb-4 fw-bolder" style={{ width: '320px',paddingTop:"10px" }}>
+              <span style={{ fontSize: "13px", color: "#6b7280"  }}>
                 Didn't receive it?{" "}
                 <button
                   type="button"

@@ -2,9 +2,9 @@ import { CgAsterisk } from "react-icons/cg";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
-import "../assets/styles/CreateAccount.css";
+import "../../assets/styles/CreateAccount.css";
 
-import LoginImage from "../assets/images/login-image.png";
+import LoginImage from "../../assets/images/login-image.png";
 import { NavLink } from "react-router-dom";
 
 const CreateAccount = () => {

@@ -64,9 +64,11 @@
     letter-spacing: 2px;
     margin-bottom: 22px;
 }
+
 .hero-content .hero-design{
     color:var(--levender-light);
 }
+
 .hero-content h2{
     font-size: 3.5rem;
     font-weight: 600;
@@ -123,7 +125,7 @@
     }
 
     .hero-content h2{
-        font-size: 2.5rem;
+        font-size: 2.3rem;
     }
 
     .hero-content p{
@@ -146,7 +148,7 @@
     }
 
     .hero-content h2{
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
 
     .hero-content p{
@@ -183,7 +185,7 @@
     }
 
     .hero-content h2{
-        font-size: 1.4rem;
+        font-size: 1.2rem;
     }
 
     .hero-content p{

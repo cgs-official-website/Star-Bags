@@ -103,12 +103,30 @@
     justify-content: center;
     font-size: 1.1rem;
     transition: 0.3s;
+    color: black;
 }
 
 .icon-btn:hover {
     background: var(--levender);
     color: white;
 }
+
+/* Custom Dropdown Styling */
+.dropdown-menu .dropdown-item.active, 
+.dropdown-menu .dropdown-item:active {
+    background-color: var(--levender);
+    color: white !important;
+}
+
+.dropdown-menu .dropdown-item.active * {
+    color: white !important;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f8f9fa;
+    color: var(--levender);
+}
+
 
 /* TOGGLE BUTTON */
 
@@ -119,11 +137,16 @@
     background: #f1f1f1 !important;
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 20%;
     font-size: 1.3rem;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.navbar-toggler:hover {
+    background: var(--levender);
+    color: white;
 }
 
 .navbar-toggler:focus,
@@ -179,6 +202,18 @@
         margin-top: 10px;
     }
 
+    .nav-links .nav-item {
+        border-bottom: 1px solid #e0e0e0;
+        /* padding-bottom: 5px; */
+        /* margin-bottom: 5px; */
+    }
+
+    .nav-links .nav-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
     .nav-links .nav-link:hover {
         background:var(--levender);
         color: white !important;
@@ -221,7 +256,33 @@
 }
 
 @media (max-width: 400px) {
-    .mobile-search {
-        width: 140px;
+    .logo {
+        height: 38px;
     }
+    .mobile-top {
+        gap: 3px;
+    }
+    .mobile-search {
+        width: 110px;
+    }
+    .nav-form input {
+        height: 32px;
+        padding: 0 32px 0 10px;
+        font-size: 12px;
+    }
+    .nav-form button {
+        right: 10px;
+        font-size: 0.9rem;
+    }
+    .icon-btn,
+    .navbar-toggler {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+    .dropdown-menu-end {
+        right: -40px !important; /* adjust dropdown position on tiny screens to avoid overflow */
+        
+    }
+   
 }

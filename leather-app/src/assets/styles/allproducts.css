@@ -1,0 +1,193 @@
+/* Page wrapper */
+.all-products-page {
+  padding: 2rem;
+  background: #fff;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Header */
+.all-products-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.all-products-header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Layout */
+.products-layout {
+  display: flex;          /* put sidebar + content side by side */
+  width: 100%;            /* take full width */
+  min-height: 100vh;      /* avoid clipping vertically */
+}
+
+/* Sidebar */
+.filtersidebar {
+  flex: 0 0 250px; 
+  overflow-y: auto;
+  width: 250px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.products-layout:not(.sidebar-open) .filtersidebar {
+  transform: translateX(-110%);
+  opacity: 0;
+  position: absolute;
+}
+
+.products-layout.sidebar-open .filtersidebar {
+  transform: translateX(0);
+  opacity: 1;
+  position: relative;
+}
+
+/* Product grid */
+.products-content {
+  width: 100%;
+}
+.products-content .ProductCard-section {
+  width: 100%;
+  overflow: auto;
+  flex: 1;
+}
+
+.products-content .ProductCard-section .container {
+  display: grid !important;
+  gap: 20px; /* tighter spacing */
+  grid-template-columns: repeat(4, 1fr); /* 4 per row */
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .products-content .ProductCard-section .container {
+    grid-template-columns: repeat(3, 1fr)!important;
+  }
+}
+@media (max-width: 768px) {
+  .products-content .ProductCard-section .container {
+    grid-template-columns: repeat(2, 1fr)!important;
+  }
+}
+@media (max-width: 480px) {
+  .products-content .ProductCard-section .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Product card */
+.product-card {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  min-height: 340px; /* consistent height */
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+  width: 100%;
+  height: 200px; /* fixed image height */
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.6rem;
+}
+
+.product-card h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0.5rem 0;
+}
+
+.product-card .price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.product-card .old-price {
+  font-size: 0.85rem;
+  color: #888;
+  text-decoration: line-through;
+  margin-left: 0.4rem;
+}
+
+.product-card .discount {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #22c55e;
+  margin-left: 0.4rem;
+}
+
+.product-card button {
+  margin-top: 0.8rem;
+  padding: 0.6rem 1rem;
+  background: #7c6ee0;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.product-card button:hover { background: #4f3cc9; }
+
+/* -------------------------------
+   Personal card size overrides
+   ------------------------------- */
+.products-content .ProductCard-section .container .card {
+  min-width: 18rem !important;
+  max-width: 18rem !important;
+  height: auto !important;
+  padding: 1.2rem !important;
+}
+
+.products-content .ProductCard-section .container .card img {
+  height: 240px !important;
+  object-fit: cover !important;
+}
+
+/* Wishlist button on product cards */
+.products-content .ProductCard-section .container .card .wishlist {
+  position: absolute;
+  top: 35px;
+  right: 35px;
+}
+
+.products-content .ProductCard-section .container .card .wishlist button {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.products-content .ProductCard-section .container .card .wishlist .heart-icon {
+  color: red;
+  font-size: 18px;
+  transition: color 0.3s ease;
+}
+
+.products-content .ProductCard-section .container .card .wishlist .heart-icon.active {
+  color: red; /* active state */
+}

@@ -1,0 +1,182 @@
+/* ═══════════════════════════════════════════════════════
+   ReviewModal.css  –  "Write Your Reviews" popup styles
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Overlay ─────────────────────────────────────────── */
+.rm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: rm-fadeIn 0.2s ease;
+}
+
+@keyframes rm-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal card ──────────────────────────────────────── */
+.rm-modal {
+  position: relative;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 2rem 2.2rem 1.8rem;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  animation: rm-slideUp 0.25s ease;
+}
+
+@keyframes rm-slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Close button ────────────────────────────────────── */
+.rm-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.1rem;
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.rm-close:hover {
+  color: #333;
+}
+
+/* ── Title ───────────────────────────────────────────── */
+.rm-title {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 1.4rem;
+}
+
+/* ── Labels ──────────────────────────────────────────── */
+.rm-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin-bottom: 0.55rem;
+}
+
+/* ── Stars ───────────────────────────────────────────── */
+.rm-star-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 0.2rem;
+}
+
+.rm-star {
+  font-size: 2.1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.rm-star:hover {
+  transform: scale(1.15);
+}
+
+.rm-star.filled {
+  color: #facc15;
+}
+
+.rm-star.empty {
+  color: #d1d5db;
+}
+
+/* ── Textarea ────────────────────────────────────────── */
+.rm-textarea {
+  width: 100%;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  font-size: 0.88rem;
+  color: #444;
+  resize: vertical;
+  min-height: 120px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  background: #fafafa;
+}
+
+.rm-textarea:focus {
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.15);
+  background: #fff;
+}
+
+/* ── Action buttons ──────────────────────────────────── */
+.rm-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.4rem;
+}
+
+.rm-cancel {
+  flex: 1;
+  background: #fff;
+  border: 2px solid #8B5CF6;
+  border-radius: 10px;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.rm-cancel:hover {
+  background: #f3f0ff;
+}
+
+.rm-submit {
+  flex: 1;
+  background: #8B5CF6;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.rm-submit:hover {
+  background: #7c3aed;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 480px) {
+  .rm-modal {
+    padding: 1.5rem 1.2rem 1.4rem;
+    border-radius: 14px;
+  }
+
+  .rm-title {
+    font-size: 1.2rem;
+  }
+
+  .rm-star {
+    font-size: 1.7rem;
+  }
+
+  .rm-actions {
+    flex-direction: column;
+  }
+}
