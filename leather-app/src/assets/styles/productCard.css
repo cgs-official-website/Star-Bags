@@ -10,6 +10,7 @@
     overflow-y: hidden;
     scrollbar-width: none;
     scroll-behavior: smooth;
+    
 }
 
 .ProductCard-section::-webkit-scrollbar{
@@ -108,6 +109,9 @@
     color: white;
 }
 
+
+
+
 /* WISHLIST */
 .wishlist{
     position: absolute;
@@ -158,12 +162,13 @@
     font-family: bootstrap-icons;
 }
 
+
 /* TABLET */
 @media (max-width: 992px){
 
     .ProductCard-section .container{
 
-        gap: 1rem;
+        gap: 2rem;
     }
 
     .card{

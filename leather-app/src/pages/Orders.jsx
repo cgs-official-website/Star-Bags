@@ -1,9 +1,17 @@
-import React from 'react';
 
-function Orders() {
+import React from 'react'
+import Navbar from "../components/User/Navbar";
+import Footer from "../components/User/Footer";
+import OrderCard from "../components/User/OrderCard";
+
+ const Orders = () => {
   return (
-    <div>Orders</div>
+    <>
+   
+    <OrderCard/>
+
+    </>
   )
 }
 
-export default Orders
+export default Orders;

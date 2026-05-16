@@ -8,6 +8,7 @@ import { NavLink } from "react-router-dom";
 import '../../assets/styles/Navbar.css'
 
  const Navbar = () => {
+
   return (
     <nav className="navbar navbar-expand-lg bg-white shadow-sm">
       <div className="container navbar-container">
@@ -74,6 +75,11 @@ import '../../assets/styles/Navbar.css'
               </li>
             </ul>
           </div>
+
+          {/* CART */}
+          <button className="icon-btn">
+            <IoMdCart />
+          </button>
 
           {/* CART */}
           <button className="icon-btn">

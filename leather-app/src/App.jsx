@@ -1,3 +1,5 @@
+
+import React from 'react'
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
 import Home from './pages/Home';
@@ -35,7 +37,12 @@ import ReportAnalysis from './pages/Admin/ReportAnalysis';
 import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
 
-const App = () => {
+
+
+
+
+
+ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -55,6 +62,7 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/address" element={<SavedAddress />} />
         <Route path="/track-order" element={<TrackOrder />} />
+
 
 
 

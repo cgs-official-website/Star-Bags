@@ -64,9 +64,11 @@
     letter-spacing: 2px;
     margin-bottom: 22px;
 }
+
 .hero-content .hero-design{
     color:var(--levender-light);
 }
+
 .hero-content h2{
     font-size: 3.5rem;
     font-weight: 600;
