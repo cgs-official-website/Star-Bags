@@ -26,28 +26,28 @@ function ProfileSideNav() {
         {/* Menu Items */}
         <ul className="profile-menu-list list-unstyled mb-0">
           <li>
-            <a href="/profile" className="profile-menu-link">
+            <NavLink to="/profile" className="profile-menu-link">
               <FaRegUserCircle className="menu-icon" />
               My profile
-            </a>
+            </NavLink>
           </li>
           <li>
-            <a href="#" className="profile-menu-link">
+            <NavLink to="/orders" className="profile-menu-link">
               <FiBox className="menu-icon" />
               My orders
-            </a>
+            </NavLink>
           </li>
           <li>
-            <a href="/wishlist" className="profile-menu-link">
+            <NavLink to="/wishlist" className="profile-menu-link">
               <FaRegHeart className="menu-icon" />
               Wish list
-            </a>
+            </NavLink>
           </li>
           <li>
-            <a href="/address" className="profile-menu-link">
+            <NavLink to="/address" className="profile-menu-link">
               <GrLocation className="menu-icon" />
               Saved address
-            </a>
+            </NavLink>
           </li>
           <li>
             <div className="profile-menu-link theme-toggle-item">

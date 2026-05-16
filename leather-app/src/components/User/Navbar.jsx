@@ -77,14 +77,9 @@ import '../../assets/styles/Navbar.css'
           </div>
 
           {/* CART */}
-          <button className="icon-btn">
+          <NavLink to="/cart" className="icon-btn">
             <IoMdCart />
-          </button>
-
-          {/* CART */}
-          <button className="icon-btn">
-            <IoMdCart />
-          </button>
+          </NavLink>
 
           {/* TOGGLE */}
           <button
@@ -102,21 +97,21 @@ import '../../assets/styles/Navbar.css'
           {/* NAV LINKS */}
           <ul className="navbar-nav mx-auto nav-links">
             <li className="nav-item">
-              <a className="nav-link" href="/">
+              <NavLink to="/" className="nav-link">
                 Home
-              </a>
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="/product">
+              <NavLink className="nav-link" to="/allProducts">
                 All Products
-              </a>
+              </NavLink>
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="/contact">
+              <NavLink className="nav-link" to="/contact">
                 Contact
-              </a>
+              </NavLink>
             </li>
           </ul>
 
@@ -137,9 +132,9 @@ import '../../assets/styles/Navbar.css'
               <IoNotificationsOutline />
             </button>
 
-            <button className="icon-btn">
+            <NavLink to="/cart" className="icon-btn">
               <IoMdCart />
-            </button>
+            </NavLink>
 
             <NavLink to="/profile" className="icon-btn">
               <FaUserCircle />

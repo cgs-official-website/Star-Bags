@@ -333,3 +333,11 @@
     margin-bottom: 0.5rem;
   }
 }
+
+/* ── Sticky Sidebar ───────────────────────────── */
+.wl-sidebar-sticky {
+  position: sticky;
+  top: 80px;
+  z-index: 2;
+  height: fit-content;
+}

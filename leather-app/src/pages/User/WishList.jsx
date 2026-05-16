@@ -1,22 +1,103 @@
-import React, { useState } from 'react';
-import "../assets/styles/WishList.css";
-import Navbar from '../components/User/Navbar';
-import Footer from '../components/User/Footer';
-import ProfileSideNav from '../components/User/Profile-Side-Nav';
-import { FaHeart, FaStar } from 'react-icons/fa';
-import { MdOutlineShoppingCart } from 'react-icons/md';
+import React, { useState } from "react";
+import "../../assets/styles/WishList.css";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProfileSideNav from "../../components/User/Profile-Side-Nav";
+import { FaHeart, FaStar } from "react-icons/fa";
+import { MdOutlineShoppingCart } from "react-icons/md";
 
 // ─── Mock wishlist data ───────────────────────────────────────────────────────
 const initialWishlist = [
-  { id: 1, image: '../src/assets/images/leather1.png', name: 'Leather Wallet', rating: 4.2, ratingCount: 120, price: 120, realPrice: 150, offer: '20%' },
-  { id: 2, image: '../src/assets/images/bag.png',      name: 'Leather Wallet', rating: 4.2, ratingCount: 98,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 3, image: '../src/assets/images/product.png',  name: 'Leather Wallet', rating: 4.2, ratingCount: 75,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 4, image: '../src/assets/images/wallet.png',   name: 'Leather Wallet', rating: 4.2, ratingCount: 60,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 5, image: '../src/assets/images/belt.png',     name: 'Leather Wallet', rating: 4.2, ratingCount: 88,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 6, image: '../src/assets/images/product.png',  name: 'Leather Wallet', rating: 4.2, ratingCount: 44,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 7, image: '../src/assets/images/bag.png',      name: 'Leather Wallet', rating: 4.2, ratingCount: 33,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 8, image: '../src/assets/images/leather1.png', name: 'Leather Wallet', rating: 4.2, ratingCount: 52,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 9, image: '../src/assets/images/wallet.png',   name: 'Leather Wallet', rating: 4.2, ratingCount: 19,  price: 120, realPrice: 150, offer: '20%' },
+  {
+    id: 1,
+    image: "../src/assets/images/leather1.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 120,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 2,
+    image: "../src/assets/images/bag.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 98,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 3,
+    image: "../src/assets/images/product.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 75,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 4,
+    image: "../src/assets/images/wallet.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 60,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 5,
+    image: "../src/assets/images/belt.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 88,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 6,
+    image: "../src/assets/images/product.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 44,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 7,
+    image: "../src/assets/images/bag.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 33,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 8,
+    image: "../src/assets/images/leather1.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 52,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 9,
+    image: "../src/assets/images/wallet.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    ratingCount: 19,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
 ];
 
 // ─── Single Wishlist Card ─────────────────────────────────────────────────────
@@ -72,7 +153,9 @@ function EmptyWishlist() {
       <FaHeart className="wl-empty-icon" />
       <h5>Your wishlist is empty</h5>
       <p>Browse our products and add items you love!</p>
-      <a href="/" className="btn wl-shop-btn">Shop Now</a>
+      <a href="/" className="btn wl-shop-btn">
+        Shop Now
+      </a>
     </div>
   );
 }
@@ -93,9 +176,8 @@ function WishList() {
         <h4 className="mb-3 fw-bold">Wishlist</h4>
 
         <div className="row align-items-start">
-
           {/* ── Sidebar (desktop only) ── */}
-          <div className="col-lg-3 mb-3 d-none d-lg-block">
+          <div className="col-lg-3 mb-3 d-none d-lg-block wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
@@ -106,12 +188,15 @@ function WishList() {
             ) : (
               <div className="wl-grid">
                 {wishlist.map((item) => (
-                  <WishlistCard key={item.id} item={item} onRemove={handleRemove} />
+                  <WishlistCard
+                    key={item.id}
+                    item={item}
+                    onRemove={handleRemove}
+                  />
                 ))}
               </div>
             )}
           </div>
-
         </div>
       </div>
 

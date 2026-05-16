@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import "../assets/styles/SavedAddress.css";
-import Navbar from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import ProfileSideNav from "../components/User/Profile-Side-Nav";
+import "../../assets/styles/SavedAddress.css";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import { MdEdit, MdLocationOn, MdAdd } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
 
@@ -68,8 +68,8 @@ function SavedAddress() {
                 mobile: formData.contact,
                 label: addr.label,
               }
-            : addr
-        )
+            : addr,
+        ),
       );
       setEditingId(null);
     } else {
@@ -106,7 +106,9 @@ function SavedAddress() {
     setShowForm(true);
     // Scroll to form smoothly
     setTimeout(() => {
-      document.getElementById("address-form-section")?.scrollIntoView({ behavior: "smooth" });
+      document
+        .getElementById("address-form-section")
+        ?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
 
@@ -116,7 +118,9 @@ function SavedAddress() {
     setShowForm((prev) => !prev);
     if (!showForm) {
       setTimeout(() => {
-        document.getElementById("address-form-section")?.scrollIntoView({ behavior: "smooth" });
+        document
+          .getElementById("address-form-section")
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   };
@@ -134,7 +138,6 @@ function SavedAddress() {
 
           {/* Main Content */}
           <div className="col-lg-8 col-12">
-
             {/* ── When addresses exist: show list + "Add New" toggle button ── */}
             {hasAddresses && (
               <div className="saved-address-card mb-3">
@@ -145,18 +148,34 @@ function SavedAddress() {
                     onClick={handleAddNew}
                   >
                     {showForm && editingId === null ? (
-                      <><IoMdClose /> Close</>
+                      <>
+                        <IoMdClose /> Close
+                      </>
                     ) : (
-                      <><MdAdd /> Add a New Address</>
+                      <>
+                        <MdAdd /> Add a New Address
+                      </>
                     )}
                   </button>
                 </div>
 
                 {/* Slide-down form */}
-                <div className={`address-form-collapse ${showForm ? "open" : ""}`}>
-                  <div id="address-form-section" className="address-form-box mb-4">
-                    <h6 className="fw-bold mb-3">{editingId ? "Edit Address" : "New Address"}</h6>
-                    <AddressForm formData={formData} onChange={handleChange} onSave={handleSave} onCancel={handleCancel} />
+                <div
+                  className={`address-form-collapse ${showForm ? "open" : ""}`}
+                >
+                  <div
+                    id="address-form-section"
+                    className="address-form-box mb-4"
+                  >
+                    <h6 className="fw-bold mb-3">
+                      {editingId ? "Edit Address" : "New Address"}
+                    </h6>
+                    <AddressForm
+                      formData={formData}
+                      onChange={handleChange}
+                      onSave={handleSave}
+                      onCancel={handleCancel}
+                    />
                   </div>
                 </div>
 
@@ -192,7 +211,13 @@ function SavedAddress() {
             {!hasAddresses && (
               <div className="saved-address-card">
                 <h5 className="fw-bold mb-3">Address</h5>
-                <AddressForm formData={formData} onChange={handleChange} onSave={handleSave} onCancel={handleCancel} noCancel />
+                <AddressForm
+                  formData={formData}
+                  onChange={handleChange}
+                  onSave={handleSave}
+                  onCancel={handleCancel}
+                  noCancel
+                />
               </div>
             )}
           </div>

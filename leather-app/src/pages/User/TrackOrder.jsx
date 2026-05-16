@@ -1,58 +1,141 @@
-import React, { useState } from 'react';
-import Navbar from '../components/User/Navbar';
-import Footer from '../components/User/Footer';
-import '../assets/styles/TrackOrder.css';
+import React, { useState } from "react";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import "../../assets/styles/TrackOrder.css";
 import {
-  FaStar, FaRegStar, FaHeart, FaRegHeart,
-  FaCheckCircle, FaTruck, FaBoxOpen, FaMapMarkerAlt,
-  FaPhoneAlt, FaDownload,
-} from 'react-icons/fa';
-import { MdOutlineShoppingCart, MdStorefront, MdCreditCard } from 'react-icons/md';
-import { TbTruckDelivery } from 'react-icons/tb';
-import { IoReceiptOutline } from 'react-icons/io5';
-import ReviewModal from '../components/User/ReviewModal';
+  FaStar,
+  FaRegStar,
+  FaHeart,
+  FaRegHeart,
+  FaCheckCircle,
+  FaTruck,
+  FaBoxOpen,
+  FaMapMarkerAlt,
+  FaPhoneAlt,
+  FaDownload,
+} from "react-icons/fa";
+import {
+  MdOutlineShoppingCart,
+  MdStorefront,
+  MdCreditCard,
+} from "react-icons/md";
+import { TbTruckDelivery } from "react-icons/tb";
+import { IoReceiptOutline } from "react-icons/io5";
+import ReviewModal from "../../components/User/ReviewModal";
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 const orderSteps = [
   {
     id: 1,
-    label: 'Order placed',
-    date: 'Tuesday, 28 Apr 13',
-    desc: 'Your order has been placed. \nItems from : leather M',
+    label: "Order placed",
+    date: "Tuesday, 28 Apr 13",
+    desc: "Your order has been placed. \nItems from : leather M",
     done: true,
   },
   {
     id: 2,
-    label: 'Order shipped',
-    date: '',
-    desc: 'Your order has been placed.\nPin receipt : 24m',
+    label: "Order shipped",
+    date: "",
+    desc: "Your order has been placed.\nPin receipt : 24m",
     done: true,
   },
   {
     id: 3,
-    label: 'Out for delivery',
-    date: '',
-    desc: 'Your order has been placed.\nPin receipt : 24m',
+    label: "Out for delivery",
+    date: "",
+    desc: "Your order has been placed.\nPin receipt : 24m",
     done: true,
   },
   {
     id: 4,
-    label: 'Delivered',
-    date: '',
-    desc: 'Your order has been placed.\nPin receipt : 24m',
+    label: "Delivered",
+    date: "",
+    desc: "Your order has been placed.\nPin receipt : 24m",
     done: false,
   },
 ];
 
 const suggestedProducts = [
-  { id: 1, image: '../src/assets/images/leather1.png', name: 'Leather Wallet', rating: 4.2, count: 120, price: 120, realPrice: 150, offer: '20%' },
-  { id: 2, image: '../src/assets/images/bag.png',      name: 'Leather Wallet', rating: 4.2, count: 98,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 3, image: '../src/assets/images/product.png',  name: 'Leather Wallet', rating: 4.2, count: 75,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 4, image: '../src/assets/images/wallet.png',   name: 'Leather Wallet', rating: 4.2, count: 60,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 5, image: '../src/assets/images/leather1.png', name: 'Leather Wallet', rating: 4.2, count: 44,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 6, image: '../src/assets/images/bag.png',      name: 'Leather Wallet', rating: 4.2, count: 33,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 7, image: '../src/assets/images/product.png',  name: 'Leather Wallet', rating: 4.2, count: 52,  price: 120, realPrice: 150, offer: '20%' },
-  { id: 8, image: '../src/assets/images/wallet.png',   name: 'Leather Wallet', rating: 4.2, count: 19,  price: 120, realPrice: 150, offer: '20%' },
+  {
+    id: 1,
+    image: "../src/assets/images/leather1.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 120,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 2,
+    image: "../src/assets/images/bag.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 98,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 3,
+    image: "../src/assets/images/product.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 75,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 4,
+    image: "../src/assets/images/wallet.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 60,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 5,
+    image: "../src/assets/images/leather1.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 44,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 6,
+    image: "../src/assets/images/bag.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 33,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 7,
+    image: "../src/assets/images/product.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 52,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
+  {
+    id: 8,
+    image: "../src/assets/images/wallet.png",
+    name: "Leather Wallet",
+    rating: 4.2,
+    count: 19,
+    price: 120,
+    realPrice: 150,
+    offer: "20%",
+  },
 ];
 
 // ─── Inline Star Display (read-only, for the rating card on the page) ─────────
@@ -60,14 +143,15 @@ function StarDisplay({ value, max = 5 }) {
   return (
     <div className="to-star-row">
       {Array.from({ length: max }).map((_, i) =>
-        i < value
-          ? <FaStar key={i} className="to-star filled" />
-          : <FaRegStar key={i} className="to-star empty" />
+        i < value ? (
+          <FaStar key={i} className="to-star filled" />
+        ) : (
+          <FaRegStar key={i} className="to-star empty" />
+        ),
       )}
     </div>
   );
 }
-
 
 // ─── Suggested Product Card ───────────────────────────────────────────────────
 function SuggestedCard({ item }) {
@@ -76,10 +160,14 @@ function SuggestedCard({ item }) {
     <div className="to-sug-card">
       <button
         className="to-sug-heart"
-        onClick={() => setWished(w => !w)}
+        onClick={() => setWished((w) => !w)}
         aria-label="Wishlist"
       >
-        {wished ? <FaHeart className="text-danger" /> : <FaRegHeart className="text-danger" />}
+        {wished ? (
+          <FaHeart className="text-danger" />
+        ) : (
+          <FaRegHeart className="text-danger" />
+        )}
       </button>
       <div className="to-sug-img-wrap">
         <img src={item.image} alt={item.name} className="to-sug-img" />
@@ -110,7 +198,7 @@ function SuggestedCard({ item }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 function TrackOrder() {
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
   const [userRating, setUserRating] = useState(4);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(4);
@@ -130,10 +218,8 @@ function TrackOrder() {
 
         {/* ═══ Main two-column layout ══════════════════════════════════════ */}
         <div className="to-main-grid">
-
           {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
           <div className="to-left">
-
             {/* Product Mini Card */}
             <div className="to-card to-product-card">
               <div className="to-product-info">
@@ -149,7 +235,9 @@ function TrackOrder() {
                     <span className="to-product-price">₹1,200</span>
                     <del className="to-product-real">₹1,600</del>
                   </div>
-                  <p className="to-product-qty">Qty: 1 &nbsp;|&nbsp; Colour: Happy to come</p>
+                  <p className="to-product-qty">
+                    Qty: 1 &nbsp;|&nbsp; Colour: Happy to come
+                  </p>
                   <span className="to-cod-badge">
                     <MdCreditCard className="me-1" />
                     Cash on delivery available
@@ -166,20 +254,35 @@ function TrackOrder() {
               <h6 className="to-section-title">Order tracking</h6>
               <div className="to-timeline">
                 {orderSteps.map((step, idx) => (
-                  <div key={step.id} className={`to-step ${step.done ? 'done' : 'pending'}`}>
+                  <div
+                    key={step.id}
+                    className={`to-step ${step.done ? "done" : "pending"}`}
+                  >
                     {/* Connector line above (skip for first) */}
                     <div className="to-step-left">
-                      <div className={`to-step-dot ${step.done ? 'dot-done' : 'dot-pending'}`}>
-                        {step.done ? <FaCheckCircle /> : <span className="dot-circle" />}
+                      <div
+                        className={`to-step-dot ${step.done ? "dot-done" : "dot-pending"}`}
+                      >
+                        {step.done ? (
+                          <FaCheckCircle />
+                        ) : (
+                          <span className="dot-circle" />
+                        )}
                       </div>
                       {idx < orderSteps.length - 1 && (
-                        <div className={`to-step-line ${step.done ? 'line-done' : 'line-pending'}`} />
+                        <div
+                          className={`to-step-line ${step.done ? "line-done" : "line-pending"}`}
+                        />
                       )}
                     </div>
                     <div className="to-step-content">
                       <div className="to-step-label">
                         {step.label}
-                        {step.date && <span className="to-step-date">&nbsp;— {step.date}</span>}
+                        {step.date && (
+                          <span className="to-step-date">
+                            &nbsp;— {step.date}
+                          </span>
+                        )}
                       </div>
                       <p className="to-step-desc">{step.desc}</p>
                     </div>
@@ -192,8 +295,9 @@ function TrackOrder() {
             <div className="to-card">
               <h6 className="to-section-title">Get your product OTP</h6>
               <p className="to-otp-hint">
-                This OTP will be shown and the process of delivery person to the delivery agent
-                on after receiving your product. Please remain patient until delivery.
+                This OTP will be shown and the process of delivery person to the
+                delivery agent on after receiving your product. Please remain
+                patient until delivery.
               </p>
               <label className="to-otp-label">Product OTP</label>
               <div className="to-otp-row">
@@ -203,7 +307,7 @@ function TrackOrder() {
                   placeholder="••••••••"
                   maxLength={8}
                   value={otp}
-                  onChange={e => setOtp(e.target.value)}
+                  onChange={(e) => setOtp(e.target.value)}
                 />
                 <button className="to-otp-btn">Re-Send →</button>
               </div>
@@ -212,13 +316,18 @@ function TrackOrder() {
             {/* Rating — click to open modal */}
             <div
               className="to-card to-rating-card to-rating-clickable"
-              onClick={() => { setModalRating(userRating); setModalOpen(true); }}
+              onClick={() => {
+                setModalRating(userRating);
+                setModalOpen(true);
+              }}
               title="Click to write a review"
             >
               <div>
                 <p className="to-rating-prompt">Give Us to your rating</p>
                 {submittedReview && (
-                  <p className="to-rating-submitted-text">"{submittedReview.text}"</p>
+                  <p className="to-rating-submitted-text">
+                    "{submittedReview.text}"
+                  </p>
                 )}
               </div>
               <StarDisplay value={userRating} />
@@ -236,7 +345,6 @@ function TrackOrder() {
 
           {/* ── RIGHT COLUMN ────────────────────────────────────────────── */}
           <div className="to-right">
-
             {/* Delivery Address */}
             <div className="to-card">
               <h6 className="to-section-title">Address Customer</h6>
@@ -245,7 +353,9 @@ function TrackOrder() {
                 <p className="to-address-sub-title">
                   <TbTruckDelivery className="to-addr-icon" /> Delivery Address
                 </p>
-                <p className="to-addr-name">Rahul Sharma · Flat No. 302, Sai Residency</p>
+                <p className="to-addr-name">
+                  Rahul Sharma · Flat No. 302, Sai Residency
+                </p>
                 <p className="to-addr-line">Mumbai, Maharashtra – 400058</p>
                 <p className="to-addr-line">Mobile: 9876543210</p>
                 <div className="to-delivery-meta">
@@ -264,12 +374,17 @@ function TrackOrder() {
                 <p className="to-address-sub-title">
                   <MdStorefront className="to-addr-icon" /> Store Address
                 </p>
-                <p className="to-addr-name">Store Name : Address Halls & 5h 1000</p>
+                <p className="to-addr-name">
+                  Store Name : Address Halls & 5h 1000
+                </p>
                 <p className="to-addr-line">Address No. 16, Opp. Terminal</p>
                 <p className="to-addr-line">Egg Street Street</p>
                 <p className="to-addr-line">Coimbatore – 641001</p>
                 <p className="to-addr-line">
-                  <FaPhoneAlt className="me-1" style={{ fontSize: '0.75rem' }} />
+                  <FaPhoneAlt
+                    className="me-1"
+                    style={{ fontSize: "0.75rem" }}
+                  />
                   Phone No: 97999 02475
                 </p>
               </div>
@@ -306,7 +421,6 @@ function TrackOrder() {
                 Download Invoice
               </button>
             </div>
-
           </div>
         </div>
 
@@ -314,11 +428,11 @@ function TrackOrder() {
         <section className="to-suggestions">
           <h5 className="to-sug-heading">YOU MAY ALSO LIKE PRODUCTS</h5>
           <p className="to-sug-subheading">
-            Premium leather furniture Crafted For Comfort, Durability, And Timeless Style
-            Designed To Elevate Every Space
+            Premium leather furniture Crafted For Comfort, Durability, And
+            Timeless Style Designed To Elevate Every Space
           </p>
           <div className="to-sug-grid">
-            {suggestedProducts.map(item => (
+            {suggestedProducts.map((item) => (
               <SuggestedCard key={item.id} item={item} />
             ))}
           </div>

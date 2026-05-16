@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 
-import { Navbar } from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import { ProductCard } from "../components/User/ProductCard";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProductCard from "../../components/User/ProductCard";
 
-import Filtersidebar from "../components/User/Filtersidebar";
-import FilterButton from "../components/User/FilterButton";
+import Filtersidebar from "../../components/User/Filtersidebar";
+import FilterButton from "../../components/User/FilterButton";
 
-import "../assets/styles/allproducts.css";
-import "../assets/styles/filterbutton.css";
-import OrderCard from "../components/User/OrderCard";
-
-export const Allproducts = () => {
+import "../../assets/styles/allproducts.css";
+import "../../assets/styles/filterbutton.css";
+import OrderCard from "../../components/User/OrderCard";
+const Allproducts = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [filters, setFilters] = useState({
@@ -66,3 +65,6 @@ export const Allproducts = () => {
     </>
   );
 };
+
+
+export default Allproducts;
