@@ -34,9 +34,9 @@ import '../../assets/styles/Navbar.css'
             </NavLink>
 
           {/* CART */}
-          <button className="icon-btn">
+          <NavLink to={"/cart"} className="icon-btn">
             <IoMdCart />
-          </button>
+          </NavLink>
 
           {/* TOGGLE */}
           <button
@@ -89,9 +89,9 @@ import '../../assets/styles/Navbar.css'
               <IoNotificationsOutline />
             </button>
 
-            <button className="icon-btn">
-              <IoMdCart />
-            </button>
+            <NavLink to={"/cart"} className="icon-btn">
+            <IoMdCart />
+          </NavLink>
 
             <NavLink to="/signup" className="icon-btn text-dark" >
               <FaUserCircle />

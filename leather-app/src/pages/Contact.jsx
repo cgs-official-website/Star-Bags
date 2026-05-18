@@ -199,7 +199,10 @@ const Contact = () => {
 
                 <div>
                   <h5>STORE LOCATION</h5>
-                  <p>Perundhurai - Bhavani Rd, Perundurai,<br /> Tamil Nadu-638052</p>
+                  <p>
+                    Perundhurai - Bhavani Rd, Perundurai,
+                    <br /> Tamil Nadu-638052
+                  </p>
                 </div>
               </div>
 

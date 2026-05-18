@@ -5,16 +5,15 @@ import { Hero } from "../components/User/Hero";
 import Navbar from "../components/User/Navbar";
 import ProductCard from "../components/User/ProductCard";
 
-
- const Home = () => {
+const Home = () => {
   return (
     <div>
       <Navbar />
       <Hero />
       <Categories />
       <ProductCard />
-      <Faq/>
-      <Footer/>
+      <Faq />
+      <Footer />
     </div>
   );
 };

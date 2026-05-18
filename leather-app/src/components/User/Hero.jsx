@@ -54,7 +54,7 @@ export const Hero = () => {
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now →</button>
+                <button className="btn hero-btn">Shop Now </button>
               </div>
             </div>
 
@@ -70,7 +70,7 @@ export const Hero = () => {
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now →</button>
+                <button className="btn hero-btn">Shop Now </button>
               </div>
             </div>
 
@@ -86,7 +86,7 @@ export const Hero = () => {
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now →</button>
+                <button className="btn hero-btn">Shop Now </button>
               </div>
             </div>
           </div>

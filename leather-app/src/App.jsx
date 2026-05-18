@@ -25,8 +25,7 @@ import ReportAnalysis from './pages/Admin/ReportAnalysis';
 import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
 import BillAddress from './pages/BillAddress';
-// import CartPage from './pages/Cart';
-// import YourCart from './components/User/YourCart';
+import SignUpVerification from './pages/SignUpVerification';
 
 const App = () => {
   return (
@@ -35,6 +34,7 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/signupVerify" element={<SignUpVerification/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword/>} />
         <Route path="/resetPassword" element={<ResetPassword/>} />

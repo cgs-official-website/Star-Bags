@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { BiArrowBack } from "react-icons/bi"; // Clean React Icon matching your design style
+import { BiArrowBack } from "react-icons/bi";
 import loginImage from "../assets/images/login-image.png";
 import "../assets/styles/Login.css";
 
-function ForgetPassword() {
+function SignUpVerification() {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(119); // 1:59 in seconds
   const [timerActive, setTimerActive] = useState(true);
@@ -81,16 +81,16 @@ function ForgetPassword() {
       {/* RIGHT SIDE: OTP FORM */}
       <div className="col-12 col-lg-5 form-section">
         <div className="login-form">
-          {/* Back to login */}
+          {/* Back to sign up */}
           <div className="mb-4">
-            <Link to="/login" className="navigate d-inline-flex align-items-center gap-2">
-              <BiArrowBack /> Back to login
+            <Link to="/signup" className="navigate d-inline-flex align-items-center gap-2">
+              <BiArrowBack /> Back to sign up
             </Link>
           </div>
 
-          <h6>Enter your code</h6>
+          <h6>Verify your account</h6>
           <p>
-            We sent a 4-digit code to <b>starbags1993@gmail.com</b>. It expires in 2 minutes.
+            We sent a 4-digit verification code to your email. Please enter it below to complete your registration.
           </p>
 
           <form onSubmit={(e) => e.preventDefault()}>
@@ -149,8 +149,8 @@ function ForgetPassword() {
 
             {/* Verify Button */}
             <div className="d-grid">
-              <NavLink to="/resetpassword" className="btn login-btn d-flex align-items-center justify-content-center">
-                Verify code
+              <NavLink to="/" className="btn login-btn d-flex align-items-center justify-content-center">
+                Confirm & Activate
               </NavLink>
             </div>
           </form>
@@ -160,4 +160,4 @@ function ForgetPassword() {
   );
 }
 
-export default ForgetPassword;
+export default SignUpVerification;
