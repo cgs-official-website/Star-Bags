@@ -1,3 +1,7 @@
+/* ========================
+   FILTER SIDEBAR
+======================== */
+
 .filter-sidebar {
   min-width: 220px;
   max-width: 240px;
@@ -18,7 +22,7 @@
   margin-bottom: 0.6rem;
 }
 
-/* Dropdown Group */
+/* ── Dropdown Group ── */
 .filter-dropdown-group {
   margin-bottom: 0.5rem;
 }
@@ -28,6 +32,7 @@
   font-weight: 600;
   color: #1a1a1a;
   margin-bottom: 0.3rem;
+  margin-top: 0.2rem;
 }
 
 .filter-dropdown-btn {
@@ -49,19 +54,13 @@
   border-color: #8b5cf6;
 }
 
-.dropdown-arrow {
-  font-size: 1.3rem;
-  line-height: 1;
+.dropdown-chevron {
+  font-size: 0.75rem;
+  color: #555;
   transition: transform 0.2s;
-  transform: rotate(-90deg);
-  display: inline-block;
 }
 
-.dropdown-arrow.open {
-  transform: rotate(90deg);
-}
-
-/* Dropdown List */
+/* ── Dropdown List ── */
 .filter-dropdown-list {
   border: 1px solid #d1d5db;
   border-top: none;
@@ -94,12 +93,13 @@
   width: 15px;
   height: 15px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* Price Range */
+/* ── Price Range ── */
 .filter-price-section {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
 }
 
 .price-range-slider {
@@ -134,7 +134,7 @@
   color: #555;
 }
 
-/* Apply Button */
+/* ── Apply Button ── */
 .apply-filter-btn {
   width: 100%;
   background-color: #8b5cf6;
@@ -153,7 +153,7 @@
   background-color: #7c3aed;
 }
 
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 992px) {
   .filter-sidebar {
     min-width: 100%;
