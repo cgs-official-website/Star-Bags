@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
@@ -13,6 +12,12 @@ import CreateAccount from './pages/CreateAccount';
 import Login from './pages/Login';
 import ResetPassword from './pages/Resetpassword';
 import ForgotPassword from './pages/ForgotPassword';
+import Product from './pages/Allproducts'
+
+
+
+
+
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminSignup from './pages/Admin/AdminSignup';
@@ -44,9 +49,9 @@ import StoreDetails from './pages/Admin/StoreDetails';
         <Route path="/resetPassword" element={<ResetPassword/>} />
         {/* <Route path="/login" element={<Login />} /> */}
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/orders" element={<Orders />} />
+        {/* <Route path="/orders" element={<Orders />} /> */}
         <Route path="/contact" element={<Contact />} />
-        {/* <Route path="/allProduct" element={<Product />} /> */}
+        <Route path="/allProduct" element={<Product />} />
         <Route path="/product" element={<ProductDetails />} />
         <Route path="/wishlist" element={<WishList />} />
 
@@ -70,3 +75,24 @@ import StoreDetails from './pages/Admin/StoreDetails';
 };
 
 export default App;
+
+
+
+// import React from 'react'
+// import AdminDashboard from './pages/Admin/AdminDashboard'
+
+// const App = () => {
+//   return (
+//     <>
+//     <AdminDashboard/>    
+//     </>
+//   )
+// }
+// export default App;
+
+
+
+
+
+
+

@@ -2,6 +2,12 @@ import { IoMdCart } from "react-icons/io";
 import '../../assets/styles/productCard.css'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { MdOutlineShoppingCart } from "react-icons/md";
+
+import '../../assets/styles/productCard.css';
+
+
+
+
 const ProductCard = () => {
   const productCard = [
     {image:"../src/assets/images/leather1.png",name:"leather wallet",rating:4.2,price:"120",realPrice:"120",offer:"20%"},

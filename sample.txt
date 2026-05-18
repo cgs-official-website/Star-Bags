@@ -1,0 +1,520 @@
+
+.order-card {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  padding: 15px 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  max-width: 950px;
+  height: 250px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+.order-card__image-wrapper {
+  width: 230px;
+  height: 230px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid #f0f0f0;
+}
+
+.order-card__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Product Info */
+.order-card__info {
+  flex: 1;
+  min-width: 0;
+  max-width: 380px;
+}
+
+.order-card__order-id {
+  color: var(--text-gray);
+  margin: 0 0 4px 0;
+}
+
+/* Product name + rating row */
+.pd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.order-card__product-name {
+  max-width: 200px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.order-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.order-card__rating-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.order-card__rating-count {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+/* Price + Qty */
+.order-card__price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  line-height: 4;
+}
+
+.order-card__price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.order-card__original-price {
+  font-size: 13px;
+  color: black;
+  text-decoration: line-through;
+}
+
+.order-card__qty {
+  font-size: 15px;
+  font-weight: 50px;
+  color: black;
+  margin: 0;
+}
+
+.order-card__order-id,
+.order-card__qty,
+.order-card__delivery-time {
+  line-height: 4;
+}
+
+/* Status Section */
+.order-card__status-section {
+  text-align: center;
+  line-height: 5;
+}
+
+.order-card__label {
+  font-size: 18px;
+  color: black;
+  margin-bottom: 6px;
+}
+
+.order-card__status {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.order-card__status--delivered { color: #22c55e; }
+.order-card__status--pending   { color: #f59e0b; }
+.order-card__status--cancelled { color: #ef4444; }
+.order-card__status--default   { color: #6b7280; }
+
+.order-card__track-btn {
+  padding: 8px;
+  background-color: #7c3aed;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.order-card__track-btn:hover {
+  background-color: #6d28d9;
+}
+
+/* Time Section */
+.order {
+  line-height: 7.5;
+}
+
+.order-card__time-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.order-card__delivery-time {
+  margin: 0;
+  font-size: 16px;
+  color: black;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.order-card__delivery-time span {
+  color: #000;
+  display: inline-block;
+}
+
+.order-card__rate-btn {
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #f5a623;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+/* 📱 Mobile (≤480px) */
+@media (max-width: 480px) {
+ 
+  .order-card {
+    width: auto;
+    position: absolute;
+
+    height: 200px; /* shrink height */
+    gap: 10px;
+    padding: 10px;
+
+  }
+  .order-card__image-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .order-card__product-name {
+    font-size: 16px;
+    max-width: 120px;
+  }
+  .order-card__rating-value,
+  .order-card__rating-count {
+    font-size: 11px;
+  }
+  .order-card__price {
+    font-size: 12px;
+  }
+  .order-card__qty {
+    font-size: 13px;
+  }
+}
+
+/* 📲 Tablets (≤768px) */
+@media (max-width: 768px) {
+  .order-card {
+    height: 220px;
+    gap: 22px;
+    padding: 12px;
+  }
+  .order-card__image-wrapper {
+    width: 180px;
+    height: 180px;
+  }
+  .order-card__product-name {
+    font-size: 18px;
+    max-width: 150px;
+    
+  }
+  .order-card__rating-value,
+  .order-card__rating-count {
+    font-size: 12px;
+  }
+  
+  .order-card__rate-btn{
+    font-size: 10px
+    
+    ;
+  }
+}
+
+
+/* 💻 Small Laptops (≤1024px) */
+@media (max-width: 1024px) {
+  .order-card {
+    height: 230px;
+    gap: 22px;
+  }
+  .order-card__image-wrapper {
+    width: 200px;
+    height: 200px;
+  }
+  .order-card__product-name {
+    font-size: 20px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.order-card {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Image */
+.order-card__image-wrap {
+  flex-shrink: 0;
+  width: 250px;
+  height: 250px;
+  border-radius: 7px;
+  overflow: hidden;
+  background-color: #f3f4f6;
+}
+
+.order-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Details */
+.order-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 200px;
+  flex: 1;
+  line-height: 4;
+  
+}
+
+.order-card__order-id {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.order-card__product-name {
+  max-width: 200px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.order-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.order-card__rating-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.order-card__rating-count {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1;
+}
+
+
+.order-card__pricing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.order-card__price {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.order-card__original-price {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.order-card__qty {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+
+/* Status */
+.order-card__status-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 90px;
+  line-height: 8;
+}
+
+.order-card__status-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.order-card__status {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.order-card__status--delivered {
+  color: #16a34a;
+}
+
+.order-card__status--pending {
+  color: #d97706;
+}
+
+.order-card__status--cancelled {
+  color: #dc2626;
+}
+
+.order-card__status--processing {
+  color: #7c3aed;
+}
+
+/* Time */
+.order-card__time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 150px;
+  line-height: 8;
+
+}
+
+.order-card__time-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.order-card__time-value {
+  font-size: 13px;
+  color: #374151;
+}
+
+/* Actions */
+.order-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.order-card__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.order-card__btn:hover {
+  opacity: 0.85;
+}
+
+.order-card__btn--track {
+  background-color: #7c3aed;
+  color: #ffffff;
+}
+
+.order-card__btn--rate {
+  background-color: #f97316;
+  color: #ffffff;
+}
+
+.order-card__btn-star {
+  font-size: 14px;
+  color: #ffffff;
+}
+
+
+
+.order-card__product-name {
+  max-width: 200px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.order-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.order-card__rating-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1;
+}
+
+.order-card__rating-count {
+  font-size: 13px;
+  color: #9ca3af;
+  line-height: 1;
+}

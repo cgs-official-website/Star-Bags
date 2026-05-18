@@ -66,7 +66,7 @@ import '../../assets/styles/Navbar.css'
             </li>
 
             <li className="nav-item">
-              <a className="nav-link" href="/product">
+              <a className="nav-link" href="/allproduct">
                 All Products
               </a>
             </li>

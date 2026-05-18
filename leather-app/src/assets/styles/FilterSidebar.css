@@ -1,235 +1,162 @@
-/* ─────────────────────────────────────────────
-   FilterSidebar.css
-   Place at: src/assets/styles/FilterSidebar.css
-───────────────────────────────────────────── */
-
-/* ── Sidebar container ── */
-.fs-sidebar {
-  width: 240px;
+.filter-sidebar {
+  min-width: 220px;
+  max-width: 240px;
   flex-shrink: 0;
-  background: var(--white-color);
-  border: 1.5px solid var(--border-gray);
-  border-radius: 16px;
-  padding: 20px 16px;
-  height: fit-content;
-  position: sticky;
-  top: 80px; /* sits below sticky navbar */
 }
 
-/* ── Main title ── */
-.fs-main-title {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 1.5px solid var(--border-gray);
-}
-
-/* ── Section block ── */
-.fs-section {
-  margin-bottom: 20px;
-}
-
-.fs-section-label {
-  font-size: 0.8rem;
+.sidebar-title {
+  font-size: 1.3rem;
   font-weight: 700;
-  color: var(--text-gray);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 8px;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
 }
 
-/* ── Dropdown ── */
-.fs-dropdown {
-  position: relative;
-  margin-bottom: 8px;
+.sidebar-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.6rem;
 }
 
-.fs-dropdown-btn {
+/* Dropdown Group */
+.filter-dropdown-group {
+  margin-bottom: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+}
+
+.filter-dropdown-btn {
   width: 100%;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 9px 12px;
-  border: 1.5px solid var(--border-gray);
-  border-radius: 10px;
-  background: var(--white-color);
-  font-size: 0.85rem;
-  font-family: nunito;
-  font-weight: 600;
-  color: var(--text-dark);
+  justify-content: space-between;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  background: #fff;
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
-.fs-dropdown-btn:hover {
-  border-color: var(--levender);
+.filter-dropdown-btn:hover {
+  border-color: #8b5cf6;
 }
 
-.fs-dropdown-btn i {
-  font-size: 0.75rem;
-  color: var(--text-gray);
+.dropdown-arrow {
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: transform 0.2s;
+  transform: rotate(-90deg);
+  display: inline-block;
 }
 
-.fs-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  background: var(--white-color);
-  border: 1.5px solid var(--border-gray);
-  border-radius: 10px;
-  z-index: 50;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-  list-style: none;
-  padding: 4px 0;
-  margin: 0;
-  max-height: 180px;
-  overflow-y: auto;
+.dropdown-arrow.open {
+  transform: rotate(90deg);
 }
 
-.fs-dropdown-item {
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  font-weight: 600;
+/* Dropdown List */
+.filter-dropdown-list {
+  border: 1px solid #d1d5db;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background: #fff;
+  padding: 0.4rem 0;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  color: #1a1a1a;
   cursor: pointer;
-  color: var(--text-dark);
   transition: background 0.15s;
 }
 
-.fs-dropdown-item:hover,
-.fs-dropdown-item.active {
-  background: var(--soft-secondary);
-  color: var(--text-h);
+.filter-checkbox-item:hover {
+  background: #f5f3ff;
 }
 
-/* ── Price range ── */
-.fs-range {
-  width: 100%;
-  accent-color: var(--levender);
-  margin: 6px 0 10px;
+.filter-checkbox-item.selected {
+  background-color: #f5f3ff;
+}
+
+.filter-checkbox-item input[type='checkbox'] {
+  accent-color: #8b5cf6;
+  width: 15px;
+  height: 15px;
   cursor: pointer;
 }
 
-.fs-price-inputs {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* Price Range */
+.filter-price-section {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
-.fs-price-input {
-  width: 80px;
-  padding: 6px 8px;
-  border: 1.5px solid var(--border-gray);
-  border-radius: 8px;
-  font-size: 0.82rem;
-  font-family: nunito;
-  font-weight: 600;
+.price-range-slider {
+  width: 100%;
+  accent-color: #8b5cf6;
+  margin: 0.5rem 0;
+  cursor: pointer;
+}
+
+.price-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.price-range-inputs input {
+  width: 75px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.88rem;
+  color: #1a1a1a;
   text-align: center;
+}
+
+.price-range-inputs input:focus {
   outline: none;
-  transition: border-color 0.2s;
+  border-color: #8b5cf6;
 }
 
-.fs-price-input:focus {
-  border-color: var(--levender);
+.price-range-inputs span {
+  color: #555;
 }
 
-.fs-price-dash {
-  color: var(--text-gray);
-  font-weight: 700;
-}
-
-/* ── Color grid ── */
-.fs-color-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.fs-color-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 6px;
-  border-radius: 8px;
-  border: 1.5px solid transparent;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.fs-color-item:hover {
-  background: var(--soft-secondary);
-}
-
-.fs-color-item.selected {
-  border-color: var(--levender);
-  background: var(--soft-secondary);
-}
-
-.fs-color-dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.fs-color-name {
-  flex: 1;
-  color: var(--text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fs-color-count {
-  color: var(--text-gray);
-  font-size: 0.7rem;
-}
-
-/* ── Apply button ── */
-.fs-apply-btn {
+/* Apply Button */
+.apply-filter-btn {
   width: 100%;
-  padding: 11px 0;
-  background: var(--levender);
-  color: var(--white-color);
+  background-color: #8b5cf6;
+  color: #fff;
   border: none;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 800;
-  font-family: nunito;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  margin-top: 6px;
-  transition: background 0.2s, transform 0.15s;
+  margin-top: 1.2rem;
+  transition: background 0.2s;
 }
 
-.fs-apply-btn:hover {
-  background: var(--text-h);
-  transform: translateY(-1px);
-  
+.apply-filter-btn:hover {
+  background-color: #7c3aed;
 }
 
-/* ── Responsive: hide sidebar on mobile, show as overlay toggle ── */
-@media (max-width: 768px) {
-  .fs-sidebar {
-    width: 50%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    z-index: 200;
-    overflow-y: auto;
-    border-radius: 0;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
-    transform: translateX(-110%);
-    transition: transform 0.3s ease;
-  }
-
-  .fs-sidebar.open {
-    transform: translateX(0);
+/* Responsive */
+@media (max-width: 992px) {
+  .filter-sidebar {
+    min-width: 100%;
+    max-width: 100%;
   }
 }

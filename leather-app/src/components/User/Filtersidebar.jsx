@@ -1,180 +1,163 @@
-import { useState } from "react";
-import "../../assets/styles/filtersidebar.css";
+// 
+import { useState } from 'react';
+import "../../assets/styles/FilterSideBar.css";
 
-// ── Data ─────────────────────────────────────────────────────────────────────
-const CATEGORIES = ["Bags", "Wallet", "Belt"];
-const SIZES      = ["Small", "Medium", "Large", "XL"];
-const PATTERNS   = ["Plain", "Snake Leather", "Crocodile", "Ostrich"];
-const COLORS = [
-  { name: "Orange",      hex: "#F97316", count: 5 },
-  { name: "Blue",        hex: "#3B82F6", count: 5 },
-  { name: "Light green", hex: "#86EFAC", count: 3 },
-  { name: "Red",         hex: "#EF4444", count: 5 },
-  { name: "Green",       hex: "#22C55E", count: 3 },
-  { name: "Purple",      hex: "#A855F7", count: 6 },
-  { name: "Black",       hex: "#111111", count: 6 },
-  { name: "Yellow",      hex: "#EAB308", count: 6 },
+const bagTypes = [
+  'Laptop Bag',
+  'Travel bag',
+  'Lunch bag',
+  'Hand bag',
+  'Briefcase',
+  'Travel Duffel Bag',
 ];
 
-// ── Small reusable dropdown ───────────────────────────────────────────────────
-function FilterDropdown({ label, options, value, onChange }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="fs-dropdown">
-      <button
-        className="fs-dropdown-btn"
-        onClick={() => setOpen((o) => !o)}
-        type="button"
-      >
-        <span>{value || label}</span>
-        <i className={`bi bi-chevron-${open ? "up" : "down"}`} />
-      </button>
-      {open && (
-        <ul className="fs-dropdown-menu">
-          <li
-            className={`fs-dropdown-item ${!value ? "active" : ""}`}
-            onClick={() => { onChange(""); setOpen(false); }}
-          >
-            All
-          </li>
-          {options.map((opt) => (
-            <li
-              key={opt}
-              className={`fs-dropdown-item ${value === opt ? "active" : ""}`}
-              onClick={() => { onChange(opt); setOpen(false); }}
-            >
-              {opt}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+const FilterSideBar = ({ onApply }) => {
+  const [openDropdowns, setOpenDropdowns] = useState({
+    Bags: false,
+    Wallet: false,
+    Belt: false,
+    ProductSizes: false,
+    PatternCategory: false,
+  });
 
-// ── Main FilterSidebar ────────────────────────────────────────────────────────
-export default function FilterSidebar({
-  filters,
-  onChange,
-  onApply,
-  isOpen
-}) {
-  const { category, size, pattern, colors, priceRange } = filters;
+  const [selectedBagType, setSelectedBagType] = useState('Hand bag');
+  const [priceRange, setPriceRange] = useState([0, 860]);
 
-  const toggleColor = (name) => {
-    const next = colors.includes(name)
-      ? colors.filter((c) => c !== name)
-      : [...colors, name];
-    onChange({ ...filters, colors: next });
+  const toggleDropdown = (key) => {
+    setOpenDropdowns((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleApply = () => {
+    if (onApply) {
+      onApply({ selectedBagType, priceRange });
+    }
   };
 
   return (
-    <aside className={`fs-sidebar ${isOpen ? "open" : ""}`}>
-      {/* Title */}
-      <h6 className="fs-main-title">Product Categories</h6>
+    <aside className="filter-sidebar">
+      <h3 className="sidebar-title">Product Categories</h3>
+      <p className="sidebar-subtitle">All Filters</p>
 
-      {/* ── Category dropdowns ── */}
-      <div className="fs-section">
-        <p className="fs-section-label">All Filters</p>
-        <FilterDropdown
-          label="Bags"
-          options={CATEGORIES}
-          value={category}
-          onChange={(v) => onChange({ ...filters, category: v })}
-        />
-        <FilterDropdown
-          label="Wallet"
-          options={["Wallet", "Slim Wallet", "Zip Wallet"]}
-          value=""
-          onChange={() => {}}
-        />
-        <FilterDropdown
-          label="Belt"
-          options={["Belt", "Classic Belt", "Braided Belt"]}
-          value=""
-          onChange={() => {}}
-        />
+      {/* Bags */}
+      <div className="filter-dropdown-group">
+        <button
+          className="filter-dropdown-btn"
+          onClick={() => toggleDropdown('Bags')}
+        >
+          <span>Bags</span>
+          <span className={`dropdown-arrow ${openDropdowns.Bags ? 'open' : ''}`}>
+            &#8249;
+          </span>
+        </button>
+        {openDropdowns.Bags && (
+          <div className="filter-dropdown-list">
+            {bagTypes.map((bag) => (
+              <label
+                key={bag}
+                className={`filter-checkbox-item ${selectedBagType === bag ? 'selected' : ''}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedBagType === bag}
+                  onChange={() => setSelectedBagType(bag)}
+                />
+                <span>{bag}</span>
+              </label>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* ── Price range ── */}
-      <div className="fs-section">
-        <p className="fs-section-label">Filter by price</p>
+      {/* Wallet */}
+      <div className="filter-dropdown-group">
+        <button
+          className="filter-dropdown-btn"
+          onClick={() => toggleDropdown('Wallet')}
+        >
+          <span>Wallet</span>
+          <span className={`dropdown-arrow ${openDropdowns.Wallet ? 'open' : ''}`}>
+            &#8249;
+          </span>
+        </button>
+      </div>
+
+      {/* Belt */}
+      <div className="filter-dropdown-group">
+        <button
+          className="filter-dropdown-btn"
+          onClick={() => toggleDropdown('Belt')}
+        >
+          <span>Belt</span>
+          <span className={`dropdown-arrow ${openDropdowns.Belt ? 'open' : ''}`}>
+            &#8249;
+          </span>
+        </button>
+      </div>
+
+      {/* Filter by price */}
+      <div className="filter-price-section">
+        <p className="filter-label">Filter by price</p>
         <input
           type="range"
-          className="fs-range"
-          min={0}
-          max={860}
-          step={5}
+          min="0"
+          max="860"
           value={priceRange[1]}
-          onChange={(e) =>
-            onChange({ ...filters, priceRange: [priceRange[0], +e.target.value] })
-          }
+          className="price-range-slider"
+          onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
         />
-        <div className="fs-price-inputs">
+        <div className="price-range-inputs">
           <input
             type="number"
-            className="fs-price-input"
             value={priceRange[0]}
-            onChange={(e) =>
-              onChange({ ...filters, priceRange: [+e.target.value, priceRange[1]] })
-            }
+            min="0"
+            max={priceRange[1]}
+            onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
           />
-          <span className="fs-price-dash">–</span>
+          <span>-</span>
           <input
             type="number"
-            className="fs-price-input"
             value={priceRange[1]}
-            onChange={(e) =>
-              onChange({ ...filters, priceRange: [priceRange[0], +e.target.value] })
-            }
+            min={priceRange[0]}
+            max="860"
+            onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
           />
         </div>
       </div>
 
-      {/* ── Product sizes ── */}
-      <div className="fs-section">
-        <p className="fs-section-label">Product sizes</p>
-        <FilterDropdown
-          label="Product Sizes"
-          options={SIZES}
-          value={size}
-          onChange={(v) => onChange({ ...filters, size: v })}
-        />
+      {/* Product Sizes */}
+      <div className="filter-dropdown-group">
+        <p className="filter-label">Product sizes</p>
+        <button
+          className="filter-dropdown-btn"
+          onClick={() => toggleDropdown('ProductSizes')}
+        >
+          <span>Product Sizes</span>
+          <span className={`dropdown-arrow ${openDropdowns.ProductSizes ? 'open' : ''}`}>
+            &#8249;
+          </span>
+        </button>
       </div>
 
-      {/* ── Patterns ── */}
-      <div className="fs-section">
-        <p className="fs-section-label">Patterns Category</p>
-        <FilterDropdown
-          label="Pattern leather"
-          options={PATTERNS}
-          value={pattern}
-          onChange={(v) => onChange({ ...filters, pattern: v })}
-        />
+      {/* Patterns Category */}
+      <div className="filter-dropdown-group">
+        <p className="filter-label">Patterns Category</p>
+        <button
+          className="filter-dropdown-btn"
+          onClick={() => toggleDropdown('PatternCategory')}
+        >
+          <span>Pattern leather</span>
+          <span className={`dropdown-arrow ${openDropdowns.PatternCategory ? 'open' : ''}`}>
+            &#8249;
+          </span>
+        </button>
       </div>
 
-      {/* ── Color filter ── */}
-      <div className="fs-section">
-        <p className="fs-section-label">Filter by Color</p>
-        <div className="fs-color-grid">
-          {COLORS.map((c) => (
-            <div
-              key={c.name}
-              className={`fs-color-item ${colors.includes(c.name) ? "selected" : ""}`}
-              onClick={() => toggleColor(c.name)}
-            >
-              <span className="fs-color-dot" style={{ background: c.hex }} />
-              <span className="fs-color-name">{c.name}</span>
-              <span className="fs-color-count">({c.count})</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Apply button ── */}
-      <button className="fs-apply-btn" type="button" onClick={onApply}>
+      {/* Apply Button */}
+      <button className="apply-filter-btn" onClick={handleApply}>
         Apply Filter
       </button>
     </aside>
   );
-}
+};
+
+export default FilterSideBar;

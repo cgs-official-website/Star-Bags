@@ -1,108 +1,99 @@
+import React from "react";
 import "../../assets/styles/OrderCard.css";
-import bagImg from "../../assets/images/bag.png";
+import defaultImage from "../../assets/images/bag.png";
 
-const StarIcon = ({ color = "#f5a623" }) => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill={color} stroke={color} strokeWidth="2">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-);
+// Small star icon (used for rating display)
+function StarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#f5a623">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
 
-const statusClass = {
-  Delivered: "order-card__status--delivered",
-  Pending: "order-card__status--pending",
-  Cancelled: "order-card__status--cancelled",
-};
+function OrderCard(props) {
+  // Read props (with default values for demo / empty usage)
+  const id = props.id || "ID002457890KJM";
+  const productName = props.productName || "2-Seater Leather Sofa";
+  const image = props.image || defaultImage;
+  const oldPrice = props.oldPrice;
+  const price = props.price !== undefined ? props.price : 120;
+  const quantity = props.quantity !== undefined ? props.quantity : 1;
+  const rating = props.rating !== undefined ? props.rating : 4.2;
+  const reviews = props.reviews !== undefined ? props.reviews : 120;
+  const status = props.status || "Delivered";
+  const deliveryDate = props.deliveryDate || "25/04/2020";
+  const onTrackOrder = props.onTrackOrder || function () {};
+  const onRateProduct = props.onRateProduct || function () {};
 
-export default function OrderCard({
-  orderId = "ID002457890KJM",
-  productName = "2-Seater Leather Sofa",
-  rating = 4.2,
-  reviewCount = 120,
-  price = 120,
-  originalPrice = 120,
-  quantity = 1,
-  status = "Delivered",
-  deliveredOn = "25/04/2020",
-  imageUrl = { bagImg },
-  onTrackOrder = () => { },
-  onRateProduct = () => { },
-}) {
+  // Pick CSS class for status color
+  let statusColorClass = "status-default";
+  if (status === "Delivered") {
+    statusColorClass = "status-delivered";
+  } else if (status === "Pending" || status === "Shipped") {
+    statusColorClass = "status-pending";
+  } else if (status === "Cancelled") {
+    statusColorClass = "status-cancelled";
+  }
+
+  // Show old price only when it is higher than current price
+  const showOldPrice = oldPrice && oldPrice > price;
+
   return (
     <div className="order-card">
-
-      {/* Product Image */}
-      <div className="order-card__image-wrapper">
-        <img src={bagImg} alt={productName} />
+      {/* Left: product image */}
+      <div className="order-card-image">
+        <img src={image} alt={productName} />
       </div>
 
-      {/* Product Info */}
-      <div >
-        <div className="order-card__info">
-          <div>
-            <p className="order-card__order-id">Order {orderId}</p>
-          </div>
-          <div className="pd">
-            <div className="pd-header">
-              <p className="order-card__product-name">{productName}</p>
-              <div className="order-card__rating">
-                <StarIcon />
-                <span className="order-card__rating-value">{rating}</span>
-                <span className="order-card__rating-count">({reviewCount})</span>
-              </div>
-            </div>
-          </div>
+      {/* Center: product info */}
+      <div className="order-card-info">
+        <p className="order-id">Order {id}</p>
 
-          <div className="order-card__price-row">
-            <span className="order-card__price">${price}</span>
-            {originalPrice && (
-              <span className="order-card__original-price">${originalPrice}</span>
-            )}
-          </div>
-          <div>
-            <p className="order-card__qty">Qty:{quantity}</p>
-          </div>
-        </div>
-
-      </div>
-
-
-      {/* Status */}
-      <div className="order-card__status-section">
-        <p className="order-card__label">Status</p>
-        <p className={`order-card__status ${statusClass[status] ?? "order-card__status--default"}`}>
-          {status}
-        </p>
-        <div className="btn">
-          <button className="order-card__track-btn" onClick={onTrackOrder}>
-            Track order
-          </button>
-        </div>
-      </div>
-
-      {/* Time */}
-      <div className="order">
-        <div className="order-card__time-section">
-          <p className="order-card__label">Time</p>
-        </div>
-        <div>
-          <p className="order-card__delivery-time">
-            Delivered on <br />
-            <span>{deliveredOn}</span>
-          </p>
-        </div>
-        <div>
-          <button className="order-card__rate-btn" onClick={onRateProduct}>
+        <div className="name-rating-row">
+          <h3 className="product-name">{productName}</h3>
+          <div className="rating-box">
             <StarIcon />
-            Rate Your Product
+            <span className="rating-number">{rating}</span>
+            <span className="review-count">({reviews})</span>
+          </div>
+        </div>
+
+        <div className="price-row">
+          <span className="current-price">$ {price}</span>
+          {showOldPrice && (
+            <span className="old-price">$ {oldPrice}</span>
+          )}
+        </div>
+
+        <p className="quantity">Qty:{quantity}</p>
+      </div>
+
+      {/* Right: status + track button */}
+      <div className="order-card-status">
+        <p className="section-label">Status</p>
+        <p className={"status-text " + statusColorClass}>{status}</p>
+        <div className="track-button-container">
+          <button type="button" className="btn-track" onClick={onTrackOrder}>
+            Track Order
           </button>
         </div>
       </div>
 
-
-
-
-
-
+      {/* Right: time + rate button */}
+      <div className="order-card-time">
+        <p className="section-label">Time</p>
+        <p className="delivery-date">
+          {status === "Delivered" ? "Delivered on " : ""}
+          <span>{deliveryDate}</span>
+        </p>
+        <button type="button" className="btn-rate" onClick={onRateProduct}>
+          <StarIcon />
+          Rate Product
+        </button>
+      </div>
     </div>
   );
 }
+
+export default OrderCard;

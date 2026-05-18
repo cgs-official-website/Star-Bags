@@ -1,17 +1,31 @@
-
-import React from 'react'
+import React from "react";
 import Navbar from "../components/User/Navbar";
 import Footer from "../components/User/Footer";
-import OrderCard from "../components/User/OrderCard";
+import AdminDashboard from "../pages/Admin/AdminDashboard";
+import Orders from "../pages/Orders";
 
- const Orders = () => {
+const DashboardPage = () => {
   return (
     <>
-   
-    <OrderCard/>
+      <Navbar />
+      <main className="dashboard-container">
+        <div className="dashboard-layout">
+          {/* Left Sidebar */}
+          <aside className="sidebar">
+            <AdminDashboard />
+          </aside>
 
+          {/* Right Content */}
+          <section className="orders-section">
+            <h2>My Orders</h2>
+            <Orders />
+          </section>
+        </div>
+      </main>
+      <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Orders;
+export default DashboardPage;
+
