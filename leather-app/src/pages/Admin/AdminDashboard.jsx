@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import "./Styles/AdminDashboard.css";
+import "../../assets/styles/AdminDashboard.css";
 
 /* ─── Mock Data ─── */
 const salesData = [

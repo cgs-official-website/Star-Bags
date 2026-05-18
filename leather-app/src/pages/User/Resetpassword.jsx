@@ -1,7 +1,7 @@
 import { CgAsterisk } from "react-icons/cg";
-import "../assets/styles/Login.css";
+import "../../assets/styles/Login.css";
 
-import LoginImage from "../assets/images/login-image.png";
+import LoginImage from "../../assets/images/login-image.png";
 import { NavLink } from "react-router-dom";
 
 const ResetPassword = () => {

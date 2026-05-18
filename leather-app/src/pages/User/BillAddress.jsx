@@ -10,15 +10,15 @@ import { TbCreditCardPay } from "react-icons/tb";
 
 import { GiMoneyStack } from "react-icons/gi";
 
-import Navbar from "../components/User/Navbar";
+import Navbar from "../../components/User/Navbar";
 
-import Footer from "../components/User/Footer";
+import Footer from "../../components/User/Footer";
 
-import CartItem from "../components/User/YourCart";
+import CartItem from "../../components/User/YourCart";
 
-import OrderSummary from "../components/User/OrderSummary";
+import OrderSummary from "../../components/User/OrderSummary";
 
-import "../assets/styles/Cart.css";
+import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
   const location = useLocation();

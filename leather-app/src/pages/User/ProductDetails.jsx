@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import Navbar from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import ProductCard from "../components/User/ProductCard";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProductCard from "../../components/User/ProductCard";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaStar, FaRegStar, FaHeart } from "react-icons/fa";
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiHeart } from "react-icons/fi";
 import { IoMdCart } from "react-icons/io";
 
-import "../assets/styles/ProductDetails.css";
+import "../../assets/styles/ProductDetails.css";
 
 function ProductDetails() {
   const [quantity, setQuantity] = useState(1);

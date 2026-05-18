@@ -1,0 +1,109 @@
+/* Sidebar */
+.profile-sidebar-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    max-width: 350px;
+    padding: 18px;
+    background: #fff;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    width: 55px;
+    height: 55px;
+}
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    background-color: #d9d9d9;
+    border-radius: 50%;
+}
+
+.avatar-add-icon {
+    position: absolute;
+    bottom: 0;
+    right: -2px;
+    color: black;
+    background: white;
+    border-radius: 50%;
+    font-size: 1rem;
+    border: 2px solid white;
+}
+
+.profile-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-menu-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.profile-menu-link:hover {
+    border-color: var(--levender, #8B5CF6);
+    color: var(--levender, #8B5CF6);
+}
+
+.profile-menu-link.active {
+    border-color: var(--levender, #8B5CF6);
+    color: #333; 
+}
+
+.profile-menu-link.active .menu-icon {
+    color: #555;
+}
+
+.theme-toggle-item {
+    justify-content: space-between;
+    cursor: default;
+}
+
+.theme-toggle-item:hover {
+    border-color: #e0e0e0;
+    color: #333;
+}
+
+.menu-icon {
+    font-size: 1.1rem;
+    margin-right: 10px;
+    color: #555;
+}
+
+.logout-btn {
+    background-color: var(--levender, #8B5CF6);
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    max-width: 350px;
+}
+
+.logout-btn:hover {
+    background-color: #7c4df2;
+    color: white;
+}
+
+/* For form switch */
+.form-check-input:checked {
+    background-color: var(--levender, #8B5CF6);
+    border-color: var(--levender, #8B5CF6);
+}
+
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+    border-color: var(--levender, #8B5CF6);
+}

@@ -10,6 +10,7 @@
     overflow-y: hidden;
     scrollbar-width: none;
     scroll-behavior: smooth;
+    
 }
 
 .ProductCard-section::-webkit-scrollbar{
@@ -91,15 +92,25 @@
     padding: 0.6rem;
 }
 
-.icon-btn{
-    border: none;
+.icon-btn-cart{
+    border: 1px solid #8B5CF6;
     border-radius: 10%;
-    background-color: #f3f3f3;
+    background-color: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
-  
+    color: #8B5CF6;
+    font-size: 1.4rem;
+    transition: 0.3s ease;
 }
+
+.icon-btn-cart:hover{
+    background: #8B5CF6;
+    color: white;
+}
+
+
+
 
 /* WISHLIST */
 .wishlist{
@@ -111,20 +122,32 @@
     right: 6%;
 }
 
+.card{
+    position: relative;
+    min-width: 14rem;
+    max-width: 14rem;
+    transition: 0.3s ease;
+    flex-shrink: 0;         
+}
+
+/* ... */
+
 .wishlist button{
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background-color: var(--white-color);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
+    font-size: 1.1rem;
+    transition: 0.3s;
 }
-/* .wishlist button:hover{
-    color: red;
-} */
+.wishlist button:hover{
+    transform: scale(1.1);
+}
  .heart-icon{
     color:red;
     cursor: pointer;
@@ -139,12 +162,13 @@
     font-family: bootstrap-icons;
 }
 
+
 /* TABLET */
 @media (max-width: 992px){
 
     .ProductCard-section .container{
 
-        gap: 1rem;
+        gap: 2rem;
     }
 
     .card{

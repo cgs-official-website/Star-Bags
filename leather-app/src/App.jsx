@@ -1,16 +1,28 @@
+
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
-import Home from './pages/Home';
-import Cart from './pages/Cart';
-// import Checkout from './pages/Checkout';
-import Orders from './pages/Orders';
-import ProductDetails from './pages/ProductDetails';
-import WishList from './pages/WishList';
-import Contact from './pages/Contact';
-import CreateAccount from './pages/CreateAccount';
-import Login from './pages/Login';
-import ResetPassword from './pages/Resetpassword';
-import ForgotPassword from './pages/ForgotPassword';
+import Home from './pages/User/Home';
+import Cart from './pages/User/Cart';
+// import Checkout from './pages/User/Checkout';
+import Orders from './pages/User/Orders';
+import ProductDetails from './pages/User/ProductDetails';
+import WishList from './pages/User/WishList';
+import Contact from './pages/User/Contact';
+import CreateAccount from './pages/User/CreateAccount';
+import Login from './pages/User/Login';
+import ResetPassword from './pages/User/Resetpassword';
+import ForgotPassword from './pages/User/ForgotPassword';
+import Profile from './pages/User/Profile';
+import SavedAddress from './pages/User/SavedAddress';
+import TrackOrder from './pages/User/TrackOrder';
+import Product from './pages/User/Allproducts';
+import BillAddress from './pages/User/BillAddress';
+
+
+
+
+
+
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminSignup from './pages/Admin/AdminSignup';
@@ -24,10 +36,18 @@ import AdminSettings from './pages/Admin/Settings';
 import ReportAnalysis from './pages/Admin/ReportAnalysis';
 import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
-import BillAddress from './pages/BillAddress';
-import SignUpVerification from './pages/SignUpVerification';
 
-const App = () => {
+// import BillAddress from './pages/User/BillAddress';
+import SignUpVerification from './pages/User/SignUpVerification';
+
+
+
+
+
+
+
+
+ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
@@ -39,13 +59,20 @@ const App = () => {
         <Route path="/forgotPassword" element={<ForgotPassword/>} />
         <Route path="/resetPassword" element={<ResetPassword/>} />
         {/* <Route path="/checkout" element={<Checkout />} /> */}
-        <Route path="/checkout" element={<BillAddress />} />
-        {/* <Route path="/yourCart" element={<YourCart/>} /> */}
         <Route path="/orders" element={<Orders />} />
         <Route path="/contact" element={<Contact />} />
-        {/* <Route path="/allProduct" element={<Product />} /> */}
+        <Route path="/allProducts" element={<Product />} />
         <Route path="/product" element={<ProductDetails />} />
         <Route path="/wishlist" element={<WishList />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/address" element={<SavedAddress />} />
+        <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/checkout" element={<BillAddress />} />
+        <Route path='/SignUpVerification' element={<SignUpVerification />} />
+        <Route path='/BillAddress' element={<BillAddress />} />
+
+
+
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />

@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 
 import { FaPlusCircle } from "react-icons/fa";
 
-import Navbar from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import CartItem from "../components/User/YourCart";
-import CouponCard from "../components/User/CouponCard";
-import OrderSummary from "../components/User/OrderSummary";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import CartItem from "../../components/User/YourCart";
+import CouponCard from "../../components/User/CouponCard";
+import OrderSummary from "../../components/User/OrderSummary";
 
-import "../assets/styles/Cart.css";
+import "../../assets/styles/Cart.css";
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -65,6 +65,19 @@ const CartPage = () => {
       wishlist: false,
       selected: true,
     },
+    {
+      id: 5,
+      name: "Leather Belt",
+      price: 120,
+      oldPrice: 150,
+      discount: "20% off",
+      image: "./src/assets/images/belt.png",
+      qty: 1,
+      rating: 4.2,
+      wishlist: false,
+      selected: true,
+    },
+    
   ]);
 
   const coupons = [
@@ -91,21 +104,23 @@ const CartPage = () => {
     },
   ];
 
-  const selectedItems = cartItems.filter((item) => item.selected);
+  const selectedItems = cartItems.filter(
+    (item) => item.selected
+  );
 
   const totalItemsCount = selectedItems.reduce(
     (acc, item) => acc + item.qty,
-    0,
+    0
   );
 
   const rawTotal = selectedItems.reduce(
     (acc, item) => acc + item.oldPrice * item.qty,
-    0,
+    0
   );
 
   const subTotal = selectedItems.reduce(
     (acc, item) => acc + item.price * item.qty,
-    0,
+    0
   );
 
   const discountTotal = rawTotal - subTotal;
@@ -122,8 +137,8 @@ const CartPage = () => {
               ...item,
               qty: item.qty + 1,
             }
-          : item,
-      ),
+          : item
+      )
     );
   };
 
@@ -135,13 +150,15 @@ const CartPage = () => {
               ...item,
               qty: item.qty - 1,
             }
-          : item,
-      ),
+          : item
+      )
     );
   };
 
   const removeItem = (id) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setCartItems((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
   };
 
   const toggleWishlist = (id) => {
@@ -152,8 +169,8 @@ const CartPage = () => {
               ...item,
               wishlist: !item.wishlist,
             }
-          : item,
-      ),
+          : item
+      )
     );
   };
 
@@ -165,8 +182,8 @@ const CartPage = () => {
               ...item,
               selected: !item.selected,
             }
-          : item,
-      ),
+          : item
+      )
     );
   };
 
@@ -200,7 +217,9 @@ const CartPage = () => {
       <div className="cart-page">
         <h2 className="cart-title">
           Your cart
-          <span className="cart-count">({cartItems.length} items)</span>
+          <span className="cart-count">
+            ({cartItems.length} items)
+          </span>
         </h2>
 
         <p className="cart-subtitle">
@@ -236,7 +255,9 @@ const CartPage = () => {
             />
 
             <div className="coupon-section">
-              <h5 className="coupon-title">Apply coupon</h5>
+              <h5 className="coupon-title">
+                Apply coupon
+              </h5>
 
               <div className="coupon-input-box">
                 <input
@@ -244,10 +265,14 @@ const CartPage = () => {
                   placeholder="Enter coupon code"
                   className="coupon-input"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
+                  onChange={(e) =>
+                    setCouponCode(e.target.value)
+                  }
                 />
 
-                <button className="apply-btn">Apply</button>
+                <button className="apply-btn">
+                  Apply
+                </button>
               </div>
 
               <div className="coupon-list">

@@ -1,0 +1,235 @@
+/* ─────────────────────────────────────────────
+   FilterSidebar.css
+   Place at: src/assets/styles/FilterSidebar.css
+───────────────────────────────────────────── */
+
+/* ── Sidebar container ── */
+.fs-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--white-color);
+  border: 1.5px solid var(--border-gray);
+  border-radius: 16px;
+  padding: 20px 16px;
+  height: fit-content;
+  position: sticky;
+  top: 80px; /* sits below sticky navbar */
+}
+
+/* ── Main title ── */
+.fs-main-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid var(--border-gray);
+}
+
+/* ── Section block ── */
+.fs-section {
+  margin-bottom: 20px;
+}
+
+.fs-section-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+/* ── Dropdown ── */
+.fs-dropdown {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.fs-dropdown-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border-gray);
+  border-radius: 10px;
+  background: var(--white-color);
+  font-size: 0.85rem;
+  font-family: nunito;
+  font-weight: 600;
+  color: var(--text-dark);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.fs-dropdown-btn:hover {
+  border-color: var(--levender);
+}
+
+.fs-dropdown-btn i {
+  font-size: 0.75rem;
+  color: var(--text-gray);
+}
+
+.fs-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--white-color);
+  border: 1.5px solid var(--border-gray);
+  border-radius: 10px;
+  z-index: 50;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  list-style: none;
+  padding: 4px 0;
+  margin: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.fs-dropdown-item {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-dark);
+  transition: background 0.15s;
+}
+
+.fs-dropdown-item:hover,
+.fs-dropdown-item.active {
+  background: var(--soft-secondary);
+  color: var(--text-h);
+}
+
+/* ── Price range ── */
+.fs-range {
+  width: 100%;
+  accent-color: var(--levender);
+  margin: 6px 0 10px;
+  cursor: pointer;
+}
+
+.fs-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fs-price-input {
+  width: 80px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--border-gray);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: nunito;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.fs-price-input:focus {
+  border-color: var(--levender);
+}
+
+.fs-price-dash {
+  color: var(--text-gray);
+  font-weight: 700;
+}
+
+/* ── Color grid ── */
+.fs-color-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.fs-color-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.fs-color-item:hover {
+  background: var(--soft-secondary);
+}
+
+.fs-color-item.selected {
+  border-color: var(--levender);
+  background: var(--soft-secondary);
+}
+
+.fs-color-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.fs-color-name {
+  flex: 1;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fs-color-count {
+  color: var(--text-gray);
+  font-size: 0.7rem;
+}
+
+/* ── Apply button ── */
+.fs-apply-btn {
+  width: 100%;
+  padding: 11px 0;
+  background: var(--levender);
+  color: var(--white-color);
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  font-family: nunito;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.fs-apply-btn:hover {
+  background: var(--text-h);
+  transform: translateY(-1px);
+  
+}
+
+/* ── Responsive: hide sidebar on mobile, show as overlay toggle ── */
+@media (max-width: 768px) {
+  .fs-sidebar {
+    width: 50%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 200;
+    overflow-y: auto;
+    border-radius: 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    transform: translateX(-110%);
+    transition: transform 0.3s ease;
+  }
+
+  .fs-sidebar.open {
+    transform: translateX(0);
+  }
+}

@@ -1,3 +1,4 @@
+
 import { BiSolidWallet } from "react-icons/bi";
 import { GiSchoolBag, GiBelt } from "react-icons/gi";
 
@@ -40,5 +41,6 @@ export const Categories = () => {
         </div>
       </div>
     </section>
+
   );
 };

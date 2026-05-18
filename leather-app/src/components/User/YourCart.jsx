@@ -37,9 +37,9 @@ const CartItem = ({
         <div>
           {/* TOP */}
           <div className="cart-top">
-            <h4 className="cart-product-name">
+            <h1 className="cart-product-name">
               {item.name}
-            </h4>
+            </h1>
 
             <div className="cart-rating">
               <div className="rating-box">

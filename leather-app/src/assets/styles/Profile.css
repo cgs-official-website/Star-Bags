@@ -1,0 +1,68 @@
+/* Profile Page Content */
+.profile-details-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 24px;
+    background: #fff;
+}
+
+.edit-profile-btn {
+    background-color: var(--levender, #8B5CF6);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+}
+
+.edit-profile-btn:hover {
+    background-color: #7c4df2;
+    color: white;
+}
+
+.cancel-profile-btn {
+    background-color: transparent;
+    color: red;
+    border: 1px solid red;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.cancel-profile-btn:hover {
+    background-color: #ffe6e6; /* light red */
+    color: red;
+}
+
+.profile-details-card .form-control,
+.profile-details-card .custom-form-select {
+    padding: 10px 12px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.profile-details-card .form-control:focus,
+.profile-details-card .custom-form-select:focus {
+    border-color: var(--levender, #8B5CF6);
+    box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
+}
+
+.profile-details-card .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .profile-details-card {
+        padding: 20px;
+        width: 100%;
+    }
+   
+}

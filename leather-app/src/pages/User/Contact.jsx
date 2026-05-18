@@ -4,12 +4,12 @@ import { FaLocationDot } from "react-icons/fa6";
 import { FaPhoneAlt, FaClock } from "react-icons/fa";
 import { MdMarkEmailUnread } from "react-icons/md";
 import { CgAsterisk } from "react-icons/cg";
-import Navbar from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
 
-import ContactImage from "../assets/images/contact-image.png";
+import ContactImage from "../../assets/images/contact-image.png";
 
-import "../assets/styles/Contact.css";
+import "../../assets/styles/Contact.css";
 
 const Contact = () => {
   const [problemType, setProblemType] = useState("Product Damage");

@@ -2,20 +2,20 @@ import { CgAsterisk } from "react-icons/cg";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 
-import "../assets/styles/CreateAccount.css";
+import "../../assets/styles/Login.css";
 
-import LoginImage from "../assets/images/login-image.png";
+import LoginImage from "../../assets/images/login-image.png";
 import { NavLink } from "react-router-dom";
 
-const CreateAccount = () => {
+const Login = () => {
   return (
     <>
-      <div className="sign-up">
+      <div className="login">
         {/* LEFT SIDE */}
         <div className="d-none d-lg-block col-lg-7 logo-image">
           <img src={LoginImage} alt="Leather Bag" />
 
-          <div className="sign-up-content">
+          <div className="login-content">
             <div className="brand-logo">
               <span>✦</span>
               <h5>Star Bags</h5>
@@ -39,28 +39,11 @@ const CreateAccount = () => {
 
         {/* RIGHT SIDE */}
         <div className="col-12 col-lg-5 form-section ">
-          <div className="sign-up-form">
-            <h6>Create Account</h6>
-
-            <p>Join Star Bags and experience timeless craftsmanship.</p>
-
+          <div className="login-form">
+            <h6>Welcome Back</h6>
+            <p>Login to your account and continue.</p>
             <form>
-              {/* NAME */}
-              {/* <div className="mb-1">
-                <label className="form-label">
-                  Enter your name
-                  <sup>
-                    <CgAsterisk />
-                  </sup>
-                </label>
-
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Enter your name"
-                />
-              </div> */}
-
+             
               {/* EMAIL */}
               <div className="mb-1">
                 <label className="form-label">
@@ -78,9 +61,9 @@ const CreateAccount = () => {
               </div>
 
               {/* PASSWORD */}
-              <div className="mb-1">
+              <div className="mb-2">
                 <label className="form-label">
-                  Create password
+                   Password
                   <sup>
                     <CgAsterisk />
                   </sup>
@@ -89,43 +72,19 @@ const CreateAccount = () => {
                 <input
                   type="password"
                   className="form-control"
-                  placeholder="Create your Password"
+                  placeholder="Enter your Password"
                 />
               </div>
 
-              {/* CONFIRM PASSWORD */}
-              {/* <div className="mb-3">
-                <label className="form-label">
-                  Confirm your password
-                  <sup>
-                    <CgAsterisk />
-                  </sup>
-                </label>
-
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Confirm your password"
-                />
-              </div> */}
-
-              {/* CHECKBOX */}
-              <div className="form-check mb-3">
-                <input
-                  className="form-check-input"
-                  type="checkbox"
-                  id="remember"
-                />
-
-                <label className="form-check-label" htmlFor="remember">
-                  Accepted the <NavLink className="text-decoration-none term" >Terms and condition</NavLink>
-                </label>
+              {/* FORGOT PASSWORD  */}
+              <div className="forgot-password my-2 text-end">
+                <NavLink to={"/forgotPassword"} className="navigate">Forgot password?</NavLink>
               </div>
-
+              
               {/* BUTTON */}
               <div className="d-grid">
-                <NavLink to={'/signupVerify'} className="btn signup-btn" type="submit">
-                  Sign up
+                <NavLink   to={ "/"} className="btn login-btn" type="submit">
+                 Log in
                 </NavLink>
               </div>
             </form>
@@ -145,18 +104,19 @@ const CreateAccount = () => {
               <button className="social-btn">
                 <FcGoogle className="social-icon" />
                 Sign in with Google
-              </button>  
+              </button>
 
               <button className="social-btn">
                 <FaApple className="social-icon" />
                 Sign in with Apple
               </button>
             </div>
+
             {/* FOOTER */}
-            <div className="signin-footer">
+            <div className="signup-footer">
               <p>
-                Already have an account?
-                <NavLink  to={"/login"}> Sign in</NavLink>
+                Don't have an account?
+                <NavLink  to={"/signup"}> Create Account</NavLink>
               </p>
             </div>
           </div>
@@ -166,4 +126,4 @@ const CreateAccount = () => {
   );
 };
 
-export default CreateAccount;
+export default Login;

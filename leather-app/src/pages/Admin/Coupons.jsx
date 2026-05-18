@@ -1,8 +1,12 @@
 import React from 'react'
-
+import AdminSidebar from '../../components/Admin/AdminSidebar'
+import '../../assets/styles/coupon.css'
 function Coupons() {
+    
   return (
-    <div>Coupons</div>
+    <AdminSidebar>
+        <div>Coupons</div>
+    </AdminSidebar>
   )
 }
 

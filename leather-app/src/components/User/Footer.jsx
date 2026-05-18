@@ -1,3 +1,4 @@
+
 import "../../assets/styles/Footer.css";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaInstagram, FaWhatsapp } from "react-icons/fa";
@@ -5,10 +6,12 @@ import { FaXTwitter } from "react-icons/fa6";
 
 // import { FaQ } from "./Faq";
 
+
 const Footer = () => {
   const year = new Date().getFullYear();
   return (
     <footer>
+
       <div className="container">
         <div className=" row py-3 ">
           <div className="col-lg-4 col-12 details pe-4">
@@ -41,10 +44,12 @@ const Footer = () => {
                   <FaXTwitter />
                 </a>
               </li>
+
             </ul>
           </div>
           <div className="col-lg-2 col-6  product-details">
             <h6>Sections</h6>
+
             <ul className="footer-link">
               <li>
                 <a href="/">Home</a>
@@ -58,10 +63,12 @@ const Footer = () => {
               <li>
                 <a href="/#faq-section">faq</a>
               </li>
+
             </ul>
           </div>
           <div className="col-lg-2 col-6  product-details">
             <h6>Products</h6>
+
             <ul className="footer-link">
               <li>
                 <a href="#">Bags</a>
@@ -72,10 +79,12 @@ const Footer = () => {
               <li>
                 <a href="#">belts</a>
               </li>
+
             </ul>
           </div>
           <div className="col-lg-2 col-6  product-details">
             <h6>Services</h6>
+
             <ul className="footer-link">
               <li>
                 <a href="#">COD</a>
@@ -102,11 +111,14 @@ const Footer = () => {
           <div className="d-flex gap-3 policy">
             <p>Privacy Policy </p>
             <p>All rights reserved &copy; {year}</p>
+
           </div>
         </div>
       </div>
     </footer>
+
   );
 };
 
 export default Footer;
+

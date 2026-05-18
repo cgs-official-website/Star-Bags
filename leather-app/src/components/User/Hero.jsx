@@ -32,12 +32,16 @@ export const Hero = () => {
               <div className="hero-overlay"></div>
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
+
                 <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
+
                 <button className="btn hero-btn">Shop Now { /* → */}</button>
+
               </div>
             </div>
 
@@ -49,7 +53,9 @@ export const Hero = () => {
 
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
+
                 <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
@@ -65,7 +71,9 @@ export const Hero = () => {
               <div className="hero-overlay"></div>
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
+
                 <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
@@ -81,7 +89,9 @@ export const Hero = () => {
               <div className="hero-overlay"></div>
               <div className="hero-content">
                 <span className="hero-tag">PREMIUM LEATHER</span>
+
                 <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
