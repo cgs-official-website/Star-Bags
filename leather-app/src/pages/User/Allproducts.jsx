@@ -1,12 +1,23 @@
 import { useState } from 'react';
-import Navbar from '../components/User/Navbar';
-import Footer from '../components/User/Footer';
-import SortBySelect from '../components/User/SortBySelect';
-import FilterSideBar, { DEFAULT_FILTERS } from '../components/User/FilterSideBar';
-import ActiveFilterTags from '../components/User/ActiveFilterTags';
-import ProductCard from '../components/User/ProductCard';
-import '../assets/styles/AllProducts.css';
 
+import SortBySelect from '../../components/User/SortBySelect';
+import FilterSideBar, { DEFAULT_FILTERS } from '../../components/User/FilterSideBar';
+import ActiveFilterTags from '../../components/User/ActiveFilterTags';
+// import ProductCard from '../components/User/ProductCard';
+import '../../assets/styles/AllProducts.css';
+
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProductCard from "../../components/User/ProductCard";
+
+// import Filtersidebar from "../../components/User/Filtersidebar";
+// import FilterButton from "../../components/User/FilterButton";
+
+import "../../assets/styles/allproducts.css";
+// import "../../assets/styles/filterbutton.css";
+import OrderCard from "../../components/User/OrderCard";
+
+// <<<<<<< HEAD:leather-app/src/pages/Allproducts.jsx
 const buildActiveTags = (filters) => {
   const tags = [];
   filters.bags.forEach((b)    => tags.push({ type: 'Bag',     label: b }));
@@ -125,4 +136,7 @@ const AllProducts = () => {
   );
 };
 
+
+
 export default AllProducts;
+// >>>>>>> a16689dca845d93c2944bd149799ac7995bc61de:leather-app/src/pages/User/Allproducts.jsx

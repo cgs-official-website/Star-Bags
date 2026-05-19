@@ -1,8 +1,10 @@
 import React from 'react'
-
+import AdminSidebar from '../../components/Admin/AdminSidebar'
 function Settings() {
   return (
-    <div>Settings</div>
+    <AdminSidebar>
+        <div>Settings</div>
+    </AdminSidebar>
   )
 }
 

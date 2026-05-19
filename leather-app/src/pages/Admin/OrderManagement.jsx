@@ -1,8 +1,10 @@
 import React from 'react'
-
+import AdminSidebar from '../../components/Admin/AdminSidebar'
 function OrderManagement() {
   return (
-    <div>OrderManagement</div>
+    <AdminSidebar>
+        <div>OrderManagement</div>
+    </AdminSidebar>
   )
 }
 
