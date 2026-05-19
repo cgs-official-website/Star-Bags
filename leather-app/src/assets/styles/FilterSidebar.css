@@ -35,6 +35,14 @@
   margin-top: 0.2rem;
 }
 
+.bold-label {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+/* ── Bags dropdown button ── */
 .filter-dropdown-btn {
   width: 100%;
   display: flex;
@@ -50,14 +58,43 @@
   transition: border-color 0.2s;
 }
 
-.filter-dropdown-btn:hover {
+.filter-dropdown-btn:hover,
+.filter-dropdown-btn.open {
   border-color: #8b5cf6;
 }
 
 .dropdown-chevron {
   font-size: 0.75rem;
   color: #555;
-  transition: transform 0.2s;
+}
+
+/* ── Flat category buttons (Wallet, Belt) ── */
+.category-flat-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  background: #fff;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.category-flat-btn:hover {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+.category-flat-btn.active {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+  color: #7c3aed;
+  font-weight: 600;
 }
 
 /* ── Dropdown List ── */
@@ -94,6 +131,48 @@
   height: 15px;
   cursor: pointer;
   flex-shrink: 0;
+}
+
+/* ── Brands section ── */
+.filter-section {
+  margin-bottom: 0.8rem;
+}
+
+.brand-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.brand-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.brand-item:hover {
+  background: #f5f3ff;
+  border-color: #8b5cf6;
+}
+
+.brand-item.selected {
+  background: #f5f3ff;
+  border-color: #8b5cf6;
+}
+
+.brand-checkbox-box input[type='checkbox'] {
+  accent-color: #8b5cf6;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
 /* ── Price Range ── */

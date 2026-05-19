@@ -3,70 +3,49 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../../assets/styles/FilterSideBar.css";
 
 // ── Static Data ───────────────────────────────────────────────────────────────
-export const BAG_TYPES     = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
-export const WALLET_TYPES  = ['Slim Wallet', 'Zip Wallet', 'Card Holder', 'Bifold Wallet'];
-export const BELT_TYPES    = ['Classic Belt', 'Braided Belt', 'Reversible Belt', 'Web Belt'];
-export const SIZES         = ['Small', 'Medium', 'Large', 'XL'];
-export const PATTERNS      = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
+export const BAG_TYPES = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
+export const BRANDS    = ['Puma', 'American Tourist', 'Sky bags', 'VIP', 'Safari'];
+export const MATERIALS = ['Leather bags', 'Canvas bags', 'Nylon bags', 'Polyester bags'];
+export const SIZES     = ['Small', 'Medium', 'Large', 'XL'];
+export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
 
-// ── Default filter state (exported so AllProducts can initialise with it) ─────
+// ── Default filter state ──────────────────────────────────────────────────────
 export const DEFAULT_FILTERS = {
+  category:   '',
   bags:       [],
-  wallets:    [],
-  belts:      [],
+  brands:     [],
+  material:   '',
   size:       '',
   pattern:    '',
   priceRange: [0, 860],
 };
 
-// ── Reusable Accordion Dropdown ───────────────────────────────────────────────
-const AccordionDropdown = ({ label, options, selectedValues, onSelect, multiSelect = false }) => {
+// ── Simple single-select dropdown ─────────────────────────────────────────────
+const SimpleDropdown = ({ label = 'Select', options, selected, onSelect }) => {
   const [open, setOpen] = useState(false);
-
-  const handleSelect = (option) => {
-    if (multiSelect) {
-      const next = selectedValues.includes(option)
-        ? selectedValues.filter((v) => v !== option)
-        : [...selectedValues, option];
-      onSelect(next);
-    } else {
-      onSelect(selectedValues === option ? '' : option);
-      setOpen(false);
-    }
-  };
-
-  const isSelected = (option) =>
-    multiSelect ? selectedValues.includes(option) : selectedValues === option;
-
-  const btnLabel = multiSelect && selectedValues.length > 0
-    ? `${label} (${selectedValues.length})`
-    : selectedValues && !multiSelect
-    ? selectedValues
-    : label;
-
   return (
     <div className="filter-dropdown-group">
       <button
-        className="filter-dropdown-btn"
+        className={`filter-dropdown-btn ${open ? 'open' : ''}`}
         onClick={() => setOpen((o) => !o)}
         type="button"
       >
-        <span>{btnLabel}</span>
+        <span>{selected || label}</span>
         <i className={`bi bi-chevron-${open ? 'up' : 'down'} dropdown-chevron`} />
       </button>
       {open && (
         <div className="filter-dropdown-list">
-          {options.map((option) => (
+          {options.map((opt) => (
             <label
-              key={option}
-              className={`filter-checkbox-item ${isSelected(option) ? 'selected' : ''}`}
+              key={opt}
+              className={`filter-checkbox-item ${selected === opt ? 'selected' : ''}`}
             >
               <input
                 type="checkbox"
-                checked={isSelected(option)}
-                onChange={() => handleSelect(option)}
+                checked={selected === opt}
+                onChange={() => { onSelect(selected === opt ? '' : opt); setOpen(false); }}
               />
-              <span>{option}</span>
+              <span>{opt}</span>
             </label>
           ))}
         </div>
@@ -76,44 +55,135 @@ const AccordionDropdown = ({ label, options, selectedValues, onSelect, multiSele
 };
 
 // ── Main FilterSideBar ────────────────────────────────────────────────────────
-const FilterSideBar = ({ filters, onChange, onApply }) => {
-  const { bags, wallets, belts, size, pattern, priceRange } = filters;
+const FilterSideBar = ({ filters = {}, onChange, onApply }) => {
+  const [bagsOpen, setBagsOpen] = useState(false);
 
-  const update = (key, value) => onChange({ ...filters, [key]: value });
+  // ✅ Safe fallbacks — prevents crashes if parent passes old/partial filters
+  const category   = filters.category   ?? '';
+  const bags       = filters.bags       ?? [];
+  const brands     = filters.brands     ?? [];
+  const material   = filters.material   ?? '';
+  const size       = filters.size       ?? '';
+  const pattern    = filters.pattern    ?? '';
+  const priceRange = filters.priceRange ?? [0, 860];
+
+  const update = (key, value) => onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
+
+  const handleBagToggle = (type) => {
+    const next = bags.includes(type)
+      ? bags.filter((t) => t !== type)
+      : [...bags, type];
+    update('bags', next);
+  };
+
+  const handleBrandToggle = (brand) => {
+    const next = brands.includes(brand)
+      ? brands.filter((b) => b !== brand)
+      : [...brands, brand];
+    update('brands', next);
+  };
+
+  const handleCategoryClick = (cat) => {
+    update('category', category === cat ? '' : cat);
+  };
 
   return (
     <aside className="filter-sidebar">
       <h3 className="sidebar-title">Product Categories</h3>
       <p className="sidebar-subtitle">All Filters</p>
 
-      {/* Bags */}
-      <AccordionDropdown
-        label="Bags"
-        options={BAG_TYPES}
-        selectedValues={bags}
-        onSelect={(v) => update('bags', v)}
-        multiSelect
-      />
+      {/* ── Bags — dropdown ── */}
+      <div className="filter-dropdown-group">
+        <button
+          className={`filter-dropdown-btn ${bagsOpen ? 'open' : ''}`}
+          onClick={() => setBagsOpen((o) => !o)}
+          type="button"
+        >
+          <span>{bags.length > 0 ? `Bags (${bags.length})` : 'Bags'}</span>
+          <i className={`bi bi-chevron-${bagsOpen ? 'up' : 'down'} dropdown-chevron`} />
+        </button>
+        {bagsOpen && (
+          <div className="filter-dropdown-list">
+            {BAG_TYPES.map((type) => (
+              <label
+                key={type}
+                className={`filter-checkbox-item ${bags.includes(type) ? 'selected' : ''}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={bags.includes(type)}
+                  onChange={() => handleBagToggle(type)}
+                />
+                <span>{type}</span>
+              </label>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Wallet */}
-      <AccordionDropdown
-        label="Wallet"
-        options={WALLET_TYPES}
-        selectedValues={wallets}
-        onSelect={(v) => update('wallets', v)}
-        multiSelect
-      />
+      {/* ── Wallet — flat button ── */}
+      <button
+        className={`category-flat-btn ${category === 'wallet' ? 'active' : ''}`}
+        type="button"
+        onClick={() => handleCategoryClick('wallet')}
+      >
+        Wallet
+      </button>
 
-      {/* Belt */}
-      <AccordionDropdown
-        label="Belt"
-        options={BELT_TYPES}
-        selectedValues={belts}
-        onSelect={(v) => update('belts', v)}
-        multiSelect
-      />
+      {/* ── Belt — flat button ── */}
+      <button
+        className={`category-flat-btn ${category === 'belt' ? 'active' : ''}`}
+        type="button"
+        onClick={() => handleCategoryClick('belt')}
+      >
+        Belt
+      </button>
 
-      {/* Filter by price */}
+      {/* ── Brands — checkbox list ── */}
+      <div className="filter-section">
+        <p className="filter-label bold-label">Brands</p>
+        <div className="brand-list">
+          {BRANDS.map((brand) => (
+            <label
+              key={brand}
+              className={`brand-item ${brands.includes(brand) ? 'selected' : ''}`}
+            >
+              <span className="brand-checkbox-box">
+                <input
+                  type="checkbox"
+                  checked={brands.includes(brand)}
+                  onChange={() => handleBrandToggle(brand)}
+                />
+              </span>
+              <span>{brand}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Material — dropdown ── */}
+      <div className="filter-section">
+        <p className="filter-label bold-label">Material</p>
+        <SimpleDropdown
+          label="Leather bags"
+          options={MATERIALS}
+          selected={material}
+          onSelect={(v) => update('material', v)}
+        />
+      </div>
+
+      {/* ── Product Size — dropdown ── */}
+      <div className="filter-section">
+        <p className="filter-label bold-label">Product Size</p>
+        <SimpleDropdown
+          label="Product Sizes"
+          options={SIZES}
+          selected={size}
+          onSelect={(v) => update('size', v)}
+        />
+      </div>
+
+      {/* ── Filter by price ── */}
       <div className="filter-price-section">
         <p className="filter-label">Filter by price</p>
         <input
@@ -144,31 +214,7 @@ const FilterSideBar = ({ filters, onChange, onApply }) => {
         </div>
       </div>
 
-      {/* Product Sizes */}
-      <div className="filter-dropdown-group">
-        <p className="filter-label">Product sizes</p>
-        <AccordionDropdown
-          label="Product Sizes"
-          options={SIZES}
-          selectedValues={size}
-          onSelect={(v) => update('size', v)}
-          multiSelect={false}
-        />
-      </div>
-
-      {/* Patterns Category */}
-      <div className="filter-dropdown-group">
-        <p className="filter-label">Patterns Category</p>
-        <AccordionDropdown
-          label="Pattern leather"
-          options={PATTERNS}
-          selectedValues={pattern}
-          onSelect={(v) => update('pattern', v)}
-          multiSelect={false}
-        />
-      </div>
-
-      {/* Apply Button */}
+      {/* ── Apply ── */}
       <button className="apply-filter-btn" type="button" onClick={onApply}>
         Apply Filter
       </button>
