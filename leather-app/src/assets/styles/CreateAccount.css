@@ -125,18 +125,17 @@
    /* TITLE */
 
 .sign-up-form h6{
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color:var(--text-dark);
-    /* margin-bottom: 10px; */
     position: relative;
     z-index: 2;
 }
 
 .sign-up-form p{
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-gray);
-    line-height: 1.7;
+    line-height: 1.5;
     margin-bottom: 10px;
     position: relative;
     z-index: 2;
@@ -227,7 +226,10 @@
     ); */
     background-color: var(--levender);
     color: white;
-    font-size: 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 600;
     transition: 0.3s ease;
     /* box-shadow: 0 4px 10px var(--hover-color); */

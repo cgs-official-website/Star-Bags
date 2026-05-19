@@ -39,6 +39,7 @@ import StoreDetails from './pages/Admin/StoreDetails';
 
 // import BillAddress from './pages/User/BillAddress';
 import SignUpVerification from './pages/User/SignUpVerification';
+import Checkout from './pages/Checkout';
 
 
 
@@ -67,7 +68,7 @@ import SignUpVerification from './pages/User/SignUpVerification';
         <Route path="/profile" element={<Profile />} />
         <Route path="/address" element={<SavedAddress />} />
         <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/checkout" element={<BillAddress />} />
+        <Route path="/checkout" element={<Checkout/>} />
         <Route path='/SignUpVerification' element={<SignUpVerification />} />
         <Route path='/BillAddress' element={<BillAddress />} />
 
@@ -87,6 +88,7 @@ import SignUpVerification from './pages/User/SignUpVerification';
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
         <Route path="/admin/store-details" element={<StoreDetails />} />
+        
       </Routes>
     </BrowserRouter>
   );
