@@ -3,14 +3,12 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import OrderCard from "../../components/User/OrderCard";
-import SortBySelect from "../../components/User/SortBySelect"; // ✅ Import SortBySelect
 import { FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import "../../assets/styles/Orders.css";
 
 function Orders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [sortOption, setSortOption] = useState(""); // ✅ New state for sorting
   const ordersPerPage = 3;
 
   // Sample orders data
@@ -83,22 +81,11 @@ function Orders() {
   ]);
 
   // Filter orders based on search
-  let filteredOrders = orders.filter(
+  const filteredOrders = orders.filter(
     (order) =>
       order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // ✅ Apply sorting before pagination
-  if (sortOption === "price-low") {
-    filteredOrders = [...filteredOrders].sort(
-      (a, b) => a.discountedPrice - b.discountedPrice
-    );
-  } else if (sortOption === "price-high") {
-    filteredOrders = [...filteredOrders].sort(
-      (a, b) => b.discountedPrice - a.discountedPrice
-    );
-  }
 
   // Pagination logic
   const indexOfLastOrder = currentPage * ordersPerPage;
@@ -127,13 +114,11 @@ function Orders() {
           {/* Main Content - My Orders */}
           <div className="col-lg-8 col-md-7">
             <div className="orders-card">
-              <div className="orders-header d-flex justify-content-between align-items-center">
+              <div className="orders-header">
                 <div>
                   <h4 className="fw-bold mb-0">My Orders</h4>
                   <p className="orders-subtitle">View my Last Purchase History</p>
                 </div>
-                {/* ✅ SortBySelect added */}
-                <SortBySelect value={sortOption} onChange={setSortOption} />
               </div>
 
               {/* Search Bar */}

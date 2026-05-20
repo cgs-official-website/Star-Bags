@@ -1,797 +1,276 @@
+/* ========================
+   FILTER SIDEBAR
+======================== */
 
-.order-card {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-  padding: 15px 20px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  max-width: 950px;
-  height: 250px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-
-.order-card__image-wrapper {
-  width: 230px;
-  height: 230px;
-  border-radius: 8px;
-  overflow: hidden;
+.filter-sidebar {
+  min-width: 220px;
+  max-width: 240px;
   flex-shrink: 0;
-  border: 1px solid #f0f0f0;
 }
 
-.order-card__image-wrapper img {
+.sidebar-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+}
+
+.sidebar-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.6rem;
+}
+
+/* ── Dropdown Group ── */
+.filter-dropdown-group {
+  margin-bottom: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.bold-label {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+/* ── Bags dropdown button ── */
+.filter-dropdown-btn {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Product Info */
-.order-card__info {
-  flex: 1;
-  min-width: 0;
-  max-width: 380px;
-}
-
-.order-card__order-id {
-  color: var(--text-gray);
-  margin: 0 0 4px 0;
-}
-
-/* Product name + rating row */
-.pd-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.order-card__product-name {
-  max-width: 200px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.order-card__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-
-.order-card__rating-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1;
-}
-
-.order-card__rating-count {
-  font-size: 13px;
-  color: #9ca3af;
-  line-height: 1;
-}
-
-/* Price + Qty */
-.order-card__price-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  line-height: 4;
-}
-
-.order-card__price {
-  font-size: 14px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.order-card__original-price {
-  font-size: 13px;
-  color: black;
-  text-decoration: line-through;
-}
-
-.order-card__qty {
-  font-size: 15px;
-  font-weight: 50px;
-  color: black;
-  margin: 0;
-}
-
-.order-card__order-id,
-.order-card__qty,
-.order-card__delivery-time {
-  line-height: 4;
-}
-
-/* Status Section */
-.order-card__status-section {
-  text-align: center;
-  line-height: 5;
-}
-
-.order-card__label {
-  font-size: 18px;
-  color: black;
-  margin-bottom: 6px;
-}
-
-.order-card__status {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.order-card__status--delivered { color: #22c55e; }
-.order-card__status--pending   { color: #f59e0b; }
-.order-card__status--cancelled { color: #ef4444; }
-.order-card__status--default   { color: #6b7280; }
-
-.order-card__track-btn {
-  padding: 8px;
-  background-color: #7c3aed;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  background: #fff;
   cursor: pointer;
-  transition: background-color 0.2s;
-  white-space: nowrap;
+  transition: border-color 0.2s;
 }
 
-.order-card__track-btn:hover {
-  background-color: #6d28d9;
+.filter-dropdown-btn:hover,
+.filter-dropdown-btn.open {
+  border-color: #8b5cf6;
 }
 
-/* Time Section */
-.order {
-  line-height: 7.5;
+.dropdown-chevron {
+  font-size: 0.75rem;
+  color: #555;
 }
 
-.order-card__time-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.order-card__delivery-time {
-  margin: 0;
-  font-size: 16px;
-  color: black;
-  line-height: 1.6;
-  text-align: center;
-}
-
-.order-card__delivery-time span {
-  color: #000;
-  display: inline-block;
-}
-
-.order-card__rate-btn {
-  margin-top: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #f5a623;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1;
-}
-
-/* 📱 Mobile (≤480px) */
-@media (max-width: 480px) {
- 
-  .order-card {
-    width: auto;
-    position: absolute;
-
-    height: 200px; /* shrink height */
-    gap: 10px;
-    padding: 10px;
-
-  }
-  .order-card__image-wrapper {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .order-card__product-name {
-    font-size: 16px;
-    max-width: 120px;
-  }
-  .order-card__rating-value,
-  .order-card__rating-count {
-    font-size: 11px;
-  }
-  .order-card__price {
-    font-size: 12px;
-  }
-  .order-card__qty {
-    font-size: 13px;
-  }
-}
-
-/* 📲 Tablets (≤768px) */
-@media (max-width: 768px) {
-  .order-card {
-    height: 220px;
-    gap: 22px;
-    padding: 12px;
-  }
-  .order-card__image-wrapper {
-    width: 180px;
-    height: 180px;
-  }
-  .order-card__product-name {
-    font-size: 18px;
-    max-width: 150px;
-    
-  }
-  .order-card__rating-value,
-  .order-card__rating-count {
-    font-size: 12px;
-  }
-  
-  .order-card__rate-btn{
-    font-size: 10px
-    
-    ;
-  }
-}
-
-
-/* 💻 Small Laptops (≤1024px) */
-@media (max-width: 1024px) {
-  .order-card {
-    height: 230px;
-    gap: 22px;
-  }
-  .order-card__image-wrapper {
-    width: 200px;
-    height: 200px;
-  }
-  .order-card__product-name {
-    font-size: 20px;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.order-card {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 24px;
+/* ── Flat category buttons (Wallet, Belt) ── */
+.category-flat-btn {
   width: 100%;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  background: #fff;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
 }
 
-/* Image */
-.order-card__image-wrap {
+.category-flat-btn:hover {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+}
+
+.category-flat-btn.active {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+/* ── Dropdown List ── */
+.filter-dropdown-list {
+  border: 1px solid #d1d5db;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  background: #fff;
+  padding: 0.4rem 0;
+}
+
+.filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.filter-checkbox-item:hover {
+  background: #f5f3ff;
+}
+
+.filter-checkbox-item.selected {
+  background-color: #f5f3ff;
+}
+
+.filter-checkbox-item input[type='checkbox'] {
+  accent-color: #8b5cf6;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
   flex-shrink: 0;
-  width: 250px;
-  height: 250px;
-  border-radius: 7px;
-  overflow: hidden;
-  background-color: #f3f4f6;
 }
 
-.order-card__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* ── Brands section ── */
+.filter-section {
+  margin-bottom: 0.8rem;
 }
 
-/* Details */
-.order-card__details {
+.brand-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 200px;
-  flex: 1;
-  line-height: 4;
-  
+  gap: 0.3rem;
 }
 
-.order-card__order-id {
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.order-card__product-name {
-  max-width: 200px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.order-card__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-
-.order-card__rating-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1;
-}
-
-.order-card__rating-count {
-  font-size: 13px;
-  color: #9ca3af;
-  line-height: 1;
-}
-
-
-.order-card__pricing {
+.brand-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.7rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.92rem;
+  color: #1a1a1a;
+  cursor: pointer;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.15s, border-color 0.15s;
 }
 
-.order-card__price {
-  font-size: 15px;
-  font-weight: 700;
-  color: #111827;
+.brand-item:hover {
+  background: #f5f3ff;
+  border-color: #8b5cf6;
 }
 
-.order-card__original-price {
-  font-size: 13px;
-  color: #9ca3af;
+.brand-item.selected {
+  background: #f5f3ff;
+  border-color: #8b5cf6;
 }
 
-.order-card__qty {
-  font-size: 13px;
-  color: #6b7280;
+.brand-checkbox-box input[type='checkbox'] {
+  accent-color: #8b5cf6;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 
+/* ── Price Radio Group (NEW - replaces range slider) ── */
+.filter-price-section {
+  margin-top: 0.8rem;
+  margin-bottom: 0.8rem;
+}
 
-
-/* Status */
-.order-card__status-block {
+.price-radio-group {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.price-radio-item {
+  display: flex;
   align-items: center;
-  gap: 4px;
-  min-width: 90px;
-  line-height: 8;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #4b5563;
+  transition: color 0.2s;
 }
 
-.order-card__status-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #9ca3af;
-  font-weight: 600;
-}
-
-.order-card__status {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.order-card__status--delivered {
-  color: #16a34a;
-}
-
-.order-card__status--pending {
-  color: #d97706;
-}
-
-.order-card__status--cancelled {
-  color: #dc2626;
-}
-
-.order-card__status--processing {
+.price-radio-item:hover {
   color: #7c3aed;
 }
 
-/* Time */
-.order-card__time-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  min-width: 150px;
-  line-height: 8;
-
+.price-radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #8b5cf6;
+  margin: 0;
 }
 
-.order-card__time-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #9ca3af;
-  font-weight: 600;
+.price-radio-item span {
+  cursor: pointer;
 }
 
-.order-card__time-value {
-  font-size: 13px;
-  color: #374151;
-}
-
-/* Actions */
-.order-card__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.order-card__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 20px;
-  border: none;
+.clear-price-btn {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
   border-radius: 6px;
-  font-size: 13px;
+  color: #6b7280;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+  font-weight: 500;
+}
+
+.clear-price-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Remove old price range slider styles (optional - keep for compatibility) */
+.price-range-slider,
+.price-range-inputs {
+  display: none;
+}
+
+/* ── Apply Button ── */
+.apply-filter-btn {
+  width: 100%;
+  background-color: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
+  margin-top: 1.2rem;
+  transition: background 0.2s;
 }
 
-.order-card__btn:hover {
-  opacity: 0.85;
-}
-
-.order-card__btn--track {
+.apply-filter-btn:hover {
   background-color: #7c3aed;
-  color: #ffffff;
 }
 
-.order-card__btn--rate {
-  background-color: #f97316;
-  color: #ffffff;
-}
-
-.order-card__btn-star {
-  font-size: 14px;
-  color: #ffffff;
-}
-
-
-
-.order-card__product-name {
-  max-width: 200px;
-  font-size: 22px;
-  font-weight: 700;
-  color: #111827;
-  margin: 0;
-}
-
-.order-card__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-}
-
-.order-card__rating-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  line-height: 1;
-}
-
-.order-card__rating-count {
-  font-size: 13px;
-  color: #9ca3af;
-  line-height: 1;
+/* ── Responsive ── */
+@media (max-width: 992px) {
+  .filter-sidebar {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
 
 
 
-import React, { useState } from "react";
-import Navbar from "../../components/User/Navbar";
-import Footer from "../../components/User/Footer";
-import ProfileSideNav from "../../components/User/Profile-Side-Nav";
-import { FaSearch, FaStar, FaRegStar, FaTruck, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { MdRateReview } from "react-icons/md";
-import "../../assets/styles/Orders.css";
 
-function Orders() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 3;
 
-  // Sample orders data
-  const [orders] = useState([
-    {
-      id: "002457890KJM",
-      status: "Delivered",
-      time: "12 Mar, 2026",
-      product: "2-Seater Leather Sofa",
-      rating: 4.2,
-      reviews: 120,
-      deliveryDate: "25/04/2020",
-      originalPrice: 120,
-      discountedPrice: 120,
-      quantity: 1,
-      image: "https://via.placeholder.com/80x60?text=Sofa",
-    },
-    {
-      id: "002457890KJM",
-      status: "Shipped",
-      time: "10 Mar, 2026",
-      product: "Wooden Coffee Table",
-      rating: 4.5,
-      reviews: 85,
-      deliveryDate: "Expected by 30/04/2020",
-      originalPrice: 89,
-      discountedPrice: 79,
-      quantity: 2,
-      image: "https://via.placeholder.com/80x60?text=Table",
-    },
-    {
-      id: "002457890KJM",
-      status: "Processing",
-      time: "08 Mar, 2026",
-      product: "Modern Floor Lamp",
-      rating: 4.8,
-      reviews: 42,
-      deliveryDate: "Expected by 02/05/2020",
-      originalPrice: 45,
-      discountedPrice: 45,
-      quantity: 1,
-      image: "https://via.placeholder.com/80x60?text=Lamp",
-    },
-    {
-      id: "002457890KJM",
-      status: "Delivered",
-      time: "05 Mar, 2026",
-      product: "Cotton Bedsheet Set",
-      rating: 4.0,
-      reviews: 200,
-      deliveryDate: "Delivered on 20/03/2020",
-      originalPrice: 35,
-      discountedPrice: 29,
-      quantity: 3,
-      image: "https://via.placeholder.com/80x60?text=Bedsheet",
-    },
-    {
-      id: "002457890KJM",
-      status: "Cancelled",
-      time: "01 Mar, 2026",
-      product: "Ceramic Flower Vase",
-      rating: 3.9,
-      reviews: 15,
-      deliveryDate: "Cancelled",
-      originalPrice: 25,
-      discountedPrice: 25,
-      quantity: 1,
-      image: "https://via.placeholder.com/80x60?text=Vase",
-    },
-  ]);
 
-  // Filter orders based on search
-  const filteredOrders = orders.filter(order =>
-    order.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
-  // Pagination logic
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
-  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  // Helper to render star ratings
-  const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-    const stars = [];
-    
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`star-${i}`} className="text-warning me-1" size={12} />);
-    }
-    if (hasHalfStar) {
-      stars.push(<FaStar key="half-star" className="text-warning me-1" size={12} style={{ opacity: 0.6 }} />);
-    }
-    const emptyStars = 5 - stars.length;
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<FaRegStar key={`empty-${i}`} className="text-secondary me-1" size={12} />);
-    }
-    return stars;
-  };
-
-  // Get status badge class
-  const getStatusBadgeClass = (status) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return "status-delivered";
-      case "shipped":
-        return "status-shipped";
-      case "processing":
-        return "status-processing";
-      case "cancelled":
-        return "status-cancelled";
-      default:
-        return "status-default";
-    }
-  };
-
-  return (
-    <>
-      <Navbar />
-      <div className="orders-container container py-3 my-2">
-        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
-        <div className="row justify-content-center">
-          {/* Sidebar */}
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
-            <ProfileSideNav />
-          </div>
-
-          {/* Main Content - My Orders */}
-          <div className="col-lg-8 col-md-7">
-            <div className="orders-card">
-              <div className="orders-header">
-                <div>
-                  <h4 className="fw-bold mb-0">My Orders</h4>
-                  <p className="orders-subtitle">View my Last Purchase History</p>
-                </div>
-              </div>
-
-              {/* Search Bar */}
-              <div className="orders-search-wrapper">
-                <div className="orders-search">
-                  <FaSearch className="search-icon" />
-                  <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Search your products"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setCurrentPage(1);
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Orders List */}
-              <div className="orders-list">
-                {currentOrders.length > 0 ? (
-                  currentOrders.map((order, index) => (
-                    <div key={index} className="order-item">
-                      <div className="order-header-row">
-                        <div className="order-id-wrapper">
-                          <span className="order-id-label">Order ID</span>
-                          <span className="order-id-value">{order.id}</span>
-                        </div>
-                        <div className="order-status-time">
-                          <span className={`order-status-badge ${getStatusBadgeClass(order.status)}`}>
-                            Status: {order.status}
-                          </span>
-                          <span className="order-time">Time: {order.time}</span>
-                        </div>
-                      </div>
-
-                      <div className="order-product-row">
-                        <div className="product-image">
-                          <img src={order.image} alt={order.product} />
-                        </div>
-                        <div className="product-details">
-                          <h5 className="product-title">{order.product}</h5>
-                          <div className="product-rating">
-                            {renderStars(order.rating)}
-                            <span className="rating-count">({order.reviews})</span>
-                          </div>
-                          <p className="delivery-date">
-                            {order.deliveryDate.includes("Delivered") || order.deliveryDate.includes("Expected") 
-                              ? order.deliveryDate 
-                              : `Delivered on ${order.deliveryDate}`}
-                          </p>
-                        </div>
-                        <div className="product-price-section">
-                          <div className="price-row">
-                            <span className="current-price">${order.discountedPrice}</span>
-                            {order.originalPrice > order.discountedPrice && (
-                              <span className="original-price">${order.originalPrice}</span>
-                            )}
-                          </div>
-                          <p className="quantity">Qty: {order.quantity}</p>
-                        </div>
-                      </div>
-
-                      <div className="order-actions">
-                        <button className="track-order-btn">
-                          <FaTruck className="me-2" />
-                          Track order
-                        </button>
-                        <button className="rate-product-btn">
-                          <MdRateReview className="me-2" />
-                          Rate Your Product
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="no-orders">
-                    <p>No orders found matching your search.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="pagination-wrapper">
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  >
-                    <FaChevronLeft />
-                  </button>
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <button
-                      key={idx}
-                      className={`pagination-number ${currentPage === idx + 1 ? "active" : ""}`}
-                      onClick={() => handlePageChange(idx + 1)}
-                    >
-                      {idx + 1}
-                    </button>
-                  ))}
-                  <button
-                    className="pagination-btn"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  >
-                    <FaChevronRight />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-      <Footer />
-    </>
-  );
-}
-
-export default Orders;

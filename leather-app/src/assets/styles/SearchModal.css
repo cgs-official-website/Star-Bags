@@ -1,0 +1,161 @@
+/* ── Wrapper (anchor for dropdown) ── */
+.sm-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+}
+
+/* ── Search bar ── */
+.sm-bar {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #a78bfa;
+  border-radius: 50px;
+  padding: 7px 14px;
+  gap: 8px;
+  background: #fff;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sm-bar:focus-within {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18);
+}
+.sm-bar-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #111;
+  min-width: 0;
+}
+.sm-bar-input::placeholder {
+  color: #9ca3af;
+}
+.sm-bar-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+/* ── Dropdown panel (appears below bar) ── */
+.sm-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 0.5px solid #ede9fe;
+  padding: 8px 8px 4px;
+  z-index: 1050;
+  animation: sm-drop-in 0.15s ease;
+  max-height: 360px;
+  overflow-y: auto;
+}
+@keyframes sm-drop-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── List ── */
+.sm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sm-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 6px;
+  border-bottom: 0.5px solid #f3f0ff;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.1s;
+}
+.sm-item:last-child {
+  border-bottom: none;
+}
+.sm-item:hover {
+  background: #f5f3ff;
+}
+
+/* ── Image thumbnail (State 1) ── */
+.sm-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: #ede9fe;
+  border: 0.5px solid #ddd6fe;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.sm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.sm-thumb-fallback {
+  font-size: 16px;
+}
+
+/* ── Clock icon (State 2) ── */
+.sm-clock-wrap {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+/* ── Text ── */
+.sm-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.sm-item-name {
+  font-size: 13.5px;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sm-item-name strong {
+  font-weight: 700;
+  color: #3b0764;
+}
+.sm-item-category {
+  font-size: 11px;
+  color: #9ca3af;
+  text-transform: capitalize;
+}
+.sm-item-price {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+/* ── Empty message ── */
+.sm-empty-msg {
+  padding: 14px 6px;
+  font-size: 13px;
+  color: #9ca3af;
+  text-align: center;
+}
