@@ -1,18 +1,19 @@
-import { Categories } from "../../components/User/Categories";
+import Brand from "../../components/User/Brand";
+import DealSections from "../../components/User/DealSections";
 import { Faq } from "../../components/User/Faq";
-
 import Footer from "../../components/User/Footer";
 import { Hero } from "../../components/User/Hero";
+import HomeProduct from "../../components/User/HomeProduct";
 import Navbar from "../../components/User/Navbar";
-import ProductCard from "../../components/User/ProductCard";
 
 const Home = () => {
   return (
     <div>
       <Navbar />
       <Hero />
-      <Categories />
-      <ProductCard />
+      <Brand/>
+      <DealSections/>
+      <HomeProduct/>
       <Faq />
       <Footer />
     </div>

@@ -124,9 +124,9 @@ const CreateAccount = () => {
 
               {/* BUTTON */}
               <div className="d-grid">
-                <button className="btn signup-btn" type="submit">
+                <NavLink to={'/signupVerify'} className="btn signup-btn" type="submit">
                   Sign up
-                </button>
+                </NavLink>
               </div>
             </form>
 

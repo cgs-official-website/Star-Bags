@@ -1,10 +1,9 @@
 
-import React from 'react'
 import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
 import Home from './pages/User/Home';
 import Cart from './pages/User/Cart';
-// import Checkout from './pages/User/Checkout';
+import Checkout from './pages/User/Checkout';
 import Orders from './pages/User/Orders';
 import ProductDetails from './pages/User/ProductDetails';
 import WishList from './pages/User/WishList';
@@ -40,6 +39,10 @@ import StoreDetails from './pages/Admin/StoreDetails';
 import BannerManagement from './pages/Admin/BannerManagement';
 import OrderDetails from './pages/Admin/OrderDetails';
 
+// import BillAddress from './pages/User/BillAddress';
+import SignUpVerification from './pages/User/SignUpVerification';
+
+
 
 
 
@@ -53,6 +56,7 @@ import OrderDetails from './pages/Admin/OrderDetails';
         <Route path="/" element={<Home />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/signup" element={<CreateAccount />} />
+        <Route path="/signupVerify" element={<SignUpVerification/>} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgotPassword" element={<ForgotPassword/>} />
         <Route path="/resetPassword" element={<ResetPassword/>} />
@@ -65,19 +69,9 @@ import OrderDetails from './pages/Admin/OrderDetails';
         <Route path="/profile" element={<Profile />} />
         <Route path="/address" element={<SavedAddress />} />
         <Route path="/track-order" element={<TrackOrder />} />
-        <Route path="/checkout" element={<BillAddress />} />
-
-
-
-
-
-
-
-
-
-
-
-
+        <Route path="/checkout" element={<Checkout/>} />
+        <Route path='/SignUpVerification' element={<SignUpVerification />} />
+        <Route path='/BillAddress' element={<BillAddress />} />
 
 
 
@@ -97,6 +91,7 @@ import OrderDetails from './pages/Admin/OrderDetails';
         <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
         <Route path="/admin/store-details" element={<StoreDetails />} />
         <Route path="/admin/banner-management" element={<BannerManagement />} />
+
       </Routes>
     </BrowserRouter>
   );

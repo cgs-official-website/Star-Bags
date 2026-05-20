@@ -1,5 +1,4 @@
 import  { useState } from "react";
-import { MdOutlineShoppingCart } from "react-icons/md";
 import { FaStar, FaHeart } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
 import "../../assets/styles/productCard.css";
@@ -25,7 +24,7 @@ const WishlistHeart = () => {
 };
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
-const ProductCard = () => {
+const HomeProduct = () => {
   const productCard = [
     { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
     { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
@@ -74,13 +73,6 @@ const ProductCard = () => {
                       <b>{pro.offer} off</b>
                     </span>
                   </div>
-
-                  <div className="d-flex gap-3 pt-1">
-                    <a href="#" className="btn">Buy Now</a>
-                    <button className="icon-btn-cart">
-                      <MdOutlineShoppingCart />
-                    </button>
-                  </div>
                 </div>
               </div>
             ))}
@@ -91,4 +83,4 @@ const ProductCard = () => {
   );
 };
 
-export default ProductCard;
+export default HomeProduct;

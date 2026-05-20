@@ -77,7 +77,9 @@ import '../../assets/styles/Navbar.css'
           </div>
 
           {/* CART */}
-          <NavLink to="/cart" className="icon-btn">
+
+          <NavLink to={"/cart"} className="icon-btn">
+
             <IoMdCart />
           </NavLink>
 
@@ -132,9 +134,12 @@ import '../../assets/styles/Navbar.css'
               <IoNotificationsOutline />
             </button>
 
+
+
             <NavLink to="/cart" className="icon-btn">
               <IoMdCart />
             </NavLink>
+
 
             <NavLink to="/profile" className="icon-btn">
               <FaUserCircle />
