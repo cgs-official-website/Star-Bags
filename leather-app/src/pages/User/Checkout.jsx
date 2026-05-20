@@ -2,12 +2,12 @@ import { useState, } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { BiEditAlt } from "react-icons/bi";
-import CartItem from "../components/User/YourCart";
-import OrderSummary from "../components/User/OrderSummary";
-import CouponCard from "../components/User/CouponCard";
-import Navbar from "../components/User/Navbar";
-import Footer from "../components/User/Footer";
-import "../assets/styles/Cart.css";
+import CartItem from "../../components/User/YourCart";
+import OrderSummary from "../../components/User/OrderSummary";
+import CouponCard from "../../components/User/CouponCard";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import "../../assets/styles/cart.css";
 
 const Checkout = () => {
   const navigate = useNavigate();

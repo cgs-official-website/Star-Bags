@@ -79,7 +79,7 @@ const CartPage = () => {
   return (
     <>
       <Navbar />
-      <div className="cart-page style-page-cart">
+      <div className="cart-page ">
         <h4 className="cart-title">Your cart <span className="cart-count">({cartItems.length} items)</span></h4>
         <p className="cart-subtitle">Review your items and proceed to checkout</p>
 

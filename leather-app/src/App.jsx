@@ -3,7 +3,7 @@ import { BrowserRouter,Routes,Route } from 'react-router-dom';
 
 import Home from './pages/User/Home';
 import Cart from './pages/User/Cart';
-// import Checkout from './pages/User/Checkout';
+import Checkout from './pages/User/Checkout';
 import Orders from './pages/User/Orders';
 import ProductDetails from './pages/User/ProductDetails';
 import WishList from './pages/User/WishList';
@@ -39,7 +39,6 @@ import StoreDetails from './pages/Admin/StoreDetails';
 
 // import BillAddress from './pages/User/BillAddress';
 import SignUpVerification from './pages/User/SignUpVerification';
-import Checkout from './pages/Checkout';
 
 
 
