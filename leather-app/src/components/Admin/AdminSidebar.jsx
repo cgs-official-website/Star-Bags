@@ -7,7 +7,7 @@ const navItems = [
   { icon: 'bi-cart-check-fill',          label: 'Order Management',       path: '/admin/order-management' },
   { icon: 'bi-tag-fill',                 label: 'Coupons',                path: '/admin/coupons' },
   { icon: 'bi-credit-card-2-front-fill', label: 'Payment Management',     path: '/admin/payment-details' },
-  // { icon: 'bi-bar-chart-line-fill',      label: 'Reports & Analytics',    path: '/admin/report-analysis' },
+  { icon: 'bi-aspect-ratio-fill',        label: 'Banner Management',      path: '/admin/banner-management' },
   { icon: 'bi-gear-fill',                label: 'Settings',               path: '/admin/settings' },
   // { icon: 'bi-box-arrow-left',           label: 'Logout',                 path: '/admin/login' },
 ];
@@ -17,7 +17,7 @@ const AdminSidebar = () => {
 
   return (
     <>
-      {/* ── Mobile toggle button ── */}
+    
       <button
         className="d-lg-none btn btn-sm position-fixed"
         style={{
@@ -37,7 +37,7 @@ const AdminSidebar = () => {
         <i className={`bi ${mobileOpen ? 'bi-x-lg' : 'bi-list'} fs-5`} />
       </button>
 
-      {/* ── Mobile overlay ── */}
+
       {mobileOpen && (
         <div
           className="d-lg-none position-fixed top-0 start-0 w-100 h-100"
@@ -46,7 +46,7 @@ const AdminSidebar = () => {
         />
       )}
 
-      {/* ── Sidebar ── */}
+      
       <nav
         className="d-flex flex-column"
         style={{
@@ -62,7 +62,7 @@ const AdminSidebar = () => {
         }}
         data-mobile-open={mobileOpen}
       >
-        {/* Brand */}
+
         <div
           className="d-flex align-items-center gap-2 px-3"
           style={{ height: 70, borderBottom: '1px solid rgba(255,255,255,0.15)' }}
@@ -79,7 +79,7 @@ const AdminSidebar = () => {
         </div>
 
 
-        {/* Nav Items */}
+        
         <ul className="list-unstyled mt-2 px-2 flex-grow-1">
           {navItems.map((item) => (
             <li key={item.path} className="mb-1">
@@ -92,7 +92,7 @@ const AdminSidebar = () => {
                   alignItems: 'center',
                   gap: 15,
                   textDecoration: 'none',
-                  // borderRadius: 10,
+                  borderRadius: 5,
                   padding: '19px 10px',
                   position: 'relative',
                   whiteSpace: 'nowrap',
@@ -125,7 +125,7 @@ const AdminSidebar = () => {
           ))}
         </ul>
 
-        {/* Bottom — Logout */}
+
         <div className="px-2 mb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 12 }}>
           <NavLink
             to="/admin"
@@ -156,7 +156,7 @@ const AdminSidebar = () => {
         </div> 
       </nav>
 
-      {/* ── Scoped styles ── */}
+
       <style>{`
         @media (max-width: 991.98px) {
           nav[data-mobile-open="true"] {

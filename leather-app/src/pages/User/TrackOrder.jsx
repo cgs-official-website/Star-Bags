@@ -23,7 +23,6 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { IoReceiptOutline } from "react-icons/io5";
 import ReviewModal from "../../components/User/ReviewModal";
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
 const orderSteps = [
   {
     id: 1,
@@ -138,7 +137,7 @@ const suggestedProducts = [
   },
 ];
 
-// ─── Inline Star Display (read-only, for the rating card on the page) ─────────
+
 function StarDisplay({ value, max = 5 }) {
   return (
     <div className="to-star-row">
@@ -153,7 +152,7 @@ function StarDisplay({ value, max = 5 }) {
   );
 }
 
-// ─── Suggested Product Card ───────────────────────────────────────────────────
+
 function SuggestedCard({ item }) {
   const [wished, setWished] = useState(false);
   return (
@@ -196,7 +195,6 @@ function SuggestedCard({ item }) {
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 function TrackOrder() {
   const [otp, setOtp] = useState("");
   const [userRating, setUserRating] = useState(4);
@@ -216,11 +214,10 @@ function TrackOrder() {
       <div className="container to-page py-4">
         <h4 className="to-page-title">Track your order</h4>
 
-        {/* ═══ Main two-column layout ══════════════════════════════════════ */}
         <div className="to-main-grid">
-          {/* ── LEFT COLUMN ─────────────────────────────────────────────── */}
+        
           <div className="to-left">
-            {/* Product Mini Card */}
+          
             <div className="to-card to-product-card">
               <div className="to-product-info">
                 <img
@@ -249,7 +246,7 @@ function TrackOrder() {
               </div>
             </div>
 
-            {/* Order Tracking Timeline */}
+
             <div className="to-card">
               <h6 className="to-section-title">Order tracking</h6>
               <div className="to-timeline">
@@ -258,7 +255,7 @@ function TrackOrder() {
                     key={step.id}
                     className={`to-step ${step.done ? "done" : "pending"}`}
                   >
-                    {/* Connector line above (skip for first) */}
+                    
                     <div className="to-step-left">
                       <div
                         className={`to-step-dot ${step.done ? "dot-done" : "dot-pending"}`}
@@ -291,7 +288,7 @@ function TrackOrder() {
               </div>
             </div>
 
-            {/* OTP Section */}
+            
             <div className="to-card">
               <h6 className="to-section-title">Get your product OTP</h6>
               <p className="to-otp-hint">
@@ -313,7 +310,7 @@ function TrackOrder() {
               </div>
             </div>
 
-            {/* Rating — click to open modal */}
+            
             <div
               className="to-card to-rating-card to-rating-clickable"
               onClick={() => {
@@ -333,7 +330,7 @@ function TrackOrder() {
               <StarDisplay value={userRating} />
             </div>
 
-            {/* Review Modal */}
+        
             <ReviewModal
               isOpen={modalOpen}
               onClose={() => setModalOpen(false)}
@@ -343,9 +340,9 @@ function TrackOrder() {
             />
           </div>
 
-          {/* ── RIGHT COLUMN ────────────────────────────────────────────── */}
+    
           <div className="to-right">
-            {/* Delivery Address */}
+          
             <div className="to-card">
               <h6 className="to-section-title">Address Customer</h6>
 
@@ -390,7 +387,7 @@ function TrackOrder() {
               </div>
             </div>
 
-            {/* Order Summary */}
+          
             <div className="to-card">
               <h6 className="to-section-title">Order Summary</h6>
               <div className="to-summary-table">
@@ -424,7 +421,7 @@ function TrackOrder() {
           </div>
         </div>
 
-        {/* ═══ You May Also Like ════════════════════════════════════════════ */}
+        
         <section className="to-suggestions">
           <h5 className="to-sug-heading">YOU MAY ALSO LIKE PRODUCTS</h5>
           <p className="to-sug-subheading">

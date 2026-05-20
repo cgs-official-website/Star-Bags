@@ -37,6 +37,8 @@ import AdminSettings from './pages/Admin/Settings';
 import ReportAnalysis from './pages/Admin/ReportAnalysis';
 import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
+import BannerManagement from './pages/Admin/BannerManagement';
+import OrderDetails from './pages/Admin/OrderDetails';
 
 
 
@@ -88,11 +90,13 @@ import StoreDetails from './pages/Admin/StoreDetails';
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/coupons" element={<Coupons />} />
         <Route path="/admin/order-management" element={<OrderManagement />} />
+        <Route path="/admin/order-details" element={<OrderDetails />} />
         <Route path="/admin/payment-details" element={<PaymentDetails />} />
         <Route path="/admin/product-management" element={<ProductManagement />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
         <Route path="/admin/store-details" element={<StoreDetails />} />
+        <Route path="/admin/banner-management" element={<BannerManagement />} />
       </Routes>
     </BrowserRouter>
   );

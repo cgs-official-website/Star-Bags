@@ -30,7 +30,6 @@ function Profile() {
   const handleSave = () => {
     setIsEditing(false);
     setFormData({ ...tempData });
-    // Add API call here later to save data
   };
 
   const handleChange = (e) => {
@@ -44,12 +43,9 @@ function Profile() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
         <div className="row justify-content-center">
-          {/* Sidebar */}
           <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
             <ProfileSideNav />
           </div>
-
-          {/* Main Content */}
           <div className="col-lg-8 col-md-7">
             <div className="profile-details-card">
               <div className="d-flex justify-content-between align-items-center mb-2">

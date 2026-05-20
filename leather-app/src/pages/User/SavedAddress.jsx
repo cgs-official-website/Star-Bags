@@ -17,7 +17,7 @@ const emptyForm = {
 };
 
 function SavedAddress() {
-  // Mock saved addresses — set to [] to test empty state
+  
   const [savedAddresses, setSavedAddresses] = useState([
     // {
     //   id: 1,
@@ -47,7 +47,7 @@ function SavedAddress() {
 
   const hasAddresses = savedAddresses.length > 0;
 
-  // Show form open by default when no addresses; collapsed otherwise
+  
   const [showForm, setShowForm] = useState(!hasAddresses);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
@@ -88,7 +88,7 @@ function SavedAddress() {
   const handleCancel = () => {
     setFormData(emptyForm);
     setEditingId(null);
-    // Only close form if there are addresses to show
+    
     if (savedAddresses.length > 0) setShowForm(false);
   };
 
@@ -104,7 +104,7 @@ function SavedAddress() {
     });
     setEditingId(addr.id);
     setShowForm(true);
-    // Scroll to form smoothly
+    
     setTimeout(() => {
       document
         .getElementById("address-form-section")
@@ -131,14 +131,14 @@ function SavedAddress() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
         <div className="row justify-content-center align-items-start">
-          {/* Sidebar — desktop only, sticky */}
+          
           <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* Main Content */}
+          
           <div className="col-lg-8 col-12">
-            {/* ── When addresses exist: show list + "Add New" toggle button ── */}
+            
             {hasAddresses && (
               <div className="saved-address-card mb-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -159,7 +159,7 @@ function SavedAddress() {
                   </button>
                 </div>
 
-                {/* Slide-down form */}
+                
                 <div
                   className={`address-form-collapse ${showForm ? "open" : ""}`}
                 >
@@ -179,7 +179,7 @@ function SavedAddress() {
                   </div>
                 </div>
 
-                {/* Address list */}
+                
                 <div className="address-list">
                   {savedAddresses.map((addr) => (
                     <div key={addr.id} className="address-item">
@@ -207,7 +207,7 @@ function SavedAddress() {
               </div>
             )}
 
-            {/* ── When no addresses: show only the form ── */}
+            
             {!hasAddresses && (
               <div className="saved-address-card">
                 <h5 className="fw-bold mb-3">Address</h5>
@@ -228,7 +228,7 @@ function SavedAddress() {
   );
 }
 
-/* ── Reusable form sub-component ── */
+
 function AddressForm({ formData, onChange, onSave, onCancel, noCancel }) {
   return (
     <div className="address-form">

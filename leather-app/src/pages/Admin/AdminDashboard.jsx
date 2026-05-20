@@ -1,244 +1,92 @@
-import  { useState } from "react";
+import React, { useState } from "react";
 import AdminSidebar from "../../components/Admin/AdminSidebar";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell
 } from "recharts";
 import "../../assets/styles/AdminDashboard.css";
+import { useNavigate, Link } from "react-router-dom";
 
-/* ─── Mock Data ─── */
-const salesData = [
-  { month: "Jan", revenue: 42000, orders: 310 },
-  { month: "Feb", revenue: 53000, orders: 398 },
-  { month: "Mar", revenue: 48000, orders: 352 },
-  { month: "Apr", revenue: 61000, orders: 430 },
-  { month: "May", revenue: 55000, orders: 401 },
-  { month: "Jun", revenue: 72000, orders: 512 },
-  { month: "Jul", revenue: 68000, orders: 200 },
-  { month: "Aug", revenue: 79000, orders: 360 },
-  { month: "Sep", revenue: 83000, orders: 490 },
-  { month: "Oct", revenue: 91000, orders: 540 },
-  { month: "Nov", revenue: 105000, orders: 720 },
-  { month: "Dec", revenue: 98000, orders: 680 },
-];
-
-const topProducts = [
-  {
-    name: "Classic Leather Tote",
-    orders: 124,
-    sold: 248,
-    revenue: "₹8,67,752",
-    stock: 42,
-    stockColor: "#059669",
-    stockBg: "#d1fae5",
-  },
-  {
-    name: "Executive Briefcase",
-    orders: 98,
-    sold: 185,
-    revenue: "₹11,09,815",
-    stock: 25,
-    stockColor: "#059669",
-    stockBg: "#d1fae5",
-  },
-  {
-    name: "Vintage Satchel",
-    orders: 85,
-    sold: 163,
-    revenue: "₹4,56,237",
-    stock: 10,
-    stockColor: "#059669",
-    stockBg: "#d1fae5",
-  },
-  {
-    name: "Minimalist Crossbody",
-    orders: 71,
-    sold: 142,
-    revenue: "₹2,83,858",
-    stock: 5,
-    stockColor: "#059669",
-    stockBg: "#d1fae5",
-  },
-  {
-    name: "Premium Backpack",
-    orders: 59,
-    sold: 118,
-    revenue: "₹5,07,282",
-    stock: 0,
-    stockColor: "#d97706",
-    stockBg: "#fef3c7",
-  },
-  {
-    name: "Zip-Around Wallet",
-    orders: 45,
-    sold: 97,
-    revenue: "₹87,203",
-    stock: 0,
-    stockColor: "#ef4444",
-    stockBg: "#fee2e2",
-  },
-];
-
-const stockAlerts = [
-  {
-    label: "Bag Products",
-    count: "6 Items",
-    icon: "bi-bag-check",
-    colorClass: "green",
-    textClass: "green-text",
-    bg: "green-bg",
-  },
-  {
-    label: "Belt Products",
-    count: "14 Items",
-    icon: "bi-arrow-right-arrow-left-square-fill",
-    colorClass: "green",
-    textClass: "green-text",
-    bg: "green-bg",
-  },
-  {
-    label: "Wallet Products",
-    count: "9 Items",
-    icon: "bi-wallet2",
-    colorClass: "red",
-    textClass: "red-text",
-    bg: "red-bg",
-  },
-];
-
-const orderStatuses = [
-  { label: "Pending", count: 42, color: "#f59e0b", pct: 18 },
-  { label: "Shipped", count: 95, color: "#8b5cf6", pct: 40 },
-  { label: "Delivered", count: 210, color: "#10b981", pct: 88 },
-  // { label: "Cancelled", count: 15, color: "#ef4444", pct: 6 },
-];
-
-/* ─── Stat Cards data ─── */
+// Mock Data
 const statCards = [
-  {
-    label: "Total Sales",
-    value: "₹12.4L",
-    icon: "bi-currency-rupee",
-    iconBg: "#ede9fe",
-    iconColor: "#7c3aed",
-    badge: "+18.2%",
-    badgeClass: "up",
-    sub: "vs last month",
-  },
-  {
-    label: "Total Products",
-    value: "348",
-    icon: "bi-box-seam-fill",
-    iconBg: "#dbeafe",
-    iconColor: "#2563eb",
-    badge: "+12",
-    badgeClass: "up",
-    sub: "this month",
-  },
-  {
-    label: "Low Stock Items",
-    value: "14",
-    icon: "bi-exclamation-triangle-fill",
-    iconBg: "#fef3c7",
-    iconColor: "#d97706",
-    badge: "6 critical",
-    badgeClass: "down",
-    sub: "need restock",
-  },
-  {
-    label: "New Customers",
-    value: "94",
-    icon: "bi-people-fill",
-    iconBg: "#d1fae5",
-    iconColor: "#059669",
-    badge: "+94",
-    badgeClass: "up",
-    sub: "new this month",
-  },
-  {
-    label: "Total Orders",
-    value: "1,284",
-    icon: "bi-cart-fill",
-    iconBg: "#fce7f3",
-    iconColor: "#db2777",
-    badge: "+7.5%",
-    badgeClass: "up",
-    sub: "vs last month",
-  },
-  {
-    label: "Pending Orders",
-    value: "42",
-    icon: "bi-clock-history",
-    iconBg: "#fff7ed",
-    iconColor: "#ea580c",
-    badge: "-3",
-    badgeClass: "down",
-    sub: "from yesterday",
-  },
+  { label: "Total Sales", value: "₹89,000", icon: "bi-graph-up-arrow", iconBg: "#dcfce7", iconColor: "#16a34a", badge: "4.3% Down from yesterday", badgeClass: "down" },
+  { label: "Total Products", value: "70000", icon: "bi-bag", iconBg: "#ede9fe", iconColor: "#7c3aed", badge: "85 % Available Products", badgeClass: "up" },
+  { label: "Low Stock Items", value: "20", icon: "bi-clock-history", iconBg: "#ffedd5", iconColor: "#f97316", badge: "1.8% Up from yesterday", badgeClass: "up" },
+  { label: "New Customers", value: "1,342", icon: "bi-bag-dash", iconBg: "#e0e7ff", iconColor: "#4f46e5", badge: "85 % Available Products", badgeClass: "up" },
+  { label: "Total Order", value: "10293", icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: "1.3% Up from past week", badgeClass: "up" },
+  { label: "Pending Orders", value: "10293", icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: "1.3% Up from past week", badgeClass: "up" },
 ];
 
-/* ─── Custom Tooltip ─── */
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="chart-tooltip">
-        <p className="tooltip-label">{label}</p>
-        {payload.map((p, i) => (
-          <p key={i} className="tooltip-value" style={{ color: p.color }}>
-            {p.name === "revenue"
-              ? `₹${p.value.toLocaleString("en-IN")}`
-              : p.value}{" "}
-            {p.name}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
+const salesData = [
+  { name: "5k", revenue: 10, sales: 5 },
+  { name: "10k", revenue: 35, sales: 15 },
+  { name: "15k", revenue: 20, sales: 10 },
+  { name: "20k", revenue: 18, sales: 12 },
+  { name: "25k", revenue: 22, sales: 30 },
+  { name: "30k", revenue: 25, sales: 15 },
+  { name: "35k", revenue: 40, sales: 65 },
+  { name: "40k", revenue: 25, sales: 35 },
+  { name: "45k", revenue: 35, sales: 25 },
+  { name: "50k", revenue: 20, sales: 15 },
+  { name: "55k", revenue: 55, sales: 35 },
+  { name: "60k", revenue: 20, sales: 5 },
+];
 
-/* ─── Main Component ─── */
+const topSellingData = [
+  { img: "../src/assets/images/bag.png", name: "Leather Duffel Bag", category: "Bags", sold: 248, revenue: "₹25,000", status: "In stock", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { img: "../src/assets/images/wallet.png", name: "Classic Leather Wallet", category: "Wallets", sold: 100, revenue: "₹20,000", status: "Low inventory", statusColor: "#d97706", statusBg: "#fef3c7" },
+  { img: "../src/assets/images/bag.png", name: "Crossbody Saddle Bag", category: "Bags", sold: 119, revenue: "₹18,055", status: "In stock", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { img: "../src/assets/images/wallet.png", name: "Premium Leather Wallet", category: "Wallets", sold: 25, revenue: "₹5,000", status: "Out of stock", statusColor: "#ef4444", statusBg: "#fee2e2" },
+];
+
+const lowStockData = [
+  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
+  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
+  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
+  { img: "../src/assets/images/bag.png", name: "Brown Duffel Bag", left: 2 },
+  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", left: 2 },
+  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", left: 2 },
+];
+
+const orderStatusPie = [
+  { name: 'Delivered', value: 45643, color: '#a3e635' }, // green-ish
+  { name: 'Shipped', value: 45643, color: '#a78bfa' }, // purple-ish
+  { name: 'Pending', value: 45643, color: '#fdba74' }, // orange-ish
+];
+
+const todayOrderData = [
+  { img: "../src/assets/images/wallet.png", name: "Wallet", orderId: "SBO-WLT-20260712-001", total: 255, brand: "-", price: "₹1255" },
+  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", orderId: "SBO-BAG-20260712-002", total: 255, brand: "American Tourister", price: "₹1255" },
+  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", orderId: "SBO-BAG-20260712-003", total: 255, brand: "American Tourister", price: "₹1255" },
+  { img: "../src/assets/images/bag.png", name: "Hand bag", orderId: "SBO-BAG-20260712-004", total: 255, brand: "Puma", price: "₹1255" },
+  { img: "../src/assets/images/bag.png", name: "Side motion bag", orderId: "SBO-BAG-20260712-005", total: 255, brand: "American Tourister", price: "₹1255" },
+  { img: "../src/assets/images/bag.png", name: "Trolley bag", orderId: "SBO-BAG-20260712-006", total: 255, brand: "American Tourister", price: "₹1255" },
+];
+
+const transactionsData = [
+  { id: "SBO-WLT-20260712-001", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Visa card **** 4931", payType: "Card payment", amount: "$182.94", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { id: "SBO-WLT-20260712-002", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Mastercard **** 5442", payType: "Card payment", amount: "$99.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { id: "SBO-WLT-20260712-003", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Account ****882", payType: "Bank payment", amount: "$249.94", date: "Jan 17, 2022", status: "Pending", statusColor: "#d97706", statusBg: "#fef3c7" },
+  { id: "SBO-WLT-20260712-004", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Amex card **** 5666", payType: "Card payment", amount: "$199.24", date: "Jan 17, 2022", status: "Canceled", statusColor: "#ef4444", statusBg: "#fee2e2" },
+];
+
 const AdminDashboard = () => {
-  const [activeRange, setActiveRange] = useState("12M");
+  const navigate = useNavigate();
 
   return (
     <div className="admin-layout">
       <AdminSidebar />
-
       <div className="admin-main">
-        {/* ── Top Header ── */}
+        {/* Header */}
         <header className="admin-header">
           {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon">
-              <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} />
-            </span>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search products, orders, customers…"
-            />
+            <span className="search-icon"> <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} /> </span>
+            <input type="text" className="search-input" placeholder="Search products, orders, customers…" />
           </div> */}
 
           <div>
-            <h1
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#111827",
-                margin: 0,
-              }}
-            >
-              Dashboard
-            </h1>
-            <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>
-              Welcome back! Here's what's happening with your store today.
-            </p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0, }}>Banner Management</h1>
+            {/* <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Here's what's happening with your banners today.</p> */}
           </div>
 
           <div className="header-right">
@@ -248,21 +96,14 @@ const AdminDashboard = () => {
             </button> */}
 
             {/* Notifications */}
-            <button className="notif-btn">
-              <i
-                className="bi bi-bell-fill"
-                style={{ color: "#374151", fontSize: 18 }}
-              />
-              <span className="notif-badge">5</span>
-            </button>
+            {/* <button className="notif-btn">
+              <i className="bi bi-bell-fill" style={{ color: "#374151", fontSize: 18 }} /> <span className="notif-badge">5</span>
+            </button> */}
 
             {/* Profile */}
-            <div className="admin-profile">
+            <div className="admin-profile" onClick={() => navigate('/admin/settings')}>
               <div className="profile-avatar">
-                <i
-                  className="bi bi-person-fill"
-                  style={{ fontSize: 20, color: "#7c3aed" }}
-                />
+                <i className="bi bi-person-fill" style={{ fontSize: 20, color: "#7c3aed" }} />
               </div>
               <div className="profile-info">
                 <span className="profile-name">Sanjai</span>
@@ -272,216 +113,246 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* ── Dashboard Content ── */}
-        <main className="admin-content">
-          {/* Page Title */}
-          <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            {/* <div className="d-flex gap-2">
-              <button
-                className="btn btn-sm d-flex align-items-center gap-1"
-                style={{ background: '#ede9fe', color: '#7c3aed', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 13 }}
-              >
-                <i className="bi bi-download" /> Export
-              </button>
-              <button
-                className="btn btn-sm d-flex align-items-center gap-1"
-                style={{ background: '#7c3aed', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 13 }}
-              >
-                <i className="bi bi-plus-lg" /> Add Product
-              </button>
-            </div> */}
-          </div>
-
-          {/* ── Stat Cards ── */}
-          <div className="stats-grid">
+        <main className="admin-content" style={{ background: '#fafafa' }}>
+          
+          <div className="stats-grid mb-4">
             {statCards.map((card, i) => (
               <div className="stat-card" key={i}>
-                <div className="stat-card-top">
+                <div className="stat-card-top d-flex justify-content-between align-items-start">
                   <div className="stat-card-info">
                     <p className="stat-label">{card.label}</p>
                     <p className="stat-value">{card.value}</p>
                   </div>
-                  <div
-                    className="stat-icon"
-                    style={{ background: card.iconBg }}
-                  >
-                    <i
-                      className={`bi ${card.icon}`}
-                      style={{ fontSize: 22, color: card.iconColor }}
-                    />
+                  <div className="stat-icon" style={{ background: card.iconBg, color: card.iconColor }}>
+                    <i className={card.icon} style={{ fontSize: '20px' }}/>
                   </div>
                 </div>
-                <div className={`stat-badge ${card.badgeClass}`}>
-                  <i
-                    className={`bi ${card.badgeClass === "up" ? "bi-arrow-up-right" : "bi-arrow-down-right"}`}
-                  />
-                  <span>{card.badge}</span>
-                  <span
-                    className={`bi ${card.badgeClass === "up" ? "text-success" : "text-danger"}`}
-                    style={{ fontWeight: 600 }}
-                  >
-                    {card.sub}
-                  </span>
+                <div className={`stat-badge ${card.badgeClass === 'up' ? 'text-success' : 'text-danger'}`} style={{ fontSize: '13px', fontWeight: 500, marginTop: '8px' }}>
+                  <i className={`bi ${card.badgeClass === 'up' ? 'bi-graph-up' : 'bi-graph-down'} me-1`} />
+                  {card.badge}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* ── Sales Analytics Chart ── */}
-          <div className="chart-section">
-            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-              <h2 className="section-title mb-0">Sales Analytics</h2>
-              {/* <div className="d-flex gap-1">
-                {['7D', '1M', '3M', '6M', '12M'].map(r => (
-                  <button
-                    key={r}
-                    onClick={() => setActiveRange(r)}
-                    className="btn btn-sm"
-                    style={{
-                      padding: '4px 12px',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      borderRadius: 7,
-                      border: 'none',
-                      background: activeRange === r ? '#7c3aed' : '#f3f4f6',
-                      color: activeRange === r ? '#fff' : '#6b7280',
-                      transition: 'background 0.18s',
-                    }}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div> */}
+         
+          <div className="chart-section mb-4 bg-white p-4 rounded-3 border">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h5 className="m-0 fw-bold">Revenue</h5>
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-flex align-items-center gap-1"><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#c4b5fd' }}></span> <small>Revenue</small></div>
+                <div className="d-flex align-items-center gap-1"><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fdba74' }}></span> <small>Sales</small></div>
+                <select className="form-select form-select-sm ms-2" style={{ width: '100px', fontSize: '13px' }}>
+                  <option>October</option>
+                  <option>November</option>
+                </select>
+              </div>
             </div>
-
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart
-                data={salesData}
-                margin={{ top: 6, right: 12, left: 0, bottom: 0 }}
-              >
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={salesData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                 <defs>
-                  <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.22} />
-                    <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#c4b5fd" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#c4b5fd" stopOpacity={0.2}/>
                   </linearGradient>
-                  <linearGradient id="gradOrders" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.18} />
-                    <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#fdba74" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#fdba74" stopOpacity={0.2}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#f3f4f6"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  yAxisId="left"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={50}
-                  tickFormatter={(v) => (v >= 1000 ? `₹${v / 1000}k` : v)}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={40}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
-                />
-                <Area
-                  yAxisId="left"
-                  type="monotone"
-                  dataKey="revenue"
-                  name="Revenue"
-                  stroke="#7c3aed"
-                  strokeWidth={2.5}
-                  fill="url(#gradRevenue)"
-                  dot={false}
-                  activeDot={{ r: 5, fill: "#7c3aed" }}
-                />
-                <Area
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="orders"
-                  name="Orders"
-                  stroke="#06b6d4"
-                  strokeWidth={2.5}
-                  fill="url(#gradOrders)"
-                  dot={false}
-                  activeDot={{ r: 5, fill: "#06b6d4" }}
-                />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => val + " Week"} />
+                <Tooltip />
+                <Area type="monotone" dataKey="revenue" stroke="#a78bfa" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={2} />
+                <Area type="monotone" dataKey="sales" stroke="#fb923c" fillOpacity={1} fill="url(#colorSales)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
-          {/* ── Top Selling Products Table ── */}
-          <div className="products-section">
-            <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-              <h2 className="section-title mb-0">Top Selling Products</h2>
+       
+          <div className="row g-4 mb-4">
+           
+            <div className="col-lg-8">
+              <div className="bg-white p-4 rounded-3 border h-100">
+                <h5 className="fw-bold mb-4">Top selling products</h5>
+                <div className="table-responsive">
+                  <table className="table align-middle border-bottom-0 custom-table">
+                    <thead className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>
+                      <tr>
+                        <th>Product Detail</th>
+                        <th>Category</th>
+                        <th>Sold</th>
+                        <th>Revenue</th>
+                        <th>Stock Status</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
+                      {topSellingData.map((item, i) => (
+                        <tr key={i}>
+                          <td>
+                            <div className="d-flex align-items-center gap-2">
+                              <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                              <span>{item.name}</span>
+                            </div>
+                          </td>
+                          <td>{item.category}</td>
+                          <td>{item.sold}</td>
+                          <td>{item.revenue}</td>
+                          <td>
+                            <span style={{ color: item.statusColor, background: item.statusBg, padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>
+                              <i className={`bi ${item.status === 'Out of stock' ? 'bi-x' : item.status === 'Low inventory' ? 'bi-dash' : 'bi-plus'} me-1`} />
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div className="products-table-wrapper">
-              <table className="products-table">
-                <thead>
+
+          
+            <div className="col-lg-4">
+              <div className="bg-white p-4 rounded-3 border h-100">
+                <div className="d-flex justify-content-between align-items-start mb-1">
+                  <h6 className="fw-bold m-0">Low stock alerts</h6>
+                  <Link to="/admin/product-management" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>View all &rarr;</Link>
+                </div>
+                <p className="text-muted" style={{ fontSize: '12px', marginBottom: '20px' }}>Products requiring attention</p>
+                <div className="d-flex flex-column gap-3">
+                  {lowStockData.map((item, i) => (
+                    <div key={i} className="d-flex justify-content-between align-items-center border-bottom pb-2">
+                      <div className="d-flex align-items-center gap-2">
+                        <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                        <span style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</span>
+                      </div>
+                      <span className="text-danger" style={{ fontSize: '12px', fontWeight: 500 }}>Only {item.left} left</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        
+          <div className="row g-4 mb-4">
+          
+            <div className="col-lg-4">
+              <div className="bg-white p-4 rounded-3 border h-100">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="fw-bold m-0">Order Status</h5>
+                  <select className="form-select form-select-sm" style={{ width: 'auto', fontSize: '13px' }}>
+                    <option>This Week</option>
+                    <option>This Month</option>
+                    <option>This Year</option>
+                  </select>
+                </div>
+                <div className="position-relative d-flex justify-content-center my-4">
+                  <PieChart width={200} height={200}>
+                    <Pie data={orderStatusPie} cx={100} cy={100} innerRadius={60} outerRadius={80} paddingAngle={2} dataKey="value" stroke="none">
+                      {orderStatusPie.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                  <div className="position-absolute top-50 start-50 translate-middle text-center">
+                    <h5 className="m-0 fw-bold">10,956</h5>
+                    <span style={{ fontSize: '12px', color: '#6b7280' }}>Total orders</span>
+                  </div>
+                </div>
+                <div className="d-flex flex-column gap-3 mt-4">
+                  {orderStatusPie.map((item, i) => (
+                    <div key={i} className="d-flex justify-content-between align-items-center" style={{ fontSize: '13px', fontWeight: 500 }}>
+                      <div className="d-flex align-items-center gap-2">
+                        <span style={{ width: 10, height: 10, background: item.color }}></span>
+                        {item.name}
+                      </div>
+                      <span>{item.value} <span className="text-muted">({item.name === 'Delivered' ? '62%' : '37%'})</span></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+           
+            <div className="col-lg-8">
+              <div className="bg-white p-4 rounded-3 border h-100">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h5 className="fw-bold m-0">Today Order</h5>
+                  <Link to="/admin/order-management" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>View all &rarr;</Link>
+                </div>
+                <div className="table-responsive">
+                  <table className="table align-middle border-bottom-0 custom-table">
+                    <thead className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Product Name</th>
+                        <th>Order ID</th>
+                        <th>Total order</th>
+                        <th>Brand</th>
+                        <th>Price</th>
+                      </tr>
+                    </thead>
+                    <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
+                      {todayOrderData.map((item, i) => (
+                        <tr key={i}>
+                          <td>
+                            <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                          </td>
+                          <td>{item.name}</td>
+                          <td>{item.orderId}</td>
+                          <td>{item.total}</td>
+                          <td>{item.brand}</td>
+                          <td>{item.price}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+          <div className="bg-white p-4 rounded-3 border mb-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <h5 className="fw-bold m-0">Transactions</h5>
+              <Link to="/admin/payment-details" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>See All Transactions &gt;</Link>
+            </div>
+            <div className="table-responsive">
+              <table className="table align-middle border-bottom-0 custom-table">
+                <thead className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>
                   <tr>
-                    <th>Product Name</th>
-                    <th className="text-center">Total Order</th>
-                    <th className="d-none d-sm-table-cell text-center">
-                      Units Sold
-                    </th>
-                    <th className="d-none d-lg-table-cell">Revenue</th>
-                    <th>Stock</th>
+                    <th>Product ID</th>
+                    <th>Image</th>
+                    <th>Category</th>
+                    <th>Payment mode</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {topProducts.map((p, i) => (
-                    <tr key={p.id}>
-                      <td className="product-name">{p.name}</td>
-                      <td
-                        className="text-center"
-                        style={{ fontWeight: 700, color: "#374151" }}
-                      >
-                        {p.orders}
-                      </td>
-                      <td
-                        className="d-none d-sm-table-cell text-center"
-                        style={{ fontWeight: 700, color: "#111827" }}
-                      >
-                        {p.sold}
-                      </td>
-                      <td
-                        className="d-none d-lg-table-cell"
-                        style={{ fontWeight: 700, color: "#111827" }}
-                      >
-                        {p.revenue}
-                      </td>
+                <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
+                  {transactionsData.map((item, i) => (
+                    <tr key={i}>
+                      <td>{item.id}</td>
                       <td>
-                        <span
-                          className="stock-badge"
-                          style={{
-                            background: p.stockBg,
-                            color: "#111827",
-                            fontWeight: 700,
-                          }}
-                        >
-                          <span
-                            className="stock-dot"
-                            style={{ background: p.stockColor }}
-                          />
-                          {p.stock}
+                        <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                      </td>
+                      <td>{item.category}</td>
+                      <td>
+                        <div className="d-flex flex-column">
+                          <span className="fw-bold">{item.payMode}</span>
+                          <span className="text-muted" style={{ fontSize: '11px' }}>{item.payType}</span>
+                        </div>
+                      </td>
+                      <td>{item.amount}</td>
+                      <td>{item.date}</td>
+                      <td>
+                        <span style={{ color: item.statusColor, background: item.statusBg, padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>
+                          <i className={`bi ${item.status === 'Completed' ? 'bi-circle-fill' : item.status === 'Pending' ? 'bi-circle-fill' : 'bi-circle-fill'} me-1`} style={{ fontSize: '8px' }} />
+                          {item.status}
                         </span>
                       </td>
                     </tr>
@@ -491,120 +362,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── Bottom Panels ── */}
-          <div className="bottom-panels">
-            {/* Stock Alerts */}
-            <div className="panel">
-              <div className="panel-header">
-                <h2 className="section-title">Stock Alerts</h2>
-                <button
-                  className="panel-arrow"
-                  aria-label="View all stock alerts"
-                >
-                  <i className="bi bi-arrow-right" style={{ fontSize: 16 }} />
-                </button>
-              </div>
-
-              {stockAlerts.map((alert, i) => (
-                <div key={i} className={`stock-alert-item ${alert.colorClass}`}>
-                  <div className={`alert-icon-wrap ${alert.bg}`}>
-                    <i
-                      className={`bi ${alert.icon} ${alert.textClass}`}
-                      style={{ fontSize: 18 }}
-                    />
-                  </div>
-                  <span className={`alert-label ${alert.textClass}`}>
-                    {alert.label}
-                  </span>
-                  <span className={`alert-count ${alert.textClass}`}>
-                    {alert.count}
-                  </span>
-                  <button
-                    className="alert-arrow"
-                    aria-label={`Go to ${alert.label}`}
-                  >
-                    <i
-                      className={`bi bi-arrow-right ${alert.textClass}`}
-                      style={{ fontSize: 18 }}
-                    />
-                  </button>
-                </div>
-              ))}
-
-              {/* Summary row */}
-              {/* <div
-                className="d-flex align-items-center justify-content-between mt-3 pt-3"
-                style={{ borderTop: '1px solid #f3f4f6' }}
-              >
-                <span style={{ fontSize: 12, color: '#6b7280' }}>Total items needing attention</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>29 Items</span>
-              </div> */}
-            </div>
-
-            {/* Order Status */}
-            <div className="panel">
-              <div className="panel-header">
-                <h2 className="section-title">Order Status</h2>
-                <button className="panel-arrow" aria-label="View all orders">
-                  <i
-                    className="bi bi-arrow-right"
-                    style={{ fontSize: 16, color: "black" }}
-                  />
-                </button>
-              </div>
-
-              {orderStatuses.map((status, i) => (
-                <div key={i} className="order-status-item">
-                  <div className="order-status-row">
-                    <div className="order-status-label">
-                      <span
-                        className="order-dot"
-                        style={{ background: status.color }}
-                      />
-                      <span
-                        style={{
-                          fontSize: 14,
-                          color: "#374151",
-                          fontWeight: 500,
-                        }}
-                      >
-                        {status.label}
-                      </span>
-                    </div>
-                    <span className="order-status-count">{status.count}</span>
-                    <button
-                      className="status-arrow"
-                      aria-label={`View ${status.label} orders`}
-                    >
-                      <i
-                        className="bi bi-arrow-right"
-                        style={{ fontSize: 16 }}
-                      />
-                    </button>
-                  </div>
-                  <div className="order-progress-bar">
-                    <div
-                      className="order-progress-fill"
-                      style={{
-                        width: `${status.pct}%`,
-                        background: status.color,
-                      }}
-                    />
-                  </div>
-                  <hr style={{ color: "#c3c3c3ff" }} />
-                </div>
-              ))}
-
-              {/* Total
-              <div
-                className="d-flex align-items-center justify-content-between mt-3 pt-3"
-                style={{ borderTop: '1px solid #f3f4f6' }}
-              >
-                <span style={{ fontSize: 12, color: '#6b7280' }}>Total orders this month</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>440</span>
-              </div> */}
-            </div>
-          </div>
         </main>
       </div>
     </div>

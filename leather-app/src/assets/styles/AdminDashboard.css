@@ -532,3 +532,19 @@
 
   .profile-info { display: none; }
 }
+
+/* Custom Table Styles for Dashboard */
+.custom-table th {
+  border-bottom: 1px solid #f3f4f6 !important;
+  font-weight: 600;
+  color: #9ca3af;
+  padding-bottom: 12px;
+}
+.custom-table td {
+  border-bottom: 1px solid #f9fafb !important;
+  padding: 14px 10px;
+  color: #374151;
+}
+.custom-table tbody tr:last-child td {
+  border-bottom: none !important;
+}

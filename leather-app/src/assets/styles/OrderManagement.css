@@ -1,0 +1,230 @@
+/* Order Management Styles */
+
+.admin-layout {
+  display: flex;
+  height: 100vh;
+  background: #f9fafb;
+  font-family: 'Inter', sans-serif;
+  overflow: hidden;
+}
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.admin-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: #f9fafb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  gap: 20px;
+}
+
+.admin-content {
+  padding: 0 28px 40px 28px;
+}
+
+/* Filter Section */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+}
+
+
+
+.filter-icon-btn {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  cursor: pointer;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #6b7280;
+  font-weight: 500;
+  margin: 0;
+}
+
+.filter-select {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #111827;
+  outline: none;
+  cursor: pointer;
+  padding-right: 16px;
+}
+
+.filter-divider {
+  width: 1px;
+  height: 24px;
+  background: #e5e7eb;
+}
+
+.reset-filter-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* Table */
+.order-table-wrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow-x: auto;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.order-table th {
+  background: #ffffff;
+  padding: 14px 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #111827;
+  border-bottom: 1px solid #f3f4f6;
+  white-space: nowrap;
+}
+
+.order-table td {
+  padding: 14px 20px;
+  font-size: 13px;
+  color: #4b5563;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.order-table tbody tr {
+  transition: background-color 0.2s ease-in-out;
+}
+
+.order-table tbody tr:hover {
+  background-color: var(--soft-secondary); /* slightly darker grey for better visibility */
+  cursor: pointer;
+}
+
+.order-product-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #f3f4f6;
+}
+
+/* Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-badge.delivered { background: #dcfce7; color: #16a34a; }
+.status-badge.shipped { background: #e0e7ff; color: #4f46e5; }
+.status-badge.completed { background: #dcfce7; color: #16a34a; }
+.status-badge.cancelled { background: #ffe4e6; color: #e11d48; }
+.status-badge.placed { background: #ffedd5; color: #ea580c; }
+
+/* Pagination */
+.pagination-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: #ffffff;
+  border-top: 1px solid #f3f4f6;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pagination-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.page-btn.active {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+}
+
+.page-btn:hover:not(.active) {
+  background: #f3f4f6;
+}
+
+.rows-per-page {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.rows-select {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: #111827;
+  outline: none;
+  background: #ffffff;
+}

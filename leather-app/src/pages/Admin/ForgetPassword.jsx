@@ -8,7 +8,7 @@ function ForgetPassword() {
   const [timerActive, setTimerActive] = useState(true);
   const inputRefs = useRef([]);
 
-  // Countdown timer
+ 
   useEffect(() => {
     if (!timerActive || timer <= 0) return;
     const interval = setInterval(() => {
@@ -56,7 +56,7 @@ function ForgetPassword() {
       style={{ backgroundColor: "#ffffff" }}
     >
       <div className="row g-0 w-100 h-100">
-        {/* Left Side: Image */}
+        
         <div className="col-12 col-lg-5 d-none d-lg-block p-0 h-100">
           <img
             src={loginImage}
@@ -66,7 +66,7 @@ function ForgetPassword() {
           />
         </div>
 
-        {/* Right Side: OTP Form */}
+     
         <div
           className="col-12 col-lg-7 d-flex justify-content-center align-items-center h-100"
           style={{ overflowY: "auto" }}
@@ -75,7 +75,7 @@ function ForgetPassword() {
             className="w-100"
             style={{ maxWidth: "520px", padding: "1.5rem" }}
           >
-            {/* Back to login */}
+            
             <Link
               to="/admin"
               className="d-inline-flex align-items-center gap-2 text-decoration-none mb-5"
@@ -99,7 +99,7 @@ function ForgetPassword() {
               expires in 2 minutes.
             </p>
 
-            {/* OTP Input Boxes */}
+            
             <div className="d-flex gap-3 mb-2">
               {otp.map((digit, i) => (
                 <input
@@ -133,7 +133,7 @@ function ForgetPassword() {
             >
               The code you entered is incorrect. Please try again.
             </span>
-            {/* Resend + Timer */}
+         
             <div className="d-flex justify-content-between align-items-center mb-4" style={{ width: '320px' }}>
               <span style={{ fontSize: "13px", color: "#6b7280" }}>
                 Didn't receive it?{" "}
@@ -158,7 +158,7 @@ function ForgetPassword() {
               </span>
             </div>
 
-            {/* Verify Button */}
+            
             <NavLink
               type="button"
               to={'/admin/reset-password'}

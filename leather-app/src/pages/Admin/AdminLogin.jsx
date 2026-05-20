@@ -6,7 +6,7 @@ function AdminLogin() {
   return (
     <div className="container-fluid vh-100 d-flex p-0 overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
       <div className="row g-0 w-100 h-100">
-        {/* Left Side: Image */}
+        
         <div className="col-12 col-lg-5 d-none d-lg-block p-0 h-100">
           <img 
             src={loginImage} 
@@ -16,7 +16,7 @@ function AdminLogin() {
           />
         </div>
 
-        {/* Right Side: Form */}
+        
         <div className="col-12 col-lg-7 d-flex justify-content-center align-items-center h-100" style={{ overflowY: 'auto'}}>
           <div className="w-100" style={{ maxHeight: '90vh', maxWidth: '550px', padding: '1.5rem' }}>
             <h2 className="fw-medium mb-1" style={{ color: '#111827', fontSize: '1.75rem' }}>Welcome Back</h2>
