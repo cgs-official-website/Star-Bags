@@ -86,9 +86,9 @@
     background: var(--levender);
     color: white;
     border: none;
-    padding: 14px 30px;
+    padding: 8px 20px;
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: 500;
     transition: .3s;
 }
 

@@ -44,3 +44,79 @@
     font-family: 'Poppins', sans-serif;
 
 }
+
+/* ── Global Floating Toast Stack Container ── */
+.global-toast-container {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 11000; /* Higher than sticky drawers, modals, or navbars */
+  pointer-events: none;
+}
+
+/* Base Toast Animation Container Frame */
+.custom-toast-popup {
+  pointer-events: auto;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 14px 24px;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  border-left: 4px solid #8B5CF6; /* Lavender accent accent base line indicator */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 280px;
+  max-width: 400px;
+  animation: toast-slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Status Type Overrides line markers */
+.custom-toast-popup.success {
+  border-left-color: #22c55e; /* Success Green */
+}
+
+.custom-toast-popup.info {
+  border-left-color: #3b82f6; /* Info Blue */
+}
+
+.toast-body-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.toast-body-wrapper span {
+  line-height: 1.4;
+}
+
+/* Slider CSS Keyframe */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile Screens Adaptation Positioning Metrics */
+@media (max-width: 576px) {
+  .global-toast-container {
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+  }
+  .custom-toast-popup {
+    min-width: 100%;
+    max-width: 100%;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+  }
+}

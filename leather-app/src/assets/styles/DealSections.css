@@ -6,7 +6,6 @@
   width: 100%;
   padding: 10px 0;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* Whole category card styling */
@@ -15,8 +14,8 @@
   min-width: 0;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;   
-  border-radius: 24px;        
-  padding: 20px;              
+  border-radius: 24px;         
+  padding: 20px;               
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
   box-sizing: border-box;
 }
@@ -32,7 +31,7 @@
 /* Main title styling */
 .category-title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 500;
   color: #000000;
   margin: 0;
   letter-spacing: -0.3px;
@@ -50,6 +49,11 @@
   justify-content: center;
   cursor: pointer;
   padding: 0;
+  transition: background-color 0.2s ease;
+}
+
+.arrow-btn:hover {
+  background-color: #f8fafc;
 }
 
 /* Arrow symbol styling */
@@ -75,8 +79,8 @@
   width: 100%;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;   
-  border-radius: 16px;        
-  padding: 12px;              
+  border-radius: 16px;         
+  padding: 12px;               
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -107,29 +111,32 @@
   flex-direction: column;
 }
 
-/* Product designation tag line text layout */
+/* ADJUSTED: Decreased Desktop Brand Name Size and Added Truncate safety */
 .product-name {
-  font-size: 14px;
+  font-size: 16px !important;
   color: #1a202c;
   font-weight: 500;
   text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Value discount text markup */
 .product-discount {
-  font-size: 13px;
+  font-size: 12px;
   color: #7c3aed; 
   font-weight: 600;
   margin-top: 2px;
 }
 
-/* Horizontal slider responsive breakpoints for screen widths under 992px */
+/* ADJUSTED: Mobile layout optimization for screens under 992px */
 @media (max-width: 992px) {
   .dashboard-container {
     overflow-x: auto;                    
     scroll-snap-type: x mandatory;       
     padding: 12px 20px;
-    gap: 20px;
+    gap: 16px;
     -webkit-overflow-scrolling: touch; 
   }
   
@@ -137,53 +144,44 @@
     display: none; 
   }
 
-  /* One category takes full width */
+  /* Fixed issue where the container card was taking too much screen real estate */
   .category-card {
-    flex: 0 0 100%;                      
+    flex: 0 0 85%; /* Changed from 100% to 85% so the next sliding card peeks onto the screen */
     scroll-snap-align: start;            
-    padding: 16px;
-    border-radius: 20px;
+    padding: 14px;
+    border-radius: 18px;
   }
 
   .category-title {
-    font-size: 19px;
+    font-size: 16px;
   }
 
-  /* Keeps the exact same 2x2 design layout structure */
   .products-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px; /* Slightly tighter gap to save vertical space inside small viewports */
   }
 
-  /* Keeps the exact same column design structure */
+  /* ADJUSTED: Shrinks the big oversized product boxes down cleanly */
   .product-item {
     flex-direction: column;
     align-items: stretch;
-    gap: 0;
-    padding: 12px;
-    border-radius: 16px;
+    padding: 8px;
+    border-radius: 12px;
   }
 
-  /* Decreases BOTH width and height of the inner image asset container */
+  /* ADJUSTED: Downscaled image sizing box inside the card layout */
   .product-image-wrapper {
-    width: 60%;            /* Decreased explicit width from 100% to 60% */
-    margin: 0 auto 8px;    /* Centers the smaller box horizontally */
-    aspect-ratio: 1.8 / 1; /* Retains compressed horizontal layout height ratio */
-    padding: 0;
+    width: 75%;            
+    margin: 0 auto 4px;    
+    aspect-ratio: 1.4 / 1; 
   }
 
-  .product-info {
-    justify-content: flex-start;
-  }
-
+  /* ADJUSTED: Font sizing reduction to keep everything aligned on small screens */
   .product-name {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 14px !important;
   }
 
   .product-discount {
-    font-size: 13px;
-    margin-top: 2px;
+    font-size: 11px;
+    margin-top: 1px;
   }
 }

@@ -1,10 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import '../../assets/styles/DealSections.css';
 
 const DealSections = () => {
+  const navigate = useNavigate();
+
   const dealCategories = [
     {
       id: 'school-bags',
       title: 'Deals on school bags',
+      // Added navigation target matching your FilterSideBar configurations
+      filterKey: 'bag', 
       products: [
         { id: 1, name: 'Vip', discount: 'Min. 25% off', image: '../../assets/images/school1.svg' },
         { id: 2, name: 'Rubeen', discount: 'Min. 55% off', image: '../../assets/images/school2.svg' },
@@ -15,6 +20,7 @@ const DealSections = () => {
     {
       id: 'travel-bags',
       title: 'Deals on travel bags',
+      filterKey: 'bag',
       products: [
         { id: 5, name: 'safari', discount: 'Min. 25% off', image: '../../assets/images/travel1.svg' },
         { id: 6, name: 'Rubeen', discount: 'Min. 55% off', image: '../../assets/images/travel2.svg' },
@@ -25,6 +31,7 @@ const DealSections = () => {
     {
       id: 'hand-bags',
       title: 'Deals on hand bags',
+      filterKey: 'bag',
       products: [
         { id: 9, name: 'hike', discount: 'Min. 25% off', image: '../../assets/images/hand1.svg' },
         { id: 10, name: 'dialyobject', discount: 'Min. 55% off', image: '../../assets/images/hand2.svg' },
@@ -34,21 +41,34 @@ const DealSections = () => {
     },
   ];
 
-  // Helper helper to resolve standard relative assets inside a loop build
   const getImageUrl = (path) => {
     return new URL(path, import.meta.url).href;
+  };
+
+  // Redirects directly to AllProducts routing context pipeline with active bag filters
+  const handleRedirect = (categoryKey) => {
+    navigate('/AllProducts', {
+      state: {
+        filters: {
+          category: categoryKey,
+        },
+      },
+    });
   };
 
   return (
     <div className="dashboard-container container">
       {dealCategories.map((category) => (
-        /* WHOLE CONTAINER BORDER */
         <div key={category.id} className="category-card">
           
           {/* Header Row */}
           <div className="category-header">
             <h2 className="category-title">{category.title}</h2>
-            <button className="arrow-btn" aria-label="View more">
+            <button 
+              className="arrow-btn" 
+              aria-label="View more"
+              onClick={() => handleRedirect(category.filterKey)}
+            >
               <span className="arrow-icon">›</span>
             </button>
           </div>
@@ -56,7 +76,6 @@ const DealSections = () => {
           {/* 2x2 Product Grid */}
           <div className="products-grid">
             {category.products.map((product) => (
-              /* INDIVIDUAL BORDER */
               <div key={product.id} className="product-item">
                 <div className="product-image-wrapper">
                   <img 

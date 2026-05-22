@@ -1,20 +1,30 @@
-import  { useState } from "react";
 import { FaStar, FaHeart } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
+import { useWishlist } from "../../context/WishlistContext";
 import "../../assets/styles/productCard.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-// ─── Wishlist Heart Toggle ────────────────────────────────────────────────────
-const WishlistHeart = () => {
-  const [isWishlist, setIsWishlist] = useState(false);
+const WishlistHeart = ({ product }) => {
+  const { wishlist, toggleWishlist } = useWishlist();
+  
+  // FIX: Use both name AND price to create a unique identifier, 
+  // since multiple items share the exact name "Leather Wallet"
+  const isWishlist = wishlist.some(
+    (item) => item.name === product.name && Number(item.price) === Number(product.price)
+  );
+
   return (
     <div className="wishlist">
       <button
         className="wishlist-toggle shadow-sm"
-        onClick={() => setIsWishlist(!isWishlist)}
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleWishlist(product);
+        }}
+        type="button"
       >
         {isWishlist ? (
-          <FaHeart className="text-danger" />
+          <FaHeart className="heart-icon text-danger" />
         ) : (
           <FiHeart className="text-danger" />
         )}
@@ -23,63 +33,44 @@ const WishlistHeart = () => {
   );
 };
 
-// ─── Product Card ─────────────────────────────────────────────────────────────
-const HomeProduct = () => {
-  const productCard = [
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-  ];
-
+const HomeProduct = ({ products = [] }) => {
   return (
-    <>
-      <section>
-        <div className="ProductCard-section my-3">
-          <div className="container d-flex gap-3 flex-nowrap">
-            {productCard.map((pro, index) => (
-              <div
-                className="card border-0 shadow-sm"
-                key={index}
-                style={{ width: "15rem" }}
-              >
-                <img src={pro.image} className="card-img-top" alt={pro.name} />
-                <WishlistHeart />
-                <div className="card-body">
-                  <div className="d-flex justify-content-between pt-2">
-                    <h6 className="card-title">{pro.name}</h6>
-                    <span
-                      className="rating-stars d-flex align-items-center"
-                      style={{ color: "black" }}
-                    >
-                      <FaStar className="me-1" style={{ color: "#fff240" }} />
-                      {pro.rating}
-                    </span>
-                  </div>
-
-                  <div className="price-details d-flex align-items-center gap-5 pt-1">
-                    <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
-                      ₹{pro.price}{" "}
-                      <span>
-                        <del style={{ color: "#7d7d7dff", fontWeight: "500" }}>
-                          ₹{pro.realPrice}
-                        </del>
-                      </span>
-                    </p>
-                    <span className="mb-1">
-                      <b>{pro.offer} off</b>
-                    </span>
-                  </div>
-                </div>
+    <div className="ProductCard-section my-3">
+      <div className="container">
+        {products.map((pro, index) => (
+          <div className="card border-0 shadow-sm" key={pro.id || index}>
+            <img src={pro.image} className="card-img-top" alt={pro.name} />
+            
+            {/* Context Connected Heart Toggle Button */}
+            <WishlistHeart product={pro} />
+            
+            <div className="card-body">
+              <div className="d-flex justify-content-between pt-2">
+                <h6 className="card-title text-truncate" style={{ maxWidth: "70%" }}>
+                  {pro.name}
+                </h6>
+                <span className="rating-stars d-flex align-items-center" style={{ color: "black" }}>
+                  <FaStar className="me-1" style={{ color: "#fff240" }} />
+                  {pro.rating}
+                </span>
               </div>
-            ))}
+
+              <div className="price-details d-flex align-items-center gap-4 pt-1">
+                <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
+                  ₹{pro.price}{" "}
+                  <span>
+                    <del style={{ fontWeight: "500" }}>₹{pro.realPrice}</del>
+                  </span>
+                </p>
+                <span className="mb-1 text-success small">
+                  <b>{pro.offer} off</b>
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </>
+        ))}
+      </div>
+    </div>
   );
 };
 

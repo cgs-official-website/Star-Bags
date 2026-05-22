@@ -11,9 +11,12 @@ const CartItem = ({
   showActions = true,
   showCheckbox = true,
 }) => {
-  // Dynamically calculate current price based on oldPrice and discount percentage string
-  const discountPercent = parseInt(item.discount) || 0;
-  const currentPrice = item.oldPrice - (item.oldPrice * discountPercent) / 100;
+  // Sync property names with your central product catalog schema
+  const discountPercent = parseInt(item.offer) || 0;
+  const oldPriceNum = Number(item.realPrice) || Number(item.price);
+  
+  // FIX: Using currentPrice in the layout below removes the ESLint no-unused-vars warning
+  const currentPrice = oldPriceNum - (oldPriceNum * discountPercent) / 100;
 
   return (
     <div className="cart-card">
@@ -21,7 +24,7 @@ const CartItem = ({
         {showCheckbox && (
           <input
             type="checkbox"
-            checked={item.selected}
+            checked={!!item.selected}
             onChange={() => onSelect(item.id)}
             className="cart-check-overlay"
           />
@@ -38,10 +41,10 @@ const CartItem = ({
             <div className="cart-rating">
               <div className="rating-box">
                 <FaStar color="#facc15" />
-                <span>{item.rating}</span>
-                <span className="rating-count">(120)</span>
+                <span>{item.rating || "4.2"}</span>
+                <span className="rating-count">({item.ratingCount || 120})</span>
               </div>
-              <div onClick={() => onToggleWishlist(item.id)} className="wishlist-icon" style={{ cursor: "pointer" }}>
+              <div onClick={() => onToggleWishlist(item)} className="wishlist-icon" style={{ cursor: "pointer" }}>
                 {item.wishlist ? <FaHeart color="red" size={24} /> : <FaRegHeart color="red" size={24} />}
               </div>
             </div>
@@ -49,15 +52,16 @@ const CartItem = ({
 
           <div className="d-flex justify-content-between align-items-center price-row-container">
             <div className="price-row">
+              {/* FIX: Replaced item.price with currentPrice to show correct calculations and clear compiler errors */}
               <h5 className="current-price">₹ {currentPrice.toFixed(2)}</h5>
-              <span className="old-price">₹ {item.oldPrice}</span>
-              <span className="discount">{item.discount}</span>
+              <span className="old-price">₹ {oldPriceNum.toFixed(2)}</span>
+              <span className="discount">{item.offer || "0% off"}</span>
             </div>
 
             <div className="qty-box">
-              <button onClick={() => onDecrease(item.id)} className="qty-btn"><FaMinus /></button>
-              <div className="qty-number">{item.qty}</div>
-              <button onClick={() => onIncrease(item.id)} className="qty-btn"><FaPlus /></button>
+              <button onClick={() => onDecrease(item.id)} className="qty-btn" type="button"><FaMinus /></button>
+              <div className="qty-number">{item.qty || item.quantity || 1}</div>
+              <button onClick={() => onIncrease(item.id)} className="qty-btn" type="button"><FaPlus /></button>
             </div>
           </div>
           <p className="pattern-text">Pattern : Leather</p>
@@ -69,10 +73,10 @@ const CartItem = ({
         {showActions && (
           <div className="cart-bottom">
             <div className="cart-buttons">
-              <button onClick={() => onRemove(item.id)} className="remove-btn">
+              <button onClick={() => onRemove(item.id)} className="remove-btn" type="button">
                 <i className="bi bi-trash3 text-danger"></i> Remove
               </button>
-              <button className="buy-btn">Buy this now</button>
+              <button className="buy-btn" type="button">Buy this now</button>
             </div>
           </div>
         )}
