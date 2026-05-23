@@ -1,90 +1,149 @@
-/* My Orders Page Styles */
-.orders-container {
-  font-family: inherit;
-}
+/* ==========================================================
+   ORDERS PAGE GENERAL PANEL STYLING
+   ========================================================== */
 
-.orders-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  padding: 24px;
-  background: #fff;
-}
-
-.orders-header {
+.orders-page-app-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column;
 }
 
-.orders-subtitle {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 2px;
+.orders-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  flex: 1;
 }
 
-.orders-search-wrapper {
-  margin-bottom: 24px;
+.page-section-title {
+  color: #0f172a;
+  font-size: 1.55rem;
+  letter-spacing: -0.5px;
 }
 
-.orders-search {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-  font-size: 0.9rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 10px 12px 10px 36px;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  font-size: 0.85rem;
-  background-color: #fff;
-  transition: all 0.2s;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
-}
-
-.orders-list {
+/* Central Dashboard Card Container */
+.orders-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.pagination-wrapper {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 24px;
-  padding-top: 8px;
+.orders-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
 }
 
-.pagination-btn,
-.pagination-number {
-  width: 36px;
-  height: 36px;
+.text-dark-theme {
+  color: #0f172a;
+}
+
+.orders-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* Premium Rounded Search Input Wrapper */
+.orders-search-wrapper {
+  width: 100%;
+}
+
+.orders-search {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+}
+
+.orders-search .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.orders-search .search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  font-size: 14px;
+  border-radius: 30px; /* Fully rounded mockup search bar */
+  border: 1.5px solid #dcd1ff; /* Lavender boundary */
+  background: #ffffff;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.orders-search .search-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+}
+
+.orders-search .search-input::placeholder {
+  color: #94a3b8;
+  font-weight: 450;
+}
+
+/* Order Rows Wrapper Gap */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 250px;
+}
+
+.no-orders {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #f8fafc;
   border-radius: 8px;
-  border: 1px solid #e0e0e0;
-  background: white;
+  border: 1px dashed #cbd5e1;
+}
+
+/* Dynamic Pagination Elements */
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pagination-btn, .pagination-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.85rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled), .pagination-number:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.04);
+}
+
+.pagination-number.active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.2);
 }
 
 .pagination-btn:disabled {
@@ -92,35 +151,92 @@
   cursor: not-allowed;
 }
 
-.pagination-number.active {
-  background-color: #8b5cf6;
-  border-color: #8b5cf6;
-  color: white;
+/* ==========================================================
+   DARK THEMING overrides
+   ========================================================== */
+body.dark-theme .orders-page-app-wrapper,
+[data-theme="dark"] .orders-page-app-wrapper {
+  background-color: #0b0f19;
 }
 
-.pagination-number:hover:not(.active) {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
+body.dark-theme .orders-card,
+[data-theme="dark"] .orders-card {
+  background: #161e2e;
+  border-color: #2e3748;
 }
 
-.pagination-btn:hover:not(:disabled) {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
+body.dark-theme .text-dark-theme,
+[data-theme="dark"] .text-dark-theme,
+body.dark-theme .page-section-title,
+[data-theme="dark"] .page-section-title {
+  color: #f8fafc !important;
 }
 
-.no-orders {
-  text-align: center;
-  padding: 40px 20px;
-  color: #888;
+body.dark-theme .orders-header,
+[data-theme="dark"] .orders-header,
+body.dark-theme .pagination-wrapper,
+[data-theme="dark"] .pagination-wrapper {
+  border-color: #2e3748;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
+body.dark-theme .orders-search .search-input,
+[data-theme="dark"] .orders-search .search-input {
+  background: #161e2e;
+  border-color: #2e3748;
+  color: #f8fafc;
+}
+
+body.dark-theme .orders-search .search-input:focus,
+[data-theme="dark"] .orders-search .search-input:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+}
+
+body.dark-theme .no-orders,
+[data-theme="dark"] .no-orders {
+  background: rgba(22, 30, 46, 0.5);
+  border-color: #2e3748;
+}
+
+body.dark-theme .pagination-btn,
+[data-theme="dark"] .pagination-btn,
+body.dark-theme .pagination-number,
+[data-theme="dark"] .pagination-number {
+  background: #161e2e;
+  border-color: #2e3748;
+  color: #94a3b8;
+}
+
+body.dark-theme .pagination-btn:hover:not(:disabled),
+[data-theme="dark"] .pagination-btn:hover:not(:disabled),
+body.dark-theme .pagination-number:hover,
+[data-theme="dark"] .pagination-number:hover {
+  border-color: #a855f7;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.08);
+}
+
+body.dark-theme .pagination-number.active,
+[data-theme="dark"] .pagination-number.active {
+  background: #a855f7;
+  border-color: #a855f7;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.35);
+}
+
+/* ==========================================================
+   RESPONSIVE LAYOUT BREAKPOINTS
+   ========================================================== */
+@media (max-width: 991px) {
+  .sidebar-column-view {
+    display: none !important; /* Hide sidebar inside responsive main grid, matching teammate d-none d-lg-block specs */
+  }
+  .list-column-view {
+    width: 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
   .orders-card {
     padding: 16px;
-  }
-
-  .orders-search {
-    max-width: 100%;
   }
 }

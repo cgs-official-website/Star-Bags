@@ -27,56 +27,138 @@ export const DEFAULT_FILTERS = {
   priceRange: '',
 };
 
-// ── Simple single-select dropdown ─────────────────────────────────────────────
-const SimpleDropdown = ({ label = 'Select', options, selected, onSelect }) => {
-  const [open, setOpen] = useState(false);
+// ── Flipkart-style collapsible section ─────────────────────────────────────────
+const FilterSection = ({ title, children, defaultOpen = true }) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  
   return (
-    <div className="filter-dropdown-group">
-      <button
-        className={`filter-dropdown-btn ${open ? 'open' : ''}`}
-        onClick={() => setOpen((o) => !o)}
-        type="button"
-      >
-        <span>{selected || label}</span>
-        <i className={`bi bi-chevron-${open ? 'up' : 'down'} dropdown-chevron`} />
-      </button>
-      {open && (
-        <div className="filter-dropdown-list">
-          {options.map((opt) => (
-            <label
-              key={opt}
-              className={`filter-checkbox-item ${selected === opt ? 'selected' : ''}`}
-            >
-              <input
-                type="checkbox"
-                checked={selected === opt}
-                onChange={() => { onSelect(selected === opt ? '' : opt); setOpen(false); }}
-              />
-              <span>{opt}</span>
-            </label>
-          ))}
-        </div>
+    <div className="filter-section">
+      <div className="filter-section-header" onClick={() => setIsOpen(!isOpen)}>
+        <span className="filter-section-title">{title}</span>
+        <i className={`bi bi-chevron-${isOpen ? 'up' : 'down'}`}></i>
+      </div>
+      {isOpen && <div className="filter-section-content">{children}</div>}
+    </div>
+  );
+};
+
+// ── Checkbox List Component with Show More/Less ─────────────────────────────
+const CheckboxList = ({ options, selected, onChange, color = '#8b5cf6', initialLimit = 4 }) => {
+  const [showAll, setShowAll] = useState(false);
+  const visibleOptions = showAll ? options : options.slice(0, initialLimit);
+  const hasMore = options.length > initialLimit;
+
+  return (
+    <div className="checkbox-list-wrapper">
+      <div className="checkbox-list">
+        {visibleOptions.map((option) => (
+          <label key={option} className="checkbox-item">
+            <input
+              type="checkbox"
+              checked={selected.includes(option)}
+              onChange={() => onChange(option)}
+              style={{ accentColor: color }}
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+      {hasMore && (
+        <button className="show-more-btn" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'Show Less' : `+ ${options.length - initialLimit} more`}
+        </button>
       )}
     </div>
   );
 };
 
-// ── Main FilterSideBar ────────────────────────────────────────────────────────
-// Props:
-//   filters         – current filter state
-//   onChange        – called on every individual filter change
-//   onApply         – optional override (used inside AllProducts page/drawer)
-//   navigateOnApply – when true (default), navigates to /allproducts on Apply
-const FilterSideBar = ({ filters = {}, onChange, onApply, navigateOnApply = true }) => {
-  const navigate = useNavigate();
-  const [bagsOpen, setBagsOpen] = useState(false);
+// ── Radio List Component with Show More/Less ────────────────────────────────
+const RadioList = ({ options, selected, onChange, name, initialLimit = 3 }) => {
+  const [showAll, setShowAll] = useState(false);
+  const visibleOptions = showAll ? options : options.slice(0, initialLimit);
+  const hasMore = options.length > initialLimit;
 
-  const category   = filters.category   ?? '';
-  const bags       = filters.bags       ?? [];
-  const brands     = filters.brands     ?? [];
-  const material   = filters.material   ?? '';
-  const size       = filters.size       ?? '';
-  const pattern    = filters.pattern    ?? '';
+  return (
+    <div className="radio-list-wrapper">
+      <div className="radio-group">
+        {visibleOptions.map((option) => (
+          <label key={option} className="radio-item">
+            <input
+              type="radio"
+              name={name}
+              checked={selected === option}
+              onChange={() => onChange(selected === option ? '' : option)}
+            />
+            <span>{option}</span>
+          </label>
+        ))}
+      </div>
+      {hasMore && (
+        <button className="show-more-btn" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'Show Less' : `+ ${options.length - initialLimit} more`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ── Size Buttons Component with Show More/Less ──────────────────────────────
+const SizeButtons = ({ options, selected, onChange, initialLimit = 3 }) => {
+  const [showAll, setShowAll] = useState(false);
+  const visibleOptions = showAll ? options : options.slice(0, initialLimit);
+  const hasMore = options.length > initialLimit;
+
+  return (
+    <div className="size-wrapper">
+      <div className="size-buttons">
+        {visibleOptions.map((size) => (
+          <button
+            key={size}
+            className={`size-btn ${selected === size ? 'active' : ''}`}
+            onClick={() => onChange(selected === size ? '' : size)}
+          >
+            {size}
+          </button>
+        ))}
+      </div>
+      {hasMore && (
+        <button className="show-more-btn" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'Show Less' : `+ ${options.length - initialLimit} more`}
+        </button>
+      )}
+    </div>
+  );
+};
+
+// ── Active Filter Tags Component (No heading, just pills) ─────────────────────
+const ActiveFilterTags = ({ filters, onRemove }) => {
+  if (!filters || filters.length === 0) return null;
+
+  return (
+    <div className="active-filters-tags">
+      {filters.map((filter, index) => (
+        <div key={index} className="active-filter-tag">
+          <span className="filter-tag-label">{filter.type}: {filter.label}</span>
+          <button 
+            onClick={() => onRemove(index)} 
+            className="remove-filter-btn"
+            aria-label={`Remove ${filter.label} filter`}
+          >
+            ✕
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ── Main FilterSideBar ────────────────────────────────────────────────────────
+const FilterSideBar = ({ filters = {}, onChange, activeTags = [], onRemoveTag, onClearAll }) => {
+  const category = filters.category ?? '';
+  const bags = filters.bags ?? [];
+  const brands = filters.brands ?? [];
+  const material = filters.material ?? '';
+  const size = filters.size ?? '';
   const priceRange = filters.priceRange ?? '';
 
   const update = (key, value) => onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
@@ -99,392 +181,123 @@ const FilterSideBar = ({ filters = {}, onChange, onApply, navigateOnApply = true
     update('priceRange', priceRange === rangeValue ? '' : rangeValue);
   };
 
-  // ── Apply button handler ───────────────────────────────────────────────────
-  const handleApply = () => {
-    if (onApply) {
-      // Already on AllProducts page — apply filters and scroll to top
-      onApply();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    if (navigateOnApply) {
-      // Called from another page (e.g. Home) — navigate to AllProducts
-      // React Router will scroll to top on navigation automatically,
-      // but we also call scrollTo to be safe across all browsers
-      navigate('/allproducts', { state: { filters: { ...DEFAULT_FILTERS, ...filters } } });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  const handleClearAll = () => {
+    if (onClearAll) {
+      onClearAll();
+    } else {
+      onChange(DEFAULT_FILTERS);
     }
   };
 
-  return (
-    <aside className="filter-sidebar">
-      <h3 className="sidebar-title">Product Categories</h3>
-      <p className="sidebar-subtitle">All Filters</p>
+  const hasActiveFilters = () => {
+    return category !== '' || bags.length > 0 || brands.length > 0 || 
+           material !== '' || size !== '' || priceRange !== '';
+  };
 
-      {/* ── Bags ── */}
-      <div className="filter-dropdown-group">
-        <button
-          className={`filter-dropdown-btn ${bagsOpen ? 'open' : ''}`}
-          onClick={() => setBagsOpen((o) => !o)}
-          type="button"
-        >
-          <span>{bags.length > 0 ? `Bags (${bags.length})` : 'Bags'}</span>
-          <i className={`bi bi-chevron-${bagsOpen ? 'up' : 'down'} dropdown-chevron`} />
-        </button>
-        {bagsOpen && (
-          <div className="filter-dropdown-list">
-            {BAG_TYPES.map((type) => (
-              <label
-                key={type}
-                className={`filter-checkbox-item ${bags.includes(type) ? 'selected' : ''}`}
-              >
-                <input
-                  type="checkbox"
-                  checked={bags.includes(type)}
-                  onChange={() => handleBagToggle(type)}
-                />
-                <span>{type}</span>
-              </label>
-            ))}
-          </div>
+  return (
+    <aside className="filter-sidebar-flipkart">
+      <div className="filter-header">
+        <h3 className="filter-title">Filters</h3>
+        {hasActiveFilters() && (
+          <button className="clear-all-btn" onClick={handleClearAll}>
+            CLEAR ALL
+          </button>
         )}
       </div>
 
-      {/* ── Wallet ── */}
-      <button
-        className={`category-flat-btn ${category === 'wallet' ? 'active' : ''}`}
-        type="button"
-        onClick={() => handleCategoryClick('wallet')}
-      >
-        Wallet
-      </button>
+      {/* Active Filter Tags - Only pills, no heading */}
+      {activeTags && activeTags.length > 0 && (
+        <ActiveFilterTags 
+          filters={activeTags} 
+          onRemove={onRemoveTag}
+        />
+      )}
 
-      {/* ── Belt ── */}
-      <button
-        className={`category-flat-btn ${category === 'belt' ? 'active' : ''}`}
-        type="button"
-        onClick={() => handleCategoryClick('belt')}
-      >
-        Belt
-      </button>
-
-      {/* ── Brands ── */}
-      <div className="filter-section">
-        <p className="filter-label bold-label">Brands</p>
-        <div className="brand-list">
-          {BRANDS.map((brand) => (
-            <label
-              key={brand}
-              className={`brand-item ${brands.includes(brand) ? 'selected' : ''}`}
-            >
-              <span className="brand-checkbox-box">
-                <input
-                  type="checkbox"
-                  checked={brands.includes(brand)}
-                  onChange={() => handleBrandToggle(brand)}
-                />
-              </span>
-              <span>{brand}</span>
-            </label>
-          ))}
+      {/* Category Section */}
+      <FilterSection title="CATEGORIES">
+        <div className="category-buttons">
+          <button
+            className={`category-btn ${category === 'wallet' ? 'active' : ''}`}
+            onClick={() => handleCategoryClick('wallet')}
+          >
+            Wallets
+          </button>
+          <button
+            className={`category-btn ${category === 'belt' ? 'active' : ''}`}
+            onClick={() => handleCategoryClick('belt')}
+          >
+            Belts
+          </button>
+          <button
+            className={`category-btn ${category === 'bag' ? 'active' : ''}`}
+            onClick={() => handleCategoryClick('bag')}
+          >
+            Bags
+          </button>
         </div>
-      </div>
+      </FilterSection>
 
-      {/* ── Material ── */}
-      <div className="filter-section">
-        <p className="filter-label bold-label">Material</p>
-        <SimpleDropdown
-          label="Leather bags"
+      {/* Bag Types Section */}
+      <FilterSection title="BAG TYPES">
+        <CheckboxList 
+          options={BAG_TYPES}
+          selected={bags}
+          onChange={handleBagToggle}
+          initialLimit={4}
+        />
+      </FilterSection>
+
+      {/* Brands Section */}
+      <FilterSection title="BRANDS">
+        <CheckboxList 
+          options={BRANDS}
+          selected={brands}
+          onChange={handleBrandToggle}
+          initialLimit={4}
+        />
+      </FilterSection>
+
+      {/* Material Section */}
+      <FilterSection title="MATERIAL">
+        <RadioList 
           options={MATERIALS}
           selected={material}
-          onSelect={(v) => update('material', v)}
+          onChange={(value) => update('material', value)}
+          name="material"
+          initialLimit={3}
         />
-      </div>
+      </FilterSection>
 
-      {/* ── Product Size ── */}
-      <div className="filter-section">
-        <p className="filter-label bold-label">Product Size</p>
-        <SimpleDropdown
-          label="Product Sizes"
+      {/* Size Section */}
+      <FilterSection title="SIZE">
+        <SizeButtons 
           options={SIZES}
           selected={size}
-          onSelect={(v) => update('size', v)}
+          onChange={(value) => update('size', value)}
+          initialLimit={3}
         />
-      </div>
+      </FilterSection>
 
-      {/* ── Price ── */}
-      <div className="filter-price-section">
-        <p className="filter-label bold-label">Filter by price</p>
-        <div className="price-radio-group">
+      {/* Price Section */}
+      <FilterSection title="PRICE">
+        <div className="price-options">
           {PRICE_RANGES.map((range) => (
-            <label key={range.value} className="price-radio-item">
+            <label key={range.value} className="price-option">
               <input
                 type="radio"
-                name="priceRange"
+                name="price"
                 checked={priceRange === range.value}
                 onChange={() => handlePriceRangeSelect(range.value)}
               />
               <span>{range.label}</span>
             </label>
           ))}
-          {priceRange && (
-            <button
-              className="clear-price-btn"
-              onClick={() => update('priceRange', '')}
-            >
-              Clear price filter
-            </button>
-          )}
         </div>
-      </div>
+      </FilterSection>
 
-      {/* ── Apply ── */}
-      <button className="apply-filter-btn" type="button" onClick={handleApply}>
-        Apply Filter
-      </button>
+      {/* REMOVED: Apply Button - No longer needed for real-time filtering */}
     </aside>
   );
 };
 
 export default FilterSideBar;
-
-
-
-
-
-
-
-
-
-// import { useState } from 'react';
-// import 'bootstrap-icons/font/bootstrap-icons.css';
-// import "../../assets/styles/FilterSideBar.css";
-
-// // ── Static Data ───────────────────────────────────────────────────────────────
-// export const BAG_TYPES = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
-// export const BRANDS    = ['Puma', 'American Tourist', 'Sky bags', 'VIP', 'Safari'];
-// export const MATERIALS = ['Leather bags', 'Canvas bags', 'Nylon bags', 'Polyester bags'];
-// export const SIZES     = ['Small', 'Medium', 'Large', 'XL'];
-// export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
-
-// // Price range options
-// export const PRICE_RANGES = [
-//   { label: 'Under ₹500', value: 'under500', min: 0, max: 500 },
-//   { label: '₹500 - ₹1000', value: '500-1000', min: 500, max: 1000 },
-//   { label: '₹1000 - ₹2000', value: '1000-2000', min: 1000, max: 2000 },
-//   { label: 'Above ₹2000', value: 'above2000', min: 2000, max: Infinity }
-// ];
-
-// // ── Default filter state ──────────────────────────────────────────────────────
-// export const DEFAULT_FILTERS = {
-//   category:   '',
-//   bags:       [],
-//   brands:     [],
-//   material:   '',
-//   size:       '',
-//   pattern:    '',
-//   priceRange: '', // Changed from array to string
-// };
-
-// // ── Simple single-select dropdown ─────────────────────────────────────────────
-// const SimpleDropdown = ({ label = 'Select', options, selected, onSelect }) => {
-//   const [open, setOpen] = useState(false);
-//   return (
-//     <div className="filter-dropdown-group">
-//       <button
-//         className={`filter-dropdown-btn ${open ? 'open' : ''}`}
-//         onClick={() => setOpen((o) => !o)}
-//         type="button"
-//       >
-//         <span>{selected || label}</span>
-//         <i className={`bi bi-chevron-${open ? 'up' : 'down'} dropdown-chevron`} />
-//       </button>
-//       {open && (
-//         <div className="filter-dropdown-list">
-//           {options.map((opt) => (
-//             <label
-//               key={opt}
-//               className={`filter-checkbox-item ${selected === opt ? 'selected' : ''}`}
-//             >
-//               <input
-//                 type="checkbox"
-//                 checked={selected === opt}
-//                 onChange={() => { onSelect(selected === opt ? '' : opt); setOpen(false); }}
-//               />
-//               <span>{opt}</span>
-//             </label>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// // ── Main FilterSideBar ────────────────────────────────────────────────────────
-// const FilterSideBar = ({ filters = {}, onChange, onApply }) => {
-//   const [bagsOpen, setBagsOpen] = useState(false);
-
-//   // ✅ Safe fallbacks — prevents crashes if parent passes old/partial filters
-//   const category   = filters.category   ?? '';
-//   const bags       = filters.bags       ?? [];
-//   const brands     = filters.brands     ?? [];
-//   const material   = filters.material   ?? '';
-//   const size       = filters.size       ?? '';
-//   const pattern    = filters.pattern    ?? '';
-//   const priceRange = filters.priceRange ?? ''; // Now a string
-
-//   const update = (key, value) => onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
-
-//   const handleBagToggle = (type) => {
-//     const next = bags.includes(type)
-//       ? bags.filter((t) => t !== type)
-//       : [...bags, type];
-//     update('bags', next);
-//   };
-
-//   const handleBrandToggle = (brand) => {
-//     const next = brands.includes(brand)
-//       ? brands.filter((b) => b !== brand)
-//       : [...brands, brand];
-//     update('brands', next);
-//   };
-
-//   const handleCategoryClick = (cat) => {
-//     update('category', category === cat ? '' : cat);
-//   };
-
-//   const handlePriceRangeSelect = (rangeValue) => {
-//     update('priceRange', priceRange === rangeValue ? '' : rangeValue);
-//   };
-
-//   return (
-//     <aside className="filter-sidebar">
-//       <h3 className="sidebar-title">Product Categories</h3>
-//       <p className="sidebar-subtitle">All Filters</p>
-
-//       {/* ── Bags — dropdown ── */}
-//       <div className="filter-dropdown-group">
-//         <button
-//           className={`filter-dropdown-btn ${bagsOpen ? 'open' : ''}`}
-//           onClick={() => setBagsOpen((o) => !o)}
-//           type="button"
-//         >
-//           <span>{bags.length > 0 ? `Bags (${bags.length})` : 'Bags'}</span>
-//           <i className={`bi bi-chevron-${bagsOpen ? 'up' : 'down'} dropdown-chevron`} />
-//         </button>
-//         {bagsOpen && (
-//           <div className="filter-dropdown-list">
-//             {BAG_TYPES.map((type) => (
-//               <label
-//                 key={type}
-//                 className={`filter-checkbox-item ${bags.includes(type) ? 'selected' : ''}`}
-//               >
-//                 <input
-//                   type="checkbox"
-//                   checked={bags.includes(type)}
-//                   onChange={() => handleBagToggle(type)}
-//                 />
-//                 <span>{type}</span>
-//               </label>
-//             ))}
-//           </div>
-//         )}
-//       </div>
-
-//       {/* ── Wallet — flat button ── */}
-//       <button
-//         className={`category-flat-btn ${category === 'wallet' ? 'active' : ''}`}
-//         type="button"
-//         onClick={() => handleCategoryClick('wallet')}
-//       >
-//         Wallet
-//       </button>
-
-//       {/* ── Belt — flat button ── */}
-//       <button
-//         className={`category-flat-btn ${category === 'belt' ? 'active' : ''}`}
-//         type="button"
-//         onClick={() => handleCategoryClick('belt')}
-//       >
-//         Belt
-//       </button>
-
-//       {/* ── Brands — checkbox list ── */}
-//       <div className="filter-section">
-//         <p className="filter-label bold-label">Brands</p>
-//         <div className="brand-list">
-//           {BRANDS.map((brand) => (
-//             <label
-//               key={brand}
-//               className={`brand-item ${brands.includes(brand) ? 'selected' : ''}`}
-//             >
-//               <span className="brand-checkbox-box">
-//                 <input
-//                   type="checkbox"
-//                   checked={brands.includes(brand)}
-//                   onChange={() => handleBrandToggle(brand)}
-//                 />
-//               </span>
-//               <span>{brand}</span>
-//             </label>
-//           ))}
-//         </div>
-//       </div>
-
-//       {/* ── Material — dropdown ── */}
-//       <div className="filter-section">
-//         <p className="filter-label bold-label">Material</p>
-//         <SimpleDropdown
-//           label="Leather bags"
-//           options={MATERIALS}
-//           selected={material}
-//           onSelect={(v) => update('material', v)}
-//         />
-//       </div>
-
-//       {/* ── Product Size — dropdown ── */}
-//       <div className="filter-section">
-//         <p className="filter-label bold-label">Product Size</p>
-//         <SimpleDropdown
-//           label="Product Sizes"
-//           options={SIZES}
-//           selected={size}
-//           onSelect={(v) => update('size', v)}
-//         />
-//       </div>
-
-//       {/* ── Filter by price — Radio buttons instead of range slider ── */}
-//       <div className="filter-price-section">
-//         <p className="filter-label bold-label">Filter by price</p>
-//         <div className="price-radio-group">
-//           {PRICE_RANGES.map((range) => (
-//             <label key={range.value} className="price-radio-item">
-//               <input
-//                 type="radio"
-//                 name="priceRange"
-//                 checked={priceRange === range.value}
-//                 onChange={() => handlePriceRangeSelect(range.value)}
-//               />
-//               <span>{range.label}</span>
-//             </label>
-//           ))}
-//           {priceRange && (
-//             <button 
-//               className="clear-price-btn"
-//               onClick={() => update('priceRange', '')}
-//             >
-//               Clear price filter
-//             </button>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* ── Apply ── */}
-//       <button className="apply-filter-btn" type="button" onClick={onApply}>
-//         Apply Filter
-//       </button>
-//     </aside>
-//   );
-// };
-
-// export default FilterSideBar;

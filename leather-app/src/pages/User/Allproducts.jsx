@@ -3,22 +3,25 @@ import { useLocation } from 'react-router-dom';
 import { useSearch } from '../../context/SearchContext';
 import SortBySelect from '../../components/User/SortBySelect';
 import FilterSideBar, { DEFAULT_FILTERS } from '../../components/User/FilterSideBar';
-import ActiveFilterTags from '../../components/User/ActiveFilterTags';
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProductCard from "../../components/User/ProductCard";
+
 import "../../assets/styles/allproducts.css";
 
 const STORAGE_KEY = 'allproducts_filters';
 
 const allProductsData = [
-  { image: "../src/assets/images/leather1.png", name: "Premium Wallet", rating: 4.8, price: "250", realPrice: "300", offer: "17%", category: "wallet", description: "Premium leather wallet" },
-  { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "160", realPrice: "120", offer: "20%", category: "wallet", description: "Classic leather wallet" },
-  { image: "../src/assets/images/leather1.png", name: "Luxury Wallet", rating: 4.9, price: "350", realPrice: "500", offer: "30%", category: "wallet", description: "Luxury designer wallet" },
-  { image: "../src/assets/images/leather1.png", name: "Slim Wallet",    rating: 4.2, price: "120", realPrice: "120", offer: "20%", category: "wallet", description: "Slim minimalist wallet" },
-  { image: "../src/assets/images/leather1.png", name: "Budget Wallet",  rating: 4.0, price: "80",  realPrice: "120", offer: "33%", category: "wallet", description: "Affordable everyday wallet" },
-  { image: "../src/assets/images/leather1.png", name: "Belt",           rating: 4.2, price: "120", realPrice: "120", offer: "20%", category: "belt",   description: "Genuine leather belt" },
-  { image: "../src/assets/images/leather1.png", name: "Bag",            rating: 4.2, price: "100", realPrice: "120", offer: "20%", category: "bag",    description: "Leather handbag" },
+  { id: 1, image: "../src/assets/images/leather1.png", name: "Premium Wallet", rating: 4.8, price: "250", realPrice: "300", offer: "17%", category: "wallet", description: "Premium leather wallet" },
+  { id: 2, image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "160", realPrice: "120", offer: "20%", category: "wallet", description: "Classic leather wallet" },
+  { id: 3, image: "../src/assets/images/leather1.png", name: "Luxury Wallet", rating: 4.9, price: "350", realPrice: "500", offer: "30%", category: "wallet", description: "Luxury designer wallet" },
+  { id: 4, image: "../src/assets/images/leather1.png", name: "Slim Wallet",    rating: 4.2, price: "120", realPrice: "120", offer: "20%", category: "wallet", description: "Slim minimalist wallet" },
+  { id: 5, image: "../src/assets/images/leather1.png", name: "Budget Wallet",  rating: 4.0, price: "80",  realPrice: "120", offer: "33%", category: "wallet", description: "Affordable everyday wallet" },
+  { id: 6, image: "../src/assets/images/leather1.png", name: "Premium Belt",   rating: 4.5, price: "150", realPrice: "200", offer: "25%", category: "belt",   description: "Genuine leather belt" },
+  { id: 7, image: "../src/assets/images/leather1.png", name: "Casual Belt",    rating: 4.2, price: "120", realPrice: "120", offer: "20%", category: "belt",   description: "Casual leather belt" },
+  { id: 8, image: "../src/assets/images/leather1.png", name: "Travel Bag",     rating: 4.6, price: "899", realPrice: "1299", offer: "30%", category: "bag",    description: "Spacious travel bag" },
+  { id: 9, image: "../src/assets/images/leather1.png", name: "Laptop Bag",     rating: 4.4, price: "599", realPrice: "999", offer: "40%", category: "bag",    description: "Secure laptop bag" },
+  { id: 10, image: "../src/assets/images/leather1.png", name: "Hand Bag",      rating: 4.3, price: "499", realPrice: "799", offer: "37%", category: "bag",    description: "Elegant handbag" },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -35,26 +38,6 @@ const loadFilters = () => {
   }
 };
 
-const getRelatedProducts = (query, appliedFilters, exactResults) => {
-  const exactNames = new Set(exactResults.map((p) => p.name));
-  return allProductsData.filter((p) => {
-    if (exactNames.has(p.name)) return false;
-    if (query) {
-      const words = query.toLowerCase().split(' ').filter(Boolean);
-      const fields = `${p.name} ${p.category} ${p.description}`.toLowerCase();
-      if (words.some((w) => fields.includes(w))) return true;
-    }
-    if (appliedFilters.category) {
-      if (p.category?.toLowerCase() === appliedFilters.category.toLowerCase()) return true;
-    }
-    if (appliedFilters.bags?.length > 0) {
-      const fields = `${p.name} ${p.category} ${p.description}`.toLowerCase();
-      if (appliedFilters.bags.some((b) => fields.includes(b.toLowerCase()))) return true;
-    }
-    return false;
-  });
-};
-
 const buildActiveTags = (filters) => {
   const tags = [];
   (filters.bags ?? []).forEach((b) => tags.push({ type: 'Bag', label: b }));
@@ -64,7 +47,6 @@ const buildActiveTags = (filters) => {
   (filters.brands ?? []).forEach((b) => tags.push({ type: 'Brand', label: b }));
   if (filters.material) tags.push({ type: 'Material', label: filters.material });
   if (filters.size)     tags.push({ type: 'Size',     label: filters.size });
-  if (filters.pattern)  tags.push({ type: 'Pattern',  label: filters.pattern });
   if (filters.priceRange) {
     const map = {
       under500:    'Under ₹500',
@@ -83,60 +65,82 @@ const AllProducts = () => {
   const { searchResults, shouldShowResults, searchQuery, clearSearch } = useSearch();
 
   const [sortBy, setSortBy] = useState('');
-  const [filters, setFilters]               = useState(DEFAULT_FILTERS);
-  const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
-  const [activeTags, setActiveTags]         = useState([]);
-  const [drawerOpen, setDrawerOpen]         = useState(false);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  // ── On mount: prefer navigation state, then sessionStorage, then defaults ──
   useEffect(() => {
     const incoming = location.state?.filters;
 
     if (incoming) {
-      // Came from another page via navigate(..., { state: { filters } })
       const merged = { ...DEFAULT_FILTERS, ...incoming };
       setFilters(merged);
-      setAppliedFilters(merged);
-      setActiveTags(buildActiveTags(merged));
-      saveFilters(merged); // persist so refresh works
-      // Clear navigation state without losing the page
+      saveFilters(merged);
       window.history.replaceState({}, document.title);
       return;
     }
 
-    // Refresh or direct visit — restore from sessionStorage
     const saved = loadFilters();
     if (saved) {
       setFilters(saved);
-      setAppliedFilters(saved);
-      setActiveTags(buildActiveTags(saved));
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // ── Filtering ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    saveFilters(filters);
+  }, [filters]);
+
   const baseProducts = (shouldShowResults && searchResults.length > 0)
     ? searchResults
     : allProductsData;
 
   const filteredProducts = useMemo(() => {
     let products = [...baseProducts];
-    if (appliedFilters.category) {
+
+    if (filters.category) {
       products = products.filter(p =>
-        p.category?.toLowerCase() === appliedFilters.category.toLowerCase()
+        p.category?.toLowerCase() === filters.category.toLowerCase()
       );
     }
-    if (appliedFilters.priceRange) {
+
+    if (filters.priceRange) {
       products = products.filter(p => {
         const price = Number(p.price);
-        if (appliedFilters.priceRange === 'under500')    return price < 500;
-        if (appliedFilters.priceRange === '500-1000')    return price >= 500 && price <= 1000;
-        if (appliedFilters.priceRange === '1000-2000')   return price >= 1000 && price <= 2000;
-        if (appliedFilters.priceRange === 'above2000')   return price > 2000;
+        if (filters.priceRange === 'under500')    return price < 500;
+        if (filters.priceRange === '500-1000')    return price >= 500 && price <= 1000;
+        if (filters.priceRange === '1000-2000')   return price >= 1000 && price <= 2000;
+        if (filters.priceRange === 'above2000')   return price > 2000;
         return true;
       });
     }
+
+    if (filters.bags && filters.bags.length > 0) {
+      products = products.filter(p => {
+        const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
+        return filters.bags.some(bag => searchTerm.includes(bag.toLowerCase()));
+      });
+    }
+
+    if (filters.brands && filters.brands.length > 0) {
+      products = products.filter(p => {
+        const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
+        return filters.brands.some(brand => searchTerm.includes(brand.toLowerCase()));
+      });
+    }
+
+    if (filters.material) {
+      products = products.filter(p =>
+        p.description?.toLowerCase().includes(filters.material.toLowerCase())
+      );
+    }
+
+    if (filters.size) {
+      products = products.filter(p =>
+        p.name?.toLowerCase().includes(filters.size.toLowerCase())
+      );
+    }
+
     return products;
-  }, [baseProducts, appliedFilters]);
+  }, [baseProducts, filters]);
 
   const sortedProducts = useMemo(() => {
     if (!sortBy) return filteredProducts;
@@ -147,30 +151,22 @@ const AllProducts = () => {
     return sorted;
   }, [sortBy, filteredProducts]);
 
-  const relatedProducts = useMemo(() => {
-    if (sortedProducts.length > 0) return [];
-    const hasSearch  = shouldShowResults && !!searchQuery;
-    const hasFilters = activeTags.length > 0;
-    if (!hasSearch && !hasFilters) return [];
-    return getRelatedProducts(
-      hasSearch ? searchQuery : '',
-      appliedFilters,
-      hasSearch ? searchResults : []
-    );
-  }, [sortedProducts, shouldShowResults, searchQuery, searchResults, appliedFilters, activeTags]);
+  const activeTags = useMemo(() => buildActiveTags(filters), [filters]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
-  const handleApply = () => {
-    const next = { ...filters };
-    setAppliedFilters(next);
-    setActiveTags(buildActiveTags(next));
-    saveFilters(next); // persist for refresh
-    setDrawerOpen(false);
+  const hasNoSearchResults = shouldShowResults && searchResults.length === 0;
+  const hasNoFilteredResults = !hasNoSearchResults && filteredProducts.length === 0;
+
+  const displayProducts = (hasNoSearchResults || hasNoFilteredResults)
+    ? allProductsData
+    : sortedProducts;
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
   const handleRemoveTag = (index) => {
     const tag = activeTags[index];
-    const updated = { ...appliedFilters };
+    const updated = { ...filters };
     if (tag.type === 'Bag')      updated.bags       = updated.bags.filter((v) => v !== tag.label);
     if (tag.type === 'Category') updated.category   = '';
     if (tag.type === 'Brand')    updated.brands     = updated.brands.filter((v) => v !== tag.label);
@@ -179,34 +175,26 @@ const AllProducts = () => {
     if (tag.type === 'Pattern')  updated.pattern    = '';
     if (tag.type === 'Price')    updated.priceRange = '';
     setFilters(updated);
-    setAppliedFilters(updated);
-    setActiveTags(buildActiveTags(updated));
-    saveFilters(updated);
   };
 
   const handleClearAllFilters = () => {
     setFilters(DEFAULT_FILTERS);
-    setAppliedFilters(DEFAULT_FILTERS);
-    setActiveTags([]);
-    sessionStorage.removeItem(STORAGE_KEY);
-  };
-
-  const getNoResultsMessage = () => {
-    if (shouldShowResults && searchQuery && activeTags.length === 0)
-      return `We couldn't find any products matching "${searchQuery}"`;
-    if (shouldShowResults && searchQuery && activeTags.length > 0)
-      return `No products match "${searchQuery}" with the selected filters`;
-    if (!shouldShowResults && activeTags.length > 0)
-      return "No products match your current filters";
-    return "No products available";
+    if (hasNoSearchResults) {
+      clearSearch();
+    }
   };
 
   return (
     <>
       <Navbar />
+
       <div className="all-products-page">
         <div className="all-products-topbar">
-          <h2 className="all-products-title">All Products</h2>
+          <h2 className="all-products-title">
+            {shouldShowResults && searchResults.length > 0
+              ? `Search Results for "${searchQuery}"`
+              : 'All Products'}
+          </h2>
           <div className="topbar-right">
             <button className="filter-toggle-btn" onClick={() => setDrawerOpen(true)}>
               <i className="bi bi-sliders"></i> Filters
@@ -215,65 +203,22 @@ const AllProducts = () => {
           </div>
         </div>
 
-        {/* Active Filter Tags */}
-        {activeTags.length > 0 && (
-          <div className="active-tags-row">
-            <span className="active-tags-label">Filters</span>
-            <ActiveFilterTags filters={activeTags} onRemove={handleRemoveTag} />
+        {/* ✅ FIX: removed extra .all-products-content wrapper div */}
+        <div className="all-products-main">
+          <div className="all-products-sidebar">
+            <FilterSideBar
+              filters={filters}
+              onChange={handleFilterChange}
+              activeTags={activeTags}
+              onRemoveTag={handleRemoveTag}
+              onClearAll={handleClearAllFilters}
+            />
           </div>
-        )}
 
-        {/* Products Grid */}
-        {sortedProducts.length > 0 ? (
-          <div className="all-products-main">
-            <div className="all-products-sidebar">
-              <FilterSideBar
-                filters={filters}
-                onChange={setFilters}
-                onApply={handleApply}
-                navigateOnApply={false}
-              />
-            </div>
-            <div className="all-products-grid">
-              <ProductCard products={sortedProducts} />
-            </div>
+          <div className="all-products-grid">
+            <ProductCard products={displayProducts} />
           </div>
-        ) : (
-          <>
-            <div className="no-results">
-              <i className="bi bi-search" style={{ fontSize: '48px', color: '#ccc' }}></i>
-              <h3>No products found</h3>
-              <p>{getNoResultsMessage()}</p>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-                {shouldShowResults && (
-                  <button
-                    onClick={clearSearch}
-                    style={{ padding: '10px 20px', background: '#846bf1', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                  >
-                    Clear Search
-                  </button>
-                )}
-                {activeTags.length > 0 && (
-                  <button
-                    onClick={handleClearAllFilters}
-                    style={{ padding: '10px 20px', background: '#846bf1', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                  >
-                    Clear All Filters
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {relatedProducts.length > 0 && (
-              <div className="related-products-section">
-                <h3 className="related-products-title">Related Products</h3>
-                <div className="all-products-grid">
-                  <ProductCard products={relatedProducts} />
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        </div>
       </div>
 
       {/* Filter Drawer */}
@@ -289,21 +234,22 @@ const AllProducts = () => {
             <div className="filter-drawer-body">
               <FilterSideBar
                 filters={filters}
-                onChange={setFilters}
-                onApply={handleApply}
-                navigateOnApply={false}
+                onChange={handleFilterChange}
+                activeTags={activeTags}
+                onRemoveTag={handleRemoveTag}
+                onClearAll={handleClearAllFilters}
               />
             </div>
           </div>
         </div>
       )}
+
       <Footer />
     </>
   );
 };
 
 export default AllProducts;
-
 
 // // AllProducts.jsx - Now works perfectly with search!
 // import { useState, useMemo, useEffect } from 'react';

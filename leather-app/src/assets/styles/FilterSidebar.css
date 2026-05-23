@@ -1,268 +1,294 @@
-/* ========================
-   FILTER SIDEBAR
-======================== */
-
-.filter-sidebar {
-  min-width: 220px;
-  max-width: 240px;
-  flex-shrink: 0;
+/* Flipkart Style Filter Sidebar */
+.filter-sidebar-flipkart {
+  width: 250px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.sidebar-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 0.3rem;
-}
-
-.sidebar-subtitle {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 0.6rem;
-}
-
-/* ── Dropdown Group ── */
-.filter-dropdown-group {
-  margin-bottom: 0.5rem;
-}
-
-.filter-label {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 0.3rem;
-  margin-top: 0.2rem;
-}
-
-.bold-label {
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  margin-top: 0;
-}
-
-/* ── Bags dropdown button ── */
-.filter-dropdown-btn {
-  width: 100%;
+.filter-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.92rem;
-  color: #1a1a1a;
-  background: #fff;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-
-.filter-dropdown-btn:hover,
-.filter-dropdown-btn.open {
-  border-color: #8b5cf6;
-}
-
-.dropdown-chevron {
-  font-size: 0.75rem;
-  color: #555;
-}
-
-/* ── Flat category buttons (Wallet, Belt) ── */
-.category-flat-btn {
-  width: 100%;
-  display: flex;
   align-items: center;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.92rem;
-  color: #1a1a1a;
-  background: #fff;
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-  text-align: left;
-  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  padding: 0 16px 16px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
 }
 
-.category-flat-btn:hover {
-  border-color: #8b5cf6;
-  background: #f5f3ff;
-}
-
-.category-flat-btn.active {
-  border-color: #8b5cf6;
-  background: #f5f3ff;
-  color: #7c3aed;
+.filter-title {
+  font-size: 18px;
   font-weight: 600;
-}
-
-/* ── Dropdown List ── */
-.filter-dropdown-list {
-  border: 1px solid #d1d5db;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  background: #fff;
-  padding: 0.4rem 0;
-}
-
-.filter-checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.45rem 1rem;
-  font-size: 0.9rem;
-  color: #1a1a1a;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.filter-checkbox-item:hover {
-  background: #f5f3ff;
-}
-
-.filter-checkbox-item.selected {
-  background-color: #f5f3ff;
-}
-
-.filter-checkbox-item input[type='checkbox'] {
-  accent-color: #8b5cf6;
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-/* ── Brands section ── */
-.filter-section {
-  margin-bottom: 0.8rem;
-}
-
-.brand-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.brand-item {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.4rem 0.5rem;
-  font-size: 0.92rem;
-  color: #1a1a1a;
-  cursor: pointer;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: #fff;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.brand-item:hover {
-  background: #f5f3ff;
-  border-color: #8b5cf6;
-}
-
-.brand-item.selected {
-  background: #f5f3ff;
-  border-color: #8b5cf6;
-}
-
-.brand-checkbox-box input[type='checkbox'] {
-  accent-color: #8b5cf6;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-/* ── Price Radio Group (NEW - replaces range slider) ── */
-.filter-price-section {
-  margin-top: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-
-.price-radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.price-radio-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  color: #4b5563;
-  transition: color 0.2s;
-}
-
-.price-radio-item:hover {
-  color: #7c3aed;
-}
-
-.price-radio-item input[type="radio"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: #8b5cf6;
+  color: #212121;
   margin: 0;
 }
 
-.price-radio-item span {
-  cursor: pointer;
-}
-
-.clear-price-btn {
-  margin-top: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  color: #6b7280;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: fit-content;
-  font-weight: 500;
-}
-
-.clear-price-btn:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  color: #dc2626;
-}
-
-/* Remove old price range slider styles (optional - keep for compatibility) */
-.price-range-slider,
-.price-range-inputs {
-  display: none;
-}
-
-/* ── Apply Button ── */
-.apply-filter-btn {
-  width: 100%;
-  background-color: #8b5cf6;
-  color: #fff;
+.clear-all-btn {
+  background: none;
   border: none;
-  border-radius: 10px;
-  padding: 0.75rem;
-  font-size: 1rem;
+  color: #8b5cf6;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 1.2rem;
+  padding: 4px 8px;
+  transition: all 0.2s;
+}
+
+.clear-all-btn:hover {
+  color: #7c3aed;
+  background: #f5f3ff;
+  border-radius: 4px;
+}
+
+/* Active Filter Tags - No heading, just pills */
+.active-filters-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 16px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 8px;
+}
+
+.active-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f0f0;
+  border-radius: 16px;
+  padding: 4px 8px 4px 12px;
+  font-size: 12px;
+  color: #212121;
+  transition: all 0.2s;
+}
+
+.active-filter-tag:hover {
+  background: #e0e0e0;
+}
+
+.filter-tag-label {
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-filter-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #757575;
+  font-size: 12px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.remove-filter-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #ef4444;
+}
+
+/* Filter Section */
+.filter-section {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filter-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
   transition: background 0.2s;
 }
 
-.apply-filter-btn:hover {
-  background-color: #7c3aed;
+.filter-section-header:hover {
+  background: #fafafa;
 }
 
-/* ── Responsive ── */
+.filter-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #212121;
+  letter-spacing: 0.5px;
+}
+
+.filter-section-content {
+  padding: 0 16px 16px 16px;
+}
+
+/* Category Buttons */
+.category-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.category-btn {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border: none;
+  background: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #212121;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: #e8e8e8;
+}
+
+.category-btn.active {
+  background: #8b5cf6;
+  color: white;
+}
+
+/* Checkbox List with Show More */
+.checkbox-list-wrapper {
+  width: 100%;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #212121;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.checkbox-item span {
+  flex: 1;
+}
+
+/* Radio Group */
+.radio-list-wrapper {
+  width: 100%;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #212121;
+}
+
+.radio-item input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* Size Buttons with Show More */
+.size-wrapper {
+  width: 100%;
+}
+
+.size-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.size-btn {
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.size-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+}
+
+.size-btn.active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: white;
+}
+
+/* Show More / Show Less Button */
+.show-more-btn {
+  background: none;
+  border: none;
+  color: #8b5cf6;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 0 4px 0;
+  margin-top: 8px;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.show-more-btn:hover {
+  color: #7c3aed;
+  text-decoration: underline;
+}
+
+/* Price Options */
+.price-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.price-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #212121;
+}
+
+.price-option input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* REMOVED: Apply Button Styles - No longer needed */
+
+/* Responsive */
 @media (max-width: 992px) {
   .filter-sidebar {
-    min-width: 100%;
-    max-width: 100%;
+    width: 100%;
   }
 }

@@ -1,38 +1,97 @@
 import React, { useState } from "react";
 import "../../assets/styles/OrderCard.css";
-import defaultImage from "../../assets/images/bag.png";
 import ReviewModal from "./ReviewModal"; // Adjust the import path as needed
 
-// Small star icon (used for rating display)
-function StarIcon() {
+// Dynamic high-quality image mappings based on product category
+const getImageForProduct = (productName, fallbackImage) => {
+  const name = productName?.toLowerCase() || "";
+  
+  if (name.includes("sofa")) {
+    return "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=150&h=150&fit=crop&crop=center";
+  }
+  if (name.includes("backpack") || name.includes("bag") || name.includes("shopa")) {
+    return "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=150&h=150&fit=crop&crop=center";
+  }
+  if (name.includes("table")) {
+    return "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=150&h=150&fit=crop&crop=center";
+  }
+  if (name.includes("lamp")) {
+    return "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=150&h=150&fit=crop&crop=center";
+  }
+  if (name.includes("bedsheet") || name.includes("cotton")) {
+    return "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&h=150&fit=crop&crop=center";
+  }
+  if (name.includes("vase") || name.includes("ceramic")) {
+    return "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=150&h=150&fit=crop&crop=center";
+  }
+  
+  // Fallback to provided image, or absolute default if none exists
+  return fallbackImage || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=150&h=150&fit=crop&crop=center";
+};
+
+// Reusable SVG Star Component
+function StarIcon({ filled = true, color = "#F5A623", size = 16 }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#f5a623">
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill={filled ? color : "none"}
+      stroke={color}
+      strokeWidth="1.5"
+      style={{ display: "inline-block", verticalAlign: "middle" }}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32L2.27 6.62l5.34-.78z" />
     </svg>
   );
 }
 
-function OrderCard(props) {
-  // Read props (with default values for demo / empty usage)
-  const id = props.id || "ID002457890KJM";
-  const productName = props.productName || "2-Seater Leather Sofa";
-  const image = props.image || defaultImage;
-  const oldPrice = props.oldPrice;
-  const price = props.price !== undefined ? props.price : 120;
-  const quantity = props.quantity !== undefined ? props.quantity : 1;
-  const rating = props.rating !== undefined ? props.rating : 4.2;
-  const reviews = props.reviews !== undefined ? props.reviews : 120;
-  const status = props.status || "Delivered";
-  const deliveryDate = props.deliveryDate || "25/04/2020";
-  const onTrackOrder = props.onTrackOrder || function () {};
+/**
+ * OrderCard Component
+ * Takes a dynamic 'order' prop passed from Orders list container,
+ * with complete fallbacks to support both single and list rendering.
+ */
+export default function OrderCard({ order }) {
+  const [hovered, setHovered] = useState(false);
   
   // State for review modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(0);
   const [submittedReviews, setSubmittedReviews] = useState([]);
 
+  // Extract variables dynamically from order prop with safe fallbacks
+  const orderId = order?.id ? `Order ${order.id}` : "Order ID002457890KJM";
+  const productName = order?.product || "Leather shopa";
+  const rating = order?.rating ?? 4.2;
+  const reviewsCount = order?.reviews ?? 120;
+  const discountedPrice = order?.discountedPrice ?? 120;
+  const originalPrice = order?.originalPrice ?? 120;
+  const quantity = order?.quantity ?? 1;
+  const status = order?.status || "Delivered";
+  const deliveryDate = order?.deliveryDate || "25/04/2020";
+  const productImage = getImageForProduct(productName, order?.image);
+
+  // Determine status color theme
+  let statusColor = "#22c55e"; // Default Green (Delivered)
+  if (status.toLowerCase().includes("ship")) {
+    statusColor = "#3b82f6"; // Blue (Shipped)
+  } else if (status.toLowerCase().includes("process") || status.toLowerCase().includes("pend")) {
+    statusColor = "#f59e0b"; // Yellow (Processing)
+  } else if (status.toLowerCase().includes("cancel")) {
+    statusColor = "#ef4444"; // Red (Cancelled)
+  }
+
+  // Format delivery time label
+  const isDelivered = status.toLowerCase() === "delivered";
+  const timeLabel = isDelivered ? "Delivered on" : "Expected by";
+
+  const handleTrackClick = () => {
+    alert(`Tracking information for Order ${order?.id || "ID002457890KJM"}: In transit.`);
+  };
+
   // Handle rate product button click
-  const handleRateProductClick = () => {
+  const handleRateClick = () => {
     setIsModalOpen(true);
   };
 
@@ -45,7 +104,7 @@ function OrderCard(props) {
     
     // Example: Update local state with new review
     const newReview = {
-      productId: id,
+      productId: order?.id,
       productName: productName,
       rating: rating,
       review: reviewText,
@@ -55,8 +114,8 @@ function OrderCard(props) {
     setSubmittedReviews(prev => [...prev, newReview]);
     
     // You can also call a parent callback if provided
-    if (props.onReviewSubmit) {
-      props.onReviewSubmit(id, rating, reviewText);
+    if (order?.onReviewSubmit) {
+      order.onReviewSubmit(order?.id, rating, reviewText);
     }
   };
 
@@ -66,76 +125,79 @@ function OrderCard(props) {
     setModalRating(0); // Reset rating when modal closes
   };
 
-  // Pick CSS class for status color
-  let statusColorClass = "status-default";
-  if (status === "Delivered") {
-    statusColorClass = "status-delivered";
-  } else if (status === "Pending" || status === "Shipped") {
-    statusColorClass = "status-pending";
-  } else if (status === "Cancelled") {
-    statusColorClass = "status-cancelled";
-  }
-
-  // Show old price only when it is higher than current price
-  const showOldPrice = oldPrice && oldPrice > price;
-
   return (
     <>
-      <div className="order-card">
-        {/* Left: product image */}
-        <div className="order-card-image">
-          <img src={image} alt={productName} />
-        </div>
+      <div className="order-card-container">
+        <div className="order-card">
+          {/* Product Image */}
+          <div className="product-image-wrapper">
+            <img
+              src={productImage}
+              alt={productName}
+              className="product-image"
+            />
+          </div>
 
-        {/* Center: product info */}
-        <div className="order-card-info">
-          <p className="order-id">Order {id}</p>
+          {/* Product Info */}
+          <div className="product-info">
+            <p className="order-id">{orderId}</p>
 
-          <div className="name-rating-row">
-            <h3 className="product-name">{productName}</h3>
-            <div className="rating-box">
-              <StarIcon />
-              <span className="rating-number">{rating}</span>
-              <span className="review-count">({reviews})</span>
+            {/* Name + Rating */}
+            <div className="product-header">
+              <span className="product-name">{productName}</span>
+              <div className="rating-badge-row">
+                <StarIcon filled size={16} color="#F5A623" />
+                <span className="rating-number">{rating.toFixed(1)}</span>
+                <span className="rating-count">({reviewsCount})</span>
+              </div>
             </div>
+
+            {/* Price */}
+            <div className="price-section">
+              <div className="current-price">$ {discountedPrice}</div>
+              {originalPrice > discountedPrice ? (
+                <div className="original-price">$ {originalPrice}</div>
+              ) : (
+                <div className="original-price">$ {discountedPrice}</div>
+              )}
+            </div>
+
+            <p className="quantity">Qty:{quantity}</p>
           </div>
 
-          <div className="price-row">
-            <span className="current-price">$ {price}</span>
-            {showOldPrice && (
-              <span className="old-price">$ {oldPrice}</span>
-            )}
-          </div>
-
-          <p className="quantity">Qty:{quantity}</p>
-        </div>
-
-        {/* Right: status + track button */}
-        <div className="order-card-status">
-          <p className="section-label">Status</p>
-          <p className={"status-text " + statusColorClass}>{status}</p>
-          <div className="track-button-container">
-            <button type="button" className="btn-track" onClick={onTrackOrder}>
-              Track Order
+          {/* Status Section */}
+          <div className="status-section">
+            <p className="section-label">Status</p>
+            <span className="status-value" style={{ color: statusColor }}>
+              {status}
+            </span>
+            <button
+              onMouseEnter={() => setHovered(true)}
+              onMouseLeave={() => setHovered(false)}
+              onClick={handleTrackClick}
+              className={`track-button ${hovered ? "hovered" : ""}`}
+              disabled={status.toLowerCase().includes("cancel")}
+              style={{ 
+                opacity: status.toLowerCase().includes("cancel") ? 0.5 : 1,
+                cursor: status.toLowerCase().includes("cancel") ? "not-allowed" : "pointer"
+              }}
+            >
+              Track order
             </button>
           </div>
-        </div>
 
-        {/* Right: time + rate button */}
-        <div className="order-card-time">
-          <p className="section-label">Time</p>
-          <p className="delivery-date">
-            {status === "Delivered" ? "Delivered on " : ""}
-            <span>{deliveryDate}</span>
-          </p>
-          <button 
-            type="button" 
-            className="btn-rate" 
-            onClick={handleRateProductClick}
-          >
-            <StarIcon />
-            Rate Product
-          </button>
+          {/* Time Section */}
+          <div className="time-section">
+            <p className="section-label">Time</p>
+            <div className="delivery-date">
+              <p className="delivery-text">{timeLabel}</p>
+              <p className="delivery-text">{deliveryDate}</p>
+            </div>
+            <button className="rate-link-btn" onClick={handleRateClick}>
+              <StarIcon filled size={14} color="#C97E2A" />
+              <span className="rate-text">Rate Your Product</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -151,4 +213,185 @@ function OrderCard(props) {
   );
 }
 
-export default OrderCard;
+
+
+
+
+
+
+
+// import { useState } from "react";
+// import "../../assets/styles/OrderCard.css";
+
+// const bagImage =
+//   "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=120&h=120&fit=crop&crop=center";
+
+// function StarIcon({ filled = true, color = "#F5A623", size = 16 }) {
+//   return (
+//     <svg
+//       width={size}
+//       height={size}
+//       viewBox="0 0 20 20"
+//       fill={filled ? color : "none"}
+//       stroke={color}
+//       strokeWidth="1.5"
+//       xmlns="http://www.w3.org/2000/svg"
+//     >
+//       <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32L2.27 6.62l5.34-.78z" />
+//     </svg>
+//   );
+// }
+
+// export default function OrderCard() {
+//   const [hovered, setHovered] = useState(false);
+
+//   return (
+//     <div className="order-card-container">
+//       <div className="order-card">
+//         {/* Product Image */}
+//         <div className="product-image-wrapper">
+//           <img
+//             src={bagImage}
+//             alt="Leather Backpack"
+//             className="product-image"
+//           />
+//         </div>
+
+//         {/* Product Info */}
+//         <div className="product-info">
+//           <p className="order-id">Order ID002457890KJM</p>
+
+//           {/* Name + Rating */}
+//           <div className="product-header">
+//             <span className="product-name">Leather shopa</span>
+//             <StarIcon filled size={18} color="#F5A623" />
+//             <span className="rating-number">4.2</span>
+//             <span className="rating-count">(120)</span>
+//           </div>
+
+//           {/* Price */}
+//           <div className="price-section">
+//             <span className="current-price">$ 120</span>
+//             <span className="original-price">$ 120</span>
+//           </div>
+
+//           <p className="quantity">Qty:1</p>
+//         </div>
+
+//         {/* Status */}
+//         <div className="status-section">
+//           <p className="section-label">Status</p>
+//           <span className="status-value">Delivered</span>
+//           <button
+//             onMouseEnter={() => setHovered(true)}
+//             onMouseLeave={() => setHovered(false)}
+//             className={`track-button ${hovered ? "hovered" : ""}`}
+//           >
+//             Track order
+//           </button>
+//         </div>
+
+//         {/* Time */}
+//         <div className="time-section">
+//           <p className="section-label">Time</p>
+//           <div className="delivery-date">
+//             <p className="delivery-text">Delivered on</p>
+//             <p className="delivery-text">25/04/2020</p>
+//           </div>
+//           <div className="rate-link">
+//             <StarIcon filled size={16} color="#C97E2A" />
+//             <span className="rate-text">Rate Your Product</span>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// import { useState } from "react";
+// import "../../assets/styles/OrderCard.css";
+
+// const bagImage =
+//   "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=120&h=120&fit=crop&crop=center";
+
+// function StarIcon({ filled = true, color = "#F5A623", size = 16 }) {
+//   return (
+//     <svg
+//       width={size}
+//       height={size}
+//       viewBox="0 0 20 20"
+//       fill={filled ? color : "none"}
+//       stroke={color}
+//       strokeWidth="1.5"
+//       xmlns="http://www.w3.org/2000/svg"
+//     >
+//       <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32L2.27 6.62l5.34-.78z" />
+//     </svg>
+//   );
+// }
+
+// export default function OrderCard() {
+//   const [hovered, setHovered] = useState(false);
+
+//   return (
+//     <div className="order-card-container">
+//       <div className="order-card">
+//         {/* Product Image */}
+//         <div className="product-image-wrapper">
+//           <img
+//             src={bagImage}
+//             alt="Leather Backpack"
+//             className="product-image"
+//           />
+//         </div>
+
+//         {/* Product Info */}
+//         <div className="product-info">
+//           <p className="order-id">Order ID002457890KJM</p>
+
+//           {/* Name + Rating */}
+//           <div className="product-header">
+//             <span className="product-name">Leather shopa</span>
+//             <StarIcon filled size={18} color="#F5A623" />
+//             <span className="rating-number">4.2</span>
+//             <span className="rating-count">(120)</span>
+//           </div>
+
+//           {/* Price */}
+//           <div className="price-section">
+//             <span className="current-price">$ 120</span>
+//             <span className="original-price">$ 120</span>
+//           </div>
+
+//           <p className="quantity">Qty:1</p>
+//         </div>
+
+//         {/* Status */}
+//         <div className="status-section">
+//           <p className="section-label">Status</p>
+//           <span className="status-value">Delivered</span>
+//           <button
+//             onMouseEnter={() => setHovered(true)}
+//             onMouseLeave={() => setHovered(false)}
+//             className={`track-button ${hovered ? "hovered" : ""}`}
+//           >
+//             Track order
+//           </button>
+//         </div>
+
+//         {/* Time */}
+//         <div className="time-section">
+//           <p className="section-label">Time</p>
+//           <div className="delivery-date">
+//             <p className="delivery-text">Delivered on</p>
+//             <p className="delivery-text">25/04/2020</p>
+//           </div>
+//           <div className="rate-link">
+//             <StarIcon filled size={16} color="#C97E2A" />
+//             <span className="rate-text">Rate Your Product</span>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
