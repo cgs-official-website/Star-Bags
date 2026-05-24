@@ -24,7 +24,6 @@ const allProductsData = [
   { id: 10, image: "../src/assets/images/leather1.png", name: "Hand Bag",      rating: 4.3, price: "499", realPrice: "799", offer: "37%", category: "bag",    description: "Elegant handbag" },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 const saveFilters = (filters) => {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(filters));
 };
@@ -59,7 +58,6 @@ const buildActiveTags = (filters) => {
   return tags;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
 const AllProducts = () => {
   const location = useLocation();
   const { searchResults, shouldShowResults, searchQuery, clearSearch } = useSearch();
@@ -191,9 +189,7 @@ const AllProducts = () => {
       <div className="all-products-page">
         <div className="all-products-topbar">
           <h2 className="all-products-title">
-            {shouldShowResults && searchResults.length > 0
-              ? `Search Results for "${searchQuery}"`
-              : 'All Products'}
+            All Products  {/* Changed: Always shows "All Products" */}
           </h2>
           <div className="topbar-right">
             <button className="filter-toggle-btn" onClick={() => setDrawerOpen(true)}>
@@ -203,7 +199,6 @@ const AllProducts = () => {
           </div>
         </div>
 
-        {/* ✅ FIX: removed extra .all-products-content wrapper div */}
         <div className="all-products-main">
           <div className="all-products-sidebar">
             <FilterSideBar
@@ -221,7 +216,6 @@ const AllProducts = () => {
         </div>
       </div>
 
-      {/* Filter Drawer */}
       {drawerOpen && (
         <div className="filter-overlay" onClick={() => setDrawerOpen(false)}>
           <div className="filter-drawer" onClick={(e) => e.stopPropagation()}>
