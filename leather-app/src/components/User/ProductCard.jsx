@@ -1,11 +1,12 @@
+// ProductCard.jsx - Just add ONE line at the top and modify ONE line
 import React, { useState } from "react";
+
 import { MdOutlineShoppingCart } from "react-icons/md";
 import { FaStar, FaHeart } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
 import "../../assets/styles/productCard.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-// ─── Wishlist Heart Toggle ────────────────────────────────────────────────────
 const WishlistHeart = () => {
   const [isWishlist, setIsWishlist] = useState(false);
   return (
@@ -24,17 +25,21 @@ const WishlistHeart = () => {
   );
 };
 
-// ─── Product Card ─────────────────────────────────────────────────────────────
-const ProductCard = () => {
-  const productCard = [
+// ONLY CHANGE HERE - Add props parameter
+const ProductCard = ({ products = null }) => {  // ← ADD THIS
+  // Original hardcoded data (kept as backup)
+  const defaultProducts = [
+    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "160", realPrice: "120", offer: "20%" },
+    { image: "../src/assets/images/leather1.png", name: "Slim Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
+    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "180", realPrice: "120", offer: "20%" },
+    { image: "../src/assets/images/leather1.png", name: "Belt", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
+    { image: "../src/assets/images/leather1.png", name: "Bag", rating: 4.2, price: "100", realPrice: "120", offer: "20%" },
     { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
-    { image: "../src/assets/images/leather1.png", name: "Leather Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
+    { image: "../src/assets/images/leather1.png", name: "Wallet", rating: 4.2, price: "120", realPrice: "120", offer: "20%" },
   ];
+
+  // Use passed products if available, otherwise use default
+  const productCard = products || defaultProducts;  // ← ADD THIS
 
   return (
     <>
@@ -92,3 +97,4 @@ const ProductCard = () => {
 };
 
 export default ProductCard;
+
