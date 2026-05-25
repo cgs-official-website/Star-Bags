@@ -284,6 +284,75 @@
   margin: 0;
 }
 
+/* ── Capacity Cards ─────────────────────────────────────────────────────────── */
+.capacity-cards-wrapper {
+  width: 100%;
+}
+
+.capacity-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.capacity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 52px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 6px 4px;
+  gap: 2px;
+}
+
+.capacity-card:hover {
+  border-color: #8b5cf6;
+}
+
+.capacity-card.active {
+  border-color: #8b5cf6;
+  background: #faf5ff;
+}
+
+.capacity-check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 14px;
+  height: 14px;
+  background: #8b5cf6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  color: #fff;
+  line-height: 1;
+}
+
+.capacity-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #212121;
+}
+
+.capacity-card.active .capacity-value {
+  color: #8b5cf6;
+}
+
+.capacity-label {
+  font-size: 10px;
+  color: #9e9e9e;
+  font-weight: 400;
+}
+
 /* REMOVED: Apply Button Styles - No longer needed */
 
 /* Responsive */

@@ -90,6 +90,11 @@
   font-weight: 450;
 }
 
+/* Orders List Wrapper */
+.orders-list-wrapper {
+  min-height: 400px;
+}
+
 /* Orders List with Scrollbar - No Pagination */
 .orders-list {
   display: flex;
@@ -98,6 +103,13 @@
   max-height: 550px;
   overflow-y: auto;
   padding-right: 8px;
+}
+
+/* Orders Grid for multiple cards */
+.orders-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* Custom Scrollbar Styling */
@@ -125,6 +137,66 @@
   scrollbar-color: #cbd5e1 #f1f1f1;
 }
 
+/* ==========================================================
+   EMPTY ORDERS STATE (Matching Wishlist Design)
+   ========================================================== */
+
+.orders-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.orders-empty-image-wrapper {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orders-empty-vector {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.orders-empty-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 1.5rem 0;
+  letter-spacing: -0.5px;
+}
+
+.orders-empty-shop-btn {
+  background-color: #8B5CF6 !important;
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 32px;
+  border-radius: 10px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.orders-empty-shop-btn:hover {
+  background-color: #7c3aed !important;
+  transform: translateY(-1px);
+}
+
+/* No orders fallback (keeping for backward compatibility) */
 .no-orders {
   display: flex;
   align-items: center;
@@ -134,9 +206,6 @@
   border: 1px dashed #cbd5e1;
   padding: 40px;
 }
-
-/* Remove pagination styles - no longer needed */
-/* .pagination-wrapper removed */
 
 /* ==========================================================
    DARK THEMING overrides
@@ -184,6 +253,29 @@ body.dark-theme .no-orders,
   color: #94a3b8;
 }
 
+/* Dark theme for empty orders container */
+body.dark-theme .orders-empty-container,
+[data-theme="dark"] .orders-empty-container {
+  background: #161e2e;
+  border-color: #2e3748;
+}
+
+body.dark-theme .orders-empty-heading,
+[data-theme="dark"] .orders-empty-heading {
+  color: #f8fafc;
+}
+
+body.dark-theme .orders-empty-shop-btn,
+[data-theme="dark"] .orders-empty-shop-btn {
+  background-color: #8B5CF6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+body.dark-theme .orders-empty-shop-btn:hover,
+[data-theme="dark"] .orders-empty-shop-btn:hover {
+  background-color: #7c3aed !important;
+}
+
 /* Dark theme scrollbar */
 body.dark-theme .orders-list::-webkit-scrollbar-track,
 [data-theme="dark"] .orders-list::-webkit-scrollbar-track {
@@ -220,5 +312,58 @@ body.dark-theme .orders-list::-webkit-scrollbar-thumb:hover,
 @media (max-width: 767px) {
   .orders-list {
     max-height: 450px;
+  }
+  
+  .orders-empty-container {
+    padding: 2.5rem 1rem;
+  }
+  
+  .orders-empty-image-wrapper {
+    max-width: 220px;
+  }
+  
+  .orders-empty-heading {
+    font-size: 20px;
+  }
+  
+  .orders-empty-shop-btn {
+    font-size: 15px;
+    padding: 8px 24px;
+  }
+}
+
+@media (max-width: 576px) {
+  .orders-empty-container {
+    padding: 2rem 1rem;
+  }
+  
+  .orders-empty-image-wrapper {
+    max-width: 180px;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-heading {
+    font-size: 18px;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-shop-btn {
+    font-size: 14px;
+    padding: 8px 22px;
+  }
+}
+
+@media (max-width: 375px) {
+  .orders-empty-image-wrapper {
+    max-width: 150px;
+  }
+  
+  .orders-empty-heading {
+    font-size: 16px;
+  }
+  
+  .orders-empty-shop-btn {
+    font-size: 13px;
+    padding: 6px 20px;
   }
 }
