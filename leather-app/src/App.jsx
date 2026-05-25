@@ -1,18 +1,11 @@
-<<<<<<< HEAD
 
-import { BrowserRouter,Routes,Route } from 'react-router-dom';
-
-import Home from './pages/User/Home';
-import Cart from './pages/User/Cart';
-import Checkout from './pages/User/Checkout';
-=======
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SearchProvider } from './context/SearchContext'; // Import this
 
 import Home from './pages/User/Home';
 import Cart from './pages/User/Cart';
->>>>>>> df193615906ad854f57d533f5bd79090d11b4b66
+
 import Orders from './pages/User/Orders';
 import ProductDetails from './pages/User/ProductDetails';
 import WishList from './pages/User/WishList';
