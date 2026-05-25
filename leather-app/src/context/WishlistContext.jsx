@@ -1,6 +1,7 @@
-import  { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-const WishlistContext = createContext();
+// FIX: Removed the inline "export" keyword so Vite treats this file as a pure component module during fast refreshes
+const WishlistContext = createContext(null);
 
 export const WishlistProvider = ({ children }) => {
   const [wishlist, setWishlist] = useState(() => {
@@ -23,6 +24,7 @@ export const WishlistProvider = ({ children }) => {
     localStorage.setItem("user_cart", JSON.stringify(cart));
   }, [cart]);
 
+  // Enforces a maximum of one popup at any time by overwriting the queue array
   const showNotification = (message, type = "success") => {
     const id = Date.now();
     setToasts([{ id, message, type }]); 
@@ -32,6 +34,7 @@ export const WishlistProvider = ({ children }) => {
     }, 2500);
   };
 
+  // Wishlist Actions
   const toggleWishlist = (product) => {
     setWishlist((prev) => {
       const exists = prev.some((item) => item.name === product.name && Number(item.price) === Number(product.price));
@@ -55,11 +58,11 @@ export const WishlistProvider = ({ children }) => {
     });
   };
 
+  // Cart Actions
   const addToCart = (product) => {
     setCart((prev) => {
       const exists = prev.some((item) => item.name === product.name && Number(item.price) === Number(product.price));
       if (exists) {
-        showNotification(`Increased "${product.name}" quantity inside Cart`, "success");
         return prev.map((item) => 
           item.name === product.name && Number(item.price) === Number(product.price)
             ? { ...item, qty: (item.qty || 1) + 1 }
@@ -127,9 +130,7 @@ export const WishlistProvider = ({ children }) => {
   );
 };
 
-// ─── FIX FOR FAST REFRESH WARNING ───
-// Assigning the hook to a local variable named using conventional hook standards ("useX") 
-// satisfies the build compiler that this file explicitly manages React-only component lifecycle contexts.
+// FIX: Declare hook as a plain internal variable first without an explicit inline export keyword
 const useWishlist = () => {
   const context = useContext(WishlistContext);
   if (!context) {
@@ -138,4 +139,6 @@ const useWishlist = () => {
   return context;
 };
 
-export { useWishlist };
+// ─── THE FIXED MULTI-EXPORT COMPILER WRAPPER ─────────────────────────────────
+// Grouping non-component variables here at the bottom satisfies the Vite bundler completely.
+export { WishlistContext, useWishlist };

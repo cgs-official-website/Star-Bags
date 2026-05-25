@@ -12,8 +12,8 @@
 .category-card {
   flex: 1 1 0;
   min-width: 0;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;   
+  background-color: var(--white-color);
+  border: 1px solid var(--over-light);   
   border-radius: 24px;         
   padding: 20px;               
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
@@ -32,7 +32,7 @@
 .category-title {
   font-size: 20px;
   font-weight: 500;
-  color: #000000;
+  color: var(--text-dark);
   margin: 0;
   letter-spacing: -0.3px;
 }
@@ -42,8 +42,8 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  background-color: #ffffff;
+  border: 1px solid var(--over-light);
+  background-color: var(--white-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,7 +53,7 @@
 }
 
 .arrow-btn:hover {
-  background-color: #f8fafc;
+  background-color: var( --soft-secondary);
 }
 
 /* Arrow symbol styling */
@@ -114,7 +114,7 @@
 /* ADJUSTED: Decreased Desktop Brand Name Size and Added Truncate safety */
 .product-name {
   font-size: 16px !important;
-  color: #1a202c;
+  color: var(--card);
   font-weight: 500;
   text-transform: capitalize;
   white-space: nowrap;
@@ -125,7 +125,7 @@
 /* Value discount text markup */
 .product-discount {
   font-size: 12px;
-  color: #7c3aed; 
+  color:var(--text-h); 
   font-weight: 600;
   margin-top: 2px;
 }

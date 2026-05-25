@@ -1,15 +1,17 @@
-import '../../assets/styles/Hero.css'
-
+import "../../assets/styles/Hero.css";
 
 import productImg from "../../assets/images/product.png";
 import walletImg from "../../assets/images/Wallet.png";
 import bagImg from "../../assets/images/bag.png";
 import beltImg from "../../assets/images/Belt.png";
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
+import { ScrollBanner } from "./ScrollBanner";
 
 export const Hero = () => {
   return (
     <>
+      <ScrollBanner />
+
       <section className="hero-section container py-4">
         <div
           id="heroCarousel"
@@ -34,15 +36,19 @@ export const Hero = () => {
               <div className="hero-content">
                 {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
 
-                <NavLink to={"/AllProducts"} className="btn hero-btn">Shop Now </NavLink>
-
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -55,13 +61,18 @@ export const Hero = () => {
               <div className="hero-content">
                 {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <NavLink to={"/AllProducts"} className="btn hero-btn">Shop Now </NavLink>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -73,13 +84,18 @@ export const Hero = () => {
               <div className="hero-content">
                 {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <NavLink to={"/AllProducts"} className="btn hero-btn">Shop Now </NavLink>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -91,13 +107,18 @@ export const Hero = () => {
               <div className="hero-content">
                 {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <NavLink to={"/AllProducts"} className="btn hero-btn">Shop Now </NavLink>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
           </div>

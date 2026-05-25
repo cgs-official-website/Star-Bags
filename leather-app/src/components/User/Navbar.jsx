@@ -1,10 +1,10 @@
-import { IoNotificationsOutline } from "react-icons/io5";
+import React, { useState } from "react";
 import { IoMdCart } from "react-icons/io";
 import { FaUserCircle, FaRegUserCircle, FaRegHeart } from "react-icons/fa";
 import { FiBox, FiLogOut } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { BsSun } from "react-icons/bs";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from '../../context/SearchContext';
 import { useWishlist } from '../../context/WishlistContext'; 
 import SearchModal from '../User/SearchModal';
@@ -15,17 +15,40 @@ const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
   const { cart } = useWishlist(); 
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // ─── FIX: Count unique product items (length) instead of adding quantities together ───
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   const totalCartCount = cart ? cart.length : 0;
+  const activeCategory = location.state?.filters?.category || "";
+
+  const handleCategoryNavigation = (categoryName) => {
+    setIsMenuOpen(false); 
+    navigate("/AllProducts", {
+      state: {
+        filters: {
+          category: categoryName.toLowerCase(),
+        },
+      },
+    });
+  };
 
   const handleSearch = (query) => {
+    setIsMenuOpen(false);
     if (query.trim()) {
       performSearch(query, allProductsData);
     } else {
       clearSearch();
     }
-    navigate('/allProducts');
+    navigate('/AllProducts');
+  };
+
+  const handleMenuToggle = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const closeMenuOnly = () => {
+    setIsMenuOpen(false);
   };
 
   return (
@@ -33,7 +56,7 @@ const Navbar = () => {
       <div className="container navbar-container">
 
         {/* ── LOGO ── */}
-        <NavLink className="navbar-brand" to="/">
+        <NavLink className="navbar-brand" to="/" onClick={closeMenuOnly}>
           <img
             src="/src/assets/images/brand-logo-light.png"
             alt="logo"
@@ -41,7 +64,7 @@ const Navbar = () => {
           />
         </NavLink>
 
-        {/* ── MOBILE RIGHT SIDE ── */}
+        {/* ── MOBILE ROW ACTIONS ── */}
         <div className="mobile-top">
 
           {/* SEARCH BAR - MOBILE */}
@@ -53,29 +76,34 @@ const Navbar = () => {
             />
           </div>
 
-          {/* USER DROPDOWN */}
+          {/* USER DROPDOWN - MOBILE VIEW DROPDOWN TOGGLE ONLY */}
           <div className="dropdown">
-            <button className="icon-btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button 
+              className="icon-btn border-0" 
+              type="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
               <FaUserCircle />
             </button>
             <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
               <li>
-                <NavLink to="/profile" className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                <NavLink to="/profile" onClick={closeMenuOnly} className="dropdown-item d-flex align-items-center profile-dropdown-item">
                   <FaRegUserCircle className="me-2 text-muted profile-item-icon" /> My profile
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/orders" className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                <NavLink to="/orders" onClick={closeMenuOnly} className="dropdown-item d-flex align-items-center profile-dropdown-item">
                   <FiBox className="me-2 text-muted profile-item-icon" /> My orders
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/wishlist" className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                <NavLink to="/wishlist" onClick={closeMenuOnly} className="dropdown-item d-flex align-items-center profile-dropdown-item">
                   <FaRegHeart className="me-2 text-muted profile-item-icon" /> Wish list
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/address" className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                <NavLink to="/address" onClick={closeMenuOnly} className="dropdown-item d-flex align-items-center profile-dropdown-item">
                   <GrLocation className="me-2 text-muted profile-item-icon" /> Saved address
                 </NavLink>
               </li>
@@ -92,31 +120,22 @@ const Navbar = () => {
               </li>
               <li><hr className="dropdown-divider my-1" /></li>
               <li>
-                <NavLink to="/login" className="dropdown-item d-flex align-items-center text-danger profile-dropdown-item logout-link">
+                <NavLink to="/login" onClick={closeMenuOnly} className="dropdown-item d-flex align-items-center text-danger profile-dropdown-item logout-link">
                   <FiLogOut className="me-2 logout-icon" /> Log out
                 </NavLink>
               </li>
             </ul>
           </div>
 
-          {/* MOBILE CART WITH ACCENT RED ROUND BADGE */}
-          <NavLink to={"/cart"} className="icon-btn position-relative d-inline-flex align-items-center justify-content-center">
+          {/* MOBILE CART */}
+          <NavLink 
+            to="/cart" 
+            onClick={closeMenuOnly}
+            className="icon-btn position-relative d-inline-flex align-items-center justify-content-center"
+          >
             <IoMdCart />
             {totalCartCount > 0 && (
-              <span 
-                className="position-absolute badge rounded-circle d-flex align-items-center justify-content-center fw-bold" 
-                style={{ 
-                  top: "-4px", 
-                  right: "-6px", 
-                  background: "#ff3b30", 
-                  color: "#ffffff",
-                  fontSize: "10px", 
-                  width: "18px", 
-                  height: "18px",
-                  padding: "0",
-                  lineHeight: "1"
-                }}
-              >
+              <span className="position-absolute badge rounded-circle d-flex align-items-center justify-content-center fw-bold cart-badge">
                 {totalCartCount}
               </span>
             )}
@@ -124,32 +143,49 @@ const Navbar = () => {
 
           {/* TOGGLE BUTTON */}
           <button
-            className="navbar-toggler"
+            className="navbar-toggler custom-toggler-icon"
             type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navContent"
+            onClick={handleMenuToggle}
           >
-            ☰
+            {isMenuOpen ? "✕" : "☰"}
           </button>
         </div>
 
-        {/* ── NAVBAR CONTENT (desktop) ── */}
-        <div className="collapse navbar-collapse" id="navContent">
+        {/* ── NAVBAR LAYOUT CONTENT ── */}
+        <div className={`collapse navbar-collapse ${isMenuOpen ? "show" : ""}`} id="navContent">
 
-          {/* NAV LINKS */}
+          {/* CATEGORY NAVIGATION LINKS */}
           <ul className="navbar-nav mx-auto nav-links">
             <li className="nav-item">
-              <NavLink to="/" className="nav-link">Home</NavLink>
+              <button 
+                type="button"
+                onClick={() => handleCategoryNavigation("bag")} 
+                className={`nav-link custom-nav-btn ${activeCategory === "bag" ? "active" : ""}`}
+              >
+                Bags
+              </button>
             </li>
             <li className="nav-item">
-              <NavLink to="/allProducts" className="nav-link">All Products</NavLink>
+              <button 
+                type="button"
+                onClick={() => handleCategoryNavigation("wallet")} 
+                className={`nav-link custom-nav-btn ${activeCategory === "wallet" ? "active" : ""}`}
+              >
+                Wallet
+              </button>
             </li>
             <li className="nav-item">
-              <NavLink to="/contact" className="nav-link">Contact</NavLink>
+              <button 
+                type="button"
+                onClick={() => handleCategoryNavigation("belt")} 
+                className={`nav-link custom-nav-btn ${activeCategory === "belt" ? "active" : ""}`}
+              >
+                Belts
+              </button>
             </li>
           </ul>
 
-          {/* DESKTOP SEARCH */}
+          {/* DESKTOP SEARCH BAR */}
           <div className="search-wrapper d-none d-lg-flex">
             <SearchModal
               products={allProductsData}
@@ -158,35 +194,20 @@ const Navbar = () => {
             />
           </div>
 
-          {/* DESKTOP ICONS */}
+          {/* DESKTOP QUICK ACTION UTILITIES */}
           <div className="desktop-icons d-none d-lg-flex align-items-center gap-3 ms-3">
-            <button className="icon-btn">
-              <IoNotificationsOutline />
-            </button>
-
-            {/* DESKTOP CART WITH ACCENT RED ROUND BADGE */}
+            
+            {/* CART ICON */}
             <NavLink to="/cart" className="icon-btn position-relative d-inline-flex align-items-center justify-content-center">
               <IoMdCart />
               {totalCartCount > 0 && (
-                <span 
-                  className="position-absolute badge rounded-circle d-flex align-items-center justify-content-center fw-bold" 
-                  style={{ 
-                    top: "-4px", 
-                    right: "-6px", 
-                    background: "#ff3b30", 
-                    color: "#ffffff",
-                    fontSize: "10px", 
-                    width: "18px", 
-                    height: "18px",
-                    padding: "0",
-                    lineHeight: "1"
-                  }}
-                >
+                <span className="position-absolute badge rounded-circle d-flex align-items-center justify-content-center fw-bold cart-badge">
                   {totalCartCount}
                 </span>
               )}
             </NavLink>
 
+            {/* DESKTOP DIRECT PROFILE LINK ENTRY AS REQUESTED */}
             <NavLink to="/profile" className="icon-btn">
               <FaUserCircle />
             </NavLink>

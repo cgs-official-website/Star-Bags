@@ -14,7 +14,7 @@ const WalletFilter = () => {
 
   const handleViewAllWallets = () => {
     // FIX: Navigates using the exact lowercase path to match your layout router rules
-    navigate("/all-products", {
+    navigate("/AllProducts", {
       state: {
         filters: {
           category: "wallet",

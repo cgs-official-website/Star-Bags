@@ -14,7 +14,7 @@ const BeltFilter = () => {
 
   const handleViewAllBelts = () => {
     // FIX: Match the lowercase URL slug string exactly as configured in your App App.jsx routing configuration setup
-    navigate("/all-products", {
+    navigate("/AllProducts", {
       state: {
         filters: {
           category: "belt",

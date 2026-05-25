@@ -1,3 +1,5 @@
+import React from "react";
+import { useNavigate } from "react-router-dom"; 
 import { useWishlist } from "../../context/WishlistContext"; 
 import { allProductsData } from "../../pages/User/Allproducts"; 
 import { MdOutlineShoppingCart } from "react-icons/md";
@@ -19,7 +21,7 @@ const WishlistHeart = ({ product }) => {
         className="wishlist-toggle shadow-sm"
         onClick={(e) => {
           e.preventDefault();
-          e.stopPropagation(); // Stops nested dual element triggers
+          e.stopPropagation();
           toggleWishlist(product);
         }}
         type="button"
@@ -35,76 +37,131 @@ const WishlistHeart = ({ product }) => {
 };
 
 const ProductCard = ({ products = null }) => {  
-  const { addToCart } = useWishlist();
+  const navigate = useNavigate(); 
+  const { cart, addToCart } = useWishlist();
   const productCard = products || allProductsData;  
+
+  const checkIsInCart = (product) => {
+    return cart ? cart.find((item) => item.name === product.name && Number(item.price) === Number(product.price)) : null;
+  };
+
+  const handleBuyNowRedirect = (pro) => {
+    const existingCartItem = checkIsInCart(pro);
+    
+    let targetItems = [];
+    if (existingCartItem) {
+      targetItems = [{ ...existingCartItem, selected: true }];
+    } else {
+      addToCart(pro);
+      targetItems = [{ ...pro, qty: 1, selected: true }];
+    }
+
+    const totalItemsCount = targetItems.reduce((acc, item) => acc + (item.qty || 1), 0);
+    const rawTotal = targetItems.reduce((acc, item) => (acc + (Number(item.realPrice || item.price) * (item.qty || 1))), 0);
+    const subTotal = targetItems.reduce((acc, item) => (acc + (Number(item.price) * (item.qty || 1))), 0);
+    const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
+    const gstTotal = Math.round(subTotal * 0.05);
+    const finalTotal = subTotal + gstTotal;
+
+    navigate("/checkout", {
+      state: {
+        allCartItems: cart || [],
+        cartItems: targetItems,
+        totalItemsCount,
+        rawTotal,
+        discountTotal,
+        subTotal,
+        gstTotal,
+        finalTotal,
+        couponDiscount: 0,
+        couponPercentageLabel: ""
+      }
+    });
+  };
 
   return (
     <>
       <section style={{ width: "100%" }}>
         <div className="ProductCard-section my-3">
-          <div className="container d-flex gap-3 flex-wrap"> 
-            {productCard.map((pro, index) => (
-              <div
-                className="card border-0 shadow-sm position-relative"
-                key={pro.id || index}
-                style={{ width: "15rem" }}
-              >
-                <img src={pro.image} className="card-img-top" alt={pro.name} />
-                <WishlistHeart product={pro} />
-                
-                <div className="card-body">
-                  <div className="d-flex justify-content-between pt-2">
-                    <h6 className="card-title text-truncate" style={{ maxWidth: "70%" }}>
-                      {pro.name}
-                    </h6>
-                    <span className="rating-stars d-flex align-items-center" style={{ color: "black" }}>
-                      <FaStar className="me-1" style={{ color: "#fff240" }} />
-                      {pro.rating || "0.0"}
-                    </span>
-                  </div>
+          <div className="container d-flex gap-3 flex-wrap justify-content-start"> 
+            {productCard.map((pro, index) => {
+              const matchedCartItem = checkIsInCart(pro);
+              const isInCart = !!matchedCartItem;
 
-                  <div className="price-details d-flex align-items-center gap-4 pt-1">
-                    <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
-                      ₹{pro.price}{" "}
-                      <span>
-                        <del style={{ color: "#7d7d7dff", fontWeight: "500" }}>
-                          ₹{pro.realPrice}
-                        </del>
+              return (
+                <div
+                  className="card border-0 shadow-sm position-relative"
+                  key={pro.id || index}
+                  style={{ width: "15rem", flex: "0 0 auto" }}
+                >
+                  <img src={pro.image} className="card-img-top" alt={pro.name} />
+                  <WishlistHeart product={pro} />
+                  
+                  <div className="card-body">
+                    <div className="d-flex justify-content-between pt-2">
+                      <h6 className="card-title text-truncate" style={{ maxWidth: "70%" }}>
+                        {pro.name}
+                      </h6>
+                      <span className="rating-stars d-flex align-items-center" style={{ color: "black" }}>
+                        <FaStar className="me-1" style={{ color: "#fff240" }} />
+                        {pro.rating || "0.0"}
                       </span>
-                    </p>
-                    <span className="mb-1 text-success small">
-                      <b>{pro.offer} off</b>
-                    </span>
-                  </div>
+                    </div>
 
-                  <div className="d-flex gap-3 pt-2">
-                    <a 
-                      href="#" 
-                      className="btn buy-now-btn" 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
-                        e.stopPropagation(); // Stops double popup fire
-                        addToCart(pro); 
-                      }}
-                      style={{ background: "#8B5CF6", color: "#fff", fontSize: "14px" }}
-                    >
-                      Buy Now
-                    </a>
-                    <button 
-                      className="icon-btn-cart" 
-                      onClick={(e) => {
-                        e.stopPropagation(); // Stops double popup fire
-                        addToCart(pro);
-                      }}
-                      style={{ border: "1.5px solid #8B5CF6", color: "#8B5CF6", background: "transparent", borderRadius: "6px", padding: "4px 10px" }}
-                      type="button"
-                    >
-                      <MdOutlineShoppingCart />
-                    </button>
+                    <div className="price-details d-flex align-items-center gap-4 pt-1">
+                      <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
+                        ₹{pro.price}{" "}
+                        <span>
+                          <del style={{ color: "#7d7d7dff", fontWeight: "500" }}>
+                            ₹{pro.realPrice}
+                          </del>
+                        </span>
+                      </p>
+                      <span className="mb-1 text-success small">
+                        <b>{pro.offer} off</b>
+                      </span>
+                    </div>
+
+                    <div className="d-flex gap-3 pt-2">
+                      <a 
+                        href="#" 
+                        className="btn buy-now-btn" 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          handleBuyNowRedirect(pro);
+                        }}
+                        style={{ background: "#8B5CF6", color: "#fff", fontSize: "14px" }}
+                      >
+                        Buy Now
+                      </a>
+                      
+                      <button 
+                        className="icon-btn-cart" 
+                        onClick={(e) => {
+                          e.stopPropagation(); 
+                          if (isInCart) {
+                            navigate("/cart"); 
+                          } else {
+                            addToCart(pro); 
+                          }
+                        }}
+                        style={{ 
+                          border: "1.5px solid #8B5CF6", 
+                          color: isInCart ? "#fff" : "#8B5CF6", 
+                          background: isInCart ? "#8B5CF6" : "transparent", 
+                          borderRadius: "6px", 
+                          padding: "4px 10px" 
+                        }}
+                        type="button"
+                      >
+                        <MdOutlineShoppingCart />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

@@ -1,11 +1,13 @@
 footer {
-    background-color: var(--dark-lavender);
-    color: var(--white-color);
+    background-color: #e4dfec;
+    color: var(--text-dark, #212529);
+    font-size: 0.80rem;
+    font-weight: 500;
 }
 
 .footer-logo img {
-    background-color: var(--white-color);
-    border-radius: 50%;
+    padding: 0;
+    height: 40px;
 }
 
 .details p {
@@ -22,7 +24,10 @@ footer {
 }
 
 .social-icons a {
-    color: white;
+    box-shadow: 0 0 5px var( #dcd6f7);
+    padding: 4px 8px;
+    border-radius: 5px;
+    color: var(--levender);
     opacity: 0.8;
     transition: opacity 0.2s ease;
 }
@@ -32,10 +37,14 @@ footer {
     padding: 0;
 }
 
+.footer-link li {
+    padding: 5px 0;
+}
+
 .footer-link a {
     text-decoration: none;
-    opacity: 0.8;
-    color: white;
+    opacity: 0.9;
+    color: var(--text-dark, #212529);
     transition: opacity 0.2s ease;
 }
 
@@ -44,13 +53,24 @@ footer {
     opacity: 1;
 }
 
+.product-details h6, 
+.address h6 {
+    color: var(--levender);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
 .address p {
     opacity: 0.8;
     margin: 0;
     transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-/* Star Bags Brand Link Styling */
+.address a:hover {
+    color: var(--text-dark, #212529) !important; 
+}
+
+/* Brand Link Styling */
 .brand-map-link {
     color: inherit;
     text-decoration: none;
@@ -62,7 +82,7 @@ footer {
     text-decoration: none;
 }
 
-/* Map Address Link - Smooth white color transition on hover */
+/* Map Address Link Styles */
 .address-link {
     color: inherit;
     text-decoration: none;
@@ -73,22 +93,15 @@ footer {
     transition: opacity 0.2s ease, color 0.2s ease;
 }
 
-.address-link:hover p,
-.address-link:hover span {
-    opacity: 1;
-    color: #ffffff; /* Turns fully white on hover */
-    text-decoration: none;
+/* Fixed the invalid border syntax from original code */
+.footer-end {
+    border-top: 1px solid rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Responsiveness adjustments */
 @media(max-width: 991px) {
-    .links-wrapper {
-        justify-content: start !important;
-        gap: 1.5rem;
-    }
-    
-    footer .col-lg-2, 
-    footer .col-12 {
+    /* Ensures clean block spacing when links shift into 2-column layouts */
+    .links-wrapper > div {
         margin-bottom: 2rem;
     }
 }
@@ -103,14 +116,10 @@ footer {
     }
     footer h6 {
         font-size: 0.95rem;
-        margin-top: 5px;
     }
     .social-icons {
         font-size: 1.3rem;
     }
-}
-
-@media(max-width: 480px) {
     .footer-end {
         display: flex;
         flex-direction: column;
@@ -120,8 +129,9 @@ footer {
 
     .footer-end .policy {
         display: flex;
-        flex-direction: column;
+        /* flex-direction: column; */
+        justify-content: center;
         align-items: center;
-        gap: 5px !important;
+        gap: 30px !important;
     }
 }
