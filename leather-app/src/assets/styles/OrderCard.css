@@ -14,12 +14,13 @@
   width: 100%;
 }
 
-.order-card {
+/* Desktop/Tablet Card Style */
+.order-card-desktop {
   background: #ffffff;
   border-radius: 12px;
   padding: 16px 20px;
   display: flex !important;
-  flex-direction: row !important; /* Forces strict horizontal alignment on all viewports */
+  flex-direction: row !important;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
@@ -29,7 +30,7 @@
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.order-card:hover {
+.order-card-desktop:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08);
   border-color: rgba(139, 92, 246, 0.2);
@@ -53,7 +54,7 @@
   transition: transform 0.3s ease;
 }
 
-.order-card:hover .product-image {
+.order-card-desktop:hover .product-image {
   transform: scale(1.06);
 }
 
@@ -110,12 +111,10 @@
   color: #94a3b8;
 }
 
-
 .price-section {
   display: flex;
   align-items: center;
   gap: 8px;
-  
 }
 
 .current-price {
@@ -235,17 +234,210 @@
 .rate-text {
   font-size: 13px;
   font-weight: 600;
-  color: #d97706; /* Star Bags Amber tone */
+  color: #d97706;
   white-space: nowrap;
 }
 
 /* ==========================================================
-   RESPONSIVE SCALING - STRICTLY PRESERVING HORIZONTAL GRID
+   MOBILE CARD STYLES - SIMPLE HORIZONTAL + CLICK TO EXPAND
+   ========================================================== */
+
+.order-card-mobile {
+  display: none !important;
+}
+
+@media (max-width: 767px) {
+  .order-card-desktop {
+    display: none !important;
+  }
+  
+  .order-card-mobile {
+    display: flex !important;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 12px;
+    width: 100%;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+  }
+  
+  .order-card-mobile.expanded {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Horizontal row - always visible (Image, Name, Status) */
+  .mobile-compact-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+  }
+  
+  .mobile-image {
+    width: 65px !important;
+    height: 65px !important;
+    min-width: 65px !important;
+    border-radius: 8px !important;
+  }
+  
+  .mobile-product-info {
+    flex: 1;
+  }
+  
+  .mobile-product-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 6px;
+    display: block;
+  }
+  
+  .mobile-status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .mobile-delivery-status {
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .mobile-date {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  
+  /* Expanded details - shown when clicked */
+  .mobile-expanded-details {
+    padding: 0 12px 12px 12px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Simple price row */
+  .mobile-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 8px;
+  }
+  
+  .mobile-current-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .mobile-original-price {
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: line-through;
+  }
+  
+  .mobile-savings {
+    font-size: 11px;
+    color: #22c55e;
+    font-weight: 500;
+  }
+  
+  /* Simple row for quantity and rating */
+  .mobile-meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .mobile-qty {
+    font-size: 13px;
+    color: #475569;
+  }
+  
+  .mobile-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .mobile-rating-number {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+  
+  .mobile-rating-count {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  
+  /* Simple order ID */
+  .mobile-order-id {
+    font-size: 11px;
+    color: #94a3b8;
+    font-family: monospace;
+    word-break: break-all;
+  }
+  
+  /* Action buttons - simple and clean */
+  .mobile-action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    padding-bottom: 4px;
+  }
+  
+  .mobile-action-btn {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    border: none;
+  }
+  
+  .mobile-action-btn.track-btn {
+    background: #8b5cf6;
+    color: white;
+  }
+  
+  .mobile-action-btn.track-btn:active {
+    background: #7c3aed;
+    transform: scale(0.98);
+  }
+  
+  .mobile-action-btn.track-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .mobile-action-btn.rate-btn {
+    background: transparent;
+    color: #d97706;
+    border: 1px solid #fbbf24;
+  }
+  
+  .mobile-action-btn.rate-btn:active {
+    background: #fef3c7;
+    transform: scale(0.98);
+  }
+}
+
+/* ==========================================================
+   DESKTOP RESPONSIVE SCALING
    ========================================================== */
 
 /* Large Desktop (1400px+) */
 @media (min-width: 1400px) {
-  .order-card {
+  .order-card-desktop {
     padding: 20px 28px;
     gap: 24px;
   }
@@ -274,7 +466,7 @@
 
 /* Desktop Small & Large Tablet (992px - 1199px) */
 @media (max-width: 1199px) and (min-width: 992px) {
-  .order-card {
+  .order-card-desktop {
     padding: 14px 16px;
     gap: 12px;
   }
@@ -283,6 +475,7 @@
     width: 85px;
     height: 85px;
   }
+  
   .product-info {
     gap: 1px;
   }
@@ -296,257 +489,39 @@
   }
 }
 
-/* Mobile Screen Breakpoints (preserving horizontal grid) */
-@media (max-width: 767px) {
-  .order-card {
-    flex-direction: row !important; /* Enforces horizontal UI row even on mobile screens */
-    flex-wrap: nowrap !important;
-    padding: 10px;
-    gap: 12px;
-    align-items: center;
+/* Tablet Portrait (768px - 991px) */
+@media (max-width: 991px) and (min-width: 768px) {
+  .order-card-desktop {
+    padding: 12px 14px;
+    gap: 10px;
   }
   
   .product-image-wrapper {
-    width: 72px;
-    height: 72px;
-    min-width: 72px;
-    border-radius: 8px;
-  }
-  
-  /* Constrain product info so it doesn't push other columns off-screen */
-  .product-info {
-    flex: 1.5;
-    min-width: 0;
-    gap: 2px;
-    overflow: hidden;
-  }
-  
-  .order-id {
-    font-size: 9px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .product-header {
-    gap: 4px;
-    flex-wrap: wrap;
-    align-items: center;
+    width: 75px;
+    height: 75px;
   }
   
   .product-name {
-    font-size: 10px;
-    white-space: normal !important;
-    word-break: break-word;
-    overflow: visible;
-    text-overflow: clip;
-    max-width: none !important; /* Allow the product name to expand and wrap naturally */
-    line-height: 1.25;
-  }
-  
-  /* Hide rating count on mobile to reduce clutter */
-  .rating-count {
-    display: none !important;
-  }
-  
-  .rating-badge-row {
-    flex-shrink: 0;
-  }
-  
-  .rating-badge-row svg {
-    width: 12px !important;
-    height: 12px !important;
-  }
-  
-  .rating-number {
-    font-size: 11px;
-  }
-  
-  /* Keep price on one line */
-  .price-section {
-    gap: 4px;
-    white-space: nowrap;
-  }
-  
-  .current-price {
-    font-size: 11px !important;
-  }
-  
-  .original-price {
-    font-size: 11px !important;
-  }
-  
-  .quantity {
-    font-size: 10px;
-  }
-  
-  /* Status column - compact & perfectly budgeted */
-  .status-section {
-    padding: 0 4px;
-    gap: 4px;
-    min-height: auto;
-    border-left: 1px dashed #e2e8f0;
-    border-right: 1px dashed #e2e8f0;
-    flex: 0.9;
-    min-width: 0;
-  }
-  
-  .section-label {
-    font-size: 8px;
-    letter-spacing: 0.3px;
+    font-size: 13px;
   }
   
   .status-value {
+    font-size: 14px;
+  }
+  
+  .track-button {
+    padding: 6px 12px;
     font-size: 11px;
-    white-space: nowrap;
-  }
-  
-  .track-button {
-    padding: 3.5px 6px;
-    font-size: 9px;
-    border-radius: 4px;
-    white-space: nowrap;
-  }
-  
-  /* Time column - dynamic and expansive */
-  .time-section {
-    gap: 4px;
-    flex: 1.1;
-    min-width: 0;
-  }
-  
-  .delivery-text {
-    font-size: 10px;
-    white-space: nowrap;
-  }
-  
-  .rate-link-btn {
-    gap: 2px;
-  }
-  
-  .rate-link-btn svg {
-    width: 10px !important;
-    height: 10px !important;
   }
   
   .rate-text {
-    font-size: 9px;
-    white-space: nowrap;
+    font-size: 11px;
   }
 }
 
-/* Core constraint: Extremely narrow mobile viewports (< 575px) */
-@media (max-width: 575px) {
-  .order-card {
-    padding: 5px;
-    gap: 5px;
-  }
-
-  .product-image-wrapper {
-    width: 64px;
-    height: 64px;
-    min-width: 64px;
-  }
-
-  .product-name {
-    max-width: none !important; 
-    white-space: normal !important;
-  }
-  
-  .order-id {
-    max-width: 95px !important;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-/* Very Small Mobile Viewports (320px - 410px) */
-@media (max-width: 375px) {
-  .order-card {
-    padding: 10px;
-    gap: 1px;
-  }
-  
-  .product-image-wrapper {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    border-radius: 6px;
-  }
-  
-  .product-info {
-    flex: 1.4;
-    gap: 1px;
-  }
-  
-  .order-id {
-    font-size: 7px;
-    max-width: 80px !important;
-  }
-  
-  .product-name {
-    font-size: 8px;
-    max-width: none !important; /* Keep names fully visible */
-    white-space: normal !important;
-  }
-  
-  .rating-badge-row svg {
-    width: 10px !important;
-    height: 10px !important;
-  }
-  
-  .rating-number {
-    font-size: 8px;
-  }
-  
-  .current-price {
-    font-size: 10px;
-  }
-  
-  .original-price {
-    font-size: 8px;
-  }
-  
-  .quantity {
-    font-size: 8px;
-  }
-  
-  .status-section {
-    flex: 0.8;
-    padding: 0 2px;
-    gap: 2px;
-  }
-  
-  .section-label {
-    font-size: 7px;
-  }
-  
-  .status-value {
-    font-size: 9px;
-  }
-  
-  .track-button {
-    padding: 3px 5px;
-    font-size: 8px;
-  }
-  
-  .time-section {
-    flex: 1;
-    gap: 2px;
-  }
-  
-  .delivery-text {
-    font-size: 8px;
-  }
-  
-  .rate-text {
-    font-size: 8px;
-  }
-}
-
-/* Touch responsiveness adaptations */
+/* Touch responsiveness */
 @media (max-width: 768px) {
-  .track-button, .rate-link-btn {
+  .track-button, .rate-link-btn, .mobile-action-btn {
     -webkit-tap-highlight-color: transparent;
   }
   

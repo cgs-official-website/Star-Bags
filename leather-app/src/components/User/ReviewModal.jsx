@@ -1,93 +1,101 @@
-import React, { useState } from 'react';
-import { FaStar, FaRegStar } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
-import '../../assets/styles/ReviewModal.css';
 
-// ─── Internal Star Rating ─────────────────────────────────────────────────────
-function StarRating({ max = 5, value, onChange }) {
-  const [hovered, setHovered] = useState(null);
-  const active = hovered !== null ? hovered : value;
+import React, { useEffect, useRef } from "react";
+import "../../assets/styles/ReviewModal.css";
 
-  return (
-    <div className="rm-star-row">
-      {Array.from({ length: max }).map((_, i) =>
-        i < active ? (
-          <FaStar
-            key={i}
-            className="rm-star filled"
-            onClick={() => onChange(i + 1)}
-            onMouseEnter={() => setHovered(i + 1)}
-            onMouseLeave={() => setHovered(null)}
-          />
-        ) : (
-          <FaRegStar
-            key={i}
-            className="rm-star empty"
-            onClick={() => onChange(i + 1)}
-            onMouseEnter={() => setHovered(i + 1)}
-            onMouseLeave={() => setHovered(null)}
-          />
-        )
-      )}
-    </div>
-  );
-}
-
-// ─── Review Modal ─────────────────────────────────────────────────────────────
-/**
- * Props:
- *  isOpen    {boolean}  — controls visibility
- *  onClose   {fn}       — called when modal is dismissed
- *  onSubmit  {fn(rating: number, text: string)} — called on submit
- *  rating    {number}   — current star value (controlled from parent)
- *  setRating {fn}       — updates star value in parent
- */
 function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
-  const [review, setReview] = useState('');
+  const [reviewText, setReviewText] = React.useState("");
+  const [hoverRating, setHoverRating] = React.useState(0);
+  const textareaRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const handleStarClick = (starValue) => {
+    setRating(starValue);
+  };
+
+  const handleStarHover = (starValue) => {
+    setHoverRating(starValue);
+  };
+
+  const handleStarLeave = () => {
+    setHoverRating(0);
+  };
+
   const handleSubmit = () => {
-    onSubmit(rating, review);
-    setReview('');
+    if (rating === 0) {
+      alert("Please select a rating before submitting.");
+      return;
+    }
+    onSubmit(rating, reviewText);
+    setReviewText("");
+    setRating(0);
     onClose();
   };
 
   const handleCancel = () => {
-    setReview('');
+    setReviewText("");
+    setRating(0);
     onClose();
   };
 
-  return (
-    <div className="rm-overlay" onClick={handleCancel}>
-      <div className="rm-modal" onClick={e => e.stopPropagation()}>
+  const getStarDisplay = (index) => {
+    const displayRating = hoverRating || rating;
+    return index <= displayRating;
+  };
 
-        {/* Close button */}
-        <button className="rm-close" onClick={handleCancel} aria-label="Close">
-          <IoMdClose />
+  return (
+    <div className="rm-overlay" onClick={onClose}>
+      <div className="rm-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="rm-close" onClick={onClose}>
+          ×
         </button>
 
-        <h4 className="rm-title">Write Your reviews</h4>
+        <h3 className="rm-title">Write Your Reviews</h3>
 
-        <p className="rm-label">Give it to us your rating</p>
-        <StarRating max={5} value={rating} onChange={setRating} />
-
-        <p className="rm-label" style={{ marginTop: '1.2rem' }}>
-          Do you have any thoughts, you would like to share
-        </p>
-        <textarea
-          className="rm-textarea"
-          rows={5}
-          placeholder="Write Your reviews and about your Product"
-          value={review}
-          onChange={e => setReview(e.target.value)}
-        />
-
-        <div className="rm-actions">
-          <button className="rm-cancel" onClick={handleCancel}>Cancel</button>
-          <button className="rm-submit" onClick={handleSubmit}>Submit your review</button>
+        {/* Rating Section */}
+        <div className="rm-rating-label">Give it to us your rating</div>
+        <div className="rm-star-row">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <span
+              key={star}
+              className={`rm-star ${getStarDisplay(star) ? "filled" : "empty"}`}
+              onClick={() => handleStarClick(star)}
+              onMouseEnter={() => handleStarHover(star)}
+              onMouseLeave={handleStarLeave}
+            >
+              ★
+            </span>
+          ))}
         </div>
 
+        {/* Review Section */}
+        <div className="rm-review-label">
+          Do you have any thoughts, you would like to share
+          <span className="rm-review-sub">Write your reviews and about your product</span>
+        </div>
+        <textarea
+          ref={textareaRef}
+          className="rm-textarea"
+          placeholder="Write Your reviews and about your Product"
+          value={reviewText}
+          onChange={(e) => setReviewText(e.target.value)}
+        />
+
+        {/* Action Buttons */}
+        <div className="rm-actions">
+          <button className="rm-cancel" onClick={handleCancel}>
+            Cancel
+          </button>
+          <button className="rm-submit" onClick={handleSubmit}>
+            Submit your review
+          </button>
+        </div>
       </div>
     </div>
   );

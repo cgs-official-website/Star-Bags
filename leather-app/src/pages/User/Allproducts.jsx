@@ -60,31 +60,12 @@ const buildActiveTags = (filters) => {
   return tags;
 };
 
-const getRelatedProducts = (searchQuery, appliedFilters, searchResults) => {
-  if (appliedFilters.category) {
-    return allProductsData
-      .filter((p) => p.category !== appliedFilters.category)
-      .slice(0, 6);
-  }
-  if (searchQuery) {
-    const q = searchQuery.toLowerCase();
-    const broad = allProductsData.filter((p) =>
-      p.name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      p.category.toLowerCase().includes(q)
-    );
-    if (broad.length > 0) return broad.slice(0, 6);
-  }
-  return allProductsData.slice(0, 6);
-};
-
 // ─── Component ───────────────────────────────────────────────────────────────
 
 const AllProducts = () => {
   const location = useLocation();
   const { searchResults, shouldShowResults, searchQuery, clearSearch } = useSearch();
 
-  // Initialise filters from navigation state → session storage → defaults
   const [filters, setFilters] = useState(() => {
     const incoming = location.state?.filters;
     if (incoming) {
@@ -95,16 +76,11 @@ const AllProducts = () => {
     return loadFilters() ?? DEFAULT_FILTERS;
   });
 
-  // appliedFilters is kept in sync with filters at all times.
-  // The sidebar calls onChange which triggers handleFilterChange,
-  // which updates BOTH states immediately — giving real-time filtering.
-  // The mobile drawer's Apply button does the same via handleApply.
   const [appliedFilters, setAppliedFilters] = useState(filters);
   const [activeTags, setActiveTags]         = useState(() => buildActiveTags(filters));
   const [sortBy, setSortBy]                 = useState('');
   const [drawerOpen, setDrawerOpen]         = useState(false);
 
-  // React to category navigation from Navbar / elsewhere
   useEffect(() => {
     const incoming = location.state?.filters;
     if (incoming) {
@@ -115,29 +91,23 @@ const AllProducts = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.state]);
 
-  // Persist filters to session storage whenever they change
   useEffect(() => {
     saveFilters(filters);
   }, [filters]);
 
-  // ── Core helper: update all filter-related state at once ─────────────────
-  // This is the single source of truth for applying any filter change.
+  // ── Core helper ───────────────────────────────────────────────────────────
+
   const applyFilters = (next) => {
-    const tags = buildActiveTags(next);
     setFilters(next);
     setAppliedFilters(next);
-    setActiveTags(tags);
+    setActiveTags(buildActiveTags(next));
     saveFilters(next);
   };
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
-  // Called by FilterSideBar's onChange on every interaction (real-time).
-  const handleFilterChange = (next) => {
-    applyFilters(next);
-  };
+  const handleFilterChange = (next) => applyFilters(next);
 
-  // Called by the mobile drawer's Apply button.
   const handleApply = () => {
     applyFilters(filters);
     setDrawerOpen(false);
@@ -178,7 +148,6 @@ const AllProducts = () => {
         p.category?.toLowerCase() === appliedFilters.category.toLowerCase()
       );
     }
-
     if (appliedFilters.priceRange) {
       products = products.filter((p) => {
         const price = Number(p.price);
@@ -189,27 +158,23 @@ const AllProducts = () => {
         return true;
       });
     }
-
     if (appliedFilters.bags && appliedFilters.bags.length > 0) {
       products = products.filter((p) => {
         const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
         return appliedFilters.bags.some((bag) => searchTerm.includes(bag.toLowerCase()));
       });
     }
-
     if (appliedFilters.brands && appliedFilters.brands.length > 0) {
       products = products.filter((p) => {
         const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
         return appliedFilters.brands.some((brand) => searchTerm.includes(brand.toLowerCase()));
       });
     }
-
     if (appliedFilters.material) {
       products = products.filter((p) =>
         p.description?.toLowerCase().includes(appliedFilters.material.toLowerCase())
       );
     }
-
     if (appliedFilters.size) {
       products = products.filter((p) =>
         p.name?.toLowerCase().includes(appliedFilters.size.toLowerCase())
@@ -228,29 +193,31 @@ const AllProducts = () => {
     return sorted;
   }, [sortBy, filteredProducts]);
 
-  const relatedProducts = useMemo(() => {
-    if (sortedProducts.length > 0) return [];
-    const hasSearch  = shouldShowResults && !!searchQuery;
-    const hasFilters = activeTags.length > 0;
-    if (!hasSearch && !hasFilters) return [];
-    return getRelatedProducts(
-      hasSearch ? searchQuery : '',
-      appliedFilters,
-      hasSearch ? searchResults : []
-    );
-  }, [sortedProducts, shouldShowResults, searchQuery, searchResults, appliedFilters, activeTags]);
+  // When no filtered results, fall back to showing all products
+  const hasNoResults   = sortedProducts.length === 0;
+  const displayProducts = hasNoResults ? allProductsData : sortedProducts;
 
   const noResultsMessage = useMemo(() => {
     if (shouldShowResults && searchQuery && activeTags.length === 0)
-      return `We couldn't find any products matching "${searchQuery}"`;
+      return `No results for "${searchQuery}". Showing all products.`;
     if (shouldShowResults && searchQuery && activeTags.length > 0)
-      return `No products match "${searchQuery}" with the selected filters`;
+      return `No results for "${searchQuery}" with selected filters. Showing all products.`;
     if (!shouldShowResults && activeTags.length > 0)
-      return 'No products match your current filters';
-    return 'No products available';
+      return 'No products match your filters. Showing all products.';
+    return null;
   }, [shouldShowResults, searchQuery, activeTags.length]);
 
   // ── Render ────────────────────────────────────────────────────────────────
+
+  const sidebar = (
+    <FilterSideBar
+      filters={filters}
+      onChange={handleFilterChange}
+      activeTags={activeTags}
+      onRemoveTag={handleRemoveTag}
+      onClearAll={handleClearAllFilters}
+    />
+  );
 
   return (
     <>
@@ -269,93 +236,54 @@ const AllProducts = () => {
           </div>
         </div>
 
-        {/* ── Main content ── */}
-        {sortedProducts.length > 0 ? (
-          <div className="all-products-main">
-            <div className="all-products-sidebar">
-              {/* onChange = handleFilterChange for real-time filtering */}
-              <FilterSideBar
-                filters={filters}
-                onChange={handleFilterChange}
-                activeTags={activeTags}
-                onRemoveTag={handleRemoveTag}
-                onClearAll={handleClearAllFilters}
-              />
-            </div>
-            <div className="all-products-grid">
-              <ProductCard products={sortedProducts} />
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* ── Empty / no-results state ── */}
-            <div
-              className="no-results"
+        {/* ── No-results banner (shown above grid when filters yield nothing) ── */}
+        {hasNoResults && noResultsMessage && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '12px 18px',
+              marginBottom: '16px',
+              backgroundColor: '#fef3c7',
+              border: '1px solid #fcd34d',
+              borderRadius: '10px',
+              fontSize: '0.9rem',
+              color: '#92400e',
+            }}
+          >
+            <i className="bi bi-info-circle-fill" style={{ fontSize: '1rem', flexShrink: 0 }}></i>
+            <span>{noResultsMessage}</span>
+            <button
+              onClick={handleClearAllFilters}
               style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '3.5rem 1.5rem',
-                textAlign: 'center',
-                backgroundColor: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid #e2e8f0',
+                marginLeft: 'auto',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#92400e',
+                fontWeight: '600',
+                fontSize: '0.85rem',
+                textDecoration: 'underline',
+                padding: 0,
+                flexShrink: 0,
               }}
             >
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: '280px',
-                  marginBottom: '1.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  src="/src/assets/images/image 77.png"
-                  alt="No results"
-                  style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-                />
-              </div>
-              <h3 style={{ fontSize: '24px', fontWeight: '600', color: '#000000', margin: '0 0 0.5rem 0' }}>
-                No products found!
-              </h3>
-              <p style={{ color: '#6b7280', fontSize: '0.95rem', margin: '0 0 1.5rem 0' }}>
-                {noResultsMessage}
-              </p>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                <button
-                  onClick={handleClearAllFilters}
-                  style={{
-                    backgroundColor: '#8B5CF6',
-                    color: '#ffffff',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    padding: '10px 32px',
-                    borderRadius: '10px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.15)',
-                  }}
-                >
-                  Shop now
-                </button>
-              </div>
-            </div>
-
-            {/* ── Related products ── */}
-            {relatedProducts.length > 0 && (
-              <div className="related-products-section">
-                <h3 className="related-products-title">Related Products</h3>
-                <div className="all-products-grid">
-                  <ProductCard products={relatedProducts} />
-                </div>
-              </div>
-            )}
-          </>
+              Clear filters
+            </button>
+          </div>
         )}
+
+        {/* ── Main layout: sidebar + product grid (always visible) ── */}
+        <div className="all-products-main">
+          <div className="all-products-sidebar">
+            {sidebar}
+          </div>
+          <div className="all-products-grid">
+            <ProductCard products={displayProducts} />
+          </div>
+        </div>
+
       </div>
 
       {/* ── Mobile filter drawer ── */}
@@ -369,14 +297,7 @@ const AllProducts = () => {
               </button>
             </div>
             <div className="filter-drawer-body">
-              {/* Drawer also uses handleFilterChange for consistency */}
-              <FilterSideBar
-                filters={filters}
-                onChange={handleFilterChange}
-                activeTags={activeTags}
-                onRemoveTag={handleRemoveTag}
-                onClearAll={handleClearAllFilters}
-              />
+              {sidebar}
             </div>
             <div className="filter-drawer-footer">
               <button className="apply-filters-btn" onClick={handleApply}>

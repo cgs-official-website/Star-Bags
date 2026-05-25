@@ -72,8 +72,8 @@
   width: 100%;
   padding: 12px 16px 12px 42px;
   font-size: 14px;
-  border-radius: 30px; /* Fully rounded mockup search bar */
-  border: 1.5px solid #dcd1ff; /* Lavender boundary */
+  border-radius: 30px;
+  border: 1.5px solid #dcd1ff;
   background: #ffffff;
   color: #1e293b;
   outline: none;
@@ -90,12 +90,39 @@
   font-weight: 450;
 }
 
-/* Order Rows Wrapper Gap */
+/* Orders List with Scrollbar - No Pagination */
 .orders-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  min-height: 250px;
+  max-height: 550px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom Scrollbar Styling */
+.orders-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.orders-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.orders-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.orders-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Firefox scrollbar */
+.orders-list {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f1f1;
 }
 
 .no-orders {
@@ -105,51 +132,11 @@
   background: #f8fafc;
   border-radius: 8px;
   border: 1px dashed #cbd5e1;
+  padding: 40px;
 }
 
-/* Dynamic Pagination Elements */
-.pagination-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.pagination-btn, .pagination-number {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  transition: all 0.2s ease;
-}
-
-.pagination-btn:hover:not(:disabled), .pagination-number:hover {
-  border-color: #8b5cf6;
-  color: #8b5cf6;
-  background: rgba(139, 92, 246, 0.04);
-}
-
-.pagination-number.active {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.2);
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+/* Remove pagination styles - no longer needed */
+/* .pagination-wrapper removed */
 
 /* ==========================================================
    DARK THEMING overrides
@@ -173,9 +160,7 @@ body.dark-theme .page-section-title,
 }
 
 body.dark-theme .orders-header,
-[data-theme="dark"] .orders-header,
-body.dark-theme .pagination-wrapper,
-[data-theme="dark"] .pagination-wrapper {
+[data-theme="dark"] .orders-header {
   border-color: #2e3748;
 }
 
@@ -196,32 +181,23 @@ body.dark-theme .no-orders,
 [data-theme="dark"] .no-orders {
   background: rgba(22, 30, 46, 0.5);
   border-color: #2e3748;
-}
-
-body.dark-theme .pagination-btn,
-[data-theme="dark"] .pagination-btn,
-body.dark-theme .pagination-number,
-[data-theme="dark"] .pagination-number {
-  background: #161e2e;
-  border-color: #2e3748;
   color: #94a3b8;
 }
 
-body.dark-theme .pagination-btn:hover:not(:disabled),
-[data-theme="dark"] .pagination-btn:hover:not(:disabled),
-body.dark-theme .pagination-number:hover,
-[data-theme="dark"] .pagination-number:hover {
-  border-color: #a855f7;
-  color: #a855f7;
-  background: rgba(168, 85, 247, 0.08);
+/* Dark theme scrollbar */
+body.dark-theme .orders-list::-webkit-scrollbar-track,
+[data-theme="dark"] .orders-list::-webkit-scrollbar-track {
+  background: #1e293b;
 }
 
-body.dark-theme .pagination-number.active,
-[data-theme="dark"] .pagination-number.active {
-  background: #a855f7;
-  border-color: #a855f7;
-  color: #ffffff;
-  box-shadow: 0 2px 6px rgba(168, 85, 247, 0.35);
+body.dark-theme .orders-list::-webkit-scrollbar-thumb,
+[data-theme="dark"] .orders-list::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+body.dark-theme .orders-list::-webkit-scrollbar-thumb:hover,
+[data-theme="dark"] .orders-list::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 /* ==========================================================
@@ -229,7 +205,7 @@ body.dark-theme .pagination-number.active,
    ========================================================== */
 @media (max-width: 991px) {
   .sidebar-column-view {
-    display: none !important; /* Hide sidebar inside responsive main grid, matching teammate d-none d-lg-block specs */
+    display: none !important;
   }
   .list-column-view {
     width: 100%;
@@ -238,5 +214,11 @@ body.dark-theme .pagination-number.active,
   }
   .orders-card {
     padding: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .orders-list {
+    max-height: 450px;
   }
 }
