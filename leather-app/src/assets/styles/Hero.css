@@ -50,7 +50,7 @@
     left: 7%;
     transform: translateY(-50%);
     width: 50%;
-    color: white;
+    color: var(--white-color);
     z-index: 5;
 }
 
@@ -58,7 +58,7 @@
     display: inline-block;
     padding: 8px 18px;
     border-radius: 30px;
-    background: rgba(255,255,255,.15);
+    background: #ffffff26;
     backdrop-filter: blur(10px);
     font-size: .75rem;
     letter-spacing: 2px;
@@ -84,18 +84,18 @@
 
 .hero-btn{
     background: var(--levender);
-    color: white;
+    color: var(--white-color);
     border: none;
-    padding: 14px 30px;
+    padding: 8px 20px;
     border-radius: 12px;
-    font-weight: 600;
+    font-weight: 500;
     transition: .3s;
 }
 
 .hero-btn:hover{
-    color: white;
+    color: var(--white-color);
     transform: translateY(-3px);
-    background: #8d72ff;
+    background: var(--levender);
 }
 
 

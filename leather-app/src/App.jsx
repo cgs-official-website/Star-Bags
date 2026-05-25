@@ -36,7 +36,8 @@ import BannerManagement from './pages/Admin/BannerManagement';
 import OrderDetails from './pages/Admin/OrderDetails';
 
 // import BillAddress from './pages/User/BillAddress';
-import SignUpVerification from './pages/User/SignUpVerification';
+// import SignUpVerification from './pages/User/SignUpVerification';
+import Checkout from './pages/User/Checkout';
 
 
 const App = () => {
@@ -59,7 +60,8 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
           <Route path="/address" element={<SavedAddress />} />
           <Route path="/track-order" element={<TrackOrder />} />
-          <Route path="/checkout" element={<BillAddress />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/BillAddress" element={<BillAddress />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<AdminLogin />} />

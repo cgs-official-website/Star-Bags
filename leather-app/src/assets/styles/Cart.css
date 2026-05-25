@@ -1,4 +1,4 @@
-/* --- GLOBAL MODULE CONFIGURATION --- */
+--- GLOBAL MODULE CONFIGURATION ---
 * {
   padding: 0;
   margin: 0;
@@ -22,6 +22,7 @@
   border-radius: 8px;
   overflow: hidden;
   background: #ffffff;
+  flex-shrink: 0;
 }
 
 /* CHECKBOX OVERLAY POSITIONING */
@@ -33,7 +34,7 @@
   height: 14px;
   accent-color: #8b5cf6;
   cursor: pointer;
-  z-index: 10;
+  z-index: 2;
 }
 
 .cart-image {
@@ -60,7 +61,7 @@
   display: none !important;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 993px) {
   .cart-layout-grid {
     height: calc(100vh - 140px);
     overflow: hidden;
@@ -155,7 +156,7 @@
   margin-bottom: 14px;
 }
 
-/* --- ALL TITLES & LABELS (LIGHTWEIGHT 500) --- */
+/* --- ALL TITLES & LABELS --- */
 .main-title,
 .cart-title,
 .summary-title,
@@ -223,6 +224,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  width: 100%;
 }
 
 .cart-card {
@@ -282,7 +284,6 @@
   flex-wrap: wrap;
 }
 
-/* DECREASED PRICE WEIGHT AND SIZE */
 .current-price {
   font-size: 1.1rem;
   margin: 0;
@@ -542,7 +543,9 @@
   object-fit: contain;
 }
 
-/* --- REFACTORED RESPONSIVE LAYER --- */
+/* ==========================================================================
+   10. MEDIA INTERFACE RESPONSIVE DESIGN BOUNDS
+   ========================================================================== */
 @media (max-width: 1200px) {
   .cart-right {
     width: 260px;
@@ -554,24 +557,24 @@
   }
 }
 
-/* UNIFIED LAYOUT FOR 768PX AND ALL SMALLER SCREENS */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .cart-layout-grid {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: column !important;
+    align-items: stretch !important;
   }
 
   .cart-left {
-    width: 100%;
+    width: 100% !important;
   }
 
   .cart-right {
-    width: 100%;
-    margin-top: 10px;
+    width: 100% !important;
+    margin-top: 20px !important;
   }
+}
 
+@media (max-width: 768px) {
   .cart-card {
-    /* Stays cleanly structured side-by-side without breaking blocks */
     flex-direction: row; 
     padding: 10px;
     gap: 10px;
@@ -608,19 +611,102 @@
   }
 }
 
-@media (max-width: 480px) {
+/* --- 578PX MOBILE BREAKPOINT: DUAL VERTICAL GRID SCROLLER --- */
+@media (max-width: 578px) {
+  .cart-items {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important; /* Forces 2 items per row */
+    max-height: 440px !important; /* Constrains height to make the grid vertically scrollable */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    gap: 10px !important;
+    padding: 4px !important;
+    scroll-behavior: smooth !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
   .cart-card {
-    padding: 8px;
+    flex-direction: column !important; /* Stacks layout elements within each individual card grid */
+    padding: 10px !important;
+    gap: 6px !important;
+    width: 100% !important;
   }
-  
+
   .cart-image-wrapper {
-    width: 95px;
-    min-width: 95px;
-    height: 95px;
+    width: 100% !important;
+    height: 120px !important;
+    min-width: unset !important;
   }
-  
-  .cart-buttons button {
-    padding: 6px 10px;
-    font-size: 0.7rem;
+
+  .cart-content {
+    width: 100% !important;
+    gap: 4px !important;
+  }
+
+  .cart-top {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
+  .cart-product-name {
+    font-size: 0.85rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    width: 100% !important;
+  }
+
+  .price-row-container {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+  }
+
+  .price-row {
+    gap: 2px !important;
+  }
+
+  .current-price {
+    font-size: 0.9rem !important;
+  }
+
+  .old-price, .discount {
+    font-size: 0.7rem !important;
+  }
+
+  /* Compact Scale Down For Quantity Modifiers Inside Small Grid Bounds */
+  .qty-btn {
+    padding: 2px 4px !important;
+    font-size: 0.6rem !important;
+  }
+
+  .qty-number {
+    min-width: 14px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .pattern-text, .cod-box {
+    display: none !important;
+  }
+
+  .cart-bottom {
+    margin-top: 4px !important;
+  }
+
+  .cart-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 4px !important;
+  }
+
+  .remove-btn, .buy-btn {
+    width: 100% !important;
+    padding: 5px 0 !important;
+    font-size: 0.65rem !important;
+    text-align: center !important;
+    justify-content: center !important;
   }
 }

@@ -1,124 +1,116 @@
-
 import "../../assets/styles/Footer.css";
-import { FaLocationDot } from "react-icons/fa6";
-import { FaInstagram, FaWhatsapp } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-
-// import { FaQ } from "./Faq";
-
+import { FaLocationDot, FaXTwitter } from "react-icons/fa6";
+import { FaInstagram, FaFacebookF } from "react-icons/fa";
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  
+  // Safe URL-encoded dynamic link targeted directly to the Perundurai - Bhavani road address
+  const mapUrl = "https://www.google.com/maps/search/?api=1&query=Star+Bags+Perundhurai+-+Bhavani+Rd+Perundurai+Tamil+Nadu+638052";
+
   return (
     <footer>
-
       <div className="container">
-        <div className=" row py-3 ">
-          <div className="col-lg-4 col-12 details pe-4">
-            <div className="d-flex align-items-end footer-logo gap-2">
-              {/* <img
+        {/* Row structured with dynamic flex spacing utilities */}
+        <div className="d-flex flex-wrap justify-content-between py-4 links-wrapper">
+          
+          {/* Brand Info & Social Media */}
+          <div className="col-lg-4 col-12 details pe-lg-5">
+            <div className="d-flex align-items-end footer-logo gap-2 ">
+              <img
                 src="../src/assets/images/brand-logo-light.png"
                 alt=""
                 height={"40px"}
-              /> */}
-              <h5>Star Bags</h5>
+              />
             </div>
             <p>
-              Crafted with passion, our leather goods are designed to bring
-              elegance and durability to your everyday life. We believe in
-              quality that lasts a lifetime.
+             Crafting stylish bags, wallets & travel essentials with premium quality and timeless design.
             </p>
+            <p>Follow us on </p>
             <ul className="social-icons">
               <li>
-                <a href="#">
+                <a href="#" aria-label="Instagram">
                   <FaInstagram />
                 </a>
               </li>
               <li>
-                <a href="#">
-                  <FaWhatsapp />
+                <a href="#" aria-label="Facebook">
+                  <FaFacebookF />
                 </a>
               </li>
               <li>
-                <a href="#">
+                <a href="#" aria-label="Twitter">
                   <FaXTwitter />
                 </a>
               </li>
-
             </ul>
           </div>
-          <div className="col-lg-2 col-6  product-details">
-            <h6>Sections</h6>
 
+          {/* Navigation Sections */}
+          
+          <div className="col-lg-2 col-6 product-details ps-4">
+            <h6>Shop</h6>
             <ul className="footer-link">
-              <li>
-                <a href="/">Home</a>
-              </li>
-              <li>
-                <a href="#">All Products</a>
-              </li>
-              <li>
-                <a href="/contact">Contact</a>
-              </li>
-              <li>
-                <a href="/#faq-section">faq</a>
-              </li>
-
+              <li><a href="#">Bags</a></li>
+              <li><a href="#">Wallets</a></li>
+              <li><a href="#">Belts</a></li>
             </ul>
           </div>
-          <div className="col-lg-2 col-6  product-details">
-            <h6>Products</h6>
 
+          <div className="col-lg-2 col-6 product-details">
+            <h6>Information</h6>
             <ul className="footer-link">
-              <li>
-                <a href="#">Bags</a>
-              </li>
-              <li>
-                <a href="#">wallets</a>
-              </li>
-              <li>
-                <a href="#">belts</a>
-              </li>
-
+              <li><a href="#">About us</a></li>
+              <li><a href="/contact">Contact</a></li>
+              <li><a href="#">Privacy plicy </a></li>
             </ul>
           </div>
-          <div className="col-lg-2 col-6  product-details">
+
+
+          <div className="col-lg-2 col-6 product-details">
             <h6>Services</h6>
-
             <ul className="footer-link">
-              <li>
-                <a href="#">COD</a>
-              </li>
+              <li><a href="#">COD</a></li>
             </ul>
           </div>
-          <div className="col-lg-2 col-6 address   ">
-            <h6 className="text">Address of Company,</h6>
-            <div className="d-flex gap-2">
+
+          {/* Corrected Address Mapping Link Block */}
+          <div className="col-lg-2 col-6 address">
+            <h6>Contact us</h6>
+            <a 
+              href={mapUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="d-flex gap-2 address-link"
+            >
               <span>
                 <FaLocationDot />
               </span>
               <div>
-                <p>
-                  Star Bags <br />
-                  No.24, Anna Salai, T.Nagar, Chennai, TamilNadu-600017, India.
+                <p>                  
+                  Perundhurai - Bhavani Rd, <br />
+                  Perundurai, <br />
+                  Tamil Nadu - 638052.
                 </p>
               </div>
-            </div>
+            </a>
+            
           </div>
-        </div>
-        <div className="d-flex justify-content-between border-top text-center py-3  footer-end">
-          <h6>Star Bags</h6>
-          <div className="d-flex gap-3 policy">
-            <p>Privacy Policy </p>
-            <p>All rights reserved &copy; {year}</p>
 
+        </div>
+
+        {/* Bottom Bar Info */}
+        <div className="d-flex justify-content-between  text-center py-3 footer-end">
+          <p>&copy;{year}STARBAGS. All rights reserved.</p>
+          <div className="d-flex gap-3 policy">
+            <p className="">Privacy Policy {year}</p>
+            <p className="">Copyright Company</p>
           </div>
         </div>
+
       </div>
     </footer>
-
   );
 };
 
 export default Footer;
-

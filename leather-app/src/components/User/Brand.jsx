@@ -5,7 +5,8 @@ import '../../assets/styles/Brand.css'
 import skybagsLogo from '../../assets/images/brand1.jpg';
 import wildcraftLogo from '../../assets/images/brand2.jpg';
 import americanTouristerLogo from '../../assets/images/brand3.jpg';
-import safariLogo from '../../assets/images/brand4.jpg';
+// import safariLogo from '../../assets/images/brand4.jpg';
+import safariLogo from '../../assets/images/image 75.png';
 
 const Brand = () => {
   const navigate = useNavigate();

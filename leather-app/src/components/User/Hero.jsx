@@ -1,14 +1,17 @@
-import '../../assets/styles/Hero.css'
-
+import "../../assets/styles/Hero.css";
 
 import productImg from "../../assets/images/product.png";
 import walletImg from "../../assets/images/Wallet.png";
 import bagImg from "../../assets/images/bag.png";
 import beltImg from "../../assets/images/Belt.png";
+import { NavLink } from "react-router-dom";
+import { ScrollBanner } from "./ScrollBanner";
 
 export const Hero = () => {
   return (
     <>
+      <ScrollBanner />
+
       <section className="hero-section container py-4">
         <div
           id="heroCarousel"
@@ -31,17 +34,21 @@ export const Hero = () => {
 
               <div className="hero-overlay"></div>
               <div className="hero-content">
-                <span className="hero-tag">PREMIUM LEATHER</span>
+                {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
 
-                <button className="btn hero-btn">Shop Now { /* → */}</button>
-
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -52,15 +59,20 @@ export const Hero = () => {
               <div className="hero-overlay"></div>
 
               <div className="hero-content">
-                <span className="hero-tag">PREMIUM LEATHER</span>
+                {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now </button>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -70,15 +82,20 @@ export const Hero = () => {
               <img src={bagImg} className="hero-img" alt="Bag" />
               <div className="hero-overlay"></div>
               <div className="hero-content">
-                <span className="hero-tag">PREMIUM LEATHER</span>
+                {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now </button>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
 
@@ -88,15 +105,20 @@ export const Hero = () => {
               <img src={beltImg} className="hero-img" alt="Belt" />
               <div className="hero-overlay"></div>
               <div className="hero-content">
-                <span className="hero-tag">PREMIUM LEATHER</span>
+                {/* <span className="hero-tag">PREMIUM LEATHER</span> */}
 
-                <h2>Crafted in Leather, <span className='hero-design'>Designed</span> for Life.</h2>
+                <h2>
+                  Crafted in Leather,{" "}
+                  <span className="hero-design">Designed</span> for Life.
+                </h2>
 
                 <p>
                   Premium handcrafted leather essentials made for timeless
                   elegance and everyday use.
                 </p>
-                <button className="btn hero-btn">Shop Now </button>
+                <NavLink to={"/AllProducts"} className="btn hero-btn">
+                  Shop Now{" "}
+                </NavLink>
               </div>
             </div>
           </div>

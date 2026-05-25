@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ← ADDED for robust routing
+import { useWishlist } from "../../context/WishlistContext";
 import "../../assets/styles/WishList.css";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
@@ -6,105 +7,10 @@ import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import { FaHeart, FaStar } from "react-icons/fa";
 import { MdOutlineShoppingCart } from "react-icons/md";
 
-// ─── Mock wishlist data ───────────────────────────────────────────────────────
-const initialWishlist = [
-  {
-    id: 1,
-    image: "../src/assets/images/leather1.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 120,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 2,
-    image: "../src/assets/images/bag.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 98,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 3,
-    image: "../src/assets/images/product.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 75,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 4,
-    image: "../src/assets/images/wallet.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 60,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 5,
-    image: "../src/assets/images/belt.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 88,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 6,
-    image: "../src/assets/images/product.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 44,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 7,
-    image: "../src/assets/images/bag.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 33,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 8,
-    image: "../src/assets/images/leather1.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 52,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-  {
-    id: 9,
-    image: "../src/assets/images/wallet.png",
-    name: "Leather Wallet",
-    rating: 4.2,
-    ratingCount: 19,
-    price: 120,
-    realPrice: 150,
-    offer: "20%",
-  },
-];
-
 // ─── Single Wishlist Card ─────────────────────────────────────────────────────
-function WishlistCard({ item, onRemove }) {
+function WishlistCard({ item, onRemove, onAddToCart }) {
   return (
     <div className="wl-card">
-      {/* Remove (heart) button */}
       <button
         className="wl-heart-btn"
         onClick={() => onRemove(item.id)}
@@ -113,19 +19,17 @@ function WishlistCard({ item, onRemove }) {
         <FaHeart className="wl-heart-icon" />
       </button>
 
-      {/* Product image */}
       <div className="wl-img-wrap">
         <img src={item.image} alt={item.name} className="wl-img" />
       </div>
 
-      {/* Card body */}
       <div className="wl-card-body">
         <div className="wl-title-row">
           <h6 className="wl-name">{item.name}</h6>
           <span className="wl-rating">
             <FaStar className="wl-star" />
             {item.rating}
-            <span className="wl-rating-count">({item.ratingCount})</span>
+            <span className="wl-rating-count">({item.ratingCount || 0})</span>
           </span>
         </div>
 
@@ -137,7 +41,11 @@ function WishlistCard({ item, onRemove }) {
 
         <div className="wl-actions">
           <button className="wl-buy-btn">Buy now</button>
-          <button className="wl-cart-btn" aria-label="Add to cart">
+          <button 
+            className="wl-cart-btn" 
+            aria-label="Add to cart"
+            onClick={() => onAddToCart(item)}
+          >
             <MdOutlineShoppingCart />
           </button>
         </div>
@@ -146,27 +54,43 @@ function WishlistCard({ item, onRemove }) {
   );
 }
 
-// ─── Empty state ──────────────────────────────────────────────────────────────
+// ─── Empty Wishlist State (Fixed Image & Navigation) ──────────────────────────
 function EmptyWishlist() {
+  const navigate = useNavigate();
+
+  // Dynamic asset resolver to handle relative folder paths safely across routes
+  const getEmptyStateImage = () => {
+    return new URL("../../assets/images/empty.png", import.meta.url).href;
+  };
+
   return (
-    <div className="wl-empty">
-      <FaHeart className="wl-empty-icon" />
-      <h5>Your wishlist is empty</h5>
-      <p>Browse our products and add items you love!</p>
-      <a href="/" className="btn wl-shop-btn">
-        Shop Now
-      </a>
+    <div className="wl-empty-container">
+      <div className="wl-empty-image-wrapper">
+        {/* FIX: Handled asset resolution cleanly via baseline meta URL compiler syntax */}
+        <img 
+          src={getEmptyStateImage()} 
+          alt="Empty Bag Vector" 
+          className="wl-empty-vector" 
+          style={{width:"100%",height:"100%"}}
+        />
+      </div>
+      <h3 className="wl-empty-heading">Your wishlist is empty!</h3>
+      
+      {/* FIX: Switched from an <a> tag anchor to a robust navigate call path trigger */}
+      <span 
+        onClick={() => navigate("/AllProducts")} 
+        className="btn wl-empty-shop-btn"
+        style={{ cursor: "pointer" }}
+      >
+        Shop now
+      </span>
     </div>
   );
 }
 
 // ─── Main WishList Page ───────────────────────────────────────────────────────
 function WishList() {
-  const [wishlist, setWishlist] = useState(initialWishlist);
-
-  const handleRemove = (id) => {
-    setWishlist((prev) => prev.filter((item) => item.id !== id));
-  };
+  const { wishlist, removeFromWishlist, addToCart } = useWishlist();
 
   return (
     <>
@@ -176,12 +100,12 @@ function WishList() {
         <h4 className="mb-3 fw-bold">Wishlist</h4>
 
         <div className="row align-items-start">
-          {/* ── Sidebar (desktop only) ── */}
+          {/* Sidebar Area Column */}
           <div className="col-lg-3 mb-3 d-none d-lg-block wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* ── Main content ── */}
+          {/* Main Context Dynamic Grid Column Area */}
           <div className="col-lg-9 col-12">
             {wishlist.length === 0 ? (
               <EmptyWishlist />
@@ -191,7 +115,8 @@ function WishList() {
                   <WishlistCard
                     key={item.id}
                     item={item}
-                    onRemove={handleRemove}
+                    onRemove={removeFromWishlist}
+                    onAddToCart={addToCart}
                   />
                 ))}
               </div>
