@@ -192,11 +192,9 @@
 // };
 
 // export default BillAddress;
-
-
-import React, { useState } from "react";
-import { useLocation, useNavigate, NavLink } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import  { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
 import { TbCreditCardPay } from "react-icons/tb";
 import { GiMoneyStack } from "react-icons/gi";
 import PaymentImage from "../../assets/images/payment-icon.png";
@@ -209,6 +207,7 @@ const BillAddress = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // ─── STAGE 1: UNPACK DYNAMIC STATE ROUTING MATRIX ───
   const {
     cartItems = [],
     totalItemsCount = 0,
@@ -221,7 +220,23 @@ const BillAddress = () => {
     finalTotal = 0,
   } = location.state || {};
 
+  // ─── STAGE 2: PULL SYNCED ACTIVE ADDRESS FROM PERSISTENT DATABASE ───
+  const [activeAddress, setActiveAddress] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+
+    // If an address-locked verification token wasn't provided, bounce out to checkout safely
+    const rawData = localStorage.getItem("savedAddresses");
+    if (rawData) {
+      const parsed = JSON.parse(rawData);
+      // Fallback fallback: auto-select primary address index if state context is cold
+      if (parsed.length > 0) {
+        setActiveAddress(parsed[0]);
+      }
+    }
+  }, [navigate, location.state]);
 
   const handlePlaceOrderSubmit = () => {
     alert(`Order placed successfully using ${paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment"}!`);
@@ -231,45 +246,61 @@ const BillAddress = () => {
   return (
     <>
       <Navbar />
-      <div className="cart-page billing-page-container">
-        <h2 className="main-title mb-4">Billing & Review</h2>
-
-        <NavLink 
-          to="/checkout" 
-          state={{ ...location.state }}
-          className="back-btn fw-bold text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
-          style={{ color: "#171744" }}
-        >
-          <FaArrowLeft /> Back to Checkout
-        </NavLink>
+      <div className="cart-page billing-page-container" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
+        <div className="checkout-title-row mb-2">
+          <h2 className="main-title">Product Checkout</h2>
+          <button 
+            className="back-navigation-btn mb-3" 
+            onClick={() => navigate("/checkout", { state: { ...location.state } })}
+            type="button"
+          >
+            <ArrowIcon className="me-2" /> Back to Checkout
+          </button>
+        </div>
         
         <div className="cart-layout-grid">
-          <div className="cart-left">
-            <div className="billing-address-summary-box mb-4 p-3 border rounded bg-light">
-              <h4 className="section-subtitle-heading mb-2">Shipping Destination</h4>
-              <p className="mb-1 fw-bold">Rahul Sharma</p>
-              <p className="mb-1 text-muted">Flat No. 302, Sai Residency, Mumbai, Maharashtra - 400058</p>
-              <p className="mb-0 text-muted">Phone: 9876543210</p>
+          <div className="cart-left d-flex flex-column gap-2">
+            
+            {/* ─── FIXED DYNAMIC SHIPPING PANEL (MATCHES CHECKOUT EXACTLY) ─── */}
+            <div className="billing-address-summary-box p-3 border rounded bg-light" style={{ margin: 0 }}>
+              <h6 className="section-subtitle-heading">Shipping Destination</h6>
+              {!activeAddress ? (
+                <p className="text-muted small m-0">No target delivery address specified yet.</p>
+              ) : (
+                <>
+                  <p className="fw-bold" style={{ fontSize: "0.85rem", margin: "0 0 2px 0" }}>
+                    {activeAddress.name}
+                  </p>
+                  <p className="text-muted" style={{ fontSize: "0.8rem", margin: "0 0 2px 0" }}>
+                    {activeAddress.address}, {activeAddress.city}, {activeAddress.state} - {activeAddress.pin}
+                  </p>
+                  <p className="text-muted" style={{ fontSize: "0.8rem", margin: 0 }}>
+                    Phone: {activeAddress.contact || activeAddress.mobile}
+                  </p>
+                </>
+              )}
             </div>
 
-            <div className="review-items-box border rounded p-3 bg-white">
-              <h4 className="section-subtitle-heading mb-3">Review Items ({cartItems.length})</h4>
+            {/* REVIEW ITEMS CONTAINER */}
+            <div className="review-items-box border rounded p-3 bg-white" style={{ margin: 0 }}>
+              <h6 className="section-subtitle-heading">Review Items <span style={{ fontSize: "1rem" }}>({cartItems.length})</span></h6>
               {cartItems.map((item, idx) => (
                 <div key={item.id || idx} className="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                  <div className="d-flex align-items-center gap-3">
-                    <img src={item.image} alt={item.name} style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "6px" }} />
+                  <div className="d-flex align-items-center gap-2">
+                    <img src={item.image} alt={item.name} style={{ width: "42px", height: "42px", objectFit: "cover", borderRadius: "6px" }} />
                     <div>
-                      <h6 className="mb-0 text-truncate" style={{ maxWidth: "200px" }}>{item.name}</h6>
-                      <small className="text-muted">Qty: {item.qty || 1}</small>
+                      <h6 className="m-0 text-truncate" style={{ maxWidth: "180px", fontSize: "0.85rem" }}>{item.name}</h6>
+                      <small className="text-muted" style={{ fontSize: "0.8rem", fontWeight: "normal" }}>Qty: {item.qty || 1}</small>
                     </div>
                   </div>
-                  <span className="fw-semibold">₹{(Number(item.price) * (item.qty || 1)).toFixed(2)}</span>
+                  <span className="fw-semibold" style={{ fontSize: "0.85rem", fontWeight: "bold" }}>₹{(Number(item.price) * (item.qty || 1)).toFixed(2)}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="cart-right">
+          {/* RIGHT SIDEBAR CONTROLS */}
+          <div className="cart-right d-flex flex-column gap-2">
             <OrderSummary
               totalItemsCount={totalItemsCount}
               rawTotal={rawTotal}
@@ -282,26 +313,22 @@ const BillAddress = () => {
               isBillingPage={true}
               handleCheckout={handlePlaceOrderSubmit}
             />
-
-            <div className="payment-box mt-4">
-              <h6 className="payment-title">Payment method</h6>
-              <p className="payment-subtitle">Choose a payment method</p>
-
+            
+            <div className="payment-box" style={{ margin: 0, padding: "12px" }}>
+              <h6 className="payment-title" style={{ fontSize: "1.1rem", margin: 0 }}>Payment method</h6>
+              <p className="payment-subtitle" style={{ fontSize: "0.75rem", margin: "2px 0 10px 0" }}>Choose a payment method</p>
+              
               <div 
                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} 
                 onClick={() => setPaymentMethod("cod")}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", padding: "8px", marginBottom: "8px" }}
               >
-                <div className="payment-left">
-                  <input 
-                    type="radio" 
-                    checked={paymentMethod === "cod"} 
-                    onChange={() => setPaymentMethod("cod")} 
-                  />
-                  <div className="payment-icon"><GiMoneyStack /></div>
+                <div className="payment-left gap-2">
+                  <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} style={{ width: "14px", height: "14px" }} />
+                  <div className="payment-icon" style={{ width: "26px", height: "26px", fontSize: "0.9rem" }}><GiMoneyStack /></div>
                   <div>
-                    <p className="fw-bold m-0">Cash on delivery</p>
-                    <p className="m-0">you pay when your order is delivered</p>
+                    <p className="fw-bold m-0" style={{ fontSize: "0.8rem" }}>Cash on delivery</p>
+                    <p className="m-0 text-muted" style={{ fontSize: "0.7rem" }}>you pay when your order is delivered</p>
                   </div>
                 </div>
               </div>
@@ -309,24 +336,20 @@ const BillAddress = () => {
               <div 
                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} 
                 onClick={() => setPaymentMethod("online")}
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", padding: "8px", marginBottom: "10px" }}
               >
-                <div className="payment-left">
-                  <input 
-                    type="radio" 
-                    checked={paymentMethod === "online"} 
-                    onChange={() => setPaymentMethod("online")} 
-                  />
-                  <div className="payment-icon"><TbCreditCardPay /></div>
+                <div className="payment-left gap-2">
+                  <input type="radio" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} style={{ width: "14px", height: "14px" }} />
+                  <div className="payment-icon" style={{ width: "26px", height: "26px", fontSize: "0.9rem" }}><TbCreditCardPay /></div>
                   <div>
-                    <p className="fw-bold m-0">Online payment</p>
-                    <p className="m-0">Pay securely Using UPI, Cards, Net banking & More</p>
-                    <span className="payment-icons"><img src={PaymentImage} alt="Payment Methods" /></span>
+                    <p className="fw-bold m-0" style={{ fontSize: "0.8rem" }}>Online payment</p>
+                    <p className="m-0 text-muted" style={{ fontSize: "0.7rem", marginBottom: "2px" }}>Pay securely Using UPI, Cards, Net banking & More</p>
+                    <span className="payment-icons"><img src={PaymentImage} alt="Payment Methods" style={{ width: "65px" }} /></span>
                   </div>
                 </div>
               </div>
 
-              <button className="continue-payment-btn" onClick={handlePlaceOrderSubmit}>
+              <button className="continue-payment-btn" onClick={handlePlaceOrderSubmit} style={{ margin: 0, padding: "8px", fontSize: "0.85rem" }}>
                 Place Order Now
               </button>
             </div>

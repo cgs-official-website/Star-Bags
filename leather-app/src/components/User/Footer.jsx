@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
 
 
-          <div className="col-lg-2 col-6 product-details">
+          <div className="col-lg-2 col-6 product-details ps-4">
             <h6>Services</h6>
             <ul className="footer-link">
               <li><a href="#">COD</a></li>

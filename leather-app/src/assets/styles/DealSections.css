@@ -94,6 +94,7 @@
   justify-content: center;
   box-sizing: border-box;
   margin-bottom: 8px;
+  border: none !important;
 }
 
 /* Standardized asset layout behavior for identical heights and widths */
