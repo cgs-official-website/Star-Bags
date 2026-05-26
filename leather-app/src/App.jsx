@@ -34,7 +34,7 @@ import AdminResetPassword from './pages/Admin/ResetPassword';
 import StoreDetails from './pages/Admin/StoreDetails';
 import BannerManagement from './pages/Admin/BannerManagement';
 import OrderDetails from './pages/Admin/OrderDetails';
-
+import ReviewManagement from './pages/Admin/ReviewManagement';
 // import BillAddress from './pages/User/BillAddress';
 // import SignUpVerification from './pages/User/SignUpVerification';
 import Checkout from './pages/User/Checkout';
@@ -64,20 +64,21 @@ const App = () => {
           <Route path="/BillAddress" element={<BillAddress />} />
 
           {/* Admin Routes */}
-          <Route path="/admin" element={<AdminLogin />} />
+          {/* <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/signup" element={<AdminSignup />} />
           <Route path="/admin/forget-password" element={<AdminForgetPassword />} />
-          <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+          <Route path="/admin/reset-password" element={<AdminResetPassword />} /> */}
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/coupons" element={<Coupons />} />
           <Route path="/admin/order-management" element={<OrderManagement />} />
           <Route path="/admin/payment-details" element={<PaymentDetails />} />
           <Route path="/admin/product-management" element={<ProductManagement />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
-          <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
-          <Route path="/admin/store-details" element={<StoreDetails />} />
+          {/* <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
+          <Route path="/admin/store-details" element={<StoreDetails />} /> */}
            <Route path="/admin/banner-management" element={<BannerManagement />} />
            <Route path="/admin/order-details" element={<OrderDetails />} />
+           <Route path="/admin/review-management" element={<ReviewManagement />} />
         </Routes>
       </BrowserRouter>
     </SearchProvider>

@@ -120,3 +120,8 @@
     font-size: 0.85rem;
   }
 }
+
+/* Global Table Header Styling for Admin pages */
+.admin-main th {
+  color: #000000 !important;
+}

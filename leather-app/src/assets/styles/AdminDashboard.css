@@ -23,18 +23,6 @@
 }
 
 /* ─── Header ─── */
-.admin-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 28px;
-  background: #f6f7fb;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  gap: 20px;
-  border-bottom: 1px solid #f0f0f5;
-}
 
 .header-search {
   position: relative;
@@ -175,13 +163,13 @@
 
 .stat-card {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 20px 20px 16px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  border: 1px solid #d9d9d9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
   transition: box-shadow 0.2s, transform 0.2s;
 }
 
@@ -237,16 +225,24 @@
   font-weight: 600;
 }
 
-.stat-badge.up  { color: #059669; }
+.stat-badge.up  { color: #10b981; }
 .stat-badge.down { color: #ef4444; }
 
 /* ─── Chart ─── */
 .chart-section {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 22px 24px 18px 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.recharts-wrapper:focus,
+.recharts-wrapper *:focus,
+.recharts-responsive-container:focus,
+.recharts-responsive-container *:focus,
+.recharts-surface:focus {
+  outline: none !important;
 }
 
 .section-title {
@@ -282,10 +278,10 @@
 /* ─── Products Table ─── */
 .products-section {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 22px 24px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f5;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
 }
 
 .products-table-wrapper { overflow-x: auto; }
@@ -296,10 +292,10 @@
 }
 
 .products-table th {
-  text-align: left;
+  text-align: center;
   font-size: 11px;
   font-weight: 600;
-  color: #9ca3af;
+  /* color: #9ca3af; */
   padding: 10px 14px;
   border-bottom: 1.5px solid #d9d9d9;
   white-space: nowrap;
@@ -310,9 +306,10 @@
 .products-table td {
   padding: 13px 14px;
   font-size: 13px;
-  color: #374151;
+  /* color: #374151; */
   border-bottom: 1.5px solid #d9d9d9;
   vertical-align: middle;
+  text-align: center !important;
 }
 
 .products-table tbody tr:last-child td { border-bottom: none; }
@@ -506,8 +503,6 @@
 @media (max-width: 992px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
 
-  .admin-header { padding: 12px 18px; }
-
   .admin-content { padding: 16px 18px 32px 18px; }
 }
 
@@ -516,19 +511,19 @@
 
   .header-search { flex: 1; }
 
-  .admin-header { padding: 12px 16px; }
-
   .admin-content { padding: 14px 14px 28px 14px; }
+  
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
 }
 
 @media (max-width: 576px) {
-  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
   .stat-value { font-size: 22px; }
 }
 
 @media (max-width: 400px) {
-  .stats-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
 
   .profile-info { display: none; }
 }
@@ -537,14 +532,174 @@
 .custom-table th {
   border-bottom: 1px solid #f3f4f6 !important;
   font-weight: 600;
-  color: #9ca3af;
+  /* color: #9ca3af; */
   padding-bottom: 12px;
+  text-align: center;
 }
 .custom-table td {
   border-bottom: 1px solid #f9fafb !important;
   padding: 14px 10px;
   color: #374151;
+  text-align: center;
+}
+.custom-table th.stock-status-col,
+.custom-table td.stock-status-col {
+  text-align: left !important;
+  padding-left: 20px !important;
 }
 .custom-table tbody tr:last-child td {
   border-bottom: none !important;
+}
+
+/* Global Mobile Scale Down for Admin Pages - Layout overrides */
+@media (max-width: 768px) {
+  /* Stat & Metrics Cards */
+  .admin-main .stat-card,
+  .admin-main .rm-stat-card,
+  .admin-main .cp-stat-card,
+  .admin-main .stats-grid > div {
+    padding: 12px 14px !important;
+    gap: 8px !important;
+  }
+
+  .admin-main .stat-icon,
+  .admin-main .rm-stat-icon,
+  .admin-main .cp-stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  /* Forms, Inputs, Buttons & Filters */
+  .admin-main input,
+  .admin-main select,
+  .admin-main textarea,
+  .admin-main .rm-search-box input,
+  .admin-main .pm-search-box input,
+  .admin-main .search-input {
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    height: auto !important;
+  }
+  
+  .admin-main .rm-search-box input,
+  .admin-main .pm-search-box input {
+    padding-left: 32px !important;
+  }
+
+  .admin-main .rm-search-icon,
+  .admin-main .pm-search-icon {
+    left: 10px !important;
+  }
+
+  .admin-main button,
+  .admin-main .pm-add-btn,
+  .admin-main .rm-reset-btn,
+  .admin-main .cp-reset-btn {
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    gap: 4px !important;
+  }
+
+  /* Tables & Lists */
+  .admin-main table th {
+    padding: 10px 12px !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .admin-main table td {
+    padding: 10px 12px !important;
+    text-align: center !important;
+  }
+
+  .admin-main table img {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  /* Settings Page Specifics */
+  .settings-content {
+    padding: 12px !important;
+    gap: 16px !important;
+  }
+
+  .settings-banner {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+
+  .settings-avatar-wrap {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .settings-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+  }
+  
+  .settings-form-row {
+    margin-bottom: 12px !important;
+    gap: 12px !important;
+  }
+  
+  .settings-form-group {
+    gap: 4px !important;
+  }
+
+  /* Pagination */
+  .rm-pagination-container,
+  .pagination-container {
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  .rm-page-btn,
+  .page-btn {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* Prevent table action buttons & pagination page buttons from being distorted/shrunk by global button padding */
+  .admin-main .pm-action-btn,
+  .admin-main .rm-action-btn,
+  .admin-main .cp-action-btn,
+  .admin-main .action-btn,
+  .admin-main table td button,
+  .admin-main .pm-page-btn,
+  .admin-main .rm-page-btn,
+  .admin-main .cp-page-btn,
+  .admin-main .page-btn {
+    width: 34px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .admin-main .pm-action-btn svg,
+  .admin-main .rm-action-btn svg,
+  .admin-main .cp-action-btn svg,
+  .admin-main .action-btn svg,
+  .admin-main table td button svg,
+  .admin-main .pm-page-btn svg,
+  .admin-main .rm-page-btn svg,
+  .admin-main .cp-page-btn svg,
+  .admin-main .page-btn svg,
+  .admin-main .pm-action-btn i,
+  .admin-main .rm-action-btn i,
+  .admin-main .cp-action-btn i,
+  .admin-main .action-btn i,
+  .admin-main table td button i,
+  .admin-main .pm-page-btn i,
+  .admin-main .rm-page-btn i,
+  .admin-main .cp-page-btn i,
+  .admin-main .page-btn i {
+    width: 16px !important;
+    height: 16px !important;
+    font-size: 16px !important;
+  }
 }

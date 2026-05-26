@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
+import AdminHeader from '../../components/Admin/AdminHeader';
 import { FiEdit, FiTrash2, FiSearch, FiRefreshCw, FiCopy, FiX, FiCalendar } from 'react-icons/fi';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 import { BsTicketPerforated, BsCart3 } from 'react-icons/bs';
 import { BiCheckShield } from 'react-icons/bi';
 import toast, { Toaster } from 'react-hot-toast';
-import '../../assets/styles/coupon.css';
-
+import '../../assets/styles/AdminCoupons.css';
+import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleton';
+import { MdRedeem } from "react-icons/md";
 const Coupons = () => {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,8 +26,8 @@ const Coupons = () => {
   const [deleteModalId, setDeleteModalId] = useState(null);
 
   const [coupons, setCoupons] = useState([
-    { id: 1, code: 'SBC-BAG-001', discount: '20', minOrder: '₹999', category: 'Bag', subCategory: 'Hand bag', expiry: '31 May 2025', status: 'Active', discountType: 'green', desc: 'Sample condition text.', usageLimit: '5000', startDate: '2025-05-01', endDate: '2025-05-31' },
-    { id: 2, code: 'SBC-WLT-002', discount: '30', minOrder: '₹1,999', category: 'Wallet', subCategory: '', expiry: '10 Apr 2025', status: 'Expired', discountType: 'green', desc: 'Summer discount.', usageLimit: '2000', startDate: '2025-03-01', endDate: '2025-04-10' },
+    { id: 1, code: 'SBC-BAG-001', discount: '20', minOrder: '₹999', category: 'Bag', subCategory: 'Hand bag', expiry: '31 May 2025', status: 'Active', discountType: 'green', desc: 'Sample condition text.', usageLimit: '5000', startDate: '2025-05-01', endDate: '2025-05-31', usedCount: 150 },
+    { id: 2, code: 'SBC-WLT-002', discount: '30', minOrder: '₹1,999', category: 'Wallet', subCategory: '', expiry: '10 Apr 2025', status: 'Expired', discountType: 'green', desc: 'Summer discount.', usageLimit: '2000', startDate: '2025-03-01', endDate: '2025-04-10', usedCount: 0 },
   ]);
 
   const [formData, setFormData] = useState({
@@ -91,6 +100,14 @@ const Coupons = () => {
       color: '#10b981'
     },
     {
+      title: 'Used Coupons',
+      value: coupons.reduce((total, coupon) => total + (coupon.usedCount || 0), 0),
+      sub: 'Total coupons used',
+      icon: <MdRedeem />,
+      bgColor: '#dcfce7',
+      color: '#10b981'
+    },
+    {
       title: 'Total Redemption',
       value: '1,293',
       sub: 'All time usage',
@@ -103,9 +120,18 @@ const Coupons = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'category') {
-      const prefix = value === 'Wallet' ? 'WLT' : value === 'Belt' ? 'BLT' : 'BAG';
-      const codeSuffix = formData.code.split('-').pop() || Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-      setFormData(prev => ({ ...prev, [name]: value, code: `SBC-${prefix}-${codeSuffix}` }));
+      let prefix = 'BAG';
+      if (value === 'Wallet') prefix = 'WLT';
+      else if (value === 'Belt') prefix = 'BLT';
+      else if (value === 'All Products') prefix = 'ALL';
+      
+      const codeParts = formData.code.split('-');
+      const currentSuffix = codeParts.length === 3 ? codeParts[2] : '';
+      const codeSuffix = currentSuffix || Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      
+      const subCat = value === 'Bag' ? (formData.subCategory || 'Hand Bag') : '';
+      
+      setFormData(prev => ({ ...prev, [name]: value, subCategory: subCat, code: `SBC-${prefix}-${codeSuffix}` }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -126,13 +152,22 @@ const Coupons = () => {
   const closeModal = () => setShowModal(false);
 
   const generateCode = () => {
-    const prefix = formData.category === 'Wallet' ? 'WLT' : formData.category === 'Belt' ? 'BLT' : 'BAG';
+    let prefix = 'BAG';
+    if (formData.category === 'Wallet') prefix = 'WLT';
+    else if (formData.category === 'Belt') prefix = 'BLT';
+    else if (formData.category === 'All Products') prefix = 'ALL';
+    
     const randNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     setFormData(prev => ({ ...prev, code: `SBC-${prefix}-${randNum}` }));
   };
 
   const handleSubmit = () => {
-    if (!formData.code || !formData.discount) return toast.error("Coupon Code and Discount are required.");
+    if (!formData.code || !formData.discount || !formData.minOrder || !formData.usageLimit || !formData.category || !formData.desc || !formData.startDate || !formData.endDate) {
+      return toast.error("All fields are required.");
+    }
+    if (formData.category === 'Bag' && !formData.subCategory) {
+      return toast.error("Sub category is required for Bags.");
+    }
 
     const discountStr = formData.discount.toLowerCase();
     let type = 'green';
@@ -160,7 +195,7 @@ const Coupons = () => {
     }
 
     if (modalMode === 'create') {
-      const newCoupon = { ...formData, id: Date.now(), discountType: type, status: calculatedStatus };
+      const newCoupon = { ...formData, id: Date.now(), discountType: type, status: calculatedStatus, usedCount: 0 };
       setCoupons([newCoupon, ...coupons]);
       toast.success("Coupon created successfully!");
     } else {
@@ -216,66 +251,16 @@ const Coupons = () => {
       <div className="admin-main cp-main">
         
        
-         <header className="admin-header">
-          {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon">
-              <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} />
-            </span>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search products, orders, customers…"
-            />
-          </div> */}
-
-          <div>
-            <h1
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#111827",
-                margin: 0,
-              }}
-            >
-              Coupons
-            </h1>
-            <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>
-              Here's what's happening with your coupons today.
-            </p>
-          </div>
-
-          <div className="header-right">
-            {/* Search icon mobile */}
-            {/* <button className="notif-btn d-sm-none">
-              <i className="bi bi-search" style={{ color: '#374151', fontSize: 18 }} />
-            </button> */}
-
-            {/* Notifications */}
-            {/* <button className="notif-btn">
-              <i
-                className="bi bi-bell-fill"
-                style={{ color: "#374151", fontSize: 18 }}
-              />
-              <span className="notif-badge">5</span>
-            </button> */}
-
-            {/* Profile */}
-            <div className="admin-profile" onClick={() => navigate('/admin/settings')}  >
-              <div className="profile-avatar">
-                <i
-                  className="bi bi-person-fill"
-                  style={{ fontSize: 20, color: "#7c3aed" }}
-                />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Sanjai</span>
-                <span className="profile-role">Admin</span>
-              </div>
-            </div>
-          </div>
-        </header>
+         <AdminHeader title="Coupons" subtitle="Here's what's happening with your coupons today." />
 
         <div className="cp-content">
+          {loading ? (
+            <>
+              <CardSkeleton count={4} />
+              <TableSkeleton rows={rowsPerPage} cols={9} />
+            </>
+          ) : (
+            <>
           
           
           <div className="cp-stats-grid">
@@ -349,6 +334,7 @@ const Coupons = () => {
                   <th>MIN. ORDER</th>
                   <th>CATEGORY</th>
                   <th>SUB CATEGORY</th>
+                  <th>USED COUNT</th>
                   <th>VALIDITY PERIOD</th>
                   <th>STATUS</th>
                   <th style={{ textAlign: 'center' }}>ACTION</th>
@@ -370,8 +356,16 @@ const Coupons = () => {
                     <td className="cp-cell-text">{c.minOrder}</td>
                     <td className="cp-cell-text">{c.category || 'Bag'}</td>
                     <td className="cp-cell-text">{c.subCategory || '-'}</td>
-                    <td className="cp-cell-date" style={{ fontSize: '13px', fontWeight:400 }}>
-                      <FiCalendar className="cp-cal-icon" /> {c.startDate}  <span style={{fontWeight:600}}>to</span> {c.endDate}
+                    <td className="cp-cell-text">{c.usedCount || 0}</td>
+                    <td className="cp-cell-date">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* <FiCalendar className="cp-cal-icon" style={{ fontSize: '16px' }} /> */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontSize: '13px', fontWeight: 500, lineHeight: '1.4' }}>
+                          <span>{c.startDate}</span>
+                          <span style={{ fontWeight: 600, color: '#9ca3af', fontSize: '12px' }}>to</span>
+                          <span>{c.endDate}</span>
+                        </div>
+                      </div>
                     </td>
                     <td>
                       <span className={`cp-pill status-pill ${c.status.toLowerCase()}`}>
@@ -380,8 +374,8 @@ const Coupons = () => {
                     </td>
                     <td>
                       <div className="cp-action-btns">
-                        <button className="cp-action-btn edit-btn" onClick={() => openModal('edit', c)}><FiEdit /></button>
-                        <button className="cp-action-btn delete-btn" onClick={() => handleDeleteClick(c.id)}><FiTrash2 /></button>
+                        <button className="cp-action-btn edit-btn" onClick={() => openModal('edit', c)}><FiEdit size={14} /></button>
+                        <button className="cp-action-btn delete-btn" onClick={() => handleDeleteClick(c.id)}><FiTrash2 size={14} /></button>
                       </div>
                     </td>
                   </tr>
@@ -429,6 +423,8 @@ const Coupons = () => {
               </div>
             </div>
           </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -439,38 +435,37 @@ const Coupons = () => {
             <div className="cp-modal-header">
               <div>
                 <h2>{modalMode === 'create' ? 'Create Coupon' : 'Edit Coupon'}</h2>
-                <p>This name is for internal reference only.</p>
               </div>
               <button className="cp-modal-close" onClick={closeModal}><FiX /></button>
             </div>
             
             <div className="cp-modal-body">
               <div className="cp-form-group cp-code-group">
-                <label>Coupon Code</label>
+                <label>Coupon Code <span style={{color: 'red'}}>*</span></label>
                 <div className="cp-code-input-row">
-                  <input type="text" name="code" value={formData.code} onChange={handleInputChange} placeholder="e.g. WINTER2025" />
+                  <input type="text" name="code" value={formData.code} onChange={handleInputChange} placeholder="e.g. SBC-BAG-000" />
                   <button className="cp-generate-btn" onClick={generateCode}><FiRefreshCw /> Generate</button>
                 </div>
               </div>
 
               <div className="cp-form-row">
                 <div className="cp-form-group">
-                  <label>Minimum Purchase</label>
+                  <label>Minimum Purchase <span style={{color: 'red'}}>*</span></label>
                   <input type="number" name="minOrder" value={formData.minOrder} onChange={handleInputChange} placeholder="e.g. 1200" />
                 </div>
                 <div className="cp-form-group">
-                  <label>Usage Limit</label>
+                  <label>Usage Limit <span style={{color: 'red'}}>*</span></label>
                   <input type="number" name="usageLimit" value={formData.usageLimit} onChange={handleInputChange} placeholder="e.g. 5000" />
                 </div>
               </div>
 
-              <div className="cp-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+              <div className="cp-form-row cp-form-row-3">
                 <div className="cp-form-group">
-                  <label>Discount</label>
+                  <label>Discount <span style={{color: 'red'}}>*</span></label>
                   <input type="text" name="discount" value={formData.discount} onChange={handleInputChange} placeholder="e.g. 30 %" />
                 </div>
                 <div className="cp-form-group">
-                  <label>category</label>
+                  <label>category <span style={{color: 'red'}}>*</span></label>
                   <select 
                     name="category" 
                     value={formData.category} 
@@ -490,13 +485,14 @@ const Coupons = () => {
                       backgroundPosition: 'right 14px center'
                     }}
                   >
+                    <option value="All Products">All Products</option>
                     <option value="Bag">Bag</option>
                     <option value="Wallet">Wallet</option>
                     <option value="Belt">Belt</option>
                   </select>
                 </div>
                 <div className="cp-form-group">
-                  <label>Sub category</label>
+                  <label>Sub category {formData.category === 'Bag' && <span style={{color: 'red'}}>*</span>}</label>
                   <select 
                     name="subCategory" 
                     value={formData.subCategory} 
@@ -531,7 +527,7 @@ const Coupons = () => {
 
 
               <div className="cp-form-group">
-                <label>Description</label>
+                <label>Description <span style={{color: 'red'}}>*</span></label>
                 <textarea name="desc" value={formData.desc} onChange={handleInputChange} placeholder="Describe the conditions of this coupon..." rows="3"></textarea>
               </div>
 
@@ -540,7 +536,7 @@ const Coupons = () => {
                 <h3>Schedule coupon</h3>
                 <div className="cp-form-row">
                   <div className="cp-form-group">
-                    <label>START DATE</label>
+                    <label>START DATE <span style={{color: 'red'}}>*</span></label>
                     <div className="cp-date-input">
                       <input 
                         type="date" 
@@ -552,7 +548,7 @@ const Coupons = () => {
                     </div>
                   </div>
                   <div className="cp-form-group">
-                    <label>END DATE</label>
+                    <label>END DATE <span style={{color: 'red'}}>*</span></label>
                     <div className="cp-date-input">
                       <input 
                         type="date" 
@@ -576,56 +572,15 @@ const Coupons = () => {
       )}
 
      
-      {deleteModalId !== null && (
-        <div className="cp-modal-overlay" onClick={() => setDeleteModalId(null)}>
-          <div className="cp-modal-content" style={{ maxWidth: '500px', padding: '32px 40px', borderRadius: '12px' }} onClick={e => e.stopPropagation()}>
-            <div className="cp-modal-header" style={{ borderBottom: 'none', padding: '0', alignItems: 'flex-start' }}>
-              <div>
-                <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#000', margin: 0 }}>Confirm Delete</h2>
-                <p style={{ fontSize: '18px', color: '#8c8c8c', marginTop: '12px', marginBottom: 0 }}>Are you sure you want to Delete ?</p>
-              </div>
-              <button className="cp-modal-close" onClick={() => setDeleteModalId(null)} style={{ margin: '-8px -8px 0 0', background: 'none', border: 'none', cursor: 'pointer' }}>
-                <FiX size={28} color="#000" />
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '20px', marginTop: '48px', justifyContent: 'center' }}>
-              <button 
-                onClick={() => setDeleteModalId(null)}
-                style={{ 
-                  padding: '12px 0', 
-                  border: '1px solid #9f7aea', 
-                  borderRadius: '6px', 
-                  background: '#fff', 
-                  color: '#000', 
-                  fontWeight: '500',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  width: '160px'
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={confirmDelete}
-                style={{ 
-                  padding: '12px 0', 
-                  border: 'none', 
-                  borderRadius: '6px', 
-                  background: '#e00000', 
-                  color: '#fff', 
-                  fontWeight: '500', 
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  width: '160px'
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={deleteModalId !== null}
+        onClose={() => setDeleteModalId(null)}
+        onConfirm={confirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to Delete this Coupon ?"
+        confirmText="Delete"
+        isDanger={true}
+      />
     </div>
   );
 };

@@ -4,8 +4,28 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
   PieChart, Pie, Cell
 } from "recharts";
+import { FaCcVisa, FaCcMastercard, FaCcAmex, FaPaypal, FaMoneyBillWave, FaCreditCard, FaUniversity } from "react-icons/fa";
 import "../../assets/styles/AdminDashboard.css";
 import { useNavigate, Link } from "react-router-dom";
+import AdminHeader from "../../components/Admin/AdminHeader";
+import { FiArrowUpRight, FiArrowDownRight } from "react-icons/fi";
+
+const renderPayModeIcon = (payMode) => {
+  const modeLower = payMode.toLowerCase();
+  if (modeLower.includes('visa')) {
+    return <FaCcVisa size={22} color="#1a1f71" />;
+  } else if (modeLower.includes('mastercard')) {
+    return <FaCcMastercard size={22} color="#eb001b" />;
+  } else if (modeLower.includes('amex')) {
+    return <FaCcAmex size={22} color="#006fcf" />;
+  } else if (modeLower.includes('account') || modeLower.includes('bank')) {
+    return <FaUniversity size={20} color="#8b5cf6" />;
+  } else if (modeLower.includes('paypal')) {
+    return <FaPaypal size={22} color="#003087" />;
+  } else {
+    return <FaCreditCard size={22} color="#0072bc" />;
+  }
+};
 
 // Mock Data
 const statCards = [
@@ -17,19 +37,36 @@ const statCards = [
   { label: "Pending Orders", value: "10293", icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: "1.3% Up from past week", badgeClass: "up" },
 ];
 
-const salesData = [
-  { name: "5k", revenue: 10, sales: 5 },
-  { name: "10k", revenue: 35, sales: 15 },
-  { name: "15k", revenue: 20, sales: 10 },
-  { name: "20k", revenue: 18, sales: 12 },
-  { name: "25k", revenue: 22, sales: 30 },
-  { name: "30k", revenue: 25, sales: 15 },
-  { name: "35k", revenue: 40, sales: 65 },
-  { name: "40k", revenue: 25, sales: 35 },
-  { name: "45k", revenue: 35, sales: 25 },
-  { name: "50k", revenue: 20, sales: 15 },
-  { name: "55k", revenue: 55, sales: 35 },
-  { name: "60k", revenue: 20, sales: 5 },
+const revenueDataWeek = [
+  { name: "Mon", revenue: 10 },
+  { name: "Tue", revenue: 35 },
+  { name: "Wed", revenue: 25 },
+  { name: "Thu", revenue: 15 },
+  { name: "Fri", revenue: 35 },
+  { name: "Sat", revenue: 15 },
+  { name: "Sun", revenue: 38 },
+];
+
+const revenueDataMonth = [
+  { name: "Week 1", revenue: 80 },
+  { name: "Week 2", revenue: 150 },
+  { name: "Week 3", revenue: 110 },
+  { name: "Week 4", revenue: 180 },
+];
+
+const revenueDataYear = [
+  { name: "Jan", revenue: 150 },
+  { name: "Feb", revenue: 230 },
+  { name: "Mar", revenue: 180 },
+  { name: "Apr", revenue: 290 },
+  { name: "May", revenue: 210 },
+  { name: "Jun", revenue: 350 },
+  { name: "Jul", revenue: 300 },
+  { name: "Aug", revenue: 410 },
+  { name: "Sep", revenue: 380 },
+  { name: "Oct", revenue: 520 },
+  { name: "Nov", revenue: 480 },
+  { name: "Dec", revenue: 600 },
 ];
 
 const topSellingData = [
@@ -64,56 +101,42 @@ const todayOrderData = [
 ];
 
 const transactionsData = [
-  { id: "SBO-WLT-20260712-001", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Visa card **** 4931", payType: "Card payment", amount: "$182.94", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { id: "SBO-WLT-20260712-002", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Mastercard **** 5442", payType: "Card payment", amount: "$99.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { id: "SBO-WLT-20260712-003", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Account ****882", payType: "Bank payment", amount: "$249.94", date: "Jan 17, 2022", status: "Pending", statusColor: "#d97706", statusBg: "#fef3c7" },
-  { id: "SBO-WLT-20260712-004", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Amex card **** 5666", payType: "Card payment", amount: "$199.24", date: "Jan 17, 2022", status: "Canceled", statusColor: "#ef4444", statusBg: "#fee2e2" },
+  { id: "SBO-WLT-20260712-001", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Visa card **** 4931", payType: "Card payment", amount: "₹18,294.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { id: "SBO-WLT-20260712-002", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Mastercard **** 5442", payType: "Card payment", amount: "₹9,900.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
+  { id: "SBO-WLT-20260712-003", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Account ****882", payType: "Bank payment", amount: "₹24,994.00", date: "Jan 17, 2022", status: "Pending", statusColor: "#d97706", statusBg: "#fef3c7" },
+  { id: "SBO-WLT-20260712-004", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Amex card **** 5666", payType: "Card payment", amount: "₹19,924.00", date: "Jan 17, 2022", status: "Canceled", statusColor: "#ef4444", statusBg: "#fee2e2" },
 ];
+
+import { DashboardSkeleton } from "../../components/Admin/AdminSkeleton";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [revenueFilter, setRevenueFilter] = useState("Last Week");
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const getRevenueData = () => {
+    if (revenueFilter === "Last Month") return revenueDataMonth;
+    if (revenueFilter === "Last Year") return revenueDataYear;
+    return revenueDataWeek;
+  };
 
   return (
     <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-main">
         {/* Header */}
-        <header className="admin-header">
-          {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon"> <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} /> </span>
-            <input type="text" className="search-input" placeholder="Search products, orders, customers…" />
-          </div> */}
-
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0, }}>Banner Management</h1>
-            {/* <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Here's what's happening with your banners today.</p> */}
-          </div>
-
-          <div className="header-right">
-            {/* Search icon mobile */}
-            {/* <button className="notif-btn d-sm-none">
-              <i className="bi bi-search" style={{ color: '#374151', fontSize: 18 }} />
-            </button> */}
-
-            {/* Notifications */}
-            {/* <button className="notif-btn">
-              <i className="bi bi-bell-fill" style={{ color: "#374151", fontSize: 18 }} /> <span className="notif-badge">5</span>
-            </button> */}
-
-            {/* Profile */}
-            <div className="admin-profile" onClick={() => navigate('/admin/settings')}>
-              <div className="profile-avatar">
-                <i className="bi bi-person-fill" style={{ fontSize: 20, color: "#7c3aed" }} />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Sanjai</span>
-                <span className="profile-role">Admin</span>
-              </div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader title="Admin Dashboard" subtitle="" />
 
         <main className="admin-content" style={{ background: '#fafafa' }}>
+          {loading ? (
+            <DashboardSkeleton />
+          ) : (
+            <>
           
           <div className="stats-grid mb-4">
             {statCards.map((card, i) => (
@@ -127,8 +150,8 @@ const AdminDashboard = () => {
                     <i className={card.icon} style={{ fontSize: '20px' }}/>
                   </div>
                 </div>
-                <div className={`stat-badge ${card.badgeClass === 'up' ? 'text-success' : 'text-danger'}`} style={{ fontSize: '13px', fontWeight: 500, marginTop: '8px' }}>
-                  <i className={`bi ${card.badgeClass === 'up' ? 'bi-graph-up' : 'bi-graph-down'} me-1`} />
+                <div className={`stat-badge ${card.badgeClass}`} style={{ fontSize: '13px', fontWeight: 500, marginTop: '8px' }}>
+                  {card.badgeClass === 'up' ? <FiArrowUpRight style={{ fontSize: '16px' }} className="me-1" /> : <FiArrowDownRight style={{ fontSize: '16px' }} className="me-1" />}
                   {card.badge}
                 </div>
               </div>
@@ -140,31 +163,35 @@ const AdminDashboard = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <h5 className="m-0 fw-bold">Revenue</h5>
               <div className="d-flex align-items-center gap-3">
-                <div className="d-flex align-items-center gap-1"><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#c4b5fd' }}></span> <small>Revenue</small></div>
-                <div className="d-flex align-items-center gap-1"><span style={{ width: 8, height: 8, borderRadius: '50%', background: '#fdba74' }}></span> <small>Sales</small></div>
-                <select className="form-select form-select-sm ms-2" style={{ width: '100px', fontSize: '13px' }}>
-                  <option>October</option>
-                  <option>November</option>
+                <select 
+                  className="form-select form-select-sm text-muted" 
+                  style={{ width: '120px', fontSize: '13px', borderRadius: '6px', border: '1px solid #e5e7eb' }}
+                  value={revenueFilter}
+                  onChange={(e) => setRevenueFilter(e.target.value)}
+                >
+                  <option value="Last Week">Last Week</option>
+                  <option value="Last Month">Last Month</option>
+                  <option value="Last Year">Last Year</option>
                 </select>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={salesData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+              <AreaChart data={getRevenueData()} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#c4b5fd" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#c4b5fd" stopOpacity={0.2}/>
-                  </linearGradient>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#fdba74" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#fdba74" stopOpacity={0.2}/>
+                    <stop offset="5%" stopColor="#a78bfa" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="#a78bfa" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => val + " Week"} />
-                <Tooltip />
-                <Area type="monotone" dataKey="revenue" stroke="#a78bfa" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={2} />
-                <Area type="monotone" dataKey="sales" stroke="#fb923c" fillOpacity={1} fill="url(#colorSales)" strokeWidth={2} />
+                <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f3f4f6" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => "₹" + val + "k"} dx={-5} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  labelStyle={{ color: '#6b7280', marginBottom: '4px' }}
+                  formatter={(value) => [`₹${value}k`, "Revenue"]}
+                />
+                <Area type="linear" dataKey="revenue" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -183,7 +210,7 @@ const AdminDashboard = () => {
                         <th>Category</th>
                         <th>Sold</th>
                         <th>Revenue</th>
-                        <th>Stock Status</th>
+                        <th className="stock-status-col">Stock Status</th>
                       </tr>
                     </thead>
                     <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
@@ -198,7 +225,7 @@ const AdminDashboard = () => {
                           <td>{item.category}</td>
                           <td>{item.sold}</td>
                           <td>{item.revenue}</td>
-                          <td>
+                          <td className="stock-status-col">
                             <span style={{ color: item.statusColor, background: item.statusBg, padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>
                               <i className={`bi ${item.status === 'Out of stock' ? 'bi-x' : item.status === 'Low inventory' ? 'bi-dash' : 'bi-plus'} me-1`} />
                               {item.status}
@@ -217,7 +244,7 @@ const AdminDashboard = () => {
               <div className="bg-white p-4 rounded-3 border h-100">
                 <div className="d-flex justify-content-between align-items-start mb-1">
                   <h6 className="fw-bold m-0">Low stock alerts</h6>
-                  <Link to="/admin/product-management" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>View all &rarr;</Link>
+                  <Link to="/admin/product-management" state={{ stockBy: 'Low to High' }} className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>View all &rarr;</Link>
                 </div>
                 <p className="text-muted" style={{ fontSize: '12px', marginBottom: '20px' }}>Products requiring attention</p>
                 <div className="d-flex flex-column gap-3">
@@ -242,7 +269,7 @@ const AdminDashboard = () => {
               <div className="bg-white p-4 rounded-3 border h-100">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h5 className="fw-bold m-0">Order Status</h5>
-                  <select className="form-select form-select-sm" style={{ width: 'auto', fontSize: '13px' }}>
+                  <select className="form-select form-select-sm" style={{ width: '130px', fontSize: '13px' }}>
                     <option>This Week</option>
                     <option>This Month</option>
                     <option>This Year</option>
@@ -327,7 +354,7 @@ const AdminDashboard = () => {
                     <th>Product ID</th>
                     <th>Image</th>
                     <th>Category</th>
-                    <th>Payment mode</th>
+                    <th style={{ textAlign: 'center' }}>Payment mode</th>
                     <th>Amount</th>
                     <th>Date</th>
                     <th>Status</th>
@@ -341,10 +368,13 @@ const AdminDashboard = () => {
                         <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
                       </td>
                       <td>{item.category}</td>
-                      <td>
-                        <div className="d-flex flex-column">
-                          <span className="fw-bold">{item.payMode}</span>
-                          <span className="text-muted" style={{ fontSize: '11px' }}>{item.payType}</span>
+                      <td style={{ textAlign: 'center' }}>
+                        <div className="d-flex align-items-center justify-content-center gap-2">
+                          {renderPayModeIcon(item.payMode)}
+                          <div className="d-flex flex-column text-start">
+                            <span className="fw-bold">{item.payMode}</span>
+                            <span className="text-muted" style={{ fontSize: '11px' }}>{item.payType}</span>
+                          </div>
                         </div>
                       </td>
                       <td>{item.amount}</td>
@@ -361,7 +391,8 @@ const AdminDashboard = () => {
               </table>
             </div>
           </div>
-
+            </>
+          )}
         </main>
       </div>
     </div>
