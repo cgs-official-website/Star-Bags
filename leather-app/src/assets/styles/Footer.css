@@ -7,7 +7,7 @@ footer {
 
 .footer-logo img {
     padding: 0;
-    height: 40px;
+    height: 85px !important;
 }
 
 .details p {
@@ -24,9 +24,12 @@ footer {
 }
 
 .social-icons a {
-    box-shadow: 0 0 5px var( #dcd6f7);
-    padding: 4px 8px;
+    box-shadow: 0 0 2px var(--levender) !important;
+    padding: 8px ;
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--levender);
     opacity: 0.8;
     transition: opacity 0.2s ease;
@@ -124,14 +127,12 @@ footer {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 10px;
     }
 
     .footer-end .policy {
         display: flex;
-        /* flex-direction: column; */
         justify-content: center;
         align-items: center;
-        gap: 30px !important;
+        gap: 20px !important;
     }
 }

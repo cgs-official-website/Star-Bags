@@ -76,6 +76,7 @@
 .product-item {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
   background-color: #ffffff;
   border: 1px solid #e2e8f0;   
@@ -93,7 +94,9 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  background: none !important;
   margin-bottom: 8px;
+  border: none !important;
 }
 
 /* Standardized asset layout behavior for identical heights and widths */

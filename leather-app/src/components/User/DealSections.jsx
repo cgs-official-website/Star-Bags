@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { IoIosArrowForward } from "react-icons/io";
 import '../../assets/styles/DealSections.css';
 
 const DealSections = () => {
@@ -69,7 +70,7 @@ const DealSections = () => {
               aria-label="View more"
               onClick={() => handleRedirect(category.filterKey)}
             >
-              <span className="arrow-icon">›</span>
+              <span className="arrow-icon"> <IoIosArrowForward /> </span>
             </button>
           </div>
 

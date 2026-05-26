@@ -1,4 +1,3 @@
-import React from "react";
 import { FaStar, FaHeart, FaRegHeart, FaMinus, FaPlus } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
 import { useWishlist } from "../../context/WishlistContext";
@@ -73,10 +72,9 @@ const CartItem = ({
         <div>
           <div className="cart-top mb-3">
             <h6 className="cart-product-name">{item.name}</h6>
-            <div className="cart-rating">
-              <div className="rating-box">
-                <FaStar color="#facc15" />
-                <span>{item.rating || "4.2"}</span>
+            <div className="cart-rating d-flex">
+              <div className="rating-box">                
+                <span><FaStar color="#facc15" /> {item.rating || "4.2"}</span>
                 <span className="rating-count">({item.ratingCount || 120})</span>
               </div>
               <div 
@@ -88,7 +86,7 @@ const CartItem = ({
                 className="wishlist-icon" 
                 style={{ cursor: "pointer" }}
               >
-                {isItemInWishlist ? <FaHeart color="red" size={24} /> : <FaRegHeart color="red" size={24} />}
+                {isItemInWishlist ? <FaHeart color="red" size={20} /> : <FaRegHeart color="red" size={20} />}
               </div>
             </div>
           </div>
@@ -97,10 +95,10 @@ const CartItem = ({
             <div className="price-row">
               <h5 className="current-price">₹ {currentPrice.toFixed(2)}</h5>
               <span className="old-price">₹ {oldPriceNum.toFixed(2)}</span>
-              <span className="discount">{item.offer || "0% off"}</span>
+              <span className="discount">{item.offer || "0% off"} off</span>
             </div>
 
-            <div className="qty-box">
+            <div className="qty-box align-end">
               <button onClick={() => onDecrease(item.id)} className="qty-btn" type="button"><FaMinus /></button>
               <div className="qty-number">{item.qty || 1}</div>
               <button onClick={() => onIncrease(item.id)} className="qty-btn" type="button"><FaPlus /></button>

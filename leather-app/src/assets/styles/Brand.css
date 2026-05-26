@@ -7,8 +7,9 @@
 }
 
 .brands-heading {
-  font-size: 22px;
-  font-weight: 500;
+  /* font-size: 22px; */
+  font-size: calc(1.3rem + .6vw);
+  font-weight: 600;
   text-transform: uppercase;
   margin-top: 20px;
   margin-bottom: 20px;

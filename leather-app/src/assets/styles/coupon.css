@@ -28,6 +28,12 @@
   box-shadow: 0 4px 14px rgba(139, 92, 246, 0.06);
 }
 
+.coupon-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .offer-tag-premium {
   background: #ef4444;
   color: #ffffff;
@@ -38,7 +44,7 @@
 }
 
 .coupon-apply-btn-premium {
-  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  background: #8b5cf6;
   color: #ffffff;
   padding: 4px 14px;
   border-radius: 6px;
@@ -87,11 +93,31 @@
   pointer-events: none;
 }
 
+/* NEW: CATEGORY & LIMITATION META CLUSTERS */
+.coupon-metadata-tags {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 6px 0;
+  flex-wrap: wrap;
+}
+
+.meta-tag {
+  background: #f3f4f6;
+  color: #4b5563;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .save-text-premium {
   color: #16a34a;
   font-size: 0.8rem;
   font-weight: 600;
-  margin: 6px 0 2px;
+  margin: 4px 0 2px;
 }
 
 .coupon-state-locked .save-text-premium {
@@ -102,7 +128,17 @@
   color: #6b7280;
   font-size: 0.75rem;
   line-height: 1.3;
-  margin: 0;
+  margin: 0 0 6px 0;
+}
+
+/* NEW: TIME META LINE */
+.coupon-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  font-weight: 400;
 }
 
 /* ==========================================================================
@@ -113,7 +149,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: linear-gradient(135deg, #fffaf0, #fff7ed); /* Warm premium orange accent */
+  background: linear-gradient(135deg, #fffaf0, #fff7ed); 
   border-top: 1px solid #fed7aa;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -155,9 +191,8 @@
   transform: translateX(3px);
 }
 
-/* SUCCESS STATE FOOTER */
 .coupon-card-slogan-footer.success-footer {
-  background: #f0fdf4; /* Elegant green accent template wrapper layout */
+  background: #f0fdf4; 
   border-top: 1px solid #bbf7d0;
   cursor: default;
 }

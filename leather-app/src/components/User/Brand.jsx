@@ -41,7 +41,7 @@ const Brand = () => {
 
   return (
     <div className="brands-container container my-3 ">
-      <h2 className="brands-heading">Top Brands</h2>
+      <h3 className="brands-heading" style={{ fontWeight: "600" }}>Top Brands</h3>
       <div className="brands-grid">
         {brands.map((brand) => (
           <div

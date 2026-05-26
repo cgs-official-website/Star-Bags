@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
-import ProductCard from "../../components/User/ProductCard";
+import RecentProduct from "../../components/User/RecentProduct";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaStar, FaRegStar, FaHeart } from "react-icons/fa";
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
@@ -549,7 +549,7 @@ function ProductDetails() {
           <div className="text-start mb-3">
             <h5 className="fw-bold">All Products</h5>
           </div>
-          <ProductCard />
+          <RecentProduct />
         </div>
       </div>
 
