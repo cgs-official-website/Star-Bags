@@ -16,27 +16,28 @@ import CouponCard from "../../components/User/CouponCard";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import { useWishlist } from "../../context/WishlistContext";
-import "../../assets/styles/cart.css";
+import "../../assets/styles/Cart.css";
 import "../../assets/styles/checkout.css";
 
 const Checkout = () => {
-  // ─── 1. CORE COMPONENT ROUTER & CONTEXT HOOKS ───
+  // ─── 1. CORE ROUNTER & CONTEXT ENGINE HOOKS ───
   const navigate = useNavigate();
   const location = useLocation();
   const { toggleWishlist } = useWishlist();
 
-  // ─── 2. ALL STATE INITIALIZATIONS ───
+  // ─── 2. STATE CORES LAZY SYNCHRONIZED STORAGE ───
   const [savedAddresses, setSavedAddresses] = useState(() => {
     const rawData = localStorage.getItem("savedAddresses");
     return rawData ? JSON.parse(rawData) : [];
   });
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState(() => {
     const rawData = localStorage.getItem("savedAddresses");
     const parsed = rawData ? JSON.parse(rawData) : [];
     return parsed.length > 0 ? parsed[0].id : null;
   });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState(null);
   const [showAddressWarningModal, setShowAddressWarningModal] = useState(false);
@@ -54,20 +55,12 @@ const Checkout = () => {
     couponPercentageLabel,
   );
 
-  // ─── 3. SIDE EFFECTS MANAGEMENT ───
+  // ─── 3. WINDOW LIFE EFFECTS MOUNT ENGINE ───
   useEffect(() => {
     window.scrollTo(0, 0);
-    const rawData = localStorage.getItem("savedAddresses");
-    if (rawData) {
-      const parsed = JSON.parse(rawData);
-      setSavedAddresses(parsed);
-      if (parsed.length > 0 && !selectedAddressId) {
-        setSelectedAddressId(parsed[0].id);
-      }
-    }
-  }, [selectedAddressId]);
+  }, []);
 
-  // ─── 4. CALCULATIONS AND METRIC LEDGER PARSING ───
+  // ─── 4. RICH SUB-TOTALS ITEM MATRIX COMPILERS ───
   const totalItemsCount = checkoutItems.reduce(
     (acc, item) => acc + (item.qty || 1),
     0,
@@ -82,31 +75,50 @@ const Checkout = () => {
   );
   const discountTotal = rawTotal - baseSubTotal;
 
-  const getCategorySubtotal = (keyword) => {
+  // Granular helper calculates subtotal values based on main categories and subcategories
+  const getSubtotalFilter = (categoryName, subCategoryName = "All") => {
     return checkoutItems
-      .filter((item) => item.name.toLowerCase().includes(keyword.toLowerCase()))
+      .filter((item) => {
+        const matchesCategory = item.name.toLowerCase().includes(categoryName.toLowerCase());
+        if (subCategoryName === "All") return matchesCategory;
+        return matchesCategory && item.name.toLowerCase().includes(subCategoryName.toLowerCase());
+      })
       .reduce((acc, item) => acc + Number(item.price) * (item.qty || 1), 0);
   };
 
-  const bagSubtotal = getCategorySubtotal("Bag");
-  const walletSubtotal = getCategorySubtotal("Wallet");
-  const beltSubtotal = getCategorySubtotal("Belt");
+  const handBagSubtotal = getSubtotalFilter("Bag", "Hand Bag");
+  const slingBagSubtotal = getSubtotalFilter("Bag", "Sling Bag");
+  const walletSubtotal = getSubtotalFilter("Wallet", "All");
+  const beltSubtotal = getSubtotalFilter("Belt", "All");
+  
+  // Total bag category subtotal aggregation helper
+  const totalBagSubtotal = getSubtotalFilter("Bag", "All");
 
-  // ─── RESTORED: COUPON DEFINITIONS & VISIBILITY FILTERS ───
+  // ─── DYNAMIC DATAMODEL CONFIGURATION SCHEMA COUPONS ───
   const coupons = [
     {
-      code: "BAG15",
+      code: "HANDBAG15",
       offer: "15%",
       percentage: 15,
-      minThreshold: 1000,
+      minThreshold: 1500,
       category: "Bag",
+      subCategory: "Hand Bag",
+      usageLimit: 1,
+      description: "Get 15% off on our premium Hand Bag collections.",
+      startDate: "2026-05-01",
+      endDate: "2026-06-30"
     },
     {
-      code: "BAG30",
+      code: "SLING30",
       offer: "30%",
       percentage: 30,
-      minThreshold: 2000,
+      minThreshold: 2500,
       category: "Bag",
+      subCategory: "Sling Bag",
+      usageLimit: 1,
+      description: "Exclusive discount on luxury Sling Bags.",
+      startDate: "2026-05-10",
+      endDate: "2026-06-15"
     },
     {
       code: "WAL10",
@@ -114,6 +126,11 @@ const Checkout = () => {
       percentage: 10,
       minThreshold: 1000,
       category: "Wallet",
+      subCategory: "All",
+      usageLimit: 2,
+      description: "Save 10% on leather wallets and cardholders.",
+      startDate: "2026-04-01",
+      endDate: "2026-07-01"
     },
     {
       code: "BELT10",
@@ -121,42 +138,41 @@ const Checkout = () => {
       percentage: 10,
       minThreshold: 1000,
       category: "Belt",
-    },
+      subCategory: "All",
+      usageLimit: 5,
+      description: "Flat discount active on genuine leather apparel belts.",
+      startDate: "2026-01-01",
+      endDate: "2026-12-31"
+    }
   ];
 
+  // Filters visible coupons based on items in checkout cart
   const visibleCoupons = coupons.filter((c) => {
-    if (baseSubTotal < 1000) return false;
-    if (c.category === "Bag")
-      return bagSubtotal >= 2000
-        ? c.minThreshold === 2000
-        : c.minThreshold === 1000;
-    return c.minThreshold === 1000;
+    if (c.category === "Bag") {
+      if (c.subCategory === "Hand Bag") return handBagSubtotal > 0;
+      if (c.subCategory === "Sling Bag") return slingBagSubtotal > 0;
+      return totalBagSubtotal > 0;
+    }
+    if (c.category === "Wallet") return walletSubtotal > 0;
+    if (c.category === "Belt") return beltSubtotal > 0;
+    return false;
   });
 
+  // Target item discount matrix calculator engine
   let calculatedCouponDiscount = 0;
   if (couponPercentLabel) {
-    if (couponInput.toUpperCase() === "BAG15" || couponPercentLabel === "15%")
-      calculatedCouponDiscount = bagSubtotal * 0.15;
-    else if (
-      couponInput.toUpperCase() === "BAG30" ||
-      couponPercentLabel === "30%"
-    )
-      calculatedCouponDiscount = bagSubtotal * 0.3;
-    else if (
-      couponInput.toUpperCase() === "WAL10" ||
-      couponPercentLabel === "10%"
-    )
+    if (couponInput.toUpperCase() === "HANDBAG15" || couponPercentLabel === "15%")
+      calculatedCouponDiscount = handBagSubtotal * 0.15;
+    else if (couponInput.toUpperCase() === "SLING30" || couponPercentLabel === "30%")
+      calculatedCouponDiscount = slingBagSubtotal * 0.3;
+    else if (couponInput.toUpperCase() === "WAL10" || couponPercentLabel === "10%")
       calculatedCouponDiscount = walletSubtotal * 0.1;
-    else if (
-      couponInput.toUpperCase() === "BELT10" ||
-      couponPercentLabel === "10%"
-    )
+    else if (couponInput.toUpperCase() === "BELT10" || couponPercentLabel === "10%")
       calculatedCouponDiscount = beltSubtotal * 0.1;
   }
 
   const dynamicallyAdjustedSubTotal = baseSubTotal - calculatedCouponDiscount;
-  const mtGstInput =
-    dynamicallyAdjustedSubTotal > 0 ? dynamicallyAdjustedSubTotal : 0;
+  const mtGstInput = dynamicallyAdjustedSubTotal > 0 ? dynamicallyAdjustedSubTotal : 0;
   const gstTotal = Math.round(mtGstInput * 0.05);
   const finalTotal = mtGstInput + gstTotal;
 
@@ -164,7 +180,7 @@ const Checkout = () => {
     (addr) => addr.id === selectedAddressId,
   );
 
-  // ─── 5. BUSINESS HANDLERS AND LOGIC MATRIX ───
+  // ─── 5. USER EVENT BINDING INTERFACE MATRIX ───
   const handleQtyIncrease = (id) => {
     setCheckoutItems((prev) =>
       prev.map((item) =>
@@ -201,7 +217,11 @@ const Checkout = () => {
     }
 
     let targetSubtotal = 0;
-    if (matchedCoupon.category === "Bag") targetSubtotal = bagSubtotal;
+    if (matchedCoupon.category === "Bag") {
+      if (matchedCoupon.subCategory === "Hand Bag") targetSubtotal = handBagSubtotal;
+      else if (matchedCoupon.subCategory === "Sling Bag") targetSubtotal = slingBagSubtotal;
+      else targetSubtotal = totalBagSubtotal;
+    }
     if (matchedCoupon.category === "Wallet") targetSubtotal = walletSubtotal;
     if (matchedCoupon.category === "Belt") targetSubtotal = beltSubtotal;
 
@@ -210,7 +230,7 @@ const Checkout = () => {
       setCouponError("");
     } else {
       setCouponError(
-        `Coupon invalid: Requires minimum ₹${matchedCoupon.minThreshold} spent on ${matchedCoupon.category} items.`,
+        `Coupon invalid: Requires minimum spend of ₹${matchedCoupon.minThreshold} on specified item categories.`
       );
       setCouponPercentLabel("");
     }
@@ -250,6 +270,7 @@ const Checkout = () => {
         couponPercentageLabel: couponPercentLabel,
         gstTotal,
         finalTotal,
+        selectedAddress: activeSelectedAddress, 
       },
     });
   };
@@ -291,7 +312,7 @@ const Checkout = () => {
                   <button
                     type="button"
                     className="add-delivery-trigger-btn d-flex align-items-center gap-2"
-                    onClick={() => navigate("/savedaddress")}
+                    onClick={() => navigate("/address")}
                   >
                     <TiPencil style={{ transform: "rotate(-45deg)" }} /> Add
                     your Delivery Address
@@ -458,7 +479,11 @@ const Checkout = () => {
                     onSelectCoupon={handleSelectCouponCode}
                     currentSubTotal={
                       coupon.category === "Bag"
-                        ? bagSubtotal
+                        ? coupon.subCategory === "Hand Bag"
+                          ? handBagSubtotal
+                          : coupon.subCategory === "Sling Bag"
+                            ? slingBagSubtotal
+                            : totalBagSubtotal
                         : coupon.category === "Wallet"
                           ? walletSubtotal
                           : beltSubtotal
@@ -471,7 +496,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* ─── OVERLAY MODAL: POPUP SELECT DELIVERY ADDRESS ─── */}
       {isModalOpen && (
         <div
           className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
@@ -532,7 +556,7 @@ const Checkout = () => {
                   fontWeight: "600",
                   fontSize: "0.8rem",
                 }}
-                onClick={() => navigate("/savedaddress")}
+                onClick={() => navigate("/address")}
               >
                 <MdAdd size={16} /> Add a New Address
               </button>
@@ -600,7 +624,7 @@ const Checkout = () => {
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate("/savedaddress");
+                          navigate("/address");
                         }}
                       >
                         <MdModeEdit size={14} />{" "}
@@ -643,7 +667,6 @@ const Checkout = () => {
         </div>
       )}
 
-      {/* ─── CONFIRM DELETION MODAL ─── */}
       {showDeleteModal && (
         <div
           className="modal-overlay-custom"
@@ -685,7 +708,6 @@ const Checkout = () => {
         </div>
       )}
 
-      {/* ─── ADDRESS SELECTION WARNING OVERLAY ─── */}
       {showAddressWarningModal && (
         <div
           className="modal-overlay-custom"
@@ -738,7 +760,7 @@ const Checkout = () => {
                 onClick={() => {
                   setShowAddressWarningModal(false);
                   if (savedAddresses.length === 0) {
-                    navigate("/savedaddress");
+                    navigate("/address");
                   } else {
                     setIsModalOpen(true);
                   }
@@ -750,7 +772,7 @@ const Checkout = () => {
           </div>
         </div>
       )}
-    <Footer/>
+      <Footer />
     </>
   );
 };

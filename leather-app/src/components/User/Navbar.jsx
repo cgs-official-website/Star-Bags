@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { IoMdCart } from "react-icons/io";
+import { MdOutlineShoppingCart } from "react-icons/md";
 import { FaUserCircle, FaRegUserCircle, FaRegHeart } from "react-icons/fa";
 import { FiBox, FiLogOut } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
@@ -67,7 +67,7 @@ const Navbar = () => {
 
   return (
     <nav className="navbar" ref={drawerRef}>
-      <div className="container navbar-container">
+      <div className="container-fluid navbar-container">
 
         {/* ── 1. LOGO ── */}
         <div className="nav-logo-wrap">
@@ -185,7 +185,7 @@ const Navbar = () => {
             className="icon-btn"
             aria-label="Cart"
           >
-            <IoMdCart />
+            <MdOutlineShoppingCart />
             {totalCartCount > 0 && (
               <span className="cart-badge">{totalCartCount}</span>
             )}

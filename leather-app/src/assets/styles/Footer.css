@@ -25,8 +25,11 @@ footer {
 
 .social-icons a {
     box-shadow: 0 0 2px var(--levender) !important;
-    padding: 4px 8px;
+    padding: 8px ;
     border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     color: var(--levender);
     opacity: 0.8;
     transition: opacity 0.2s ease;

@@ -6,7 +6,7 @@ import Footer from "../../components/User/Footer";
 import CartItem from "../../components/User/YourCart";
 import OrderSummary from "../../components/User/OrderSummary";
 import RecentProduct from "../../components/User/RecentProduct"; 
-import "../../assets/styles/cart.css";
+import "../../assets/styles/Cart.css";
 
 const EmptyCartView = () => {
   const navigate = useNavigate();

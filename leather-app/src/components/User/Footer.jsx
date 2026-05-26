@@ -1,5 +1,7 @@
 import "../../assets/styles/Footer.css";
-import { FaLocationDot, FaXTwitter } from "react-icons/fa6";
+import { FiPhone } from "react-icons/fi";
+import { IoLocationOutline } from "react-icons/io5";
+import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram, FaFacebookF } from "react-icons/fa";
 
 const Footer = () => {
@@ -62,7 +64,7 @@ const Footer = () => {
             <ul className="footer-link">
               <li><a href="#">About us</a></li>
               <li><a href="/contact">Contact</a></li>
-              <li><a href="#">Privacy plicy </a></li>
+              <li><a href="#">Privacy policy </a></li>
             </ul>
           </div>
 
@@ -77,14 +79,15 @@ const Footer = () => {
           {/* Corrected Address Mapping Link Block */}
           <div className="col-lg-2 col-6 address">
             <h6>Contact us</h6>
-            <a 
+            <div style={{paddingTop:"5px"}}>
+              <a 
               href={mapUrl} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="d-flex gap-2 address-link"
             >
               <span>
-                <FaLocationDot />
+                <IoLocationOutline size="1.1rem" />
               </span>
               <div>
                 <p>                  
@@ -94,7 +97,14 @@ const Footer = () => {
                 </p>
               </div>
             </a>
-            
+            </div>
+            <div className="d-flex gap-2 mt-2">
+              <span><FiPhone  size="1rem" /></span>
+              <div>
+                <p className="bw-bold">PHONE</p>
+                <p>+91 99655 12123</p>
+              </div>
+            </div>
           </div>
 
         </div>

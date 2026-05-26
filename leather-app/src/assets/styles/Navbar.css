@@ -103,13 +103,13 @@
 
 /* Desktop search — elastic expand on focus */
 .nav-search-desktop {
-  width: 260px;
+  width:340px;
   transition: width 0.25s ease;
 }
 
-.nav-search-desktop:focus-within {
+/* .nav-search-desktop:focus-within {
   width: 320px;
-}
+} */
 
 /* ─── MOBILE SEARCH — inline, flex:1, same row ───────────────────── */
 .nav-search-mobile {
