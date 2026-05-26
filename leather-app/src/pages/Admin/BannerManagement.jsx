@@ -1,11 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
-import { FiUploadCloud, FiCalendar } from 'react-icons/fi';
-import { MdOutlineEdit } from 'react-icons/md';
-import { RiDeleteBin6Line } from 'react-icons/ri';
+import { FiUploadCloud, FiCalendar, FiEdit, FiTrash2 } from 'react-icons/fi';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 import banner1 from '../../assets/images/banner1.png';
 import '../../assets/styles/BannerManagement.css';
-
+import AdminHeader from '../../components/Admin/AdminHeader';
+import { FormSkeleton } from '../../components/Admin/AdminSkeleton';
 
 const ACTIVE_SLOT_COUNT = 3; 
 
@@ -51,6 +52,11 @@ const isExpired = (banner) => banner.endDate && banner.endDate < todayStr();
 
 
 function BannerManagement() {
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
  
   const [activeSlots, setActiveSlots] = useState(INITIAL_ACTIVE);
  
@@ -63,14 +69,74 @@ function BannerManagement() {
   const [editingId, setEditingId] = useState(null);    
   const [form, setForm] = useState(EMPTY_FORM);
 
-  const [toast, setToast] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
 
   const today = todayStr();
 
+  // Offer Banner state & handlers
+  const [bannerType, setBannerType] = useState('main'); // 'main' or 'offer'
+
+  const [offerTexts, setOfferTexts] = useState({
+    text1: "Flat 40% OFF on premium handbags and wallets for a limited time.",
+    text2: "New year offer 70 % offer",
+    text3: "bags deal will be closed . grap the deal",
+    text4: "Flat 40% OFF on premium handbags and wallets for a limited time."
+  });
+
+  const [offerFormActive, setOfferFormActive] = useState(false);
+  const [offerForm, setOfferForm] = useState({
+    text1: "",
+    text2: "",
+    text3: "",
+    text4: ""
+  });
+
+  const handleEditOfferClick = () => {
+    setOfferFormActive(true);
+    setOfferForm({
+      text1: offerTexts.text1,
+      text2: offerTexts.text2,
+      text3: offerTexts.text3,
+      text4: offerTexts.text4
+    });
+  };
+
+  const handleOfferSubmit = (e) => {
+    e.preventDefault();
+    if (!offerForm.text1 || !offerForm.text2 || !offerForm.text3 || !offerForm.text4) {
+      alert("All four texts are required!");
+      return;
+    }
+    setOfferTexts({
+      text1: offerForm.text1,
+      text2: offerForm.text2,
+      text3: offerForm.text3,
+      text4: offerForm.text4
+    });
+    setOfferFormActive(false);
+    showToast('Offer banner updated successfully.', 'success');
+  };
+
+  const handleOfferCancel = () => {
+    setOfferFormActive(false);
+    setOfferForm({
+      text1: "",
+      text2: "",
+      text3: "",
+      text4: ""
+    });
+  };
+
  
   const showToast = useCallback((msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3500);
+    if (type === 'warning') {
+      toast(msg, { icon: '⚠️' });
+    } else if (type === 'error') {
+      toast.error(msg);
+    } else {
+      toast.success(msg);
+    }
   }, []);
 
   
@@ -192,7 +258,14 @@ function BannerManagement() {
 
   
   const deleteScheduled = (id) => {
-    setScheduled(prev => prev.filter(b => b.id !== id));
+    setDeleteTargetId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    setScheduled(prev => prev.filter(b => b.id !== deleteTargetId));
+    setShowDeleteModal(false);
+    setDeleteTargetId(null);
     showToast('Scheduled banner deleted.', 'warning');
   };
 
@@ -209,46 +282,197 @@ function BannerManagement() {
 
   return (
     <div className="admin-layout">
+      <Toaster position="top-right" />
       <AdminSidebar />
 
       <div className="admin-main">
-       <header className="admin-header">
-          {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon"> <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} /> </span>
-            <input type="text" className="search-input" placeholder="Search products, orders, customers…" />
-          </div> */}
-
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0, }}>Banner Management</h1>
-            {/* <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Here's what's happening with your banners today.</p> */}
-          </div>
-
-          <div className="header-right">
-            
-            {/* <button className="notif-btn d-sm-none">
-              <i className="bi bi-search" style={{ color: '#374151', fontSize: 18 }} />
-            </button> */}
-
-            
-            {/* <button className="notif-btn">
-              <i className="bi bi-bell-fill" style={{ color: "#374151", fontSize: 18 }} /> <span className="notif-badge">5</span>
-            </button> */}
-
-            
-            <div className="admin-profile" onClick={() => navigate('/admin/settings')}>
-              <div className="profile-avatar">
-                <i className="bi bi-person-fill" style={{ fontSize: 20, color: "#7c3aed" }} />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Sanjai</span>
-                <span className="profile-role">Admin</span>
-              </div>
-            </div>
-          </div>
-        </header>
+       <AdminHeader title="Banner Management" subtitle="Manage your banners." />
 
         <div className="banner-management-wrapper">
-          <div className="banner-content-grid">
+          <div className="d-flex gap-3 mb-4" style={{ padding: '0' }}>
+            <button
+              type="button"
+              onClick={() => setBannerType('main')}
+              className="btn py-2 px-4 fw-bold"
+              style={{
+                borderRadius: 6,
+                background: bannerType === 'main' ? '#8b5cf6' : '#ede9fe',
+                color: bannerType === 'main' ? '#ffffff' : '#7c3aed',
+                border: 'none',
+                fontSize: '14px',
+                flex: 1,
+                maxWidth: '400px'
+              }}
+            >
+              Main banner
+            </button>
+            <button
+              type="button"
+              onClick={() => setBannerType('offer')}
+              className="btn py-2 px-4 fw-bold"
+              style={{
+                borderRadius: 6,
+                background: bannerType === 'offer' ? '#8b5cf6' : '#ede9fe',
+                color: bannerType === 'offer' ? '#ffffff' : '#7c3aed',
+                border: 'none',
+                fontSize: '14px',
+                flex: 1,
+                maxWidth: '400px'
+              }}
+            >
+              Offer banner
+            </button>
+          </div>
+
+          {loading ? (
+            <FormSkeleton />
+          ) : bannerType === 'offer' ? (
+            <div className="banner-content-grid">
+              {/* Offer Banner Form Section */}
+              <div className="banner-form-section">
+                {!offerFormActive && (
+                  <div className="form-inactive-overlay">
+                    <div className="form-inactive-hint">
+                      <i className="bi bi-pencil-square" style={{ fontSize: 20, color: "#7c3aed" }} ></i>
+                      <p>Click "Edit" in the Library panel to edit the offer banner sentences.</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className={`form-inner-content ${!offerFormActive ? 'inactive-form' : 'active-form'}`}>
+                  <h2 className="form-header-title">Offer banner</h2>
+                  <p className="form-header-desc">
+  Enter your most beautiful offer copy to create premium, pixel-perfect marketing assets for our global atelier store.
+</p>
+                  
+                  {/* <h3 className="form-section-title">Offer banner</h3> */}
+                  
+                  <form onSubmit={handleOfferSubmit}>
+                    <div className="form-grid">
+                      <div className="form-group">
+                        <label>Text 1 <span className="required">*</span></label>
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="Enter banner text" 
+                          value={offerForm.text1} 
+                          onChange={e => setOfferForm(prev => ({ ...prev, text1: e.target.value }))}
+                          disabled={!offerFormActive}
+                          required 
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Text 2 <span className="required">*</span></label>
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="Enter subtitle text" 
+                          value={offerForm.text2} 
+                          onChange={e => setOfferForm(prev => ({ ...prev, text2: e.target.value }))}
+                          disabled={!offerFormActive}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Text 3 <span className="required">*</span></label>
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="Enter button text" 
+                          value={offerForm.text3} 
+                          onChange={e => setOfferForm(prev => ({ ...prev, text3: e.target.value }))}
+                          disabled={!offerFormActive}
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Text 4 <span className="required">*</span></label>
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="Enter redirect link" 
+                          value={offerForm.text4} 
+                          onChange={e => setOfferForm(prev => ({ ...prev, text4: e.target.value }))}
+                          disabled={!offerFormActive}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-action-row mt-4">
+                      <button type="button" className="cancel-btn" onClick={handleOfferCancel} disabled={!offerFormActive}>Cancel</button>
+                      <button 
+                        type="submit" 
+                        className="submit-btn"
+                        disabled={!offerFormActive}
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              {/* Offer Banner Library Section */}
+              <div className="banner-library-section">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h2 className="library-title m-0">Library</h2>
+                  <button 
+                    type="button"
+                    onClick={handleEditOfferClick}
+                    className="btn d-flex align-items-center gap-1 p-0 fw-bold"
+                    style={{ color: '#8b5cf6', fontSize: '13px', background: 'none', border: 'none' }}
+                  >
+                    <FiEdit size={12} /> Edit
+                  </button>
+                </div>
+
+                <div className="library-list offer-library-list">
+                  {[
+                    { val: offerTexts.text1, num: '1' },
+                    { val: offerTexts.text2, num: '2' },
+                    { val: offerTexts.text3, num: '3' },
+                    { val: offerTexts.text4, num: '4' }
+                  ].map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className="d-flex align-items-center gap-3"
+                      style={{ 
+                        padding: '16px',
+                        borderRadius: '8px',
+                        border: offerFormActive ? '1px solid #8b5cf6' : '1px solid #e9d5ff',
+                        background: '#ffffff',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                        transition: 'all 0.2s ease',
+                        marginBottom: '16px',
+                        width: '100%',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <div 
+                        className="d-flex align-items-center justify-content-center fw-bold"
+                        style={{ 
+                          width: '32px', 
+                          height: '32px', 
+                          background: '#e5e7eb', 
+                          borderRadius: '50%', 
+                          fontSize: '14px',
+                          color: '#111827',
+                          flexShrink: 0 
+                        }}
+                      >
+                        {item.num}
+                      </div>
+                      <div style={{ fontSize: '13px', fontWeight: 500, color: '#111827', textAlign: 'start', lineHeight: '1.4' }}>
+                        {item.val}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="banner-content-grid">
 
             
             <div className="banner-form-section">
@@ -406,7 +630,7 @@ function BannerManagement() {
                               title="Edit this banner"
                               onClick={() => { openForm('edit-active', banner); setActiveTab('active'); }}
                             >
-                              <MdOutlineEdit />
+                              <FiEdit size={14} />
                             </button>
                           </div>
                         </div>
@@ -452,10 +676,10 @@ function BannerManagement() {
                             </div>
                             <div className="card-actions">
                               <button className="action-btn edit" title="Edit" onClick={() => openForm('edit-scheduled', banner)}>
-                                <MdOutlineEdit />
+                                <FiEdit size={14} />
                               </button>
                               <button className="action-btn delete" title="Delete" onClick={() => deleteScheduled(banner.id)}>
-                                <RiDeleteBin6Line />
+                                <FiTrash2 size={14} />
                               </button>
                             </div>
                           </div>
@@ -468,16 +692,18 @@ function BannerManagement() {
               </div>
             </div>
           </div>
-
-          
-          {toast && (
-            <div className={`banner-toast banner-toast--${toast.type}`}>
-              <span className="toast-icon">{toast.type === 'warning' ? '⚠' : '✓'}</span>
-              <span>{toast.msg}</span>
-            </div>
           )}
         </div>
       </div>
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to Delete this Banner ?"
+        confirmText="Delete"
+        isDanger={true}
+      />
     </div>
   );
 }

@@ -1,9 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import { FaCcVisa, FaCcMastercard, FaPaypal, FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
+import { FiRefreshCw, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
 import '../../assets/styles/AdminDashboard.css';
 import '../../assets/styles/PaymentDetails.css';
-// import '../../assets/styles/AdminDashboard.css'
+import AdminHeader from '../../components/Admin/AdminHeader';
+import PaymentPopup from '../../components/Admin/PaymentPopup';
+import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleton';
 
 const initialData = [
   { id: "SBO-BAG-20260712-001", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
@@ -28,18 +31,50 @@ const renderMethodIcon = (method) => {
     case 'visa': return <FaCcVisa size={22} color="#1a1f71" />;
     case 'mastercard': return <FaCcMastercard size={22} color="#eb001b" />;
     case 'paypal': return <FaPaypal size={22} color="#003087" />;
-    case 'cash': return <FaMoneyBillWave size={22} color="#555" />;
+    case 'cash': return <FaMoneyBillWave size={22} color="#8B5CF6" />;
     case 'card':
     default: return <FaCreditCard size={22} color="#0072bc" />;
   }
 };
 
 const PaymentDetails = () => {
+  const [loading, setLoading] = useState(true);
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [paymentMode, setPaymentMode] = useState("All");
   const [paymentStatus, setPaymentStatus] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showPopup, setShowPopup] = useState(false);
+
+  const popupDetails = selectedPayment ? {
+    amount: selectedPayment.amount,
+    transactionId: selectedPayment.id,
+    paymentMethod: {
+      visa: "Visa",
+      mastercard: "Mastercard",
+      paypal: "PayPal",
+      cash: "Cash on delivery",
+      card: "Credit card"
+    }[selectedPayment.method] || "Credit card",
+    date: selectedPayment.date.split(', ').slice(0, 2).join(', '),
+    time: selectedPayment.date.split(', ')[2] || "12:00 PM",
+    merchant: "Star Bags"
+  } : {};
+
+  const popupStatus = selectedPayment && selectedPayment.status === 'Success' ? 'success' : 'failed';
+
+  const handleResetFilter = () => {
+    setSearchQuery("");
+    setPaymentMode("All");
+    setPaymentStatus("All");
+    setCurrentPage(1);
+  };
 
   const filteredData = useMemo(() => {
     return initialData.filter(item => {
@@ -65,80 +100,45 @@ const PaymentDetails = () => {
       <AdminSidebar />
       <div className="admin-main payment-details-wrapper">
        
-        <header className="admin-header">
-          {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon">
-              <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} />
-            </span>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="Search products, orders, customers…"
-            />
-          </div> */}
-
-          <div>
-            <h1
-              style={{
-                fontSize: 22,
-                fontWeight: 700,
-                color: "#111827",
-                margin: 0,
-              }}
-            >
-              Payment Management
-            </h1>
-            <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>
-              Welcome back! Here's what's happening with your store today.
-            </p>
-          </div>
-
-          <div className="header-right">
-            {/* Search icon mobile */}
-            {/* <button className="notif-btn d-sm-none">
-              <i className="bi bi-search" style={{ color: '#374151', fontSize: 18 }} />
-            </button> */}
-
-            {/* Notifications */}
-            {/* <button className="notif-btn">
-              <i
-                className="bi bi-bell-fill"
-                style={{ color: "#374151", fontSize: 18 }}
-              />
-              <span className="notif-badge">5</span>
-            </button> */}
-
-            {/* Profile */}
-            <div className="admin-profile" onClick={() => navigate('/admin/settings')}>
-              <div className="profile-avatar">
-                <i
-                  className="bi bi-person-fill"
-                  style={{ fontSize: 20, color: "#7c3aed" }}
-                />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Sanjai</span>
-                <span className="profile-role">Admin</span>
-              </div>
-            </div>
-          </div>
-        </header> 
+       <AdminHeader title="Payment Management" subtitle="Manage your payments."  />
 
         <div className="admin-content">
-       
+          {loading ? (
+            <>
+              <CardSkeleton count={3} />
+              <TableSkeleton rows={rowsPerPage} cols={6} />
+            </>
+          ) : (
+            <>
           <div className="payment-stats-grid">
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
-                  <p className="payment-stat-label">Total Order</p>
-                  <p className="payment-stat-value">10293</p>
+                  <p className="payment-stat-label">Total payment</p>
+                  <p className="payment-stat-value">₹ 11,000</p>
                 </div>
-                <div className="payment-stat-icon-wrap" style={{ background: '#fef3c7', color: '#f59e0b' }}>
-                  <i className="bi bi-box-seam" />
+                <div className="payment-stat-icon-wrap" style={{ background: '#ede9fe', color: '#7c3aed' }}>
+                  <i className="bi bi-wallet2" style={{ fontSize: '20px' }}></i>
                 </div>
               </div>
-              <div className="payment-stat-trend up">
-                <i className="bi bi-graph-up" />
+              <div className="payment-stat-trend">
+                <FiArrowUpRight style={{ fontSize: '16px' }} />
+                <span>+10.3% Up from past week</span>
+              </div>
+            </div>
+
+            <div className="payment-stat-card">
+              <div className="payment-stat-top">
+                <div className="payment-stat-info">
+                  <p className="payment-stat-label">Cash on delivery</p>
+                  <p className="payment-stat-value">₹ 22,000</p>
+                </div>
+                <div className="payment-stat-icon-wrap" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                  <i className="bi bi-cash-coin" style={{ fontSize: '20px' }}></i>
+                </div>
+              </div>
+              <div className="payment-stat-trend">
+                <FiArrowUpRight style={{ fontSize: '16px' }} />
                 <span>1.3% Up from past week</span>
               </div>
             </div>
@@ -146,48 +146,16 @@ const PaymentDetails = () => {
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
-                  <p className="payment-stat-label">Total payment</p>
-                  <p className="payment-stat-value">₹11,000</p>
+                  <p className="payment-stat-label">Online payment</p>
+                  <p className="payment-stat-value">₹ 10,000</p>
                 </div>
-                <div className="payment-stat-icon-wrap" style={{ background: '#f3e8ff', color: '#a855f7' }}>
-                  <i className="bi bi-wallet2" />
-                </div>
-              </div>
-              <div className="payment-stat-trend up">
-                <i className="bi bi-graph-up" />
-                <span>10.3% Up from past week</span>
-              </div>
-            </div>
-
-            <div className="payment-stat-card">
-              <div className="payment-stat-top">
-                <div className="payment-stat-info">
-                  <p className="payment-stat-label">Successful payment</p>
-                  <p className="payment-stat-value">60</p>
-                </div>
-                <div className="payment-stat-icon-wrap" style={{ background: '#dcfce7', color: '#10b981' }}>
-                  <i className="bi bi-check-lg" style={{ fontSize: 32, fontWeight: 'bold' }} />
+                <div className="payment-stat-icon-wrap" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
+                  <i className="bi bi-credit-card" style={{ fontSize: '20px' }}></i>
                 </div>
               </div>
-              <div className="payment-stat-trend up">
-                <i className="bi bi-graph-up" />
-                <span>10.3% Up from past week</span>
-              </div>
-            </div>
-
-            <div className="payment-stat-card">
-              <div className="payment-stat-top">
-                <div className="payment-stat-info">
-                  <p className="payment-stat-label">Failed Payment</p>
-                  <p className="payment-stat-value">40</p>
-                </div>
-                <div className="payment-stat-icon-wrap" style={{ background: '#fee2e2', color: '#ef4444' }}>
-                  <i className="bi bi-x" style={{ fontSize: 38, fontWeight: 'bold' }} />
-                </div>
-              </div>
-              <div className="payment-stat-trend down">
-                <i className="bi bi-graph-down" />
-                <span>-20% Up from past week</span>
+              <div className="payment-stat-trend">
+                <FiArrowUpRight style={{ fontSize: '16px' }} />
+                <span>+10.3% Up from past week</span>
               </div>
             </div>
           </div>
@@ -221,6 +189,9 @@ const PaymentDetails = () => {
                 <option value="Failed">Failed</option>
               </select>
             </div>
+            <button className="payment-reset-btn" onClick={handleResetFilter}>
+              <FiRefreshCw /> Reset Filter
+            </button>
           </div>
           <div className="payment-table-container">
             <div style={{ overflowX: 'auto' }}>
@@ -259,7 +230,13 @@ const PaymentDetails = () => {
                           </span>
                         </td>
                         <td style={{ textAlign: 'center' }}>
-                          <button className="payment-more-btn">
+                          <button 
+                            className="payment-more-btn"
+                            onClick={() => {
+                              setSelectedPayment(row);
+                              setShowPopup(true);
+                            }}
+                          >
                             <i className="bi bi-three-dots-vertical" />
                           </button>
                         </td>
@@ -315,9 +292,18 @@ const PaymentDetails = () => {
               </div>
             </div>
           </div>
-
+            </>
+          )}
         </div>
       </div>
+
+      <PaymentPopup 
+        isOpen={showPopup}
+        status={popupStatus}
+        details={popupDetails}
+        onClose={() => setShowPopup(false)}
+        onDownloadReceipt={() => alert("Downloading receipt PDF...")}
+      />
     </div>
   );
 };

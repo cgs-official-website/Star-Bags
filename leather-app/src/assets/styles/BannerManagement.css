@@ -22,7 +22,11 @@
 /* ─── LEFT: FORM ──────────────────────────────────── */
 .banner-form-section {
   flex: 1;
-  background: transparent;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   position: relative;
 }
 
@@ -257,6 +261,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  width: 406px;
 }
 
 .cancel-btn:hover {
@@ -291,6 +296,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 24px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
 }
@@ -504,22 +510,37 @@
   display: flex;
   gap: 8px;
 }
-
 .action-btn {
-  background: transparent;
-  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
   cursor: pointer;
-  padding: 4px;
-  color: #4b5563;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
   transition: all 0.2s;
+  padding: 0;
 }
 
-.action-btn:hover { background: #f3f4f6; color: #111827; }
-.action-btn.delete:hover { color: #ef4444; background: #fef2f2; }
+.action-btn.edit {
+  color: #6b7280;
+}
+
+.action-btn.edit:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.action-btn.delete {
+  color: #ef4444;
+  border-color: #fecaca;
+}
+
+.action-btn.delete:hover {
+  background: #fef2f2;
+}
 
 /* ─── EMPTY SCHEDULE STATE ────────────────────────── */
 .empty-schedule {
@@ -614,8 +635,24 @@
   .banner-library-section { width: 100%; }
   .library-list { flex-direction: row; overflow-x: auto; max-height: none; }
   .library-card { min-width: 250px; }
+  
+  .offer-library-list {
+    flex-direction: column !important;
+    overflow-x: visible !important;
+    max-height: none !important;
+  }
 }
 
 @media (max-width: 768px) {
   .form-grid { grid-template-columns: 1fr; }
+  
+  .cancel-btn, .submit-btn {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .form-action-row {
+    flex-direction: column-reverse;
+    width: 100%;
+    gap: 12px;
+  }
 }

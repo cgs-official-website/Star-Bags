@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import ConfirmModal from './ConfirmModal';
 
 const navItems = [
   { icon: 'bi-grid-1x2-fill',            label: 'Dashboard',              path: '/admin/dashboard' },
@@ -8,12 +9,15 @@ const navItems = [
   { icon: 'bi-tag-fill',                 label: 'Coupons',                path: '/admin/coupons' },
   { icon: 'bi-credit-card-2-front-fill', label: 'Payment Management',     path: '/admin/payment-details' },
   { icon: 'bi-aspect-ratio-fill',        label: 'Banner Management',      path: '/admin/banner-management' },
+  { icon: 'bi-star-fill',                label: 'Review Management',        path: '/admin/review-management' },
   { icon: 'bi-gear-fill',                label: 'Settings',               path: '/admin/settings' },
   // { icon: 'bi-box-arrow-left',           label: 'Logout',                 path: '/admin/login' },
 ];
 
 const AdminSidebar = () => {
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   return (
     <>
@@ -50,7 +54,7 @@ const AdminSidebar = () => {
       <nav
         className="d-flex flex-column"
         style={{
-          width: 250,
+          width: 260,
           minHeight: '100vh',
           background: '#22074F',
           transition: 'width 0.28s ease',
@@ -65,17 +69,17 @@ const AdminSidebar = () => {
 
         <div
           className="d-flex align-items-center gap-2 px-3"
-          style={{ height: 70, borderBottom: '1px solid rgba(255,255,255,0.15)' }}
+          style={{ height: 130, justifyContent:'center'}}
         >
           {/* <div> */}
-           <img src="/src/assets/images/brand-logo-dark-cropped.png" alt=" Brand logo" style={{ width: '30%', height: '70%' }} />
+           <img src="/src/assets/images/brand-logo-dark.png" alt=" Brand logo" style={{ maxWidth: '80%', maxHeight: '110px', objectFit: 'contain', marginTop: '10px' }} />
           {/* </div> */}
-          <span
+          {/* <span
             className="fw-bold text-white"
             style={{ fontSize: 16, whiteSpace: 'nowrap', letterSpacing: 0.3 }}
           >
-            <span style={{ color: 'rgba(255, 255, 255, 1)' }}>Star Bags</span>
-          </span>
+            <span style={{ color: 'rgba(255, 255, 255, 1)', fontSize: '20px', marginTop:'100px' }}>Star Bags</span>
+          </span> */}
         </div>
 
 
@@ -127,9 +131,9 @@ const AdminSidebar = () => {
 
 
         <div className="px-2 mb-3" style={{ borderTop: '1px solid rgba(255,255,255,0.15)', paddingTop: 12 }}>
-          <NavLink
-            to="/admin"
-            className="d-flex align-items-center gap-2 btn w-100 py-2 px-2 text-decoration-none"
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="d-flex align-items-center gap-2 btn w-100 py-2 px-2"
             style={{
               color: 'rgba(255,255,255,0.75)',
               background: 'transparent',
@@ -142,19 +146,32 @@ const AdminSidebar = () => {
               overflow: 'hidden',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
               e.currentTarget.style.color = '#fff';
             }}
             onMouseLeave={e => {
               e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.75)';
+              e.currentTarget.style.color = 'rgba(255, 255, 255, 0.75)';
             }}
           >
             <i className="bi bi-box-arrow-left" style={{ fontSize: 17, flexShrink: 0, minWidth: 20, textAlign: 'center' }} />
             <span>Logout</span>
-          </NavLink>
+          </button>
         </div> 
       </nav>
+
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={() => {
+          setShowLogoutModal(false);
+          navigate('/admin');
+        }}
+        title="Confirm Logout"
+        message="Are you sure you want to Logout ?"
+        confirmText="Logout"
+        isDanger={true}
+      />
 
 
       <style>{`
@@ -162,11 +179,40 @@ const AdminSidebar = () => {
           nav[data-mobile-open="true"] {
             position: fixed !important;
             left: 0 !important;
-            width: 240px !important;
+            width: 220px !important;
           }
           nav[data-mobile-open="false"] {
             position: fixed !important;
             left: -260px !important;
+          }
+          
+          /* Scale down padding and fonts */
+          .admin-nav-link {
+            padding: 12px 10px !important;
+            font-size: 14px !important;
+          }
+          
+          .admin-nav-link i {
+            font-size: 15px !important;
+          }
+
+          /* Scale down logout button */
+          nav.d-flex.flex-column .btn {
+            font-size: 14px !important;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+          }
+          nav.d-flex.flex-column .btn i {
+            font-size: 15px !important;
+          }
+
+          /* Scale down Brand header container */
+          nav.d-flex.flex-column > div:first-child {
+            height: 90px !important;
+          }
+          nav.d-flex.flex-column > div:first-child img {
+            max-height: 70px !important;
+            margin-top: 5px !important;
           }
         }
 

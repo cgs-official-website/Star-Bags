@@ -1,24 +1,40 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import { FiFilter, FiPlus, FiEdit, FiTrash2, FiRefreshCw, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
+import ConfirmModal from '../../components/Admin/ConfirmModal';
 import { BsBag, BsGraphDown, BsBoxSeam, BsClockHistory } from 'react-icons/bs';
 import toast, { Toaster } from 'react-hot-toast';
 import '../../assets/styles/ProductManagement.css';
+import AdminHeader from '../../components/Admin/AdminHeader';
+import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleton';
 
 const initialProducts = [
-  { id: 'SBP-BAG-00001', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'Leather Bag', category: 'Bag', subCategory: 'Hand Bag', brand: 'American Tourister', size: '20L', price: '₹190.00', discount: '25%', stocks: 13 },
-  { id: 'SBP-BLT-00001', image: 'https://images.unsplash.com/photo-1628151581315-3ccbc4738555?w=100&h=100&fit=crop', name: 'Leather belt', category: 'Belt', subCategory: '-', brand: '-', size: 'medium', price: '₹190.00', discount: '25%', stocks: 13 },
-  { id: 'SBP-WLT-00001', image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop', name: 'Leather Wallet', category: 'Wallet', subCategory: '-', brand: '-', size: '-', price: '₹190.00', discount: '25%', stocks: 13 },
-  { id: 'SBP-BAG-00002', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'Travel Bag', category: 'Bag', subCategory: 'Travel Bag', brand: 'Sky bags', size: '30L', price: '₹190.00', discount: '25%', stocks: 13 },
-  { id: 'SBP-WLT-00002', image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop', name: 'Leather Wallet', category: 'Wallet', subCategory: '-', brand: '-', size: '-', price: '₹190.00', discount: '25%', stocks: 13 },
-  { id: 'SBP-BAG-00003', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'School Bag', category: 'Bag', subCategory: 'School Bag', brand: 'Puma', size: '15L', price: '₹190.00', discount: '25%', stocks: 13 },
+  { id: 'SBP-BAG-00001', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'Leather Bag', category: 'Bag', subCategory: 'Hand Bag', brand: 'American Tourister', size: '20L', price: '₹190.00', discount: '25%', stocks: 130 },
+  { id: 'SBP-BLT-00001', image: 'https://images.unsplash.com/photo-1628151581315-3ccbc4738555?w=100&h=100&fit=crop', name: 'Leather belt', category: 'Belt', subCategory: '-', brand: '-', size: 'medium', price: '₹190.00', discount: '25%', stocks: 1145 },
+  { id: 'SBP-WLT-00001', image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop', name: 'Leather Wallet', category: 'Wallet', subCategory: '-', brand: '-', size: '-', price: '₹190.00', discount: '25%', stocks: 14 },
+  { id: 'SBP-BAG-00002', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'Travel Bag', category: 'Bag', subCategory: 'Travel Bag', brand: 'Sky bags', size: '30L', price: '₹190.00', discount: '25%', stocks: 0 },
+  { id: 'SBP-WLT-00002', image: 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop', name: 'Leather Wallet', category: 'Wallet', subCategory: '-', brand: '-', size: '-', price: '₹190.00', discount: '25%', stocks: 5 },
+  { id: 'SBP-BAG-00003', image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop', name: 'School Bag', category: 'Bag', subCategory: 'School Bag', brand: 'Puma', size: '15L', price: '₹190.00', discount: '25%', stocks: 258 },
 ];
 
 function ProductManagement() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [products, setProducts] = useState(initialProducts);
-  const [stockBy, setStockBy] = useState('Stock by');
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const [stockBy, setStockBy] = useState(() => {
+    if (location.state && location.state.stockBy) {
+      return location.state.stockBy;
+    }
+    return 'Stock by';
+  });
   const [category, setCategory] = useState('Category');
   const [subCategory, setSubCategory] = useState('Sub Category');
   const [brandFilter, setBrandFilter] = useState('Brand');
@@ -43,7 +59,8 @@ function ProductManagement() {
     capacity: '',
     price: '',
     discount: '',
-    stocks: ''
+    stocks: '',
+    description: ''
   });
 
   const [newProduct, setNewProduct] = useState(getInitialProductState());
@@ -82,8 +99,20 @@ function ProductManagement() {
     return matchStock && matchCategory && matchSubCategory && matchBrand;
   });
 
-  const totalPages = Math.ceil(filteredProducts.length / rowsPerPage) || 1;
-  const currentProducts = filteredProducts.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const stockA = parseInt(a.stocks) || 0;
+    const stockB = parseInt(b.stocks) || 0;
+    if (stockBy === 'Low to High') {
+      return stockA - stockB;
+    }
+    if (stockBy === 'High to Low') {
+      return stockB - stockA;
+    }
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedProducts.length / rowsPerPage) || 1;
+  const currentProducts = sortedProducts.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   const confirmDelete = (product) => {
     setProductToDelete(product);
@@ -115,6 +144,7 @@ function ProductManagement() {
     
     setNewProduct({
       ...productToEdit,
+      capacity: productToEdit.category === 'Bag' ? productToEdit.size : (productToEdit.capacity || ''),
       images: [productToEdit.image, null, null, null, null]
     });
     setIsEditing(true);
@@ -219,7 +249,11 @@ function ProductManagement() {
       brand: newProduct.category === 'Bag' ? newProduct.brand : '-',
       subCategory: newProduct.category === 'Bag' ? newProduct.subCategory : '-',
       capacity: newProduct.category === 'Bag' ? newProduct.capacity : '-',
-      size: newProduct.category === 'Belt' ? newProduct.size : '-'
+      size: newProduct.category === 'Bag' 
+        ? newProduct.capacity 
+        : newProduct.category === 'Belt' 
+          ? newProduct.size 
+          : '-'
     };
 
     if (isEditing && editIndex !== null) {
@@ -241,15 +275,14 @@ function ProductManagement() {
         <Toaster position="top-right" />
         <AdminSidebar />
         <div className="admin-main" style={{ padding: 0 }}>
+           <AdminHeader title="Product Management" subtitle="Manage your products." />
           <div className="pm-add-page">
-            <div className="pm-add-header">
-              <div>
-                <div className="pm-breadcrumb">Product Management / <span>{isEditing ? 'Edit Product' : 'Add Product'}</span></div>
-                <h1 className="pm-add-title">{isEditing ? 'Edit Product' : 'Add Product'}</h1>
-              </div>
-              <button className="pm-back-btn" onClick={handleCancel}>
-                <i className="bi bi-arrow-left"></i> Back to Products
+            <div className="d-flex align-items-center gap-2 mb-4" style={{ padding: '0 24px' }}>
+              <button type="button" onClick={handleCancel} className="btn btn-link text-dark p-0 text-decoration-none d-flex align-items-center gap-1">
+                <i className="bi bi-arrow-left" style={{ fontSize: 14 }}></i>
+                <span style={{ fontSize: 12, color: '#111827', fontWeight: 500 }}>Product management</span>
               </button>
+              <span style={{ fontSize: 12, color: '#8b5cf6', fontWeight: 500 }}>/ {isEditing ? 'Edit product' : 'Add product'}</span>
             </div>
             
             <form onSubmit={handleAddSubmit}>
@@ -263,7 +296,7 @@ function ProductManagement() {
                   <div className={newProduct.category === 'Bag' ? "pm-form-row-2" : "pm-add-form-group"}>
                     <div className="pm-add-form-group">
                       <label>Category Type</label>
-                      <select className="pm-add-input pm-add-select" value={newProduct.category} onChange={e => {
+                      <select className="pm-add-input pm-add-select" value={newProduct.category} required onChange={e => {
                         const newCat = e.target.value;
                         const prefix = newCat === 'Wallet' ? 'WLT' : newCat === 'Belt' ? 'BLT' : 'BAG';
                         const idSuffix = newProduct.id.split('-').pop();
@@ -277,7 +310,8 @@ function ProductManagement() {
                     {newProduct.category === 'Bag' && (
                       <div className="pm-add-form-group">
                         <label>Sub Category</label>
-                        <select className="pm-add-input pm-add-select" value={newProduct.subCategory || ''} onChange={e => setNewProduct({...newProduct, subCategory: e.target.value})}>
+                        <select className="pm-add-input pm-add-select" value={newProduct.subCategory || ''} required onChange={e => setNewProduct({...newProduct, subCategory: e.target.value})}>
+                          <option value="">Choose Sub Category</option>
                           <option>Trolley Bag</option>
                           <option>Hand Bag</option>
                           <option>Lunch Bag</option>
@@ -292,8 +326,8 @@ function ProductManagement() {
 
                   <div className="pm-add-form-group">
                     <label>Material of the Product</label>
-                    <select className="pm-add-input pm-add-select" value={newProduct.material || ''} onChange={e => setNewProduct({...newProduct, material: e.target.value})}>
-                      <option>Choose Material</option>
+                    <select className="pm-add-input pm-add-select" value={newProduct.material || ''} required onChange={e => setNewProduct({...newProduct, material: e.target.value})}>
+                      <option value="">Choose Material</option>
                       <option>Leather</option>
                       <option>Canvas</option>
                     </select>
@@ -301,20 +335,25 @@ function ProductManagement() {
 
                   <div className="pm-add-form-group">
                     <label>Product Name</label>
-                    <input type="text" className="pm-add-input" placeholder="e.g. Midnight Suede Executive Tote" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} />
+                    <input type="text" className="pm-add-input" placeholder="e.g. Midnight Suede Executive Tote" value={newProduct.name} required onChange={e => setNewProduct({...newProduct, name: e.target.value})} />
                   </div>
 
                   {newProduct.category === 'Bag' && (
                     <div className="pm-add-form-group">
                       <label>Capacity</label>
-                      <input type="text" className="pm-add-input" placeholder="e.g. 20L" value={newProduct.capacity || ''} onChange={e => setNewProduct({...newProduct, capacity: e.target.value})} />
+                      <select className="pm-add-input pm-add-select" value={newProduct.capacity || ''} required onChange={e => setNewProduct({...newProduct, capacity: e.target.value})}>
+                        <option value="">Choose Capacity</option>
+                        <option value="20L">20L</option>
+                        <option value="30L">30L</option>
+                        <option value="40L">40L</option>
+                      </select>
                     </div>
                   )}
 
                   {newProduct.category === 'Belt' && (
                     <div className="pm-add-form-group">
                       <label>Size</label>
-                      <select className="pm-add-input pm-add-select" value={newProduct.size || ''} onChange={e => setNewProduct({...newProduct, size: e.target.value})}>
+                      <select className="pm-add-input pm-add-select" value={newProduct.size || ''} required onChange={e => setNewProduct({...newProduct, size: e.target.value})}>
                         <option value="">Choose Size</option>
                         <option>Small</option>
                         <option>Medium</option>
@@ -326,12 +365,12 @@ function ProductManagement() {
                   <div className={newProduct.category === 'Bag' ? "pm-form-row-2" : "pm-add-form-group"}>
                     <div className="pm-add-form-group">
                       <label>Product ID</label>
-                      <input type="text" className="pm-add-input" placeholder="SB-2024-XXXX" value={newProduct.id} onChange={e => setNewProduct({...newProduct, id: e.target.value})} />
+                      <input type="text" className="pm-add-input" placeholder="SB-2024-XXXX" value={newProduct.id} required onChange={e => setNewProduct({...newProduct, id: e.target.value})} />
                     </div>
                     {newProduct.category === 'Bag' && (
                       <div className="pm-add-form-group">
                         <label>Brand</label>
-                        <select className="pm-add-input pm-add-select" value={newProduct.brand || ''} onChange={e => setNewProduct({...newProduct, brand: e.target.value})}>
+                        <select className="pm-add-input pm-add-select" value={newProduct.brand || ''} required onChange={e => setNewProduct({...newProduct, brand: e.target.value})}>
                           <option value="">Choose Brand</option>
                           <option>Puma</option>
                           <option>American Tourister</option>
@@ -347,15 +386,15 @@ function ProductManagement() {
                   <div className="pm-form-row-3">
                     <div className="pm-add-form-group">
                       <label>No. of Stocks</label>
-                      <input type="number" className="pm-add-input" placeholder="0" value={newProduct.stocks} onChange={e => setNewProduct({...newProduct, stocks: e.target.value})} />
+                      <input type="number" className="pm-add-input" placeholder="0" value={newProduct.stocks} required onChange={e => setNewProduct({...newProduct, stocks: e.target.value})} />
                     </div>
                     <div className="pm-add-form-group">
                       <label>Price (₹)</label>
-                      <input type="text" className="pm-add-input" placeholder="0.00" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
+                      <input type="text" className="pm-add-input" placeholder="0.00" value={newProduct.price} required onChange={e => setNewProduct({...newProduct, price: e.target.value})} />
                     </div>
                     <div className="pm-add-form-group">
                       <label>Discount (%)</label>
-                      <input type="text" className="pm-add-input" placeholder="0" value={newProduct.discount} onChange={e => setNewProduct({...newProduct, discount: e.target.value})} />
+                      <input type="text" className="pm-add-input" placeholder="0" value={newProduct.discount} required onChange={e => setNewProduct({...newProduct, discount: e.target.value})} />
                     </div>
                   </div>
                 </div>
@@ -380,7 +419,7 @@ function ProductManagement() {
                       <h2 className="pm-panel-title">Product Short Description</h2>
                       <i className="bi bi-file-text pm-panel-icon"></i>
                     </div>
-                    <textarea className="pm-textarea" placeholder="Enter short description about the product..."></textarea>
+                    <textarea className="pm-textarea" placeholder="Enter short description about the product..." value={newProduct.description || ''} required onChange={e => setNewProduct({...newProduct, description: e.target.value})}></textarea>
                     <div className="pm-char-count">Recommended: 150-200 characters</div>
                   </div>
 
@@ -403,42 +442,16 @@ function ProductManagement() {
       <AdminSidebar />
       <div className="admin-main">
         {/* Header */}
-        <header className="admin-header">
-          {/* <div className="header-search d-none d-sm-block">
-            <span className="search-icon"> <i className="bi bi-search" style={{ color: '#9ca3af', fontSize: 14 }} /> </span>
-            <input type="text" className="search-input" placeholder="Search products, orders, customers…" />
-          </div> */}
-
-          <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0, }}>Product Management</h1>
-            {/* <p style={{ fontSize: 13, color: "#6b7280", margin: "2px 0 0" }}>Here's what's happening with your banners today.</p> */}
-          </div>
-
-          <div className="header-right">
-            {/* Search icon mobile */}
-            {/* <button className="notif-btn d-sm-none">
-              <i className="bi bi-search" style={{ color: '#374151', fontSize: 18 }} />
-            </button> */}
-
-            {/* Notifications */}
-            {/* <button className="notif-btn">
-              <i className="bi bi-bell-fill" style={{ color: "#374151", fontSize: 18 }} /> <span className="notif-badge">5</span>
-            </button> */}
-
-            {/* Profile */}
-            <div className="admin-profile" onClick={() => navigate('/admin/settings')}>
-              <div className="profile-avatar">
-                <i className="bi bi-person-fill" style={{ fontSize: 20, color: "#7c3aed" }} />
-              </div>
-              <div className="profile-info">
-                <span className="profile-name">Sanjai</span>
-                <span className="profile-role">Admin</span>
-              </div>
-            </div>
-          </div>
-        </header>
+        <AdminHeader title="Product Management" subtitle="Manage your products." />
 
         <div className="pm-content">
+          {loading ? (
+            <>
+              <CardSkeleton count={4} />
+              <TableSkeleton rows={rowsPerPage} cols={10} />
+            </>
+          ) : (
+            <>
           
           <div className="pm-stats-grid">
             <div className="pm-stat-card">
@@ -452,7 +465,7 @@ function ProductManagement() {
                 </div>
               </div>
               <div className="pm-stat-bottom pm-stat-up">
-                <FiArrowUpRight /> 85 % Available Products
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> 85 % Available Products
               </div>
             </div>
 
@@ -467,7 +480,7 @@ function ProductManagement() {
                 </div>
               </div>
               <div className="pm-stat-bottom pm-stat-down">
-                <FiArrowDownRight /> Stock Reduced
+                <FiArrowDownRight style={{ fontSize: '16px' }} /> Stock Reduced
               </div>
             </div>
 
@@ -482,7 +495,7 @@ function ProductManagement() {
                 </div>
               </div>
               <div className="pm-stat-bottom pm-stat-up">
-                <FiArrowUpRight /> 1.8% Up from yesterday
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> 1.8% Up from yesterday
               </div>
             </div>
 
@@ -497,7 +510,7 @@ function ProductManagement() {
                 </div>
               </div>
               <div className="pm-stat-bottom pm-stat-up">
-                <FiArrowUpRight /> 1.8% Up from yesterday
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> 1.8% Up from yesterday
               </div>
             </div>
           </div>
@@ -510,10 +523,12 @@ function ProductManagement() {
               </button>
               
               <div className="pm-select-wrap">
-                <select className="pm-select" value={stockBy} onChange={e => setStockBy(e.target.value)}>
+                <select className="pm-select" value={stockBy} onChange={e => { setStockBy(e.target.value); setCurrentPage(1); }}>
                   <option>Stock by</option>
                   <option>In Stock</option>
                   <option>Out of Stock</option>
+                  <option>Low to High</option>
+                  <option>High to Low</option>
                 </select>
                 <i className="bi bi-chevron-down pm-select-arrow"></i>
               </div>
@@ -627,7 +642,7 @@ function ProductManagement() {
             </table>
           
             <div className="pm-pagination">
-              <span className="pm-page-info">Showing {filteredProducts.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, filteredProducts.length)} of {filteredProducts.length} results</span>
+              <span className="pm-page-info">Showing {sortedProducts.length === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1} to {Math.min(currentPage * rowsPerPage, sortedProducts.length)} of {sortedProducts.length} results</span>
               <div className="pm-page-controls">
                 <div className="pm-pages">
                   <button className="pm-page-btn arrow" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>&lt;</button>
@@ -652,25 +667,20 @@ function ProductManagement() {
               </div>
             </div>
           </div>
-
+            </>
+          )}
         </div>
       </div>
 
-      {showDeleteModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: '12px', padding: '32px', width: '450px', maxWidth: '90%', position: 'relative', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}>
-            <button onClick={cancelDelete} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '24px', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-               <i className="bi bi-x-lg"></i>
-            </button>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '24px', fontWeight: '600', color: '#111827' }}>Confirm Delete</h3>
-            <p style={{ margin: '0 0 32px 0', fontSize: '18px', color: '#6b7280' }}>Are you sure you want to Delete ?</p>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-              <button onClick={cancelDelete} style={{ flex: 1, padding: '12px', background: '#fff', border: '1px solid #8b5cf6', color: '#111827', borderRadius: '8px', fontWeight: '500', fontSize: '16px', cursor: 'pointer' }}>Cancel</button>
-              <button onClick={executeDelete} style={{ flex: 1, padding: '12px', background: '#e10000', border: 'none', color: '#fff', borderRadius: '8px', fontWeight: '500', fontSize: '16px', cursor: 'pointer' }}>Delete</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={cancelDelete}
+        onConfirm={executeDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to Delete this Product ?"
+        confirmText="Delete"
+        isDanger={true}
+      />
     </div>
   );
 }
