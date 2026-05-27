@@ -1,4 +1,3 @@
-
 // ProductCard.jsx - Just add ONE line at the top and modify ONE line
 import React, { useState } from "react";
 
@@ -126,42 +125,7 @@ const ProductCard = ({ products = null }) => {
                       </span>
                     </div>
 
-                    <div className="d-flex gap-3 pt-2">
-                      <a 
-                        href="#" 
-                        className="btn buy-now-btn" 
-                        onClick={(e) => { 
-                          e.preventDefault(); 
-                          e.stopPropagation(); 
-                          handleBuyNowRedirect(pro);
-                        }}
-                        style={{ background: "#8B5CF6", color: "#fff", fontSize: "14px" }}
-                      >
-                        Buy Now
-                      </a>
-                      
-                      <button 
-                        className="icon-btn-cart" 
-                        onClick={(e) => {
-                          e.stopPropagation(); 
-                          if (isInCart) {
-                            navigate("/cart"); 
-                          } else {
-                            addToCart(pro); 
-                          }
-                        }}
-                        style={{ 
-                          border: "1.5px solid #8B5CF6", 
-                          color: isInCart ? "#fff" : "#8B5CF6", 
-                          background: isInCart ? "#8B5CF6" : "transparent", 
-                          borderRadius: "6px", 
-                          padding: "4px 10px" 
-                        }}
-                        type="button"
-                      >
-                        <MdOutlineShoppingCart />
-                      </button>
-                    </div>
+                    {/* Buttons removed */}
                   </div>
                 </div>
               );
@@ -174,4 +138,3 @@ const ProductCard = ({ products = null }) => {
 };
 
 export default ProductCard;
-

@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { SearchProvider } from './context/SearchContext';
@@ -20,6 +19,8 @@ import SavedAddress from './pages/User/SavedAddress';
 import TrackOrder from './pages/User/TrackOrder';
 import Product from './pages/User/Allproducts';
 import BillAddress from './pages/User/BillAddress';
+import Myreviews from './pages/User/Myreviews';
+
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminSignup from './pages/Admin/AdminSignup';
@@ -63,6 +64,8 @@ const UserProtectedRoute = ({ children }) => {
   return children;
 };
 
+
+
 const App = () => {
   return (
 
@@ -79,6 +82,9 @@ const App = () => {
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />
 
+          
+
+
           {/* User Protected Routes */}
           <Route path="/cart" element={<UserProtectedRoute><Cart /></UserProtectedRoute>} />
           <Route path="/orders" element={<UserProtectedRoute><Orders /></UserProtectedRoute>} />
@@ -88,6 +94,7 @@ const App = () => {
           <Route path="/track-order" element={<UserProtectedRoute><TrackOrder /></UserProtectedRoute>} />
           <Route path="/checkout" element={<UserProtectedRoute><Checkout /></UserProtectedRoute>} />
           <Route path="/BillAddress" element={<UserProtectedRoute><BillAddress /></UserProtectedRoute>} />
+          <Route path="/reviews" element={<UserProtectedRoute><Myreviews /></UserProtectedRoute>} />
 
           {/* Admin Routes (Protected) */}
           <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />

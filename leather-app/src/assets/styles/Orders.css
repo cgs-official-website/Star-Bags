@@ -1,5 +1,5 @@
 /* ==========================================================
-   ORDERS PAGE GENERAL PANEL STYLING
+   ORDERS PAGE - MATCHING SAVED ADDRESS CARD STYLE
    ========================================================== */
 
 .orders-page-app-wrapper {
@@ -15,40 +15,26 @@
   flex: 1;
 }
 
-.page-section-title {
-  color: #0f172a;
-  font-size: 1.55rem;
-  letter-spacing: -0.5px;
+/* Sticky sidebar - matching SavedAddress */
+.sidebar-sticky {
+  position: sticky;
+  top: 75px;
+  align-self: flex-start;
 }
 
-/* Central Dashboard Card Container */
+/* Central Dashboard Card Container - matching saved-address-card */
 .orders-card {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: none;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.orders-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 16px;
-}
-
-.text-dark-theme {
-  color: #0f172a;
-}
-
-.orders-subtitle {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-}
-
-/* Premium Rounded Search Input Wrapper */
+/* Search Bar Styling */
 .orders-search-wrapper {
   width: 100%;
 }
@@ -82,7 +68,7 @@
 
 .orders-search .search-input:focus {
   border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.18);
 }
 
 .orders-search .search-input::placeholder {
@@ -95,50 +81,41 @@
   min-height: 400px;
 }
 
-/* Orders List with Scrollbar - No Pagination */
-.orders-list {
+/* Orders Grid for multiple cards - SCROLLBAR HIDDEN BUT FUNCTIONAL */
+.orders-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-height: 550px;
   overflow-y: auto;
   padding-right: 8px;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-/* Orders Grid for multiple cards */
-.orders-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Hide scrollbar for Chrome, Safari and Opera */
+.orders-grid::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  background: transparent;
 }
 
-/* Custom Scrollbar Styling */
-.orders-list::-webkit-scrollbar {
-  width: 6px;
+/* Remove custom scrollbar styling completely */
+.orders-grid::-webkit-scrollbar-track {
+  display: none;
 }
 
-.orders-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+.orders-grid::-webkit-scrollbar-thumb {
+  display: none;
 }
 
-.orders-list::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
-}
-
-.orders-list::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Firefox scrollbar */
-.orders-list {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f1f1;
+.orders-grid::-webkit-scrollbar-thumb:hover {
+  display: none;
 }
 
 /* ==========================================================
-   EMPTY ORDERS STATE (Matching Wishlist Design)
+   EMPTY ORDERS STATE - Matching SavedAddress card style
    ========================================================== */
 
 .orders-empty-container {
@@ -149,8 +126,7 @@
   padding: 3.5rem 1.5rem;
   text-align: center;
   background-color: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
 
 .orders-empty-image-wrapper {
@@ -177,12 +153,12 @@
 }
 
 .orders-empty-shop-btn {
-  background-color: #8B5CF6 !important;
+  background-color: var(--levender, #8B5CF6) !important;
   color: #ffffff !important;
   font-size: 16px;
   font-weight: 500;
   padding: 10px 32px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-decoration: none;
   display: inline-block;
   border: none;
@@ -196,121 +172,22 @@
   transform: translateY(-1px);
 }
 
-/* No orders fallback (keeping for backward compatibility) */
-.no-orders {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px dashed #cbd5e1;
-  padding: 40px;
-}
-
 /* ==========================================================
-   DARK THEMING overrides
+   RESPONSIVE LAYOUT BREAKPOINTS - Matching SavedAddress
    ========================================================== */
-body.dark-theme .orders-page-app-wrapper,
-[data-theme="dark"] .orders-page-app-wrapper {
-  background-color: #0b0f19;
-}
 
-body.dark-theme .orders-card,
-[data-theme="dark"] .orders-card {
-  background: #161e2e;
-  border-color: #2e3748;
-}
-
-body.dark-theme .text-dark-theme,
-[data-theme="dark"] .text-dark-theme,
-body.dark-theme .page-section-title,
-[data-theme="dark"] .page-section-title {
-  color: #f8fafc !important;
-}
-
-body.dark-theme .orders-header,
-[data-theme="dark"] .orders-header {
-  border-color: #2e3748;
-}
-
-body.dark-theme .orders-search .search-input,
-[data-theme="dark"] .orders-search .search-input {
-  background: #161e2e;
-  border-color: #2e3748;
-  color: #f8fafc;
-}
-
-body.dark-theme .orders-search .search-input:focus,
-[data-theme="dark"] .orders-search .search-input:focus {
-  border-color: #a855f7;
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
-}
-
-body.dark-theme .no-orders,
-[data-theme="dark"] .no-orders {
-  background: rgba(22, 30, 46, 0.5);
-  border-color: #2e3748;
-  color: #94a3b8;
-}
-
-/* Dark theme for empty orders container */
-body.dark-theme .orders-empty-container,
-[data-theme="dark"] .orders-empty-container {
-  background: #161e2e;
-  border-color: #2e3748;
-}
-
-body.dark-theme .orders-empty-heading,
-[data-theme="dark"] .orders-empty-heading {
-  color: #f8fafc;
-}
-
-body.dark-theme .orders-empty-shop-btn,
-[data-theme="dark"] .orders-empty-shop-btn {
-  background-color: #8B5CF6 !important;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
-}
-
-body.dark-theme .orders-empty-shop-btn:hover,
-[data-theme="dark"] .orders-empty-shop-btn:hover {
-  background-color: #7c3aed !important;
-}
-
-/* Dark theme scrollbar */
-body.dark-theme .orders-list::-webkit-scrollbar-track,
-[data-theme="dark"] .orders-list::-webkit-scrollbar-track {
-  background: #1e293b;
-}
-
-body.dark-theme .orders-list::-webkit-scrollbar-thumb,
-[data-theme="dark"] .orders-list::-webkit-scrollbar-thumb {
-  background: #475569;
-}
-
-body.dark-theme .orders-list::-webkit-scrollbar-thumb:hover,
-[data-theme="dark"] .orders-list::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
-}
-
-/* ==========================================================
-   RESPONSIVE LAYOUT BREAKPOINTS
-   ========================================================== */
 @media (max-width: 991px) {
-  .sidebar-column-view {
-    display: none !important;
+  .sidebar-sticky {
+    display: none;
   }
-  .list-column-view {
-    width: 100%;
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
+  
   .orders-card {
-    padding: 16px;
+    padding: 18px 16px;
   }
 }
 
 @media (max-width: 767px) {
-  .orders-list {
+  .orders-grid {
     max-height: 450px;
   }
   
@@ -366,4 +243,65 @@ body.dark-theme .orders-list::-webkit-scrollbar-thumb:hover,
     font-size: 13px;
     padding: 6px 20px;
   }
+}
+
+/* ==========================================================
+   DARK THEMING overrides - Matching SavedAddress
+   ========================================================== */
+
+body.dark-theme .orders-page-app-wrapper,
+[data-theme="dark"] .orders-page-app-wrapper {
+  background-color: #0b0f19;
+}
+
+body.dark-theme .orders-card,
+[data-theme="dark"] .orders-card {
+  background: #1e293b;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-theme .orders-search .search-input,
+[data-theme="dark"] .orders-search .search-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+body.dark-theme .orders-search .search-input:focus,
+[data-theme="dark"] .orders-search .search-input:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.25);
+}
+
+body.dark-theme .orders-empty-container,
+[data-theme="dark"] .orders-empty-container {
+  background: #1e293b;
+}
+
+body.dark-theme .orders-empty-heading,
+[data-theme="dark"] .orders-empty-heading {
+  color: #f8fafc;
+}
+
+body.dark-theme .orders-empty-shop-btn,
+[data-theme="dark"] .orders-empty-shop-btn {
+  background-color: #8B5CF6 !important;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+}
+
+body.dark-theme .orders-empty-shop-btn:hover,
+[data-theme="dark"] .orders-empty-shop-btn:hover {
+  background-color: #7c3aed !important;
+}
+
+/* Dark theme scrollbar - still hidden */
+body.dark-theme .orders-grid,
+[data-theme="dark"] .orders-grid {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.dark-theme .orders-grid::-webkit-scrollbar,
+[data-theme="dark"] .orders-grid::-webkit-scrollbar {
+  display: none;
 }
