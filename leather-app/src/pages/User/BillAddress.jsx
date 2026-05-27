@@ -1,4 +1,6 @@
-import { useState } from "react";
+
+import  { useState, useEffect } from "react";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
 import { TbCreditCardPay } from "react-icons/tb";
@@ -8,13 +10,16 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import CartItem from "../../components/User/YourCart";
 import OrderSummary from "../../components/User/OrderSummary";
+import PaymentPopup from "../../components/User/PaymentPopup"; 
+import { useWishlist } from "../../context/WishlistContext"; 
 import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { cart, setCart } = useWishlist(); 
 
-  // FIXED: Unpacking the dynamically passed custom chosen address object payload here
+  // ─── STAGE 1: UNPACK DYNAMIC STATE ROUTING MATRIX ───
   const { 
     allCartItems = [], 
     cartItems: initialSelected = [], 
@@ -23,10 +28,23 @@ const BillAddress = () => {
     selectedAddress = null 
   } = location.state || {};
 
+  // ─── STAGE 2: PROCESS STATES ───
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [cartItems, setCartItems] = useState(initialSelected);
   const [masterCartList, setMasterCartList] = useState(allCartItems);
 
+  const [isOrderingLoader, setIsOrderingLoader] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupDetails, setPopupDetails] = useState({});
+
+  useEffect(() => {
+    if (initialSelected.length === 0) {
+      navigate("/cart");
+    }
+    window.scrollTo(0, 0);
+  }, [initialSelected, navigate]);
+
+  // ─── STAGE 3: CALCULATIONS AND METRIC LEDGER PARSING ───
   const totalItemsCount = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0);
   
   const activeRawTotal = cartItems.length > 0 
@@ -36,10 +54,7 @@ const BillAddress = () => {
       }, 0)
     : passedRawTotal;
   
-  const activeBaseSubTotal = cartItems.reduce((acc, item) => {
-    return acc + (Number(item.price) * (item.qty || 1));
-  }, 0);
-
+  const activeBaseSubTotal = cartItems.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
   const activeDiscountTotal = activeRawTotal > activeBaseSubTotal ? (activeRawTotal - activeBaseSubTotal) : 0;
   
   const couponPercentValue = parseFloat(couponPercentageLabel) || 0;
@@ -67,37 +82,109 @@ const BillAddress = () => {
     );
   };
 
-  const toggleWishlist = () => {};
-
+  // ─── STAGE 4: MASTER ACTION TRYS AND REAL-TIME CART PURGE LAYER ───
   const handlePlaceOrderSubmit = () => {
-    alert("Order successfully placed!");
-    navigate("/");
+
+    if (!selectedAddress) {
+      alert("Please ensure a valid shipping destination address profile is active.");
+      return;
+    }
+
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}${month}${day}`;
+    const displayDate = today.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    const displayTime = today.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+
+    const newOrderPayloads = cartItems.map((item, idx) => {
+      const productCategory = item.category?.toLowerCase() || "bag";
+      let catToken = "BAG"; 
+      if (productCategory === "wallet") catToken = "WLT";
+      if (productCategory === "belt") catToken = "BLT";
+
+      const randomCount = String(Math.floor(Math.random() * 900) + (idx + 1)).padStart(3, '0');
+      const uniqueOrderId = `SBO-${catToken}-${dateString}-${randomCount}`;
+
+      return {
+        id: uniqueOrderId,
+        product: item.name,
+        status: "Processing",
+        time: displayDate,
+        rating: item.rating || 4.5,
+        reviews: item.reviews || 120,
+        deliveryDate: "Expected in 5 Days",
+        discountedPrice: Number(item.price) * (item.qty || 1), 
+        originalPrice: (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
+        quantity: item.qty || 1,
+        image: item.image || "../src/assets/images/leather1.png"
+      };
+    });
+
+    const paymentLabel = paymentMethod === "cod" ? "Cash On Delivery" : "Online Payment";
+    
+    setPopupDetails({
+      amount: `₹${activeFinalTotal.toFixed(2)}`,
+      transactionId: newOrderPayloads[0]?.id,
+      paymentMethod: paymentLabel,
+      date: displayDate,
+      time: displayTime,
+      merchant: "Krish Leather Factory"
+    });
+
+    // Purge cart item dependencies out of global hooks directly
+    if (setCart) {
+      setCart((prevCart) => {
+        const currentItems = prevCart || [];
+        const updatedCartMesh = currentItems.filter(
+          (item) => !cartItems.some((selected) => selected.id === item.id || selected.name === item.name)
+        );
+        
+        localStorage.setItem("user_cart", JSON.stringify(updatedCartMesh));
+        localStorage.setItem("cart", JSON.stringify(updatedCartMesh));
+        localStorage.setItem("cartItems", JSON.stringify(updatedCartMesh));
+        return updatedCartMesh;
+      });
+    }
+
+    // Loader transitions and popup controls 
+    if (paymentMethod === "online") {
+      setIsOrderingLoader(true);
+      setTimeout(() => {
+        setIsOrderingLoader(false);
+        setIsPopupOpen(true);
+        setTimeout(() => {
+          setIsPopupOpen(false);
+          navigate("/orders", { state: { newOrderPayloads } });
+        }, 3000);
+      }, 10000);
+    } else {
+      setIsPopupOpen(true);
+      setTimeout(() => {
+        setIsPopupOpen(false);
+        navigate("/orders", { state: { newOrderPayloads } });
+      }, 3000);
+    }
+
   };
 
   const handleBackToCheckout = () => {
     navigate("/checkout", {
-      state: {
-        allCartItems: masterCartList,
-        cartItems: cartItems,
-        couponPercentageLabel: couponPercentageLabel
+      state: { 
+        allCartItems: masterCartList, 
+        cartItems: cartItems, 
+        couponPercentageLabel: couponPercentageLabel, 
+        returnedAddressId: selectedAddress?.id 
       }
     });
   };
 
   return (
-    <>
+    <div className="bill-address-page-root" style={{ position: "relative", minHeight: "100vh" }}>
       <Navbar />
-      <div className="cart-page style-page-billing ">
-        <div className="checkout-header pb-3">
-          <h2 className="main-title">Billing and Address</h2>
-          <button
-            className="back-navigation-btn"
-            onClick={handleBackToCheckout}
-          >
-            <ArrowIcon className="me-2" /> Back to Checkout
-          </button>
-        </div>
 
+{/* <<<<<<< HEAD
         <div className="cart-layout-grid ">
           <div className="cart-left">
             <div className="cart-items">
@@ -111,29 +198,37 @@ const BillAddress = () => {
                   showActions={false} 
                   showCheckbox={false} 
                 />
+======= */}
+      {isOrderingLoader && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(255, 255, 255, 0.96)", backdropFilter: "blur(5px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 20000 }}>
+          <div className="spinner-border" style={{ width: "3.8rem", height: "3.8rem", color: "#8b5cf6", borderWidth: "4px" }} role="status" />
+          <h4 className="fw-bold text-dark mt-4 mb-2">Processing Secure Online Payment...</h4>
+        </div>
+      )}
+
+      <PaymentPopup isOpen={isPopupOpen} details={popupDetails} onClose={() => setIsPopupOpen(false)} />
+
+      <div className="cart-page style-page-billing">
+        <div className="checkout-header">
+          <h2 className="main-title">Billing and Address</h2>
+          <button className="back-navigation-btn" onClick={handleBackToCheckout}><ArrowIcon className="me-2" /> Back to Checkout</button>
+        </div>
+
+        <div className="cart-layout-grid">
+          <div className="cart-left">
+            <div className="cart-items">
+              {cartItems.map((item, index) => (
+                <CartItem key={item.id || index} item={item} onIncrease={increaseQty} onDecrease={decreaseQty} showActions={false} showCheckbox={false} />
+// >>>>>>> aece540097586333fb3855ae3d9a1600735c7c28
               ))}
             </div>
           </div>
 
           <div className="cart-right">
-            <OrderSummary 
-              totalItemsCount={totalItemsCount} 
-              rawTotal={activeRawTotal} 
-              discountTotal={activeDiscountTotal + activeCouponDiscount} 
-              subTotal={activeCalculatedSubTotal} 
-              couponDiscount={activeCouponDiscount} 
-              couponPercentageLabel={couponPercentageLabel} 
-              gstTotal={activeGstTotal} 
-              finalTotal={activeFinalTotal} 
-              isBillingPage={true} 
-              handleCheckout={handlePlaceOrderSubmit}
-            />
+            <OrderSummary totalItemsCount={totalItemsCount} rawTotal={activeRawTotal} discountTotal={activeDiscountTotal + activeCouponDiscount} subTotal={activeCalculatedSubTotal} couponDiscount={activeCouponDiscount} couponPercentageLabel={couponPercentageLabel} gstTotal={activeGstTotal} finalTotal={activeFinalTotal} isBillingPage={true} paymentMethod={paymentMethod} handleCheckout={handlePlaceOrderSubmit} />
 
-            {/* FIXED: Dynamic conditional template rendering block handles state values instead of strings */}
             <div className="address-box mt-4">
-              <div className="address-top">
-                <h5>Address</h5>
-              </div>
+              <div className="address-top"><h5>Address</h5></div>
               <div className="address-content">
                 {selectedAddress ? (
                   <p>
@@ -152,16 +247,11 @@ const BillAddress = () => {
               <h6 className="payment-title">Payment method</h6>
               <p className="payment-subtitle">Choose a payment method</p>
 
-              <div 
-                className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} 
-                onClick={() => setPaymentMethod("cod")}
-              >
+
+              <div className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} onClick={() => setPaymentMethod("cod")}>
                 <div className="payment-left">
-                  <input 
-                    type="radio" 
-                    checked={paymentMethod === "cod"} 
-                    onChange={() => setPaymentMethod("cod")} 
-                  />
+                  <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
+
                   <div className="payment-icon"><GiMoneyStack /></div>
                   <div>
                     <p className="fw-bold m-0">Cash on delivery</p>
@@ -170,16 +260,11 @@ const BillAddress = () => {
                 </div>
               </div>
 
-              <div 
-                className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} 
-                onClick={() => setPaymentMethod("online")}
-              >
+
+              <div className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} onClick={() => setPaymentMethod("online")}>
                 <div className="payment-left">
-                  <input 
-                    type="radio" 
-                    checked={paymentMethod === "online"} 
-                    onChange={() => setPaymentMethod("online")} 
-                  />
+                  <input type="radio" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} />
+
                   <div className="payment-icon"><TbCreditCardPay /></div>
                   <div>
                     <p className="fw-bold m-0">Online payment</p>
@@ -190,14 +275,16 @@ const BillAddress = () => {
               </div>
 
               <button className="continue-payment-btn" onClick={handlePlaceOrderSubmit}>
-                Place Order Now
+
+                {paymentMethod === "cod" ? "Place Order" : "Continue Payment"}
+
               </button>
             </div>
           </div>
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
@@ -261,18 +348,18 @@ export default BillAddress;
 //       <div className="cart-page billing-page-container" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
 //         <div className="checkout-title-row mb-2">
 //           <h2 className="main-title">Product Checkout</h2>
-//           <button 
-//             className="back-navigation-btn mb-3" 
+//           <button
+//             className="back-navigation-btn mb-3"
 //             onClick={() => navigate("/checkout", { state: { ...location.state } })}
 //             type="button"
 //           >
 //             <ArrowIcon className="me-2" /> Back to Checkout
 //           </button>
 //         </div>
-        
+
 //         <div className="cart-layout-grid">
 //           <div className="cart-left d-flex flex-column gap-2">
-            
+
 //             {/* ─── FIXED DYNAMIC SHIPPING PANEL (MATCHES CHECKOUT EXACTLY) ─── */}
 //             <div className="billing-address-summary-box p-3 border rounded bg-light" style={{ margin: 0 }}>
 //               <h6 className="section-subtitle-heading">Shipping Destination</h6>
@@ -325,13 +412,13 @@ export default BillAddress;
 //               isBillingPage={true}
 //               handleCheckout={handlePlaceOrderSubmit}
 //             />
-            
+
 //             <div className="payment-box" style={{ margin: 0, padding: "12px" }}>
 //               <h6 className="payment-title" style={{ fontSize: "1.1rem", margin: 0 }}>Payment method</h6>
 //               <p className="payment-subtitle" style={{ fontSize: "0.75rem", margin: "2px 0 10px 0" }}>Choose a payment method</p>
-              
-//               <div 
-//                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} 
+
+//               <div
+//                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`}
 //                 onClick={() => setPaymentMethod("cod")}
 //                 style={{ cursor: "pointer", padding: "8px", marginBottom: "8px" }}
 //               >
@@ -345,8 +432,8 @@ export default BillAddress;
 //                 </div>
 //               </div>
 
-//               <div 
-//                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} 
+//               <div
+//                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`}
 //                 onClick={() => setPaymentMethod("online")}
 //                 style={{ cursor: "pointer", padding: "8px", marginBottom: "10px" }}
 //               >
@@ -373,4 +460,8 @@ export default BillAddress;
 //   );
 // };
 
+<<<<<<< HEAD
 // export default BillAddress;
+=======
+// export default BillAddress;
+>>>>>>> aece540097586333fb3855ae3d9a1600735c7c28

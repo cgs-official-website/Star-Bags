@@ -1,6 +1,5 @@
 // ProductCard.jsx - Just add ONE line at the top and modify ONE line
 import React, { useState } from "react";
-
 import { useNavigate } from "react-router-dom"; 
 import { useWishlist } from "../../context/WishlistContext"; 
 import { allProductsData } from "../../pages/User/Allproducts"; 
@@ -24,7 +23,7 @@ const WishlistHeart = ({ product }) => {
         className="wishlist-toggle shadow-sm"
         onClick={(e) => {
           e.preventDefault();
-          e.stopPropagation();
+          e.stopPropagation(); // Prevents card navigation trigger
           toggleWishlist(product);
         }}
         type="button"
@@ -48,37 +47,10 @@ const ProductCard = ({ products = null }) => {
     return cart ? cart.find((item) => item.name === product.name && Number(item.price) === Number(product.price)) : null;
   };
 
-  const handleBuyNowRedirect = (pro) => {
-    const existingCartItem = checkIsInCart(pro);
-    
-    let targetItems = [];
-    if (existingCartItem) {
-      targetItems = [{ ...existingCartItem, selected: true }];
-    } else {
-      addToCart(pro);
-      targetItems = [{ ...pro, qty: 1, selected: true }];
-    }
-
-    const totalItemsCount = targetItems.reduce((acc, item) => acc + (item.qty || 1), 0);
-    const rawTotal = targetItems.reduce((acc, item) => (acc + (Number(item.realPrice || item.price) * (item.qty || 1))), 0);
-    const subTotal = targetItems.reduce((acc, item) => (acc + (Number(item.price) * (item.qty || 1))), 0);
-    const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-    const gstTotal = Math.round(subTotal * 0.05);
-    const finalTotal = subTotal + gstTotal;
-
-    navigate("/checkout", {
-      state: {
-        allCartItems: cart || [],
-        cartItems: targetItems,
-        totalItemsCount,
-        rawTotal,
-        discountTotal,
-        subTotal,
-        gstTotal,
-        finalTotal,
-        couponDiscount: 0,
-        couponPercentageLabel: ""
-      }
+  // Navigates cleanly to /product details layout and passes down selected object payload
+  const handleProductDetailsRedirect = (pro) => {
+    navigate("/product", {
+      state: { product: pro }
     });
   };
 
@@ -95,7 +67,8 @@ const ProductCard = ({ products = null }) => {
                 <div
                   className="card border-0 shadow-sm position-relative"
                   key={pro.id || index}
-                  style={{ width: "15rem", flex: "0 0 auto" }}
+                  style={{ width: "15rem", flex: "0 0 auto", cursor: "pointer" }}
+                  onClick={() => handleProductDetailsRedirect(pro)} // Clicking the card takes the user to Product Details page
                 >
                   <img src={pro.image} className="card-img-top" alt={pro.name} />
                   <WishlistHeart product={pro} />
@@ -126,6 +99,46 @@ const ProductCard = ({ products = null }) => {
                     </div>
 
                     {/* Buttons removed */}
+                    {/* <div className="d-flex gap-3 pt-2">
+                      <button 
+                        className="btn buy-now-btn flex-grow-1" 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); // Stops event bubbling up to the card element
+                          handleProductDetailsRedirect(pro); // Buy Now also opens product details
+                        }}
+                        style={{ background: "#8B5CF6", color: "#fff", fontSize: "14px", fontWeight: "500" }}
+                      >
+                        Buy Now
+                      </button>
+                      
+                      <button 
+                        className="icon-btn-cart" 
+                        onClick={(e) => {
+                          e.stopPropagation(); // Crucial: prevents parent card's onClick from firing!
+                          if (isInCart) {
+                            navigate("/cart"); 
+                          } else {
+                            addToCart(pro); 
+                          }
+                        }}
+                        style={{ 
+                          border: "1.5px solid #8B5CF6", 
+                          color: isInCart ? "#fff" : "#8B5CF6", 
+                          background: isInCart ? "#8B5CF6" : "transparent", 
+                          borderRadius: "6px", 
+                          padding: "4px 12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                        type="button"
+                      >
+                        <MdOutlineShoppingCart style={{ fontSize: "1.1rem" }} />
+                      </button>
+                    </div> */}
+
+
                   </div>
                 </div>
               );
