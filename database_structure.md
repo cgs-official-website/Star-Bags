@@ -32,6 +32,7 @@ Stores customer profiles and basic registration details.
 | :--- | :--- | :--- | :--- |
 | `uid` | `string` | The Firebase Auth unique user ID | `"user_12345"` |
 | `name` | `string` | Customer's full name | `"John Doe"` |
+| `role` | `string` | User Role (`"admin"` \| `"user"`) | `"admin"` |
 | `email` | `string` | Customer's email address | `"johndoe@example.com"` |
 | `gender` | `string` | Gender option (`"Male"` \| `"Female"` \| `"Other"`) | `"Male"` |
 | `mobile` | `string` | 10-digit mobile number | `"9874561230"` |
@@ -96,8 +97,8 @@ Contains all items for sale (bags, belts, wallets).
 | `subCategory` | `string` | Subcategory or `"-"` | `"Hand Bag"` |
 | `material` | `string` | Product material (`"Leather"` \| `"Canvas"`) | `"Leather"` |
 | `brand` | `string` | Product brand name or `"-"` | `"American Tourister"` |
-| `size` | `string` | Dimension/Capacity description | `"20L"` (or `"Medium"` / `"-"`) |
-| `capacity` | `string` | Litre capacity (Only for Bags, otherwise `"-"`) | `"20L"` |
+| `size` | `string` | Comma-separated string of selected sizes/capacities | `"20L, 30L"` (or `"Small, Medium"` / `"-"`) |
+| `capacity` | `string` | Comma-separated string of capacities (Only for Bags, otherwise `"-"`) | `"20L, 30L, 40L"` |
 | `price` | `number` | Unit price in INR | `190.00` |
 | `discount` | `number` | Discount percentage | `25` (representing 25% OFF) |
 | `stocks` | `number` | Stock count available in warehouse | `130` |

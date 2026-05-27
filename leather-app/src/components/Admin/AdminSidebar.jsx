@@ -165,7 +165,8 @@ const AdminSidebar = () => {
         onClose={() => setShowLogoutModal(false)}
         onConfirm={() => {
           setShowLogoutModal(false);
-          navigate('/admin');
+          localStorage.removeItem('user');
+          navigate('/login');
         }}
         title="Confirm Logout"
         message="Are you sure you want to Logout ?"

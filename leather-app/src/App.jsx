@@ -1,7 +1,8 @@
 
 import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SearchProvider } from './context/SearchContext'; // Import this
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { SearchProvider } from './context/SearchContext';
+import { useAuth } from './context/AuthContext';
 
 import Home from './pages/User/Home';
 import Cart from './pages/User/Cart';
@@ -39,6 +40,28 @@ import ReviewManagement from './pages/Admin/ReviewManagement';
 // import SignUpVerification from './pages/User/SignUpVerification';
 import Checkout from './pages/User/Checkout';
 
+// Protected Route for Admin users
+const AdminProtectedRoute = ({ children }) => {
+  const { currentUser, userData } = useAuth();
+  
+  // Provide fallback to local storage if userData isn't populated immediately
+  const localUser = JSON.parse(localStorage.getItem('user'));
+  const role = userData?.role || localUser?.role;
+  
+  if (!currentUser || role !== 'admin') {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// Protected Route for authenticated normal/admin users
+const UserProtectedRoute = ({ children }) => {
+  const { currentUser } = useAuth();
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const App = () => {
   return (
@@ -46,39 +69,36 @@ const App = () => {
     <SearchProvider> {/* Wrap everything with SearchProvider */}
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
           <Route path="/signup" element={<CreateAccount />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgotPassword" element={<ForgotPassword/>} />
           <Route path="/resetPassword" element={<ResetPassword/>} />
-          <Route path="/orders" element={<Orders />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />
-          <Route path="/wishlist" element={<WishList />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/address" element={<SavedAddress />} />
-          <Route path="/track-order" element={<TrackOrder />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/BillAddress" element={<BillAddress />} />
 
-          {/* Admin Routes */}
-          {/* <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/signup" element={<AdminSignup />} />
-          <Route path="/admin/forget-password" element={<AdminForgetPassword />} />
-          <Route path="/admin/reset-password" element={<AdminResetPassword />} /> */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/coupons" element={<Coupons />} />
-          <Route path="/admin/order-management" element={<OrderManagement />} />
-          <Route path="/admin/payment-details" element={<PaymentDetails />} />
-          <Route path="/admin/product-management" element={<ProductManagement />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
-          {/* <Route path="/admin/report-analysis" element={<ReportAnalysis />} />
-          <Route path="/admin/store-details" element={<StoreDetails />} /> */}
-           <Route path="/admin/banner-management" element={<BannerManagement />} />
-           <Route path="/admin/order-details" element={<OrderDetails />} />
-           <Route path="/admin/review-management" element={<ReviewManagement />} />
+          {/* User Protected Routes */}
+          <Route path="/cart" element={<UserProtectedRoute><Cart /></UserProtectedRoute>} />
+          <Route path="/orders" element={<UserProtectedRoute><Orders /></UserProtectedRoute>} />
+          <Route path="/wishlist" element={<UserProtectedRoute><WishList /></UserProtectedRoute>} />
+          <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />
+          <Route path="/address" element={<UserProtectedRoute><SavedAddress /></UserProtectedRoute>} />
+          <Route path="/track-order" element={<UserProtectedRoute><TrackOrder /></UserProtectedRoute>} />
+          <Route path="/checkout" element={<UserProtectedRoute><Checkout /></UserProtectedRoute>} />
+          <Route path="/BillAddress" element={<UserProtectedRoute><BillAddress /></UserProtectedRoute>} />
+
+          {/* Admin Routes (Protected) */}
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminDashboard /></AdminProtectedRoute>} />
+          <Route path="/admin/coupons" element={<AdminProtectedRoute><Coupons /></AdminProtectedRoute>} />
+          <Route path="/admin/order-management" element={<AdminProtectedRoute><OrderManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/payment-details" element={<AdminProtectedRoute><PaymentDetails /></AdminProtectedRoute>} />
+          <Route path="/admin/product-management" element={<AdminProtectedRoute><ProductManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+          <Route path="/admin/banner-management" element={<AdminProtectedRoute><BannerManagement /></AdminProtectedRoute>} />
+          <Route path="/admin/order-details" element={<AdminProtectedRoute><OrderDetails /></AdminProtectedRoute>} />
+          <Route path="/admin/review-management" element={<AdminProtectedRoute><ReviewManagement /></AdminProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </SearchProvider>

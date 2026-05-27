@@ -5,9 +5,25 @@ import { FiBox, FiLogOut } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { BsSun } from "react-icons/bs";
 import { IoAddCircle } from "react-icons/io5";
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function ProfileSideNav() {
+  const navigate = useNavigate();
+  const { userData, currentUser, logout } = useAuth();
+  
+  const userName = userData?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem('user');
+      navigate('/login');
+    } catch (err) {
+      console.error("Failed to log out", err);
+    }
+  };
+
   return (
     <>
       <div className="profile-sidebar-card mb-2">
@@ -18,7 +34,7 @@ function ProfileSideNav() {
             <IoAddCircle className="avatar-add-icon"  />
           </div>
           <div>
-            <h5 className="fw-bold mb-1">User name</h5>
+            <h5 className="fw-bold mb-1">{userName}</h5>
             <p className="text-muted mb-0" style={{fontSize: "0.8rem"}}>12 Mar ,2026</p>
           </div>
         </div>
@@ -64,10 +80,10 @@ function ProfileSideNav() {
       </div>
 
       {/* Logout Button */}
-      <NavLink to="/login" className="btn logout-btn w-100 mt-2">
+      <button onClick={handleLogout} className="btn logout-btn w-100 mt-2" style={{ border: 'none' }}>
         <FiLogOut className="me-2" style={{transform: "rotate(180deg)"}} />
         Log out your Account
-      </NavLink>
+      </button>
     </>
   );
 }

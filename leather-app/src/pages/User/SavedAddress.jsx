@@ -5,6 +5,10 @@ import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import { MdEdit, MdAdd, MdDelete } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
+import { useAuth } from "../../context/AuthContext";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 const emptyForm = {
   email: "",
@@ -27,41 +31,79 @@ const indianStates = [
 ];
 
 function SavedAddress() {
-  const [savedAddresses, setSavedAddresses] = useState(() => {
-    const data = localStorage.getItem("savedAddresses");
-    return data ? JSON.parse(data) : [];
-  });
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
 
   const hasAddresses = savedAddresses.length > 0;
-  const [showForm, setShowForm] = useState(!hasAddresses);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
 
+  // Fetch addresses from Firestore
   useEffect(() => {
-    localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
-  }, [savedAddresses]);
+    const fetchAddresses = async () => {
+      if (!currentUser) {
+        navigate("/login");
+        return;
+      }
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.addresses && Array.isArray(data.addresses)) {
+            setSavedAddresses(data.addresses);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching addresses:", err);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, [currentUser, navigate]);
+
+  useEffect(() => {
+    if (!loadingAddresses && savedAddresses.length === 0) {
+      setShowForm(true);
+    }
+  }, [loadingAddresses, savedAddresses.length]);
+
+  const syncAddressesToDB = async (updatedAddresses) => {
+    if (currentUser) {
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userDocRef, { addresses: updatedAddresses });
+      } catch (err) {
+        console.error("Error saving addresses to DB:", err);
+      }
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    let updatedAddresses;
     if (editingId !== null) {
-      setSavedAddresses((prev) =>
-        prev.map((addr) =>
-          addr.id === editingId
-            ? {
-                ...addr,
-                ...formData,
-                mobile: formData.contact,
-              }
-            : addr
-        )
+      updatedAddresses = savedAddresses.map((addr) =>
+        addr.id === editingId
+          ? {
+              ...addr,
+              ...formData,
+              mobile: formData.contact,
+            }
+          : addr
       );
       setEditingId(null);
     } else {
@@ -70,8 +112,11 @@ function SavedAddress() {
         ...formData,
         mobile: formData.contact,
       };
-      setSavedAddresses((prev) => [...prev, newAddr]);
+      updatedAddresses = [...savedAddresses, newAddr];
     }
+    setSavedAddresses(updatedAddresses);
+    await syncAddressesToDB(updatedAddresses);
+    
     setFormData(emptyForm);
     setShowForm(false);
   };
@@ -106,9 +151,10 @@ function SavedAddress() {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteAction = () => {
+  const confirmDeleteAction = async () => {
     const remaining = savedAddresses.filter((addr) => addr.id !== addressToDelete);
     setSavedAddresses(remaining);
+    await syncAddressesToDB(remaining);
     setShowDeleteModal(false);
     setAddressToDelete(null);
 
@@ -125,7 +171,7 @@ function SavedAddress() {
       setTimeout(() => {
         document
           .getElementById("address-form-section")
-          .scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   };

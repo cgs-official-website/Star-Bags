@@ -1,29 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import AdminHeader from '../../components/Admin/AdminHeader';
 import '../../assets/styles/OrderManagement.css';
 import { TableSkeleton } from '../../components/Admin/AdminSkeleton';
-
-const initialOrders = [
-  { id: "SBO-BAG-20260712-001", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Vinoth", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Delivered", category: "Bag", orderType: "Online" },
-  { id: "SBO-BAG-20260712-002", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Gokulnath", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Cash on delivery", amount: "₹1299", status: "Shipped", category: "Bag", orderType: "COD" },
-  { id: "SBO-BAG-20260712-003", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Mohan", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Out for Delivery", category: "Bag", orderType: "Online" },
-  { id: "SBO-WLT-20260712-001", img: "../src/assets/images/bag.png", productName: "Leather Wallet", customer: "Arshak", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Order Placed", category: "Wallet", orderType: "Online" },
-  { id: "SBO-BAG-20260712-004", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Selvaraj", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Shipped", category: "Bag", orderType: "Online" },
-  { id: "SBO-BAG-20260712-005", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Ambani", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Order Placed", category: "Bag", orderType: "Online" },
-  { id: "SBO-BAG-20260712-006", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Elonmusk", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Order Placed", category: "Bag", orderType: "Online" },
-  { id: "SBO-BLT-20260712-001", img: "../src/assets/images/bag.png", productName: "Leather Belt", customer: "Stevejobs", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Out for Delivery", category: "Belt", orderType: "Online" },
-  { id: "SBO-BAG-20260712-007", img: "../src/assets/images/bag.png", productName: "Office Bag", customer: "Anand", address: "4517 Washington Ave. Manchester, Kentucky 39495", date: "12/07/2026", paymentMode: "Online", amount: "₹1299", status: "Delivered", category: "Bag", orderType: "Online" },
-];
+import toast from 'react-hot-toast';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 function OrderManagement() {
   const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'orders'));
+        const list = [];
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            id: data.id || docSnap.id,
+            img: data.items?.[0]?.img || '',
+            productName: data.items?.[0]?.productName || '',
+            customer: data.customerDetails?.name || '',
+            address: data.customerDetails?.shippingAddress || '',
+            date: data.orderDate
+              ? (data.orderDate.toDate
+                  ? data.orderDate.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/')
+                  : new Date(data.orderDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/'))
+              : '',
+            paymentMode: data.paymentMode || '',
+            amount: data.paymentDetails?.total ? `₹${data.paymentDetails.total}` : '',
+            status: data.status || '',
+            category: data.items?.[0]?.category || '',
+            orderType: data.orderType || '',
+          });
+        });
+        setOrders(list);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        toast.error('Failed to load orders!');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchOrders();
   }, []);
 
   const [dateFilter, setDateFilter] = useState('');
@@ -41,7 +64,7 @@ function OrderManagement() {
 
   const formattedDateFilter = dateFilter ? dateFilter.split('-').reverse().join('/') : '';
 
-  const filteredOrders = initialOrders.filter((order) => {
+  const filteredOrders = orders.filter((order) => {
     if (formattedDateFilter && order.date !== formattedDateFilter) return false;
     if (categoryFilter && order.category !== categoryFilter) return false;
     if (statusFilter && order.status !== statusFilter) return false;

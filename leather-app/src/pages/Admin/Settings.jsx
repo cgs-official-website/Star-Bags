@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import '../../assets/styles/AdminSettings.css';
 import '../../assets/styles/AdminDashboard.css';
 import AdminHeader from '../../components/Admin/AdminHeader';
 import { FormSkeleton } from '../../components/Admin/AdminSkeleton';
+import toast, { Toaster } from 'react-hot-toast';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 // const recentActivities = [
 //   { id: 1, title: "New Product Added", description: '"Hand purse"', time: "2 hours ago", color: "#4f46e5" },
 //   { id: 2, title: "Product Edited", description: '"Hand purse"', time: "5 hours ago", color: "#10b981" },
@@ -13,22 +16,34 @@ import { FormSkeleton } from '../../components/Admin/AdminSkeleton';
 
 function Settings() {
   const [loading, setLoading] = useState(true);
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
-
   const [isEditing, setIsEditing] = useState(false);
   const [backupData, setBackupData] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: "Name",
-    email: "starbags@gmail.com",
-    phone: "+91 8833356757",
-    storeName: "Star Bags India",
-    gstIn: "23 432",
-    storeAddress: "Thindal 432",
-    profilePhoto: "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+    fullName: '',
+    email: '',
+    phone: '',
+    storeName: '',
+    gstIn: '',
+    storeAddress: '',
+    profilePhoto: ''
   });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const docSnap = await getDoc(doc(db, 'settings', 'admin-profile'));
+        if (docSnap.exists()) {
+          setFormData(prev => ({ ...prev, ...docSnap.data() }));
+        }
+      } catch (err) {
+        console.error('Error loading settings:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,9 +62,15 @@ function Settings() {
     setIsEditing(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    try {
+      await setDoc(doc(db, 'settings', 'admin-profile'), formData);
+      toast.success('Profile saved successfully!');
+    } catch (err) {
+      console.error('Error saving settings:', err);
+      toast.error('Failed to save profile!');
+    }
     setIsEditing(false);
-    // In a real application, save to the backend API here.
   };
 
   const handleAvatarClick = () => {
@@ -71,6 +92,7 @@ function Settings() {
 
   return (
     <div className="admin-layout">
+      <Toaster position="top-right" />
       <AdminSidebar />
       <div className="admin-main">
        
@@ -88,7 +110,13 @@ function Settings() {
                 onClick={handleAvatarClick}
                 title={isEditing ? "Click to change profile photo" : ""}
               >
-                <img src={formData.profilePhoto} alt="Profile" className="settings-avatar-img" />
+                {formData.profilePhoto ? (
+                  <img src={formData.profilePhoto} alt="Profile" className="settings-avatar-img" />
+                ) : (
+                  <div className="settings-avatar-placeholder">
+                    <i className="bi bi-person-fill" style={{ fontSize: '40px', color: '#9ca3af' }}></i>
+                  </div>
+                )}
                 {isEditing ? (
                   <div className="settings-avatar-overlay">
                     <i className="bi bi-camera-fill"></i>
@@ -153,7 +181,7 @@ function Settings() {
                <div className="settings-form-row">
                  <div className="settings-form-group">
                    <label className="settings-form-label">Email Address</label>
-                   <input type="email" className="settings-input" name="email" value={formData.email} onChange={handleChange} disabled={true} />
+                   <input type="email" className="settings-input" name="email" value={formData.email} onChange={handleChange} disabled={!isEditing} />
                  </div>
                </div>
             </div>

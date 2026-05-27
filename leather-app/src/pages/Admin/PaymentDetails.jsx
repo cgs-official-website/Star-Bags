@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import { FaCcVisa, FaCcMastercard, FaPaypal, FaMoneyBillWave, FaCreditCard } from "react-icons/fa";
 import { FiRefreshCw, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
@@ -7,24 +7,9 @@ import '../../assets/styles/PaymentDetails.css';
 import AdminHeader from '../../components/Admin/AdminHeader';
 import PaymentPopup from '../../components/Admin/PaymentPopup';
 import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleton';
-
-const initialData = [
-  { id: "SBO-BAG-20260712-001", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-WLT-20260712-002", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BLT-20260712-003", amount: "₹19,623.00", currency: "INR", mode: "Cash on delivery", method: "cash", date: "Mar 23, 2022, 13:00 PM", status: "Failed" },
-  { id: "SBO-BAG-20260712-004", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "visa", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BAG-20260712-005", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "mastercard", date: "Mar 23, 2022, 13:00 PM", status: "Failed" },
-  { id: "SBO-WLT-20260712-006", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "paypal", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BAG-20260712-007", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BLT-20260712-008", amount: "₹19,623.00", currency: "INR", mode: "Cash on delivery", method: "cash", date: "Mar 23, 2022, 13:00 PM", status: "Failed" },
-  { id: "SBO-BAG-20260712-009", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-WLT-20260712-010", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "card", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BAG-20260712-011", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "paypal", date: "Mar 23, 2022, 13:00 PM", status: "Failed" },
-  { id: "SBO-BLT-20260712-012", amount: "₹19,623.00", currency: "INR", mode: "Cash on delivery", method: "cash", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BAG-20260712-013", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "visa", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-  { id: "SBO-BAG-20260712-014", amount: "₹19,623.00", currency: "INR", mode: "Online Payment", method: "mastercard", date: "Mar 23, 2022, 13:00 PM", status: "Failed" },
-  { id: "SBO-WLT-20260712-015", amount: "₹19,623.00", currency: "INR", mode: "Cash on delivery", method: "cash", date: "Mar 23, 2022, 13:00 PM", status: "Success" },
-];
+import toast, { Toaster } from 'react-hot-toast';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const renderMethodIcon = (method) => {
   switch (method) {
@@ -38,20 +23,55 @@ const renderMethodIcon = (method) => {
 };
 
 const PaymentDetails = () => {
+  const [allData, setAllData] = useState([]);
   const [loading, setLoading] = useState(true);
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'orders'));
+        const list = [];
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const isCOD = (data.paymentMode || '').toLowerCase().includes('cod') || (data.paymentMode || '').toLowerCase().includes('cash');
+          const amountRaw = data.paymentDetails?.total || 0;
+          const orderDate = data.orderDate?.toDate ? data.orderDate.toDate() : (data.orderDate ? new Date(data.orderDate) : null);
+          list.push({
+            id: data.id || docSnap.id,
+            amount: amountRaw ? `₹${Number(amountRaw).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00',
+            amountRaw: Number(amountRaw),
+            currency: 'INR',
+            mode: isCOD ? 'Cash on delivery' : 'Online Payment',
+            method: isCOD ? 'cash' : (data.paymentDetails?.method || 'card'),
+            date: orderDate ? orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : '-',
+            time: orderDate ? orderDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-',
+            status: data.paymentStatus || (data.status === 'Delivered' ? 'Success' : 'Pending'),
+          });
+        });
+        setAllData(list);
+      } catch (err) {
+        console.error('Error fetching payments:', err);
+        toast.error('Failed to load payment data!');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPayments();
   }, []);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [paymentMode, setPaymentMode] = useState("All");
-  const [paymentStatus, setPaymentStatus] = useState("All");
+  // Live stats
+  const totalPayment = allData.reduce((sum, r) => sum + r.amountRaw, 0);
+  const codPayment = allData.filter(r => r.mode === 'Cash on delivery').reduce((sum, r) => sum + r.amountRaw, 0);
+  const onlinePayment = allData.filter(r => r.mode === 'Online Payment').reduce((sum, r) => sum + r.amountRaw, 0);
+
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [paymentMode, setPaymentMode] = useState('All');
+  const [paymentStatus, setPaymentStatus] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-
   const popupDetails = selectedPayment ? {
     amount: selectedPayment.amount,
     transactionId: selectedPayment.id,
@@ -62,8 +82,8 @@ const PaymentDetails = () => {
       cash: "Cash on delivery",
       card: "Credit card"
     }[selectedPayment.method] || "Credit card",
-    date: selectedPayment.date.split(', ').slice(0, 2).join(', '),
-    time: selectedPayment.date.split(', ')[2] || "12:00 PM",
+    date: selectedPayment.date,
+    time: selectedPayment.time || "12:00 PM",
     merchant: "Star Bags"
   } : {};
 
@@ -77,13 +97,13 @@ const PaymentDetails = () => {
   };
 
   const filteredData = useMemo(() => {
-    return initialData.filter(item => {
+    return allData.filter(item => {
       const matchesSearch = item.id.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesMode = paymentMode === "All" || item.mode === paymentMode;
-      const matchesStatus = paymentStatus === "All" || item.status === paymentStatus;
+      const matchesMode = paymentMode === 'All' || item.mode === paymentMode;
+      const matchesStatus = paymentStatus === 'All' || item.status === paymentStatus;
       return matchesSearch && matchesMode && matchesStatus;
     });
-  }, [searchQuery, paymentMode, paymentStatus]);
+  }, [allData, searchQuery, paymentMode, paymentStatus]);
 
   const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
   const startIndex = (currentPage - 1) * rowsPerPage;
@@ -97,6 +117,7 @@ const PaymentDetails = () => {
 
   return (
     <div className="admin-layout">
+      <Toaster position="top-right" />
       <AdminSidebar />
       <div className="admin-main payment-details-wrapper">
        
@@ -110,12 +131,12 @@ const PaymentDetails = () => {
             </>
           ) : (
             <>
-          <div className="payment-stats-grid">
+              <div className="payment-stats-grid">
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
                   <p className="payment-stat-label">Total payment</p>
-                  <p className="payment-stat-value">₹ 11,000</p>
+                  <p className="payment-stat-value">₹ {totalPayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#ede9fe', color: '#7c3aed' }}>
                   <i className="bi bi-wallet2" style={{ fontSize: '20px' }}></i>
@@ -123,7 +144,7 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>+10.3% Up from past week</span>
+                <span>{allData.filter(r => r.status === 'Success').length} Successful</span>
               </div>
             </div>
 
@@ -131,7 +152,7 @@ const PaymentDetails = () => {
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
                   <p className="payment-stat-label">Cash on delivery</p>
-                  <p className="payment-stat-value">₹ 22,000</p>
+                  <p className="payment-stat-value">₹ {codPayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#dcfce7', color: '#16a34a' }}>
                   <i className="bi bi-cash-coin" style={{ fontSize: '20px' }}></i>
@@ -139,7 +160,7 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>1.3% Up from past week</span>
+                <span>{allData.filter(r => r.mode === 'Cash on delivery').length} orders</span>
               </div>
             </div>
 
@@ -147,7 +168,7 @@ const PaymentDetails = () => {
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
                   <p className="payment-stat-label">Online payment</p>
-                  <p className="payment-stat-value">₹ 10,000</p>
+                  <p className="payment-stat-value">₹ {onlinePayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
                   <i className="bi bi-credit-card" style={{ fontSize: '20px' }}></i>
@@ -155,7 +176,7 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>+10.3% Up from past week</span>
+                <span>{allData.filter(r => r.mode === 'Online Payment').length} orders</span>
               </div>
             </div>
           </div>
