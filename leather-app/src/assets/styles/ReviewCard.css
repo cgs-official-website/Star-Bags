@@ -1,0 +1,197 @@
+/* ============================================
+   Review Card Component Styles
+   ============================================ */
+
+.review-card {
+  background: #ffffff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.review-card:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Product Image */
+.review-product-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  background-color: #c9a84c;
+  flex-shrink: 0;
+}
+
+/* Product Name */
+.review-product-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* Review Text */
+.review-body-text {
+  font-size: 0.85rem;
+  color: #333;
+  line-height: 1.5;
+  margin-bottom: 0.25rem;
+}
+
+.review-short-text {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+/* ============================================
+   Three Dot Menu & Dropdown
+   ============================================ */
+
+.review-menu-wrapper {
+  position: relative;
+}
+
+.review-menu-btn {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+  font-size: 1rem;
+}
+
+.review-menu-btn:hover,
+.review-menu-btn.active {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.review-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.review-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+
+.review-dropdown-item.edit {
+  color: #334155;
+}
+
+.review-dropdown-item.edit:hover {
+  background: #f1f5f9;
+  color: #6d28d9;
+}
+
+.review-dropdown-item.delete {
+  color: #ef4444;
+}
+
+.review-dropdown-item.delete:hover {
+  background: #fff1f2;
+}
+
+.dropdown-icon {
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Like / Dislike Buttons
+   ============================================ */
+
+.review-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  color: #5B8FF4;
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.review-action-btn:hover {
+  background: #eef3ff;
+  transform: scale(1.1);
+}
+
+.review-action-btn.dislike {
+  color: #F45B5B;
+}
+
+.review-action-btn.dislike:hover {
+  background: #fff0f0;
+}
+
+.review-action-btn.active-like {
+  color: #2563eb;
+  background: #dbeafe;
+}
+
+.review-action-btn.active-dislike {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+/* Reviews List Container */
+.reviews-list {
+  max-width: 780px;
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 768px) {
+  .review-card {
+    padding: 0.875rem 1rem;
+  }
+
+  .review-product-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .review-product-name {
+    font-size: 0.8rem;
+  }
+
+  .review-body-text,
+  .review-short-text {
+    font-size: 0.8rem;
+  }
+}

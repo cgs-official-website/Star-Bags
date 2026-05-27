@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SearchProvider } from './context/SearchContext'; // Import this
@@ -19,6 +18,8 @@ import SavedAddress from './pages/User/SavedAddress';
 import TrackOrder from './pages/User/TrackOrder';
 import Product from './pages/User/Allproducts';
 import BillAddress from './pages/User/BillAddress';
+import Myreviews from './pages/User/Myreviews';
+
 
 import AdminLogin from './pages/Admin/AdminLogin';
 import AdminSignup from './pages/Admin/AdminSignup';
@@ -38,6 +39,8 @@ import ReviewManagement from './pages/Admin/ReviewManagement';
 // import BillAddress from './pages/User/BillAddress';
 // import SignUpVerification from './pages/User/SignUpVerification';
 import Checkout from './pages/User/Checkout';
+
+
 
 
 const App = () => {
@@ -62,6 +65,7 @@ const App = () => {
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/BillAddress" element={<BillAddress />} />
+          <Route path="/reviews" element={<Myreviews />} />
 
           {/* Admin Routes */}
           {/* <Route path="/admin" element={<AdminLogin />} />
