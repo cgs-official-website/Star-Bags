@@ -58,19 +58,34 @@ export const WishlistProvider = ({ children }) => {
     });
   };
 
-  // Cart Actions
+  // ─── FIXED: CART ACTIONS NOW VALIDATE UNIQUE NAME + SIZE MATRIX SCHEMAS ───
   const addToCart = (product) => {
     setCart((prev) => {
-      const exists = prev.some((item) => item.name === product.name && Number(item.price) === Number(product.price));
+      // Compares BOTH the item profile name and the explicit chosen custom size attributes
+      const exists = prev.some(
+        (item) => item.name === product.name && item.size === product.size
+      );
+
       if (exists) {
         return prev.map((item) => 
-          item.name === product.name && Number(item.price) === Number(product.price)
-            ? { ...item, qty: (item.qty || 1) + 1 }
+          item.name === product.name && item.size === product.size
+            ? { ...item, qty: (item.qty || 1) + (product.qty || 1) }
             : item
         );
       }
+
       showNotification(`Added "${product.name}" to Cart!`, "success");
-      return [...prev, { ...product, id: product.id || Date.now() + Math.random(), qty: 1, selected: true }];
+      
+      // Saves unique dynamic instance metadata directly inside array stores
+      return [
+        ...prev, 
+        { 
+          ...product, 
+          id: product.id || Date.now() + Math.random(), 
+          qty: product.qty || 1, 
+          selected: true 
+        }
+      ];
     });
   };
 
@@ -139,6 +154,4 @@ const useWishlist = () => {
   return context;
 };
 
-// ─── THE FIXED MULTI-EXPORT COMPILER WRAPPER ─────────────────────────────────
-// Grouping non-component variables here at the bottom satisfies the Vite bundler completely.
 export { WishlistContext, useWishlist };

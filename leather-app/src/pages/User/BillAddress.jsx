@@ -1,207 +1,6 @@
-<<<<<<< HEAD
-// import { useState } from "react";
-// import { useLocation, NavLink, useNavigate } from "react-router-dom";
-// import { FaArrowLeft } from "react-icons/fa";
-// import { TiPencil } from "react-icons/ti";
-// import { TbCreditCardPay } from "react-icons/tb";
-// import { GiMoneyStack } from "react-icons/gi";
-// import PaymentImage from "../../assets/images/payment-icon.png";
-// import Navbar from "../../components/User/Navbar";
-// import Footer from "../../components/User/Footer";
-// import CartItem from "../../components/User/YourCart";
-// import OrderSummary from "../../components/User/OrderSummary";
-// import "../../assets/styles/Cart.css";
-
-// const BillAddress = () => {
-//   const location = useLocation();
-//   const navigate = useNavigate();
-
-//   const {
-//     allCartItems = [],
-//     cartItems: initialSelected = [],
-//     rawTotal: passedRawTotal = 0,
-//     couponPercentageLabel = ""
-//   } = location.state || {};
-
-//   const [paymentMethod, setPaymentMethod] = useState("cod");
-//   const [cartItems, setCartItems] = useState(initialSelected);
-//   const [masterCartList, setMasterCartList] = useState(allCartItems);
-
-//   const totalItemsCount = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0);
-
-//   const activeRawTotal = cartItems.length > 0
-//     ? cartItems.reduce((acc, item) => {
-//         const originalPrice = Number(item.realPrice) || Number(item.price) || 0;
-//         return acc + (originalPrice * (item.qty || 1));
-//       }, 0)
-//     : passedRawTotal;
-
-//   const activeBaseSubTotal = cartItems.reduce((acc, item) => {
-//     return acc + (Number(item.price) * (item.qty || 1));
-//   }, 0);
-
-//   const activeDiscountTotal = activeRawTotal > activeBaseSubTotal ? (activeRawTotal - activeBaseSubTotal) : 0;
-
-//   const couponPercentValue = parseFloat(couponPercentageLabel) || 0;
-//   const activeCouponDiscount = (activeBaseSubTotal * couponPercentValue) / 100;
-
-//   const activeCalculatedSubTotal = activeBaseSubTotal - activeCouponDiscount;
-//   const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.05);
-//   const activeFinalTotal = activeCalculatedSubTotal + activeGstTotal;
-
-//   const increaseQty = (id) => {
-//     setCartItems((prev) =>
-//       prev.map((item) => (item.id === id ? { ...item, qty: (item.qty || 1) + 1 } : item))
-//     );
-//     setMasterCartList((prev) =>
-//       prev.map((item) => (item.id === id ? { ...item, qty: (item.qty || 1) + 1 } : item))
-//     );
-//   };
-
-//   const decreaseQty = (id) => {
-//     setCartItems((prev) =>
-//       prev.map((item) => (item.id === id && (item.qty || 1) > 1 ? { ...item, qty: (item.qty || 1) - 1 } : item))
-//     );
-//     setMasterCartList((prev) =>
-//       prev.map((item) => (item.id === id && (item.qty || 1) > 1 ? { ...item, qty: (item.qty || 1) - 1 } : item))
-//     );
-//   };
-
-//   const toggleWishlist = () => {};
-
-//   const handlePlaceOrderSubmit = () => {
-//     alert("Order successfully placed!");
-//     navigate("/");
-//   };
-
-//   return (
-//     <>
-//       <Navbar />
-//       <div className="cart-page style-page-billing">
-//         <h2 className="cart-title">Billing and address</h2>
-
-//         <NavLink
-//           to="/checkout"
-//           state={{
-//             allCartItems: masterCartList,
-//             cartItems: cartItems,
-//             appliedCouponDiscount: activeCouponDiscount,
-//             couponPercentageLabel
-//           }}
-//           className="back-btn fw-bold text-decoration-none d-inline-flex align-items-center gap-2 mb-3"
-//           style={{ color: "#171744" }}
-//         >
-//           <FaArrowLeft /> Back to Checkout
-//         </NavLink>
-
-//         <div className="cart-layout-grid">
-//           <div className="cart-left">
-//             <div className="cart-items">
-//               {cartItems.map((item, index) => (
-//                 <CartItem
-//                   key={item.id || index}
-//                   item={item}
-//                   onIncrease={increaseQty}
-//                   onDecrease={decreaseQty}
-//                   onToggleWishlist={toggleWishlist}
-//                   showActions={false}
-//                   showCheckbox={false}
-//                 />
-//               ))}
-//             </div>
-//           </div>
-
-//           <div className="cart-right">
-//             <OrderSummary
-//               totalItemsCount={totalItemsCount}
-//               rawTotal={activeRawTotal}
-//               discountTotal={activeDiscountTotal + activeCouponDiscount}
-//               subTotal={activeCalculatedSubTotal}
-//               couponDiscount={activeCouponDiscount}
-//               couponPercentageLabel={couponPercentageLabel}
-//               gstTotal={activeGstTotal}
-//               finalTotal={activeFinalTotal}
-//               isBillingPage={true}
-//               handleCheckout={handlePlaceOrderSubmit}
-//             />
-
-//             <div className="address-box mt-4">
-//               <div className="address-top">
-//                 <h5>Address</h5>
-//                 <button className="choose-address-btn"><TiPencil /> Choose Address</button>
-//               </div>
-//               <div className="address-content">
-//                 <p>
-//                   Rahul Sharma, Flat No. 302, Sai Residency<br />
-//                   Mumbai, Maharashtra - 400058<br />
-//                   Mobile: 9876543210
-//                 </p>
-//               </div>
-//             </div>
-
-//             <div className="payment-box mt-4">
-//               <h6 className="payment-title">Payment method</h6>
-//               <p className="payment-subtitle">Choose a payment method</p>
-
-//               <div
-//                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`}
-//                 onClick={() => setPaymentMethod("cod")}
-//               >
-//                 <div className="payment-left">
-//                   <input
-//                     type="radio"
-//                     checked={paymentMethod === "cod"}
-//                     onChange={() => setPaymentMethod("cod")}
-//                   />
-//                   <div className="payment-icon"><GiMoneyStack /></div>
-//                   <div>
-//                     <p className="fw-bold m-0">Cash on delivery</p>
-//                     <p className="m-0">you pay when your order is delivered</p>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               <div
-//                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`}
-//                 onClick={() => setPaymentMethod("online")}
-//               >
-//                 <div className="payment-left">
-//                   <input
-//                     type="radio"
-//                     checked={paymentMethod === "online"}
-//                     onChange={() => setPaymentMethod("online")}
-//                   />
-//                   <div className="payment-icon"><TbCreditCardPay /></div>
-//                   <div>
-//                     <p className="fw-bold m-0">Online payment</p>
-//                     <p className="m-0">Pay securely Using UPI, Cards, Net banking & More</p>
-//                     <span className="payment-icons"><img src={PaymentImage} alt="Payment Methods" /></span>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               <button className="continue-payment-btn" onClick={handlePlaceOrderSubmit}>
-//                 Place Order Now
-//               </button>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//       <Footer />
-//     </>
-//   );
-// };
-
-// export default BillAddress;
-
-import React, { useState } from "react";
-import { useLocation, useNavigate, NavLink } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
-=======
-import { useState } from "react";
+import  { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
->>>>>>> 0f8a16d5332536f4717356f90a720422dc453b29
 import { TbCreditCardPay } from "react-icons/tb";
 import { GiMoneyStack } from "react-icons/gi";
 import PaymentImage from "../../assets/images/payment-icon.png";
@@ -209,13 +8,16 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import CartItem from "../../components/User/YourCart";
 import OrderSummary from "../../components/User/OrderSummary";
+import PaymentPopup from "../../components/User/PaymentPopup"; 
+import { useWishlist } from "../../context/WishlistContext"; 
 import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { cart, setCart } = useWishlist(); 
 
-  // FIXED: Unpacking the dynamically passed custom chosen address object payload here
+  // ─── STAGE 1: UNPACK DYNAMIC STATE ROUTING MATRIX ───
   const { 
     allCartItems = [], 
     cartItems: initialSelected = [], 
@@ -224,10 +26,23 @@ const BillAddress = () => {
     selectedAddress = null 
   } = location.state || {};
 
+  // ─── STAGE 2: PROCESS STATES ───
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [cartItems, setCartItems] = useState(initialSelected);
   const [masterCartList, setMasterCartList] = useState(allCartItems);
 
+  const [isOrderingLoader, setIsOrderingLoader] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [popupDetails, setPopupDetails] = useState({});
+
+  useEffect(() => {
+    if (initialSelected.length === 0) {
+      navigate("/cart");
+    }
+    window.scrollTo(0, 0);
+  }, [initialSelected, navigate]);
+
+  // ─── STAGE 3: CALCULATIONS AND METRIC LEDGER PARSING ───
   const totalItemsCount = cartItems.reduce((acc, item) => acc + (item.qty || 1), 0);
   
   const activeRawTotal = cartItems.length > 0 
@@ -237,10 +52,7 @@ const BillAddress = () => {
       }, 0)
     : passedRawTotal;
   
-  const activeBaseSubTotal = cartItems.reduce((acc, item) => {
-    return acc + (Number(item.price) * (item.qty || 1));
-  }, 0);
-
+  const activeBaseSubTotal = cartItems.reduce((acc, item) => acc + (Number(item.price) * (item.qty || 1)), 0);
   const activeDiscountTotal = activeRawTotal > activeBaseSubTotal ? (activeRawTotal - activeBaseSubTotal) : 0;
   
   const couponPercentValue = parseFloat(couponPercentageLabel) || 0;
@@ -268,134 +80,135 @@ const BillAddress = () => {
     );
   };
 
-  const toggleWishlist = () => {};
-
+  // ─── STAGE 4: MASTER ACTION TRYS AND REAL-TIME CART PURGE LAYER ───
   const handlePlaceOrderSubmit = () => {
+    if (!selectedAddress) {
+      alert("Please ensure a valid shipping destination address profile is active.");
+      return;
+    }
 
-    alert("Order successfully placed!");
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const dateString = `${year}${month}${day}`;
+    const displayDate = today.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+    const displayTime = today.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
-    navigate("/");
+    const newOrderPayloads = cartItems.map((item, idx) => {
+      const productCategory = item.category?.toLowerCase() || "bag";
+      let catToken = "BAG"; 
+      if (productCategory === "wallet") catToken = "WLT";
+      if (productCategory === "belt") catToken = "BLT";
+
+      const randomCount = String(Math.floor(Math.random() * 900) + (idx + 1)).padStart(3, '0');
+      const uniqueOrderId = `SBO-${catToken}-${dateString}-${randomCount}`;
+
+      return {
+        id: uniqueOrderId,
+        product: item.name,
+        status: "Processing",
+        time: displayDate,
+        rating: item.rating || 4.5,
+        reviews: item.reviews || 120,
+        deliveryDate: "Expected in 5 Days",
+        discountedPrice: Number(item.price) * (item.qty || 1), 
+        originalPrice: (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
+        quantity: item.qty || 1,
+        image: item.image || "../src/assets/images/leather1.png"
+      };
+    });
+
+    const paymentLabel = paymentMethod === "cod" ? "Cash On Delivery" : "Online Payment";
+    
+    setPopupDetails({
+      amount: `₹${activeFinalTotal.toFixed(2)}`,
+      transactionId: newOrderPayloads[0]?.id,
+      paymentMethod: paymentLabel,
+      date: displayDate,
+      time: displayTime,
+      merchant: "Krish Leather Factory"
+    });
+
+    // Purge cart item dependencies out of global hooks directly
+    if (setCart) {
+      setCart((prevCart) => {
+        const currentItems = prevCart || [];
+        const updatedCartMesh = currentItems.filter(
+          (item) => !cartItems.some((selected) => selected.id === item.id || selected.name === item.name)
+        );
+        
+        localStorage.setItem("user_cart", JSON.stringify(updatedCartMesh));
+        localStorage.setItem("cart", JSON.stringify(updatedCartMesh));
+        localStorage.setItem("cartItems", JSON.stringify(updatedCartMesh));
+        return updatedCartMesh;
+      });
+    }
+
+    // Loader transitions and popup controls 
+    if (paymentMethod === "online") {
+      setIsOrderingLoader(true);
+      setTimeout(() => {
+        setIsOrderingLoader(false);
+        setIsPopupOpen(true);
+        setTimeout(() => {
+          setIsPopupOpen(false);
+          navigate("/orders", { state: { newOrderPayloads } });
+        }, 3000);
+      }, 10000);
+    } else {
+      setIsPopupOpen(true);
+      setTimeout(() => {
+        setIsPopupOpen(false);
+        navigate("/orders", { state: { newOrderPayloads } });
+      }, 3000);
+    }
   };
 
   const handleBackToCheckout = () => {
     navigate("/checkout", {
-      state: {
-        allCartItems: masterCartList,
-        cartItems: cartItems,
-        couponPercentageLabel: couponPercentageLabel
+      state: { 
+        allCartItems: masterCartList, 
+        cartItems: cartItems, 
+        couponPercentageLabel: couponPercentageLabel, 
+        returnedAddressId: selectedAddress?.id 
       }
     });
   };
 
   return (
-    <>
+    <div className="bill-address-page-root" style={{ position: "relative", minHeight: "100vh" }}>
       <Navbar />
-      <div className="cart-page style-page-billing ">
-        <div className="checkout-header pb-3">
-          <h2 className="main-title">Billing and Address</h2>
-          <button
-            className="back-navigation-btn"
-            onClick={handleBackToCheckout}
-          >
-            <ArrowIcon className="me-2" /> Back to Checkout
-          </button>
-        </div>
 
-<<<<<<< HEAD
-        <NavLink
-          to="/checkout"
-          state={{ ...location.state }}
-          className="back-btn fw-bold text-decoration-none d-inline-flex align-items-center gap-2 mb-4"
-          style={{ color: "#171744" }}
-        >
-          <FaArrowLeft /> Back to Checkout
-        </NavLink>
+      {isOrderingLoader && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(255, 255, 255, 0.96)", backdropFilter: "blur(5px)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 20000 }}>
+          <div className="spinner-border" style={{ width: "3.8rem", height: "3.8rem", color: "#8b5cf6", borderWidth: "4px" }} role="status" />
+          <h4 className="fw-bold text-dark mt-4 mb-2">Processing Secure Online Payment...</h4>
+        </div>
+      )}
+
+      <PaymentPopup isOpen={isPopupOpen} details={popupDetails} onClose={() => setIsPopupOpen(false)} />
+
+      <div className="cart-page style-page-billing">
+        <div className="checkout-header">
+          <h2 className="main-title">Billing and Address</h2>
+          <button className="back-navigation-btn" onClick={handleBackToCheckout}><ArrowIcon className="me-2" /> Back to Checkout</button>
+        </div>
 
         <div className="cart-layout-grid">
           <div className="cart-left">
-            <div className="billing-address-summary-box mb-4 p-3 border rounded bg-light">
-              <h4 className="section-subtitle-heading mb-2">
-                Shipping Destination
-              </h4>
-              <p className="mb-1 fw-bold">Rahul Sharma</p>
-              <p className="mb-1 text-muted">
-                Flat No. 302, Sai Residency, Mumbai, Maharashtra - 400058
-              </p>
-              <p className="mb-0 text-muted">Phone: 9876543210</p>
-            </div>
-
-            <div className="review-items-box border rounded p-3 bg-white">
-              <h4 className="section-subtitle-heading mb-3">
-                Review Items ({cartItems.length})
-              </h4>
-              {cartItems.map((item, idx) => (
-                <div
-                  key={item.id || idx}
-                  className="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2"
-                >
-                  <div className="d-flex align-items-center gap-3">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      style={{
-                        width: "50px",
-                        height: "50px",
-                        objectFit: "cover",
-                        borderRadius: "6px",
-                      }}
-                    />
-                    <div>
-                      <h6
-                        className="mb-0 text-truncate"
-                        style={{ maxWidth: "200px" }}
-                      >
-                        {item.name}
-                      </h6>
-                      <small className="text-muted">Qty: {item.qty || 1}</small>
-                    </div>
-                  </div>
-                  <span className="fw-semibold">
-                    ₹{(Number(item.price) * (item.qty || 1)).toFixed(2)}
-                  </span>
-                </div>
-=======
-        <div className="cart-layout-grid ">
-          <div className="cart-left">
             <div className="cart-items">
               {cartItems.map((item, index) => (
-                <CartItem 
-                  key={item.id || index} 
-                  item={item} 
-                  onIncrease={increaseQty} 
-                  onDecrease={decreaseQty} 
-                  onToggleWishlist={toggleWishlist} 
-                  showActions={false} 
-                  showCheckbox={false} 
-                />
->>>>>>> 0f8a16d5332536f4717356f90a720422dc453b29
+                <CartItem key={item.id || index} item={item} onIncrease={increaseQty} onDecrease={decreaseQty} showActions={false} showCheckbox={false} />
               ))}
             </div>
           </div>
 
           <div className="cart-right">
-            <OrderSummary 
-              totalItemsCount={totalItemsCount} 
-              rawTotal={activeRawTotal} 
-              discountTotal={activeDiscountTotal + activeCouponDiscount} 
-              subTotal={activeCalculatedSubTotal} 
-              couponDiscount={activeCouponDiscount} 
-              couponPercentageLabel={couponPercentageLabel} 
-              gstTotal={activeGstTotal} 
-              finalTotal={activeFinalTotal} 
-              isBillingPage={true} 
-              handleCheckout={handlePlaceOrderSubmit}
-            />
+            <OrderSummary totalItemsCount={totalItemsCount} rawTotal={activeRawTotal} discountTotal={activeDiscountTotal + activeCouponDiscount} subTotal={activeCalculatedSubTotal} couponDiscount={activeCouponDiscount} couponPercentageLabel={couponPercentageLabel} gstTotal={activeGstTotal} finalTotal={activeFinalTotal} isBillingPage={true} paymentMethod={paymentMethod} handleCheckout={handlePlaceOrderSubmit} />
 
-            {/* FIXED: Dynamic conditional template rendering block handles state values instead of strings */}
             <div className="address-box mt-4">
-              <div className="address-top">
-                <h5>Address</h5>
-              </div>
+              <div className="address-top"><h5>Address</h5></div>
               <div className="address-content">
                 {selectedAddress ? (
                   <p>
@@ -414,19 +227,10 @@ const BillAddress = () => {
               <h6 className="payment-title">Payment method</h6>
               <p className="payment-subtitle">Choose a payment method</p>
 
-              <div
-                className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`}
-                onClick={() => setPaymentMethod("cod")}
-              >
+              <div className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} onClick={() => setPaymentMethod("cod")}>
                 <div className="payment-left">
-                  <input
-                    type="radio"
-                    checked={paymentMethod === "cod"}
-                    onChange={() => setPaymentMethod("cod")}
-                  />
-                  <div className="payment-icon">
-                    <GiMoneyStack />
-                  </div>
+                  <input type="radio" checked={paymentMethod === "cod"} onChange={() => setPaymentMethod("cod")} />
+                  <div className="payment-icon"><GiMoneyStack /></div>
                   <div>
                     <p className="fw-bold m-0">Cash on delivery</p>
                     <p className="m-0">you pay when your order is delivered</p>
@@ -434,49 +238,32 @@ const BillAddress = () => {
                 </div>
               </div>
 
-              <div
-                className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`}
-                onClick={() => setPaymentMethod("online")}
-              >
+              <div className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} onClick={() => setPaymentMethod("online")}>
                 <div className="payment-left">
-                  <input
-                    type="radio"
-                    checked={paymentMethod === "online"}
-                    onChange={() => setPaymentMethod("online")}
-                  />
-                  <div className="payment-icon">
-                    <TbCreditCardPay />
-                  </div>
+                  <input type="radio" checked={paymentMethod === "online"} onChange={() => setPaymentMethod("online")} />
+                  <div className="payment-icon"><TbCreditCardPay /></div>
                   <div>
                     <p className="fw-bold m-0">Online payment</p>
-                    <p className="m-0">
-                      Pay securely Using UPI, Cards, Net banking & More
-                    </p>
-                    <span className="payment-icons">
-                      <img src={PaymentImage} alt="Payment Methods" />
-                    </span>
+                    <p className="m-0">Pay securely Using UPI, Cards, Net banking & More</p>
+                    <span className="payment-icons"><img src={PaymentImage} alt="Payment Methods" /></span>
                   </div>
                 </div>
               </div>
 
-              <button
-                className="continue-payment-btn"
-                onClick={handlePlaceOrderSubmit}
-              >
-                Place Order Now
+              <button className="continue-payment-btn" onClick={handlePlaceOrderSubmit}>
+                {paymentMethod === "cod" ? "Place Order" : "Continue Payment"}
               </button>
             </div>
           </div>
         </div>
       </div>
       <Footer />
-    </>
+    </div>
   );
 };
 
 export default BillAddress;
-<<<<<<< HEAD
-=======
+
 
 
 // import  { useState, useEffect } from "react";
@@ -536,18 +323,18 @@ export default BillAddress;
 //       <div className="cart-page billing-page-container" style={{ paddingTop: "10px", paddingBottom: "10px" }}>
 //         <div className="checkout-title-row mb-2">
 //           <h2 className="main-title">Product Checkout</h2>
-//           <button 
-//             className="back-navigation-btn mb-3" 
+//           <button
+//             className="back-navigation-btn mb-3"
 //             onClick={() => navigate("/checkout", { state: { ...location.state } })}
 //             type="button"
 //           >
 //             <ArrowIcon className="me-2" /> Back to Checkout
 //           </button>
 //         </div>
-        
+
 //         <div className="cart-layout-grid">
 //           <div className="cart-left d-flex flex-column gap-2">
-            
+
 //             {/* ─── FIXED DYNAMIC SHIPPING PANEL (MATCHES CHECKOUT EXACTLY) ─── */}
 //             <div className="billing-address-summary-box p-3 border rounded bg-light" style={{ margin: 0 }}>
 //               <h6 className="section-subtitle-heading">Shipping Destination</h6>
@@ -600,13 +387,13 @@ export default BillAddress;
 //               isBillingPage={true}
 //               handleCheckout={handlePlaceOrderSubmit}
 //             />
-            
+
 //             <div className="payment-box" style={{ margin: 0, padding: "12px" }}>
 //               <h6 className="payment-title" style={{ fontSize: "1.1rem", margin: 0 }}>Payment method</h6>
 //               <p className="payment-subtitle" style={{ fontSize: "0.75rem", margin: "2px 0 10px 0" }}>Choose a payment method</p>
-              
-//               <div 
-//                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`} 
+
+//               <div
+//                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`}
 //                 onClick={() => setPaymentMethod("cod")}
 //                 style={{ cursor: "pointer", padding: "8px", marginBottom: "8px" }}
 //               >
@@ -620,8 +407,8 @@ export default BillAddress;
 //                 </div>
 //               </div>
 
-//               <div 
-//                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`} 
+//               <div
+//                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`}
 //                 onClick={() => setPaymentMethod("online")}
 //                 style={{ cursor: "pointer", padding: "8px", marginBottom: "10px" }}
 //               >
@@ -649,4 +436,3 @@ export default BillAddress;
 // };
 
 // export default BillAddress;
->>>>>>> 0f8a16d5332536f4717356f90a720422dc453b29
