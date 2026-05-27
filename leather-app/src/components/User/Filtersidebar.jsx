@@ -7,7 +7,7 @@ import "../../assets/styles/FilterSideBar.css";
 export const BAG_TYPES = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
 export const BRANDS    = ['Puma', 'American Tourist', 'Sky bags', 'VIP', 'Safari'];
 export const MATERIALS = ['Leather bags', 'Canvas bags', 'Nylon bags', 'Polyester bags'];
-export const SIZES     = ['Small', 'Medium', 'Large', 'XL'];
+export const SIZES     = ['Small', 'Medium', 'Large'];
 export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
 export const CAPACITIES = ['20L', '30L', '40L'];
 
