@@ -105,8 +105,8 @@ function Myreviews() {
     <div className="reviews-page-app-wrapper">
       <Navbar />
 
-      <main className="reviews-container container py-4 my-2">
-        <h4 className="mb-4 fw-bold outfit-font page-section-title">Settings and Profile</h4>
+      <main className="container py-3 my-2">
+        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
         <div className="row justify-content-center">
           {/* Sidebar */}
