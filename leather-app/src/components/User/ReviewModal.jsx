@@ -1,15 +1,18 @@
-
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../../assets/styles/ReviewModal.css";
 
 function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
-  const [reviewText, setReviewText] = React.useState("");
-  const [hoverRating, setHoverRating] = React.useState(0);
+  const [reviewText, setReviewText] = useState("");
+  const [hoverRating, setHoverRating] = useState(0);
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && textareaRef.current) {
-      textareaRef.current.focus();
+    if (isOpen) {
+      // Clear out text state context on fresh open triggers cleanly
+      setReviewText("");
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
     }
   }, [isOpen]);
 
@@ -27,12 +30,22 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
     setHoverRating(0);
   };
 
+  // ─── FIXED CRITICAL SYSTEM TRICK: ENFORCES BOTH STAR AND TEXT VALIDATION ───
   const handleSubmit = () => {
+    // 1. Check if star selection gauge is untouched
     if (rating === 0) {
-      alert("Please select a rating before submitting.");
+      alert("Please select a star rating for the product before submitting.");
       return;
     }
-    onSubmit(rating, reviewText);
+
+    // 2. STRICTOR CHECK: Blocks submit if user has NOT typed comments context box area
+    if (!reviewText || reviewText.trim() === "") {
+      alert("Please write your thoughts and feedback in the review section before submitting.");
+      return;
+    }
+
+    // Fires the payload forward only if both conditions pass criteria cleanly thalaiva
+    onSubmit(rating, reviewText.trim());
     setReviewText("");
     setRating(0);
     onClose();
@@ -68,6 +81,7 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
               onClick={() => handleStarClick(star)}
               onMouseEnter={() => handleStarHover(star)}
               onMouseLeave={handleStarLeave}
+              style={{ cursor: "pointer" }}
             >
               ★
             </span>
@@ -85,14 +99,15 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
           placeholder="Write Your reviews and about your Product"
           value={reviewText}
           onChange={(e) => setReviewText(e.target.value)}
+          style={{ width: "100%", boxSizing: "border-box" }}
         />
 
-        {/* Action Buttons */}
+        {/* Action Buttons Terminal Tray Layout */}
         <div className="rm-actions">
-          <button className="rm-cancel" onClick={handleCancel}>
+          <button className="rm-cancel" onClick={handleCancel} style={{ cursor: "pointer" }}>
             Cancel
           </button>
-          <button className="rm-submit" onClick={handleSubmit}>
+          <button className="rm-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>
             Submit your review
           </button>
         </div>

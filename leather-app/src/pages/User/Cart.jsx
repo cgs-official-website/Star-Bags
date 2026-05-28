@@ -1,233 +1,158 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useWishlist } from "../../context/WishlistContext"; 
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
-import ProfileSideNav from "../../components/User/Profile-Side-Nav";
-import OrderCard from "../../components/User/OrderCard";
-import ReviewModal from "../../components/User/ReviewModal"; 
-import { FaSearch, FaRegStar } from "react-icons/fa";
-import "../../assets/styles/Orders.css";
-import emptyOrders from "../../assets/images/empty.png";
+import CartItem from "../../components/User/YourCart";
+import OrderSummary from "../../components/User/OrderSummary";
+import RecentProduct from "../../components/User/RecentProduct"; 
+import "../../assets/styles/Cart.css";
 
-const EmptyOrders = ({ onShopNowClick }) => {
+const EmptyCartView = () => {
+  const navigate = useNavigate();
   return (
-    <div className="orders-empty-container text-center py-5">
-      <div className="orders-empty-image-wrapper mb-3">
-        <img src={emptyOrders} alt="No Orders Blueprint" className="orders-empty-vector" style={{ maxWidth: "200px", height: "auto" }} />
+    <div className="wl-empty-container my-4">
+      <div className="wl-empty-image-wrapper">
+        <img 
+          src={new URL("../../assets/images/empty.png", import.meta.url).href} 
+          alt="Empty Cart Vector" 
+          className="wl-empty-vector" 
+        />
       </div>
-      <h3 className="orders-empty-heading fw-bold" style={{ fontSize: "1.3rem", color: "#374151" }}>No orders found!</h3>
-      <span onClick={onShopNowClick} className="btn orders-empty-shop-btn text-white mt-2" style={{ cursor: "pointer", backgroundColor: "#8b5cf6", padding: "8px 24px", borderRadius: "6px", fontWeight: "600" }}>Shop now</span>
+      <h3 className="wl-empty-heading">Your cart is empty!</h3>
+      <button 
+        onClick={() => navigate("/AllProducts")} 
+        className="btn wl-empty-shop-btn" 
+        style={{ cursor: "pointer", border: "none" }}
+      >
+        Shop now
+      </button>
     </div>
   );
 };
 
-function Orders() {
+const CartPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchTerm, setSearchTerm] = useState("");
+  const { cart, setCart, toggleWishlist, removeFromCart, updateCartQty, toggleCartSelect } = useWishlist();
 
-  // Review Modal Configuration States
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalRating, setModalRating] = useState(5);
-  const [activeOrderForReview, setActiveOrderForReview] = useState(null);
-
-  const [orders, setOrders] = useState(() => {
-    const localSaved = localStorage.getItem("user_purchase_history");
-    return localSaved ? JSON.parse(localSaved) : [];
-  });
-
-  const [submittedProductReviews, setSubmittedProductReviews] = useState(() => {
-    const savedReviews = localStorage.getItem("global_product_reviews");
-    return savedReviews ? JSON.parse(savedReviews) : [];
-  });
-
+  // ─── STAGE 1: LOCALSTORAGE VERIFICATION ENGINE ───
   useEffect(() => {
-    const incomingSingle = location.state?.newOrderPayload;
-    const incomingMultiple = location.state?.newOrderPayloads;
+    const rawUserCart = localStorage.getItem("user_cart");
+    const rawCart = localStorage.getItem("cart");
+    const rawCartItems = localStorage.getItem("cartItems");
     
-    let itemsToAdd = [];
-    if (incomingSingle) {
-      itemsToAdd = [incomingSingle];
-    } else if (incomingMultiple && Array.isArray(incomingMultiple)) {
-      itemsToAdd = incomingMultiple;
+    // Selects the first active and valid cache scheme present in browser environment
+    const activeRawData = rawUserCart || rawCart || rawCartItems;
+    
+    if (activeRawData) {
+      const parsedData = JSON.parse(activeRawData);
+      // Synchronize context mesh instantly if memory variations occur
+      if (parsedData.length !== (cart?.length || 0) && setCart) {
+        setCart(parsedData);
+      }
+    } else if (cart && cart.length > 0 && setCart) {
+      setCart([]);
     }
+    window.scrollTo(0, 0);
+  }, [cart, setCart]);
 
-    if (itemsToAdd.length > 0) {
-      setOrders((prevOrders) => {
-        const uniqueNewOrders = itemsToAdd.filter(
-          (newOrder) => !prevOrders.some((existingOrder) => existingOrder.id === newOrder.id)
-        );
-        if (uniqueNewOrders.length === 0) return prevOrders;
-        const updatedLedger = [...uniqueNewOrders, ...prevOrders];
-        localStorage.setItem("user_purchase_history", JSON.stringify(updatedLedger));
-        return updatedLedger;
-      });
+  // Core calculations engine matching your transaction ledger guidelines
+  const selectedItems = cart ? cart.filter((item) => item.selected) : [];
+  const totalItemsCount = selectedItems.reduce((acc, item) => acc + (item.qty || 1), 0);
 
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state]);
+  // Raw Total calculation using top-grain baseline parameters (Strict INR Currency ₹)
+  const rawTotal = selectedItems.reduce((acc, item) => {
+    const originalPrice = Number(item.realPrice) || Number(item.price) || 0;
+    return acc + (originalPrice * (item.qty || 1));
+  }, 0);
+  
+  // Checkout Subtotal after target wholesale item discount matrices
+  const subTotal = selectedItems.reduce((acc, item) => {
+    return acc + (Number(item.price) * (item.qty || 1));
+  }, 0);
 
-  // ─── FIXED TRICK 1: ALLOW NAVIGATION TO TRACK PAGE ONLY IF NOT REVIEWED YET ───
-  const handleCardClickToTrack = (order, isReviewed) => {
-    if (isReviewed) {
-      // If already reviewed, tracking route is locked permanently. Stable block.
+  const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
+  const gstTotal = Math.round(subTotal * 0.05);
+  const finalTotal = subTotal + gstTotal;
+
+  const handleCheckout = () => {
+    if (selectedItems.length === 0) {
+      alert("Please select at least one item to proceed.");
       return;
     }
-    // Only allowed one time or until review is submitted
-    navigate("/TrackOrder", { state: { order } });
+    navigate("/checkout", {
+      state: {
+        allCartItems: cart,
+        cartItems: selectedItems,
+        totalItemsCount,
+        rawTotal,
+        discountTotal,
+        subTotal,
+        gstTotal,
+        finalTotal,
+        couponDiscount: 0,
+        couponPercentageLabel: ""
+      },
+    });
   };
-
-  // TRIGGER POPUP MODAL ON EXPLICIT BUTTON CLICK
-  const openReviewTrigger = (selectedOrderItem, e) => {
-    e.stopPropagation(); // Prevents triggering the parent card click navigation
-    setActiveOrderForReview(selectedOrderItem);
-    setModalRating(5); 
-    setModalOpen(true);
-  };
-
-  const handleReviewSubmit = (rating, text) => {
-    if (!activeOrderForReview) return;
-
-    const freshReviewObj = {
-      id: Date.now(),
-      productName: activeOrderForReview.product, 
-      name: "Rahul Sharma", 
-      avatar: "https://i.pravatar.cc/150?img=11",
-      rating: Number(rating),
-      text: text,
-      likes: 0,
-      dislikes: 0,
-      date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-    };
-
-    const updatedReviewsMasterList = [freshReviewObj, ...submittedProductReviews];
-    setSubmittedProductReviews(updatedReviewsMasterList);
-    localStorage.setItem("global_product_reviews", JSON.stringify(updatedReviewsMasterList));
-    
-    setModalOpen(false); 
-    setActiveOrderForReview(null);
-
-    setTimeout(() => {
-      alert("Thank you! Your review has been submitted successfully.");
-    }, 100);
-  };
-
-  const filteredOrders = orders.filter(
-    (order) => order.product?.toLowerCase().includes(searchTerm.toLowerCase()) || order.id?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
-    <div className="orders-page-app-wrapper">
+    <>
       <Navbar />
-      
-      {/* ─── FIXED TRICK 2: STABLE INJECTOR TO FORCE RE-WRITE AND KILL ALL CSS HOVER TRANSITIONS ─── */}
-      <style>{`
-        /* When reviewed class is active, it strips away standard hover scales, background glow or cursor animations */
-        .stable-cart-no-hover {
-          cursor: default !important;
-          transform: none !important;
-          box-shadow: none !important;
-          background-color: #ffffff !important;
-          transition: none !important;
-        }
-        .stable-cart-no-hover * {
-          cursor: default !important;
-        }
-      `}</style>
+      <div className="cart-page">
+        <h4 className="cart-title">
+          Your cart <span className="cart-count">({cart?.length || 0} items)</span>
+        </h4>
+        <p className="cart-subtitle">Review your items and proceed to checkout</p>
 
-      <main className="orders-container container py-4 my-2">
-        <h4 className="mb-4 fw-bold outfit-font page-section-title">Settings and Profile</h4>
-        <div className="row justify-content-center">
-          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky"><ProfileSideNav /></div>
-          <div className="col-lg-9 col-md-7 list-column-view">
-            <div className="orders-card p-4 bg-white shadow-sm border rounded-3">
-              <div className="orders-header">
-                <h4 className="fw-bold mb-1 outfit-font text-dark">My Orders</h4>
-                <p className="orders-subtitle text-muted small">View your purchase history and tracking details</p>
-              </div>
-
-              <div className="orders-search-wrapper mb-4">
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <FaSearch style={{ position: "absolute", left: "14px", color: "#9ca3af" }} />
-                  <input type="text" className="search-input" style={{ paddingLeft: "40px", width: "100%", height: "42px", borderRadius: "8px", border: "1px solid #e5e7eb" }} placeholder="Search your orders or IDs" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="orders-list-wrapper">
-                {filteredOrders.length > 0 ? (
-                  <div className="orders-grid d-flex flex-column gap-3">
-                    {filteredOrders.map((order, index) => {
-                      const isReviewed = submittedProductReviews.some((r) => r.productName === order.product);
-                      return (
-                        <div 
-                          key={`${order.id}-${index}`} 
-                          onClick={() => handleCardClickToTrack(order, isReviewed)}
-                          style={{ position: "relative", display: "block" }}
-                          className={`individual-order-card-wrapper-link ${isReviewed ? "stable-cart-no-hover" : ""}`}
-                        >
-                          <OrderCard order={order} />
-                          
-                          {/* ─── DYNAMIC ACTION BUTTON: HIDDEN COMPLETELY ONCE REVIEWED ─── */}
-                          {!isReviewed && (
-                            <div 
-                              style={{ 
-                                position: "absolute", 
-                                bottom: "16px", 
-                                right: "20px", 
-                                zIndex: 10
-                              }}
-                            >
-                              <button
-                                onClick={(e) => openReviewTrigger(order, e)}
-                                style={{
-                                  backgroundColor: "transparent",
-                                  border: "1px solid #8b5cf6",
-                                  color: "#8b5cf6",
-                                  padding: "5px 14px",
-                                  borderRadius: "6px",
-                                  fontSize: "0.8rem",
-                                  fontWeight: "600",
-                                  cursor: "pointer",
-                                  transition: "all 0.2s ease",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "5px"
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.target.style.backgroundColor = "#8b5cf6";
-                                  e.target.style.color = "#ffffff";
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.target.style.backgroundColor = "transparent";
-                                  e.target.style.color = "#8b5cf6";
-                                }}
-                              >
-                                <FaRegStar /> Rate & Review
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : <EmptyOrders onShopNowClick={() => navigate("/AllProducts")} />}
+        {/* ─── CONDITIONAL LAYOUT SPLIT MATRIX ─── */}
+        {!cart || cart.length === 0 ? (
+          <>
+            {/* Display clean empty graphics if ledger holds zero entries */}
+            <EmptyCartView />
+            
+            {/* Recommendation products strip grid panel banner link layout */}
+            <RecentProduct />
+          </>
+        ) : (
+          <div className="cart-layout-grid">
+            {/* Left Block: Render list elements with dynamic custom triggers */}
+            <div className="cart-left">
+              <div className="cart-items">
+                {cart.map((item, index) => (
+                  <CartItem 
+                    key={item.id || `${item.name}-${index}`} 
+                    item={item} 
+                    onIncrease={(id) => updateCartQty(id, 1)} 
+                    onDecrease={(id) => updateCartQty(id, -1)} 
+                    onRemove={(id) => removeFromCart(id)} 
+                    onToggleWishlist={(product) => toggleWishlist(product)} 
+                    onSelect={(id) => toggleCartSelect(id)} 
+                  />
+                ))}
               </div>
             </div>
+            
+            {/* Right Block: Order Total Calculation Summary column layout box panel */}
+            <div className="cart-right">
+              <OrderSummary 
+                totalItemsCount={totalItemsCount} 
+                rawTotal={rawTotal} 
+                discountTotal={discountTotal} 
+                subTotal={subTotal} 
+                couponDiscount={0} 
+                gstTotal={gstTotal} 
+                finalTotal={finalTotal} 
+                handleCheckout={handleCheckout} 
+                isBillingPage={false} 
+              />
+            </div>
           </div>
-        </div>
-      </main>
-
-      <ReviewModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        onSubmit={handleReviewSubmit} 
-        rating={modalRating} 
-        setRating={setModalRating} 
-      />
-
+        )}
+      </div>
       <Footer />
-    </div>
+    </>
   );
-}
+};
 
-export default Orders;
+export default CartPage;
