@@ -190,6 +190,9 @@ const Coupons = () => {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    
+    const currentUsedCount = modalMode === 'create' ? 0 : (Number(formData.usedCount) || 0);
+    
     let calculatedStatus = 'Active';
     if (formData.startDate) {
       const startDate = new Date(formData.startDate);
@@ -208,7 +211,7 @@ const Coupons = () => {
       id: couponId,
       discountType: type,
       status: calculatedStatus,
-      usedCount: modalMode === 'create' ? 0 : (formData.usedCount || 0),
+      usedCount: currentUsedCount,
       updatedAt: new Date().toISOString(),
     };
 

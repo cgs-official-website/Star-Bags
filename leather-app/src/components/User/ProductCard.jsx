@@ -1,8 +1,7 @@
-// ProductCard.jsx - Just add ONE line at the top and modify ONE line
+// ProductCard.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useWishlist } from "../../context/WishlistContext"; 
-import { allProductsData } from "../../pages/User/Allproducts"; 
 
 import { MdOutlineShoppingCart } from "react-icons/md";
 import { FaStar, FaHeart } from "react-icons/fa";
@@ -38,10 +37,10 @@ const WishlistHeart = ({ product }) => {
   );
 };
 
-const ProductCard = ({ products = null }) => {  
+const ProductCard = ({ products = [] }) => {  
   const navigate = useNavigate(); 
   const { cart, addToCart } = useWishlist();
-  const productCard = products || allProductsData;  
+  const productCard = products;  
 
   const checkIsInCart = (product) => {
     return cart ? cart.find((item) => item.name === product.name && Number(item.price) === Number(product.price)) : null;
@@ -87,15 +86,19 @@ const ProductCard = ({ products = null }) => {
                     <div className="price-details d-flex align-items-center gap-4 pt-1">
                       <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
                         ₹{pro.price}{" "}
-                        <span>
-                          <del style={{ color: "#7d7d7dff", fontWeight: "500" }}>
-                            ₹{pro.realPrice}
-                          </del>
-                        </span>
+                        {Number(pro.discount || 0) > 0 && (
+                          <span>
+                            <del style={{ color: "#7d7d7dff", fontWeight: "500" }}>
+                              ₹{pro.realPrice}
+                            </del>
+                          </span>
+                        )}
                       </p>
-                      <span className="mb-1 text-success small">
-                        <b>{pro.offer} off</b>
-                      </span>
+                      {Number(pro.discount || 0) > 0 && (
+                        <span className="mb-1 text-success small">
+                          <b>{pro.offer || `${pro.discount}%`} off</b>
+                        </span>
+                      )}
                     </div>
 
                     {/* Buttons removed */}

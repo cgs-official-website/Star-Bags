@@ -7,8 +7,8 @@ import { BsSun } from "react-icons/bs";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from '../../context/SearchContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useProducts } from '../../context/ProductsContext';
 import SearchModal from '../User/SearchModal';
-import { allProductsData } from '../../pages/User/Allproducts';
 import '../../assets/styles/Navbar.css';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,6 +16,7 @@ const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
   const { cart } = useWishlist();
   const { currentUser, logout } = useAuth();
+  const { products: liveProducts } = useProducts();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,7 +55,7 @@ const Navbar = () => {
   const handleSearch = (query) => {
     closeMenu();
     if (query.trim()) {
-      performSearch(query, allProductsData);
+      performSearch(query, liveProducts);
     } else {
       clearSearch();
     }
@@ -100,7 +101,7 @@ const Navbar = () => {
         {/* 3. DESKTOP SEARCH */}
         <div className="nav-search-desktop">
           <SearchModal
-            products={allProductsData}
+            products={liveProducts}
             onSearch={handleSearch}
             placeholder="Search products..."
           />
@@ -109,7 +110,7 @@ const Navbar = () => {
         {/* 4. MOBILE SEARCH */}
         <div className="nav-search-mobile">
           <SearchModal
-            products={allProductsData}
+            products={liveProducts}
             onSearch={handleSearch}
             placeholder="Search..."
           />
@@ -131,8 +132,7 @@ const Navbar = () => {
           ) : (
             <NavLink 
               to="/login" 
-              className="d-none d-lg-flex align-items-center" 
-              style={{ textDecoration: 'none',padding:'8px 15px', color: '#111827', fontWeight: 500, fontSize: '0.95rem', backgroundColor: "var(--levender)", borderRadius: "5px", color: "var(--white-color)" }}
+              className="d-none d-lg-flex align-items-center nav-login-btn" 
             >
               Login
             </NavLink>
@@ -175,6 +175,11 @@ const Navbar = () => {
                       <GrLocation className="profile-item-icon" /> Saved address
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink to="/reviews" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      <MdOutlineRateReview className="profile-item-icon" /> My Reviews
+                    </NavLink>
+                  </li>
                   <li><hr className="dropdown-divider my-1" /></li>
                   <li>
                     <div className="dropdown-item d-flex align-items-center justify-content-between profile-dropdown-item" style={{ cursor: "default" }}>
@@ -207,67 +212,12 @@ const Navbar = () => {
               <NavLink 
                 to="/login" 
                 onClick={closeMenu}
-                className="align-items-center"
-                style={{ textDecoration: 'none', color: '#111827', fontWeight: 500, fontSize: '0.95rem', marginRight: '5px' }}
+                className="d-flex align-items-center nav-login-btn"
+                style={{ marginRight: '5px' }}
               >
                 Login
               </NavLink>
             )}
-=======
-            <button
-              className="icon-btn"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-label="User menu"
-              onClick={closeMenu}
-            >
-              <FaUserCircle />
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
-              <li>
-                <NavLink to="/profile" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FaRegUserCircle className="profile-item-icon" /> My profile
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/orders" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FiBox className="profile-item-icon" /> My orders
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/wishlist" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FaRegHeart className="profile-item-icon" /> Wish list
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/address" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <GrLocation className="profile-item-icon" /> Saved address
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/reviews" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <MdOutlineRateReview className="profile-item-icon" /> My Reviews
-                </NavLink>
-              </li>
-              <li><hr className="dropdown-divider my-1" /></li>
-              <li>
-                <div className="dropdown-item d-flex align-items-center justify-content-between profile-dropdown-item" style={{ cursor: "default" }}>
-                  <div className="d-flex align-items-center gap-2">
-                    <BsSun className="profile-item-icon" /> Dark Theme
-                  </div>
-                  <div className="form-check form-switch m-0">
-                    <input className="form-check-input" type="checkbox" role="switch" />
-                  </div>
-                </div>
-              </li>
-              <li><hr className="dropdown-divider my-1" /></li>
-              <li>
-                <NavLink to="/login" onClick={closeMenu} className="dropdown-item d-flex align-items-center text-danger profile-dropdown-item logout-link">
-                  <FiLogOut className="profile-item-icon logout-icon" /> Log out
-                </NavLink>
-              </li>
-            </ul>
 
           </div>
 

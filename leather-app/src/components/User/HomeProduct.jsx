@@ -74,13 +74,17 @@ const HomeProduct = ({ products = [] }) => {
               <div className="price-details d-flex align-items-center gap-4 pt-1">
                 <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
                   ₹{pro.price}{" "}
-                  <span>
-                    <del style={{ fontWeight: "500" }}>₹{pro.realPrice}</del>
-                  </span>
+                  {Number(pro.discount || 0) > 0 && (
+                    <span>
+                      <del style={{ fontWeight: "500" }}>₹{pro.realPrice}</del>
+                    </span>
+                  )}
                 </p>
-                <span className="mb-1 text-success small">
-                  <b>{pro.offer} off</b>
-                </span>
+                {Number(pro.discount || 0) > 0 && (
+                  <span className="mb-1 text-success small">
+                    <b>{pro.offer || `${pro.discount}%`} off</b>
+                  </span>
+                )}
               </div>
             </div>
           </div>

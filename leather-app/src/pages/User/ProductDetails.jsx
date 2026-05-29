@@ -6,18 +6,16 @@ import RecentProduct from "../../components/User/RecentProduct";
 import ReviewModal from "../../components/User/ReviewModal";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaStar, FaRegStar, FaHeart, FaTrashAlt } from "react-icons/fa";
-import { FaCircleUser } from "react-icons/fa6"; 
-import {
-  BiLike,
-  BiDislike,
-  BiSolidLike,
-  BiSolidDislike,
-} from "react-icons/bi";
+import { FaCircleUser } from "react-icons/fa6";
+import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiHeart } from "react-icons/fi";
 import { IoMdCart } from "react-icons/io";
 import { MdAdd, MdClose, MdModeEdit } from "react-icons/md";
 import { TiPencil } from "react-icons/ti";
 import { useWishlist } from "../../context/WishlistContext";
+import { useAuth } from "../../context/AuthContext";
+import { db } from "../../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 import "../../assets/styles/ProductDetails.css";
 
@@ -25,35 +23,32 @@ function ProductDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { wishlist, toggleWishlist, cart, addToCart } = useWishlist();
+  const { currentUser } = useAuth();
 
   const { product } = location.state || {};
 
-  const currentProduct = product || {
-    id: 10,
-    image: "../src/assets/images/leather1.png",
-    name: "Hand Bag",
-    price: "499",
-    realPrice: "799",
-    offer: "37%",
-    category: "bag",
-    productId: "SBP-BAG-00003",
-    brandName: "Krish Leather Factory",
-    material: "Genuine Leather, Premium Inner Lining",
-    description:
-      "Premium stitched leather detailing, sleek craftsmanship, and smart storage compartments—designed for everyday convenience and built to last.",
-  };
+  const currentProduct = product || {};
 
-  // Address and Selector States
-  const [savedAddresses, setSavedAddresses] = useState(() => {
-    const rawData = localStorage.getItem("savedAddresses");
-    return rawData ? JSON.parse(rawData) : [];
-  });
+  // Address and Selector States — fetched from Firestore
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
 
-  const [selectedAddressId, setSelectedAddressId] = useState(() => {
-    const rawData = localStorage.getItem("savedAddresses");
-    const parsed = rawData ? JSON.parse(rawData) : [];
-    return parsed.length > 0 ? parsed[0].id : null;
-  });
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchAddresses = async () => {
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) {
+          const addrs = snap.data().addresses ?? [];
+          setSavedAddresses(addrs);
+          if (addrs.length > 0) setSelectedAddressId(addrs[0].id);
+        }
+      } catch (err) {
+        console.error("Error fetching addresses:", err);
+      }
+    };
+    fetchAddresses();
+  }, [currentUser]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -75,9 +70,13 @@ function ProductDetails() {
         ? "Belt"
         : "Bag";
 
-  const [selectedSize, setSelectedSize] = useState(
-    productCategory === "Bag" ? "40L" : "M",
-  );
+  // Pre-select the first available DB size, otherwise fall back to a default
+  const [selectedSize, setSelectedSize] = useState(() => {
+    const raw = currentProduct.size ?? "";
+    const first = raw.split(",")[0]?.trim();
+    if (first) return first;
+    return productCategory === "Bag" ? "20L" : "Small";
+  });
 
   // ─── REVIEW SYSTEM STATE MANAGEMENT ENGINE ───
   const [dynamicReviews, setDynamicReviews] = useState([]);
@@ -93,7 +92,9 @@ function ProductDetails() {
     const savedReviews = localStorage.getItem("global_product_reviews");
     if (savedReviews) {
       const parsed = JSON.parse(savedReviews);
-      const matchedProductReviews = parsed.filter(r => r.productName === currentProduct.name);
+      const matchedProductReviews = parsed.filter(
+        (r) => r.productName === currentProduct.name,
+      );
       setDynamicReviews(matchedProductReviews);
     } else {
       setDynamicReviews([]);
@@ -109,7 +110,12 @@ function ProductDetails() {
     const scrollStep = () => {
       if (reviewsScrollRef.current && !isReviewsHovered) {
         reviewsScrollRef.current.scrollLeft += 1;
-        if (reviewsScrollRef.current.scrollLeft >= reviewsScrollRef.current.scrollWidth - reviewsScrollRef.current.clientWidth - 1) {
+        if (
+          reviewsScrollRef.current.scrollLeft >=
+          reviewsScrollRef.current.scrollWidth -
+            reviewsScrollRef.current.clientWidth -
+            1
+        ) {
           reviewsScrollRef.current.scrollLeft = 0;
         }
       }
@@ -122,12 +128,20 @@ function ProductDetails() {
 
   // Live Score System Calculations
   const totalReviewsCount = dynamicReviews.length;
-  const averageRatingScore = totalReviewsCount > 0 
-    ? (dynamicReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviewsCount).toFixed(1)
-    : "0.0";
+  const averageRatingScore =
+    totalReviewsCount > 0
+      ? (
+          dynamicReviews.reduce((sum, r) => sum + r.rating, 0) /
+          totalReviewsCount
+        ).toFixed(1)
+      : "0.0";
 
-  const getStarCountFactor = (starNum) => dynamicReviews.filter(r => r.rating === starNum).length;
-  const getStarPercentFactor = (starNum) => totalReviewsCount > 0 ? `${(getStarCountFactor(starNum) / totalReviewsCount) * 100}%` : "0%";
+  const getStarCountFactor = (starNum) =>
+    dynamicReviews.filter((r) => r.rating === starNum).length;
+  const getStarPercentFactor = (starNum) =>
+    totalReviewsCount > 0
+      ? `${(getStarCountFactor(starNum) / totalReviewsCount) * 100}%`
+      : "0%";
 
   // Filters and sorts reviews directly by descending format (5, 4, 3, 2, 1) with no extra truncation logic bounds
   const sortedFilteredReviews = dynamicReviews
@@ -157,7 +171,11 @@ function ProductDetails() {
       name: "Anonymous User",
       rating: rating,
       text: text,
-      date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+      date: new Date().toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      }),
       likes: 0,
       dislikes: 0,
     };
@@ -167,25 +185,44 @@ function ProductDetails() {
 
     const rawGlobalReviews = localStorage.getItem("global_product_reviews");
     const parsedGlobal = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-    localStorage.setItem("global_product_reviews", JSON.stringify([freshReviewObj, ...parsedGlobal]));
+    localStorage.setItem(
+      "global_product_reviews",
+      JSON.stringify([freshReviewObj, ...parsedGlobal]),
+    );
 
-    alert("Thank you thalaiva! Your review has been updated in the dataset cleanly.");
+    alert(
+      "Thank you thalaiva! Your review has been updated in the dataset cleanly.",
+    );
   };
 
-  // Size Configurations
+  // Size Configurations — driven by DB `size` field (comma-separated, e.g. "20L, 30L" or "Small, Medium")
+  const dbSizeRaw = currentProduct.size ?? "";
+  // Parse the comma-separated string into an array of available sizes
+  const dbSizes = dbSizeRaw
+    ? dbSizeRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
+  // Belt size values in DB use full words: "Small", "Medium", "Long"
+  const allBagSizes = ["20L", "30L", "40L"];
+  const allBeltSizes = ["Small", "Medium", "Long"];
+
   const sizeOptions =
     productCategory === "Bag"
-      ? [
-          { value: "30L", label: "Capacity" },
-          { value: "40L", label: "Capacity" },
-          { value: "45L", label: "Capacity" },
-        ]
+      ? allBagSizes.map((v) => ({
+          value: v,
+          label: "Capacity",
+          // Disabled only if DB has sizes and this size is NOT in them
+          disabled: dbSizes.length > 0 && !dbSizes.includes(v),
+        }))
       : productCategory === "Belt"
-        ? [
-            { value: "S", label: "Size" },
-            { value: "M", label: "Size" },
-            { value: "L", label: "Size" },
-          ]
+        ? allBeltSizes.map((v) => ({
+            value: v,
+            label: "Size",
+            disabled: dbSizes.length > 0 && !dbSizes.includes(v),
+          }))
         : [];
 
   const decreaseQuantity = () => {
@@ -196,17 +233,15 @@ function ProductDetails() {
     setQuantity(quantity + 1);
   };
 
-  // Image Gallery Configurations
-  const images = [
-    currentProduct.image,
-    "../src/assets/images/bag.png",
-    "../src/assets/images/belt.png",
-    "../src/assets/images/wallet.png",
-    "../src/assets/images/leather1.png",
-  ];
+  // Image Gallery — filter null slots from DB images[] array
+  const images = (() => {
+    const dbImages = (currentProduct.images ?? []).filter(Boolean);
+    if (dbImages.length > 0) return dbImages;
+    return currentProduct.image ? [currentProduct.image] : [];
+  })();
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const mainImage = images[currentImageIndex];
+  const mainImage = images[currentImageIndex] ?? currentProduct.image;
 
   const handlePrevImage = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -274,11 +309,17 @@ function ProductDetails() {
         <div className="row mb-4">
           <div className="col-lg-6 d-flex align-items-center"></div>
           <div className="col-lg-6 ps-lg-5 d-flex justify-content-between align-items-center">
-            <div className="breadcrumb-text" style={{ textTransform: "capitalize" }}>
+            <div
+              className="breadcrumb-text"
+              style={{ textTransform: "capitalize" }}
+            >
               {currentProduct.category}s /{" "}
               <span className="active">{currentProduct.name}</span>
             </div>
-            <div className="text-danger fs-4 cursor-pointer wishlist-btn" onClick={() => toggleWishlist(currentProduct)}>
+            <div
+              className="text-danger fs-4 cursor-pointer wishlist-btn"
+              onClick={() => toggleWishlist(currentProduct)}
+            >
               {isProductInWishlist ? <FaHeart /> : <FiHeart />}
             </div>
           </div>
@@ -287,17 +328,32 @@ function ProductDetails() {
         <div className="row mb-5">
           <div className="col-lg-6 mb-4 mb-lg-0">
             <div className="main-image-container">
-              <button className="arrow-btn d-none d-md-block" onClick={handlePrevImage}>
+              <button
+                className="arrow-btn d-none d-md-block"
+                onClick={handlePrevImage}
+              >
                 <IoIosArrowBack />
               </button>
-              <img key={currentImageIndex} src={mainImage} alt={currentProduct.name} className="main-product-image mx-4" />
-              <button className="arrow-btn d-none d-md-block" onClick={handleNextImage}>
+              <img
+                key={currentImageIndex}
+                src={mainImage}
+                alt={currentProduct.name}
+                className="main-product-image mx-4"
+              />
+              <button
+                className="arrow-btn d-none d-md-block"
+                onClick={handleNextImage}
+              >
                 <IoIosArrowForward />
               </button>
             </div>
             <div className="thumbnail-gallery mt-4">
               {images.map((img, idx) => (
-                <div key={idx} className={`thumbnail-box ${currentImageIndex === idx ? "active" : ""}`} onClick={() => setCurrentImageIndex(idx)}>
+                <div
+                  key={idx}
+                  className={`thumbnail-box ${currentImageIndex === idx ? "active" : ""}`}
+                  onClick={() => setCurrentImageIndex(idx)}
+                >
                   <img src={img} alt="Thumbnail segment element" />
                 </div>
               ))}
@@ -305,20 +361,47 @@ function ProductDetails() {
           </div>
 
           <div className="col-lg-6 ps-lg-5">
-            <div className="stock-text mb-2">23 in stock available</div>
+            {/* Stock from DB */}
+            <div className="stock-text mb-2">
+              {currentProduct.stocks > 0
+                ? `${currentProduct.stocks} in stock available`
+                : currentProduct.stocks == 0
+                  ? "Out of stock"
+                  : "In stock"}
+            </div>
             <h1 className="product-title">{currentProduct.name}</h1>
             <div className="price-section d-flex align-items-center mb-2">
               <span className="current-price">₹ {currentProduct.price}</span>
-              <span className="original-price">₹ {currentProduct.realPrice || "799"}</span>
-              <span className="discount">{currentProduct.offer || "37% off"} off</span>
+              {Number(currentProduct.discount || 0) > 0 && (
+                <>
+                  <span className="original-price">
+                    ₹ {currentProduct.realPrice}
+                  </span>
+                  <span className="discount">
+                    {currentProduct.offer || `${currentProduct.discount}%`} off
+                  </span>
+                </>
+              )}
             </div>
-            
+
             <div className="d-flex align-items-center mb-3">
               <div className="rating-stars text-warning me-2">
-                {[...Array(5)].map((_, i) => i < Math.round(Number(averageRatingScore)) ? <FaStar key={i} /> : <FaRegStar key={i} style={{ color: "#d1d5db" }} />)}
+                {[...Array(5)].map((_, i) =>
+                  i < Math.round(Number(averageRatingScore)) ? (
+                    <FaStar key={i} />
+                  ) : (
+                    <FaRegStar key={i} style={{ color: "#d1d5db" }} />
+                  ),
+                )}
               </div>
-              <span className="rating-count" style={{ fontSize: "0.85rem", color: "#6b7280" }}>
-                {totalReviewsCount > 0 ? `${averageRatingScore} / 5.0` : "No ratings yet"} ({totalReviewsCount} Reviews)
+              <span
+                className="rating-count"
+                style={{ fontSize: "0.85rem", color: "#6b7280" }}
+              >
+                {totalReviewsCount > 0
+                  ? `${averageRatingScore} / 5.0`
+                  : "No ratings yet"}{" "}
+                ({totalReviewsCount} Reviews)
               </span>
             </div>
             <p className="product-description">{currentProduct.description}</p>
@@ -330,7 +413,25 @@ function ProductDetails() {
                 </h6>
                 <div className="d-flex gap-3 flex-wrap">
                   {sizeOptions.map((opt, idx) => (
-                    <div key={idx} className={`size-option-box ${selectedSize === opt.value ? "selected" : ""}`} onClick={() => setSelectedSize(opt.value)}>
+                    <div
+                      key={idx}
+                      className={`size-option-box ${selectedSize === opt.value ? "selected" : ""} ${opt.disabled ? "disabled" : ""}`}
+                      onClick={() =>
+                        !opt.disabled && setSelectedSize(opt.value)
+                      }
+                      style={
+                        opt.disabled
+                          ? {
+                              opacity: 0.35,
+                              cursor: "not-allowed",
+                              pointerEvents: "none",
+                            }
+                          : {}
+                      }
+                      title={
+                        opt.disabled ? "Not available for this product" : ""
+                      }
+                    >
                       <div className="size-value">{opt.value}</div>
                       <div className="size-label">{opt.label}</div>
                       {selectedSize === opt.value && (
@@ -355,41 +456,87 @@ function ProductDetails() {
                 className="btn-add-cart"
                 onClick={handleAddToCartAction}
                 style={{
-                  backgroundColor: isCurrentlyInCartWithThisSize ? "#4b5563" : "#f3f4f6", 
+                  backgroundColor: isCurrentlyInCartWithThisSize
+                    ? "#4b5563"
+                    : "#f3f4f6",
                   color: isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
-                  border: isCurrentlyInCartWithThisSize ? "none" : "1px solid #d1d5db",
+                  border: isCurrentlyInCartWithThisSize
+                    ? "none"
+                    : "1px solid #d1d5db",
                   fontWeight: "600",
                   transition: "all 0.2s ease",
                 }}
               >
-                <IoMdCart /> {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
+                <IoMdCart />{" "}
+                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
               </button>
             </div>
-            <button className="btn-buy-now" onClick={handleProceedToCheckoutDirectly}>Buy Now</button>
+            <button
+              className="btn-buy-now"
+              onClick={handleProceedToCheckoutDirectly}
+            >
+              Buy Now
+            </button>
 
             <div className="delivery-box mt-4">
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <h6 className="mb-0 fw-bold text-dark">Delivery Address</h6>
                 {savedAddresses.length > 0 && (
-                  <h6 className="cursor-pointer" style={{ color: "#8b5cf6", fontSize: "13px", fontWeight: "600" }} onClick={() => setIsModalOpen(true)}>
+                  <h6
+                    className="cursor-pointer"
+                    style={{
+                      color: "#8b5cf6",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                    }}
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     Choose Address <span className="bi bi-pencil-square"></span>
                   </h6>
                 )}
               </div>
-              <hr style={{ width: "100%", borderColor: "#ddd" }} className="my-2" />
+              <hr
+                style={{ width: "100%", borderColor: "#ddd" }}
+                className="my-2"
+              />
 
               {savedAddresses.length === 0 ? (
-                <div className="empty-address-viewport d-flex justify-content-center align-items-center py-2" style={{ backgroundColor: "#ffffff" }}>
-                  <button type="button" className="add-delivery-trigger-btn d-flex align-items-center gap-2" style={{ background: "none", border: "1px dashed #8b5cf6", color: "#8b5cf6", padding: "6px 12px", borderRadius: "6px", fontSize: "0.85rem", fontWeight: "600" }} onClick={() => navigate("/address")}>
-                    <TiPencil style={{ transform: "rotate(-45deg)" }} /> Add your Delivery Address
+                <div
+                  className="empty-address-viewport d-flex justify-content-center align-items-center py-2"
+                  style={{ backgroundColor: "#ffffff" }}
+                >
+                  <button
+                    type="button"
+                    className="add-delivery-trigger-btn d-flex align-items-center gap-2"
+                    style={{
+                      background: "none",
+                      border: "1px dashed #8b5cf6",
+                      color: "#8b5cf6",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      fontSize: "0.85rem",
+                      fontWeight: "600",
+                    }}
+                    onClick={() => navigate("/address")}
+                  >
+                    <TiPencil style={{ transform: "rotate(-45deg)" }} /> Add
+                    your Delivery Address
                   </button>
                 </div>
               ) : !activeSelectedAddress ? (
-                <div className="p-2 text-warning small fw-semibold">⚠️ Please click 'Choose Address' to select a card.</div>
+                <div className="p-2 text-warning small fw-semibold">
+                  ⚠️ Please click 'Choose Address' to select a card.
+                </div>
               ) : (
                 <div className="text-muted mt-2" style={{ fontSize: "0.9rem" }}>
-                  <p className="mb-1"><strong>{activeSelectedAddress.name}</strong>, {activeSelectedAddress.address}</p>
-                  <p className="mb-1">{activeSelectedAddress.city}, {activeSelectedAddress.state} - {activeSelectedAddress.pin}</p>
+                  <p className="mb-1">
+                    <strong>{activeSelectedAddress.name}</strong>,{" "}
+                    {activeSelectedAddress.address}
+                  </p>
+                  <p className="mb-1">
+                    {activeSelectedAddress.city}, {activeSelectedAddress.state}{" "}
+                    - {activeSelectedAddress.pin}
+                  </p>
                   <p className="mb-0">Mobile: {activeSelectedAddress.mobile}</p>
                 </div>
               )}
@@ -408,10 +555,41 @@ function ProductDetails() {
                 </tr>
               </thead>
               <tbody>
-                <tr><td>Product Name</td><td>{currentProduct.name}</td></tr>
-                <tr><td>Brand Name</td><td>{currentProduct.brandName || "Krish Leather Factory"}</td></tr>
-                <tr><td>Product ID</td><td>{currentProduct.productId || "SBP-BAG-00003"}</td></tr>
-                <tr><td>Material</td><td>{currentProduct.material || "Genuine Leather, Premium Inner Lining"}</td></tr>
+                <tr>
+                  <td>Product Name</td>
+                  <td>{currentProduct.name || "-"}</td>
+                </tr>
+                {/* DB uses `brand` field (not brandName) */}
+                <tr>
+                  <td>Brand Name</td>
+                  <td>
+                    {currentProduct.brand || currentProduct.brandName || "-"}
+                  </td>
+                </tr>
+                {/* DB uses `id` as the product ID */}
+                <tr>
+                  <td>Product ID</td>
+                  <td>
+                    {currentProduct.id || currentProduct.productId || "-"}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Material</td>
+                  <td>{currentProduct.material || "-"}</td>
+                </tr>
+                {currentProduct.subCategory &&
+                  currentProduct.subCategory !== "-" && (
+                    <tr>
+                      <td>Sub Category</td>
+                      <td>{currentProduct.subCategory}</td>
+                    </tr>
+                  )}
+                {currentProduct.capacity && currentProduct.capacity !== "-" && (
+                  <tr>
+                    <td>Capacity</td>
+                    <td>{currentProduct.capacity}</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -424,7 +602,12 @@ function ProductDetails() {
             <button
               onClick={() => setModalOpen(true)}
               className="btn text-white fw-bold px-3 py-1.5"
-              style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.8rem", border: "none" }}
+              style={{
+                backgroundColor: "#8b5cf6",
+                borderRadius: "6px",
+                fontSize: "0.8rem",
+                border: "none",
+              }}
             >
               Write a Review
             </button>
@@ -433,7 +616,12 @@ function ProductDetails() {
           <div className="overall-rating-card shadow-sm mb-4">
             <div className="rating-score">
               <h2>
-                {averageRatingScore} {totalReviewsCount > 0 ? <FaStar className="fs-4 text-warning" /> : <FaRegStar className="fs-4" />}
+                {averageRatingScore}{" "}
+                {totalReviewsCount > 0 ? (
+                  <FaStar className="fs-4 text-warning" />
+                ) : (
+                  <FaRegStar className="fs-4" />
+                )}
               </h2>
               <p>{totalReviewsCount} Ratings</p>
               <p>&</p>
@@ -443,14 +631,33 @@ function ProductDetails() {
             <div className="rating-bars">
               {[5, 4, 3, 2, 1].map((star) => (
                 <div key={star} className="rating-bar-row">
-                  <span>{star} <FaStar style={{ color: getStarCountFactor(star) > 0 ? "#fbbf24" : "#e5e7eb" }} /></span>
+                  <span>
+                    {star}{" "}
+                    <FaStar
+                      style={{
+                        color:
+                          getStarCountFactor(star) > 0 ? "#fbbf24" : "#e5e7eb",
+                      }}
+                    />
+                  </span>
                   <div className="progress-custom">
                     <div
                       className="progress-bar-fill"
-                      style={{ width: getStarPercentFactor(star), backgroundColor: star >= 3 ? "#22c55e" : star === 2 ? "#fbbf24" : "#ef4444" }}
+                      style={{
+                        width: getStarPercentFactor(star),
+                        backgroundColor:
+                          star >= 3
+                            ? "#22c55e"
+                            : star === 2
+                              ? "#fbbf24"
+                              : "#ef4444",
+                      }}
                     />
                   </div>
-                  <span className="text-muted" style={{ width: "40px", textAlign: "right" }}>
+                  <span
+                    className="text-muted"
+                    style={{ width: "40px", textAlign: "right" }}
+                  >
                     {getStarCountFactor(star)}
                   </span>
                 </div>
@@ -460,20 +667,40 @@ function ProductDetails() {
 
           <div className="filter-buttons">
             {["All", "Positive", "Negative"].map((type) => (
-              <button key={type} className={`filter-btn-user ${activeFilter === type ? "active" : ""}`} onClick={() => setActiveFilter(type)}>
+              <button
+                key={type}
+                className={`filter-btn-user ${activeFilter === type ? "active" : ""}`}
+                onClick={() => setActiveFilter(type)}
+              >
                 {type}
               </button>
             ))}
           </div>
 
           {sortedFilteredReviews.length === 0 ? (
-            <div className="text-center py-5 shadow-sm border rounded-3 my-3 bg-white" style={{ fontFamily: "system-ui" }}>
-              <div style={{ fontSize: "2.8rem", color: "#a8a29e" }} className="mb-2">✍️</div>
-              <h5 className="fw-bold mb-1 text-dark" style={{ fontSize: "1.1rem" }}>No matching reviews yet</h5>
-              <p className="text-muted small mb-3">Be the first to leave a verified review matching your selected filter metrics!</p>
+            <div
+              className="text-center py-5 shadow-sm border rounded-3 my-3 bg-white"
+              style={{ fontFamily: "system-ui" }}
+            >
+              <div
+                style={{ fontSize: "2.8rem", color: "#a8a29e" }}
+                className="mb-2"
+              >
+                ✍️
+              </div>
+              <h5
+                className="fw-bold mb-1 text-dark"
+                style={{ fontSize: "1.1rem" }}
+              >
+                No matching reviews yet
+              </h5>
+              <p className="text-muted small mb-3">
+                Be the first to leave a verified review matching your selected
+                filter metrics!
+              </p>
             </div>
           ) : (
-            <div 
+            <div
               className="reviews-list-container mobile-swipe-slider"
               ref={reviewsScrollRef}
               onTouchStart={() => setIsReviewsHovered(true)}
@@ -481,34 +708,105 @@ function ProductDetails() {
               onMouseEnter={() => setIsReviewsHovered(true)}
               onMouseLeave={() => setIsReviewsHovered(false)}
             >
-              <div className="row flex-nowrap flex-md-wrap g-4 mt-2 reviews-row" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+              <div
+                className="row flex-nowrap flex-md-wrap g-4 mt-2 reviews-row"
+                style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}
+              >
                 {sortedFilteredReviews.map((review) => (
-                  <div key={review.id} className="col-10 col-sm-6 col-md-4 review-col flex-shrink-0">
+                  <div
+                    key={review.id}
+                    className="col-10 col-sm-6 col-md-4 review-col flex-shrink-0"
+                  >
                     <div className="review-card p-3 border rounded bg-white shadow-sm">
                       <div className="review-header d-flex justify-content-between mb-2">
                         <div className="reviewer-info d-flex align-items-center gap-2">
-                          <FaCircleUser className="fs-4 text-secondary" /> 
-                          <p className="reviewer-name fw-bold m-0 small" style={{ color: "#111827" }}>{review.name}</p>
+                          <FaCircleUser className="fs-4 text-secondary" />
+                          <p
+                            className="reviewer-name fw-bold m-0 small"
+                            style={{ color: "#111827" }}
+                          >
+                            {review.name}
+                          </p>
                         </div>
                         <div className="rating-stars text-warning small">
-                          {[...Array(5)].map((_, i) => i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />)}
+                          {[...Array(5)].map((_, i) =>
+                            i < review.rating ? (
+                              <FaStar key={i} />
+                            ) : (
+                              <FaRegStar key={i} />
+                            ),
+                          )}
                         </div>
                       </div>
-                      <p className="review-text small text-muted" style={{ lineHeight: "1.5", height: "65px", overflowY: "auto" }}>{review.text}</p>
-                      
+                      <p
+                        className="review-text small text-muted"
+                        style={{
+                          lineHeight: "1.5",
+                          height: "65px",
+                          overflowY: "auto",
+                        }}
+                      >
+                        {review.text}
+                      </p>
+
                       <div className="review-actions d-flex justify-content-between align-items-center mt-3 border-top pt-2">
-                        <span className="text-muted" style={{ fontSize: "0.7rem" }}>{review.date}</span>
+                        <span
+                          className="text-muted"
+                          style={{ fontSize: "0.7rem" }}
+                        >
+                          {review.date}
+                        </span>
                         <div className="helpful-btns d-flex gap-2">
-                          <button style={{ color: "#058aff", background: "none", border: "none", fontSize: "16px" }} onClick={() => handleFeedback(review.id, "like")}>
-                            {feedbackState[review.id] === "like" ? <BiSolidLike /> : <BiLike />}
-                            <span style={{ fontSize: "12px", marginLeft: "3px", color: "#6c757d" }}>
-                              {feedbackState[review.id] === "like" ? review.likes + 1 : review.likes}
+                          <button
+                            style={{
+                              color: "#058aff",
+                              background: "none",
+                              border: "none",
+                              fontSize: "16px",
+                            }}
+                            onClick={() => handleFeedback(review.id, "like")}
+                          >
+                            {feedbackState[review.id] === "like" ? (
+                              <BiSolidLike />
+                            ) : (
+                              <BiLike />
+                            )}
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                marginLeft: "3px",
+                                color: "#6c757d",
+                              }}
+                            >
+                              {feedbackState[review.id] === "like"
+                                ? review.likes + 1
+                                : review.likes}
                             </span>
                           </button>
-                          <button style={{ color: "#f25858", background: "none", border: "none", fontSize: "16px" }} onClick={() => handleFeedback(review.id, "dislike")}>
-                            {feedbackState[review.id] === "dislike" ? <BiSolidDislike /> : <BiDislike />}
-                            <span style={{ fontSize: "12px", marginLeft: "3px", color: "#6c757d" }}>
-                              {feedbackState[review.id] === "dislike" ? review.dislikes + 1 : review.dislikes}
+                          <button
+                            style={{
+                              color: "#f25858",
+                              background: "none",
+                              border: "none",
+                              fontSize: "16px",
+                            }}
+                            onClick={() => handleFeedback(review.id, "dislike")}
+                          >
+                            {feedbackState[review.id] === "dislike" ? (
+                              <BiSolidDislike />
+                            ) : (
+                              <BiDislike />
+                            )}
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                marginLeft: "3px",
+                                color: "#6c757d",
+                              }}
+                            >
+                              {feedbackState[review.id] === "dislike"
+                                ? review.dislikes + 1
+                                : review.dislikes}
                             </span>
                           </button>
                         </div>
@@ -521,7 +819,10 @@ function ProductDetails() {
           )}
         </div>
 
-        <div className="recent-products-outer-container py-4 border-top mt-5" style={{ backgroundColor: "#fafafa" }}>
+        <div
+          className="recent-products-outer-container py-4 border-top mt-5"
+          style={{ backgroundColor: "#fafafa" }}
+        >
           <div className="container">
             <RecentProduct />
           </div>
@@ -530,38 +831,165 @@ function ProductDetails() {
 
       {/* Address Selection Modal Grid */}
       {isModalOpen && (
-        <div className="address-popup-modal-overlay d-flex justify-content-center align-items-center" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", backdropFilter: "blur(2px)", zIndex: 999 }}>
-          <div className="address-popup-modal-box shadow-lg bg-white p-4 rounded" style={{ width: "92%", maxWidth: "625px", maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+        <div
+          className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(2px)",
+            zIndex: 999,
+          }}
+        >
+          <div
+            className="address-popup-modal-box shadow-lg bg-white p-4 rounded"
+            style={{
+              width: "92%",
+              maxWidth: "625px",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-              <h4 className="m-0 text-dark fw-bold" style={{ fontSize: "1.4rem" }}>Select delivery address</h4>
-              <button type="button" style={{ background: "transparent", border: "none", cursor: "pointer" }} onClick={() => setIsModalOpen(false)}>
+              <h4
+                className="m-0 text-dark fw-bold"
+                style={{ fontSize: "1.4rem" }}
+              >
+                Select delivery address
+              </h4>
+              <button
+                type="button"
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                }}
+                onClick={() => setIsModalOpen(false)}
+              >
                 <MdClose size={24} />
               </button>
             </div>
             <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="m-0 text-dark fw-semibold" style={{ fontSize: "1.05rem" }}>Saved Addresses</h5>
-              <button type="button" className="popup-add-new-address-btn d-flex align-items-center gap-1" style={{ backgroundColor: "#8b5cf6", color: "#fff", border: "none", padding: "7px 14px", borderRadius: "6px", fontWeight: "600", fontSize: "0.8rem" }} onClick={() => navigate("/address")}>
+              <h5
+                className="m-0 text-dark fw-semibold"
+                style={{ fontSize: "1.05rem" }}
+              >
+                Saved Addresses
+              </h5>
+              <button
+                type="button"
+                className="popup-add-new-address-btn d-flex align-items-center gap-1"
+                style={{
+                  backgroundColor: "#8b5cf6",
+                  color: "#fff",
+                  border: "none",
+                  padding: "7px 14px",
+                  borderRadius: "6px",
+                  fontWeight: "600",
+                  fontSize: "0.8rem",
+                }}
+                onClick={() => navigate("/address")}
+              >
                 <MdAdd size={16} /> Add a New Address
               </button>
             </div>
-            <div className="popup-address-items-scroller pr-1" style={{ maxHeight: "365px", overflowY: "auto" }}>
+            <div
+              className="popup-address-items-scroller pr-1"
+              style={{ maxHeight: "365px", overflowY: "auto" }}
+            >
               {savedAddresses.map((addr, index) => (
-                <div key={addr.id} className="popup-address-item-card p-3 mb-3 border rounded position-relative" onClick={() => { setSelectedAddressId(addr.id); setIsModalOpen(false); }} style={{ cursor: "pointer", borderColor: selectedAddressId === addr.id ? "#8b5cf6" : "#e5e7eb", backgroundColor: selectedAddressId === addr.id ? "#f5f3ff" : "#fff" }}>
+                <div
+                  key={addr.id}
+                  className="popup-address-item-card p-3 mb-3 border rounded position-relative"
+                  onClick={() => {
+                    setSelectedAddressId(addr.id);
+                    setIsModalOpen(false);
+                  }}
+                  style={{
+                    cursor: "pointer",
+                    borderColor:
+                      selectedAddressId === addr.id ? "#8b5cf6" : "#e5e7eb",
+                    backgroundColor:
+                      selectedAddressId === addr.id ? "#f5f3ff" : "#fff",
+                  }}
+                >
                   <div className="d-flex align-items-center gap-2 mb-2">
-                    <span className="fw-bold text-dark" style={{ fontSize: "1rem" }}>Address {index + 1}</span>
-                    {selectedAddressId === addr.id && <span className="px-2 py-0.5 rounded-pill" style={{ backgroundColor: "#ddd6fe", color: "#6d28d9", fontSize: "0.72rem", fontWeight: "700" }}>Selected</span>}
-                    <div className="popup-card-actions-tray d-flex align-items-center gap-2 ms-auto" style={{ position: "absolute", top: "14px", right: "14px" }}>
-                      <button type="button" className="edit-icon" style={{ background: "transparent", border: "1px solid #c4b5fd", color: "#8b5cf6", borderRadius: "20px", padding: "3px 12px", fontSize: "0.78rem" }} onClick={(e) => { e.stopPropagation(); navigate("/address"); }}>
-                        <MdModeEdit size={14} /> <span style={{ marginLeft: "2px" }}>Edit</span>
+                    <span
+                      className="fw-bold text-dark"
+                      style={{ fontSize: "1rem" }}
+                    >
+                      Address {index + 1}
+                    </span>
+                    {selectedAddressId === addr.id && (
+                      <span
+                        className="px-2 py-0.5 rounded-pill"
+                        style={{
+                          backgroundColor: "#ddd6fe",
+                          color: "#6d28d9",
+                          fontSize: "0.72rem",
+                          fontWeight: "700",
+                        }}
+                      >
+                        Selected
+                      </span>
+                    )}
+                    <div
+                      className="popup-card-actions-tray d-flex align-items-center gap-2 ms-auto"
+                      style={{
+                        position: "absolute",
+                        top: "14px",
+                        right: "14px",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        className="edit-icon"
+                        style={{
+                          background: "transparent",
+                          border: "1px solid #c4b5fd",
+                          color: "#8b5cf6",
+                          borderRadius: "20px",
+                          padding: "3px 12px",
+                          fontSize: "0.78rem",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/address");
+                        }}
+                      >
+                        <MdModeEdit size={14} />{" "}
+                        <span style={{ marginLeft: "2px" }}>Edit</span>
                       </button>
-                      <button type="button" style={{ background: "transparent", border: "none", color: "#9ca3af", cursor: "pointer" }} onClick={(e) => promptDeleteAddress(e, addr.id)}>
+                      <button
+                        type="button"
+                        style={{
+                          background: "transparent",
+                          border: "none",
+                          color: "#9ca3af",
+                          cursor: "pointer",
+                        }}
+                        onClick={(e) => promptDeleteAddress(e, addr.id)}
+                      >
                         <FaTrashAlt size={13} />
                       </button>
                     </div>
                   </div>
-                  <p className="text-dark m-0 mb-1" style={{ fontSize: "0.88rem" }}>{addr.name} , {addr.address}</p>
-                  <p className="text-dark m-0 mb-1" style={{ fontSize: "0.88rem" }}>{addr.city}, {addr.state} - {addr.pin}</p>
-                  <p className="text-muted m-0" style={{ fontSize: "0.85rem" }}>Mobile: {addr.mobile}</p>
+                  <p
+                    className="text-dark m-0 mb-1"
+                    style={{ fontSize: "0.88rem" }}
+                  >
+                    {addr.name} , {addr.address}
+                  </p>
+                  <p
+                    className="text-dark m-0 mb-1"
+                    style={{ fontSize: "0.88rem" }}
+                  >
+                    {addr.city}, {addr.state} - {addr.pin}
+                  </p>
+                  <p className="text-muted m-0" style={{ fontSize: "0.85rem" }}>
+                    Mobile: {addr.mobile}
+                  </p>
                 </div>
               ))}
             </div>
@@ -571,13 +999,41 @@ function ProductDetails() {
 
       {/* Delete Address Modal Confirmation Block */}
       {showDeleteModal && (
-        <div className="modal-overlay-custom" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
-          <div className="modal-box-custom shadow-lg bg-white p-4 rounded text-center" style={{ width: "90%", maxWidth: "400px" }}>
+        <div
+          className="modal-overlay-custom"
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+          }}
+        >
+          <div
+            className="modal-box-custom shadow-lg bg-white p-4 rounded text-center"
+            style={{ width: "90%", maxWidth: "400px" }}
+          >
             <h5 className="fw-bold mb-2">Confirm Deletion</h5>
-            <p className="text-muted small">Are you sure you want to delete this delivery address profile?</p>
+            <p className="text-muted small">
+              Are you sure you want to delete this delivery address profile?
+            </p>
             <div className="d-flex gap-3 mt-4">
-              <button type="button" className="btn btn-secondary flex-fill" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-              <button type="button" className="btn btn-danger flex-fill" onClick={executeDeleteAddress}>Delete</button>
+              <button
+                type="button"
+                className="btn btn-secondary flex-fill"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger flex-fill"
+                onClick={executeDeleteAddress}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

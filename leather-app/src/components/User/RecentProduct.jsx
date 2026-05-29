@@ -1,20 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ProductCard from "./ProductCard"; 
-import { allProductsData } from "../../pages/User/Allproducts";
+import ProductCard from "./ProductCard";
+import { useProducts } from "../../context/ProductsContext";
 import "../../assets/styles/productCard.css";
 
-const RecentProduct = () => {  
+const RecentProduct = () => {
   const navigate = useNavigate();
+  const { products, loading } = useProducts();
 
-  // Reverse mapping to fetch the latest 6 products safely
-  const recentProducts = allProductsData 
-    ? [...allProductsData].reverse().slice(0, 6) 
-    : [];  
+  // Show the 6 most recently added products (Firestore is already ordered by createdAt desc)
+  const recentProducts = products.slice(0, 6);
 
-  // ─── FIXED: REDIRECTS RECENT PRODUCTS CLICKS STRAIGHT TO PRODUCT DETAILS PAGE ───
   const handleRecentProductClick = (productItem) => {
-    // Normalizes default configuration parameters matching baseline styles
     navigate("/product", {
       state: { product: productItem }
     });
@@ -27,17 +24,22 @@ const RecentProduct = () => {
           YOU MAY ALSO LIKE PRODUCTS
         </h2>
         <p className="text-muted mx-auto" style={{ maxWidth: "600px", fontSize: "0.95rem" }}>
-          Premium Leather Furniture Crafted For Comfort, Durability, And Timeless Style 
+          Premium Leather Furniture Crafted For Comfort, Durability, And Timeless Style
           Designed To Elevate Every Space.
         </p>
       </div>
 
       <div className="recent-products-scroll-container">
-        {/* FIXED: Binds custom trigger onBuyNowClick directly into child mapping framework */}
-        <ProductCard 
-          products={recentProducts} 
-          onBuyNowClick={handleRecentProductClick} 
-        />
+        {loading ? (
+          <div className="container">
+            <p className="text-muted py-3">Loading products...</p>
+          </div>
+        ) : (
+          <ProductCard
+            products={recentProducts}
+            onBuyNowClick={handleRecentProductClick}
+          />
+        )}
       </div>
     </section>
   );
