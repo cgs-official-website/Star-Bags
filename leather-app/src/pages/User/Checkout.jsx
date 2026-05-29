@@ -15,20 +15,24 @@ import Footer from "../../components/User/Footer";
 import { useWishlist } from "../../context/WishlistContext";
 import CouponCard, { couponsDataList } from "../../components/User/CouponCard";
 import { useAuth } from "../../context/AuthContext";
+
 import { db } from "../../firebase";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+
 import "../../assets/styles/Cart.css";
 import "../../assets/styles/checkout.css";
 
 const Checkout = () => {
-  // ─── 1. CORE COMPONENT ROUTER & CONTEXT HOOKS ───
   const navigate = useNavigate();
   const location = useLocation();
-  const { toggleWishlist } = useWishlist();
   const { currentUser } = useAuth();
+  const { toggleWishlist } = useWishlist();
+ 
+
 
   // ─── 2. ALL STATE INITIALIZATIONS ───
   const [savedAddresses, setSavedAddresses] = useState([]);
+
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
@@ -36,10 +40,6 @@ const Checkout = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState(null);
   const [showAddressWarningModal, setShowAddressWarningModal] = useState(false);
-
-  // TIMEOUT PROCESSING LOADERS STATES
-  const [isOrderingLoader, setIsOrderingLoader] = useState(false);
-  const [isSuccessPopup, setIsSuccessPopup] = useState(false);
 
   const {
     allCartItems = [],
@@ -56,13 +56,43 @@ const Checkout = () => {
   );
   const [dbCoupons, setDbCoupons] = useState([]);
 
-  // ─── 3. SIDE EFFECTS MANAGEMENT ───
+  // ─── FIXED TRICK: DIRECT FIRESTORE REAL-TIME ADAPTER SYNC LAYER ───
+  useEffect(() => {
+    const fetchAddressesDirectly = async () => {
+      if (!currentUser) return;
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.addresses && Array.isArray(data.addresses)) {
+            setSavedAddresses(data.addresses);
+            localStorage.setItem(
+              "savedAddresses",
+              JSON.stringify(data.addresses),
+            );
+
+            if (location.state?.returnedAddressId) {
+              setSelectedAddressId(location.state.returnedAddressId);
+            } else if (data.addresses.length > 0) {
+              setSelectedAddressId(data.addresses[0].id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Firebase Sync error inside checkout ledger:", err);
+      }
+    };
+    fetchAddressesDirectly();
+  }, [currentUser, location.state]);
+
   useEffect(() => {
     if (initialSelected.length === 0) {
       navigate("/cart");
     }
     window.scrollTo(0, 0);
   }, [initialSelected, navigate]);
+
 
   useEffect(() => {
     if (!currentUser) return;
@@ -153,6 +183,7 @@ const Checkout = () => {
   }, [currentUser]);
 
   // ─── 4. CALCULATIONS AND METRIC LEDGER PARSING ───
+
   const totalItemsCount = checkoutItems.reduce(
     (acc, item) => acc + (item.qty || 1),
     0,
@@ -264,12 +295,14 @@ const Checkout = () => {
     setSavedAddresses(updated);
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
     if (currentUser) {
+
       try {
         const userDocRef = doc(db, "users", currentUser.uid);
         await updateDoc(userDocRef, { addresses: updated });
       } catch (err) {
         console.error("Error saving addresses to DB:", err);
       }
+
     }
     if (selectedAddressId === targetDeleteId) {
       setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
@@ -328,7 +361,6 @@ const Checkout = () => {
   return (
     <>
       <Navbar />
-
       <div className="cart-page style-page-checkout">
         <div className="checkout-header">
           <h2 className="main-title">Product Checkout</h2>
@@ -394,7 +426,9 @@ const Checkout = () => {
                     - {activeSelectedAddress.pin}
                   </p>
                   <p className="user-phone-line">
-                    Mobile: {activeSelectedAddress.mobile}
+                    Mobile:{" "}
+                    {activeSelectedAddress.mobile ||
+                      activeSelectedAddress.contact}
                   </p>
                 </div>
               )}
@@ -416,7 +450,6 @@ const Checkout = () => {
           </div>
 
           <div className="cart-right">
-            {/* ─── FIXED ORDER SUMMARY: PASSES `isCheckoutPage={true}` PROPS FOR DYNAMIC TEXT ─── */}
             <OrderSummary
               totalItemsCount={totalItemsCount}
               rawTotal={rawTotal}
@@ -427,7 +460,7 @@ const Checkout = () => {
               gstTotal={gstTotal}
               finalTotal={finalTotal}
               isBillingPage={false}
-              isCheckoutPage={true} // TARGET FLAG PASSED SAFELY
+              isCheckoutPage={true}
               handleCheckout={handleProceedToBilling}
             />
 
@@ -530,7 +563,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* ─── OVERLAY MODALS ─── */}
       {isModalOpen && (
         <div
           className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
@@ -689,7 +721,7 @@ const Checkout = () => {
                     {addr.city}, {addr.state} - {addr.pin}
                   </p>
                   <p className="text-muted m-0" style={{ fontSize: "0.85rem" }}>
-                    Mobile: {addr.mobile}
+                    Mobile: {addr.mobile || addr.contact}
                   </p>
                 </div>
               ))}

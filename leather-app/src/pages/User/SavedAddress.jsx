@@ -45,7 +45,7 @@ function SavedAddress() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
 
-  // Fetch addresses from Firestore
+  // Fetch addresses from Firestore & Sync to LocalStorage for pages fallback
   useEffect(() => {
     const fetchAddresses = async () => {
       if (!currentUser) {
@@ -59,6 +59,8 @@ function SavedAddress() {
           const data = userSnap.data();
           if (data.addresses && Array.isArray(data.addresses)) {
             setSavedAddresses(data.addresses);
+            // FIXED TRICK: Write layout cache immediately to resolve cross-page dependency blockers
+            localStorage.setItem("savedAddresses", JSON.stringify(data.addresses));
           }
         }
       } catch (err) {
@@ -81,6 +83,8 @@ function SavedAddress() {
       try {
         const userDocRef = doc(db, "users", currentUser.uid);
         await updateDoc(userDocRef, { addresses: updatedAddresses });
+        // Keeping LocalCaches fresh as well to protect other views routing switches
+        localStorage.setItem("savedAddresses", JSON.stringify(updatedAddresses));
       } catch (err) {
         console.error("Error saving addresses to DB:", err);
       }
@@ -197,13 +201,9 @@ function SavedAddress() {
                     type="button"
                   >
                     {showForm && editingId === null ? (
-                      <>
-                        <IoMdClose /> Close
-                      </>
+                      <><IoMdClose /> Close</>
                     ) : (
-                      <>
-                        <MdAdd /> Add a New Address
-                      </>
+                      <><MdAdd /> Add a New Address</>
                     )}
                   </button>
                 </div>
@@ -223,34 +223,20 @@ function SavedAddress() {
                 </div>
 
                 <div className="address-list">
-                  {/* FIXED: We calculate the text label based purely on array index runtime position layout mapping rules */}
                   {savedAddresses.map((addr, index) => (
                     <div key={addr.id} className="address-item">
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
                           <p className="address-label">Address {index + 1}</p>
-                          <p className="address-text">
-                            {addr.name}, {addr.address}
-                          </p>
-                          <p className="address-text">
-                            {addr.city}, {addr.state} – {addr.pin}
-                          </p>
-                          <p className="address-text">Mobile: {addr.mobile}</p>
+                          <p className="address-text">{addr.name}, {addr.address}</p>
+                          <p className="address-text">{addr.city}, {addr.state} – {addr.pin}</p>
+                          <p className="address-text">Mobile: {addr.mobile || addr.contact}</p>
                         </div>
                         <div className="d-flex gap-2">
-                          <button
-                            className="btn edit-addr-btn d-flex align-items-center gap-1"
-                            onClick={() => handleEdit(addr)}
-                            type="button"
-                          >
+                          <button className="btn edit-addr-btn d-flex align-items-center gap-1" onClick={() => handleEdit(addr)} type="button">
                             <MdEdit /> Edit
                           </button>
-                          <button
-                            className="btn edit-addr-btn text-danger d-flex align-items-center gap-1"
-                            style={{ borderColor: "#fee2e2" }}
-                            onClick={() => triggerDeletePrompt(addr.id)}
-                            type="button"
-                          >
+                          <button className="btn edit-addr-btn text-danger d-flex align-items-center gap-1" style={{ borderColor: "#fee2e2" }} onClick={() => triggerDeletePrompt(addr.id)} type="button">
                             <MdDelete /> Delete
                           </button>
                         </div>
@@ -277,27 +263,14 @@ function SavedAddress() {
         </div>
       </div>
 
-      {/* CONFIRMATION POPUP MODAL */}
       {showDeleteModal && (
         <div className="modal-overlay-custom">
           <div className="modal-box-custom shadow-lg">
             <h5>Confirm Deletion</h5>
             <p>Are you absolutely sure you want to delete this delivery address? This action cannot be reverted.</p>
             <div className="d-flex gap-3 mt-4">
-              <button
-                className="btn btn-modal-cancel"
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-modal-confirm"
-                type="button"
-                onClick={confirmDeleteAction}
-              >
-                Delete
-              </button>
+              <button className="btn btn-modal-cancel" type="button" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn btn-modal-confirm" type="button" onClick={confirmDeleteAction}>Delete</button>
             </div>
           </div>
         </div>

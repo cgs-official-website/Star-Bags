@@ -1,299 +1,258 @@
-import React, { useState } from "react";
-import "../../assets/styles/OrderCard.css";
-import ReviewModal from "./ReviewModal"; // Adjust the import path as needed
+import React, { useState, useEffect } from "react";
+import { FaStar, FaRegStar } from "react-icons/fa";
+import { MdVerified } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
-// Dynamic high-quality image mappings based on product category
-const getImageForProduct = (productName, fallbackImage) => {
-  const name = productName?.toLowerCase() || "";
-  
-  if (name.includes("sofa")) {
-    return "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=150&h=150&fit=crop&crop=center";
+const STATUS_MAP = {
+  "Order Placed": { color: "#8b5cf6" },
+  Shipped: { color: "#2563eb" },
+  "Out for Delivery": { color: "#d97706" },
+  Delivered: { color: "#16a34a" },
+  Processing: { color: "#f59e0b" },
+};
+const getStatusColor = (s) => (STATUS_MAP[s] || { color: "#f59e0b" }).color;
+
+const isProductReviewed = (productName) => {
+  try {
+    const raw = localStorage.getItem("user_reviewed_products");
+    return raw ? JSON.parse(raw).includes(productName) : false;
+  } catch {
+    return false;
   }
-  if (name.includes("backpack") || name.includes("bag") || name.includes("shopa")) {
-    return "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=150&h=150&fit=crop&crop=center";
-  }
-  if (name.includes("table")) {
-    return "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=150&h=150&fit=crop&crop=center";
-  }
-  if (name.includes("lamp")) {
-    return "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=150&h=150&fit=crop&crop=center";
-  }
-  if (name.includes("bedsheet") || name.includes("cotton")) {
-    return "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=150&h=150&fit=crop&crop=center";
-  }
-  if (name.includes("vase") || name.includes("ceramic")) {
-    return "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=150&h=150&fit=crop&crop=center";
-  }
-  
-  return fallbackImage || "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=150&h=150&fit=crop&crop=center";
 };
 
-// Reusable SVG Star Component
-function StarIcon({ filled = true, color = "#F5A623", size = 16 }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 20 20"
-      fill={filled ? color : "none"}
-      stroke={color}
-      strokeWidth="1.5"
-      style={{ display: "inline-block", verticalAlign: "middle" }}
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path d="M10 1l2.39 4.84 5.34.78-3.87 3.77.91 5.32L10 13.27l-4.77 2.51.91-5.32L2.27 6.62l5.34-.78z" />
-    </svg>
+const Stars = ({ rating }) => (
+  <span style={{ display: "inline-flex", gap: "1px" }}>
+    {[...Array(5)].map((_, i) =>
+      i < Math.round(rating) ? (
+        <FaStar key={i} style={{ color: "#f59e0b", fontSize: "12px" }} />
+      ) : (
+        <FaRegStar key={i} style={{ color: "#d1d5db", fontSize: "12px" }} />
+      ),
+    )}
+  </span>
+);
+
+const OrderCard = ({ order, onReviewClick }) => {
+  const navigate = useNavigate();
+  const [reviewed, setReviewed] = useState(() =>
+    isProductReviewed(order.product),
   );
-}
 
-export default function OrderCard({ order }) {
-  const [hovered, setHovered] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalRating, setModalRating] = useState(0);
-  const [submittedReviews, setSubmittedReviews] = useState([]);
-  const [isMobileExpanded, setIsMobileExpanded] = useState(false);
-
-  const orderId = order?.id ? `Order ${order.id}` : "Order ID002457890KJM";
-  const productName = order?.product || "Leather shopa";
-  const rating = order?.rating ?? 4.2;
-  const reviewsCount = order?.reviews ?? 120;
-  const discountedPrice = order?.discountedPrice ?? 120;
-  const originalPrice = order?.originalPrice ?? 120;
-  const quantity = order?.quantity ?? 1;
-  const status = order?.status || "Delivered";
-  const deliveryDate = order?.deliveryDate || "25/04/2020";
-  const productImage = getImageForProduct(productName, order?.image);
-  
-  const savingsAmount = originalPrice - discountedPrice;
-  const hasSavings = savingsAmount > 0;
-
-  let statusColor = "#22c55e";
-  if (status.toLowerCase().includes("ship")) {
-    statusColor = "#3b82f6";
-  } else if (status.toLowerCase().includes("process") || status.toLowerCase().includes("pend")) {
-    statusColor = "#f59e0b";
-  } else if (status.toLowerCase().includes("cancel")) {
-    statusColor = "#ef4444";
-  }
-
-  const isDelivered = status.toLowerCase() === "delivered";
-  const timeLabel = isDelivered ? "Delivered on" : "Expected by";
-  
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const parts = dateStr.split('/');
-    if (parts.length === 3) {
-      const day = parts[0];
-      const month = parseInt(parts[1]);
-      const year = parts[2];
-      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-      return `${day} ${monthNames[month - 1]} ${year}`;
-    }
-    return dateStr;
-  };
-  
-  const formattedDate = formatDate(deliveryDate);
-
-  const handleTrackClick = () => {
-    alert(`Tracking information for Order ${order?.id || "ID002457890KJM"}: In transit.`);
-  };
-
-  const handleRateClick = () => {
-    setIsModalOpen(true);
-  };
-  
-  const handleMobileCardClick = (e) => {
-    const target = e.target;
-    const isInteractive = target.closest('.track-button') || 
-                          target.closest('.rate-link-btn') || 
-                          target.closest('.mobile-action-btn');
-    if (!isInteractive) {
-      setIsMobileExpanded(!isMobileExpanded);
-    }
-  };
-
-  const handleReviewSubmit = (rating, reviewText) => {
-    console.log(`Product: ${productName}`);
-    console.log(`Rating: ${rating} stars`);
-    console.log(`Review: ${reviewText}`);
-    
-    const newReview = {
-      productId: order?.id,
-      productName: productName,
-      rating: rating,
-      review: reviewText,
-      date: new Date().toISOString()
+  useEffect(() => {
+    const sync = () => setReviewed(isProductReviewed(order.product));
+    window.addEventListener("storage", sync);
+    const id = setInterval(sync, 500);
+    return () => {
+      window.removeEventListener("storage", sync);
+      clearInterval(id);
     };
-    
-    setSubmittedReviews(prev => [...prev, newReview]);
-    
-    if (order?.onReviewSubmit) {
-      order.onReviewSubmit(order?.id, rating, reviewText);
-    }
+  }, [order.product]);
+
+  // Dynamic SBO ID Formatter for Desktop Layouts
+  const getFormattedOrderId = () => {
+    if (order.id && order.id.startsWith("SBO-")) return order.id;
+    const category = order.category || "bag";
+    let catCode = "BAG";
+    if (
+      category.toLowerCase().includes("wallet") ||
+      category.toLowerCase().includes("wlt")
+    )
+      catCode = "WLT";
+    if (
+      category.toLowerCase().includes("belt") ||
+      category.toLowerCase().includes("blt")
+    )
+      catCode = "BLT";
+
+    const today = new Date();
+    return `SBO-${catCode}-${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}-001`;
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-    setModalRating(0);
-  };
+  const finalOrderId = getFormattedOrderId();
+  const discountedPrice = Number(order.discountedPrice) || 0;
+  const originalPrice = Number(order.originalPrice) || discountedPrice;
+  const hasDiscount = originalPrice > discountedPrice;
+  const fmt = (n) => "₹" + Number(n).toLocaleString("en-IN");
+
+  const statusColor = getStatusColor(order.status);
 
   return (
-    <>
-      <div className="order-card-container">
-        {/* Mobile card: compact view with click-to-expand */}
-        <div 
-          className={`order-card order-card-mobile ${isMobileExpanded ? 'expanded' : ''}`}
-          onClick={handleMobileCardClick}
-        >
-          {/* Compact row - always visible on mobile */}
-          <div className="mobile-compact-row">
-            <div className="product-image-wrapper mobile-image">
+    <div className="responsive-order-card-root">
+      {/* ─── DESKTOP VIEW STRUCTURE ─── */}
+      <div className="desktop-card-layout-view">
+        <div className="responsive-col-box desktop-info-box">
+          <div className="desktop-image-wrapper">
+            {order.image ? (
               <img
-                src={productImage}
-                alt={productName}
-                className="product-image"
+                src={order.image}
+                alt={order.product}
+                className="desktop-product-img"
               />
-            </div>
-            <div className="mobile-product-info">
-              <div className="mobile-product-header">
-                <span className="mobile-product-name">{productName}</span>
-                <span className="mobile-delivery-status" style={{ color: statusColor }}>
-                  ● {status}
-                </span>
-              </div>
-              <div className="mobile-date">{formattedDate}</div>
-            </div>
+            ) : (
+              <div className="desktop-product-img-fallback">🛍️</div>
+            )}
           </div>
-
-          {/* Expanded details - shown when clicked on mobile */}
-          <div className="mobile-expanded-details">
-            {/* Price row */}
-            <div className="mobile-price-row">
-              <span className="mobile-current-price">${discountedPrice}</span>
-              {originalPrice > discountedPrice && (
-                <span className="mobile-original-price">${originalPrice}</span>
+          <div className="desktop-text-wrapper">
+            <p className="desktop-order-id-txt">{finalOrderId}</p>
+            <div className="desktop-title-row">
+              <span className="desktop-product-title-name">
+                {order.product}
+              </span>
+              <Stars rating={order.rating || 4.2} />
+              <span className="desktop-reviews-count-lbl">
+                ({order.reviews || 120})
+              </span>
+            </div>
+            <div className="desktop-price-row">
+              <span className="desktop-current-price">
+                {fmt(discountedPrice)}
+              </span>
+              {hasDiscount && (
+                <span className="desktop-original-price">
+                  {fmt(originalPrice)}
+                </span>
               )}
-              {hasSavings && (
-                <span className="mobile-savings">Save ${savingsAmount}</span>
-              )}
             </div>
-            
-            {/* Quantity and Rating row */}
-            <div className="mobile-meta-row">
-              <span className="mobile-qty">Qty: {quantity}</span>
-              <div className="mobile-rating">
-                <StarIcon filled size={14} color="#F5A623" />
-                <span className="mobile-rating-number">{rating.toFixed(1)}</span>
-                <span className="mobile-rating-count">({reviewsCount})</span>
-              </div>
-            </div>
-            
-            {/* Order ID row */}
-            <div className="mobile-order-id">
-              Order ID: {orderId.replace('Order ', '')}
-            </div>
-            
-            {/* Action buttons - NO Buy Again button */}
-            <div className="mobile-action-buttons">
-              <button 
-                className="mobile-action-btn track-btn"
-                onClick={handleTrackClick}
-                disabled={status.toLowerCase().includes("cancel")}
-              >
-                Track
-              </button>
-              <button 
-                className="mobile-action-btn rate-btn"
-                onClick={handleRateClick}
-              >
-                Rate
-              </button>
-            </div>
+            <p className="desktop-qty-lbl">Qty: {order.quantity || 1}</p>
           </div>
         </div>
 
-        {/* Desktop/Tablet card - original horizontal layout */}
-        <div className="order-card order-card-desktop">
-          {/* Product Image */}
-          <div className="product-image-wrapper">
-            <img
-              src={productImage}
-              alt={productName}
-              className="product-image"
-            />
-          </div>
+        <div className="responsive-section-divider" />
 
-          {/* Product Info */}
-          <div className="product-info">
-            <p className="order-id">{orderId}</p>
+        <div className="responsive-col-box desktop-status-box">
+          <span className="desktop-section-title">STATUS</span>
+          <span
+            className="desktop-status-value-txt"
+            style={{ color: statusColor }}
+          >
+            {order.status === "Processing" ? "Order Placed" : order.status}
+          </span>
+          <button
+            className="desktop-track-btn"
+            onClick={() => navigate("/Track-Order", { state: { order } })}
+          >
+            Track order
+          </button>
+        </div>
 
-            <div className="product-header">
-              <span className="product-name">{productName}</span>
-              <div className="rating-badge-row">
-                <StarIcon filled size={16} color="#F5A623" />
-                <span className="rating-number">{rating.toFixed(1)}</span>
-                <span className="rating-count">({reviewsCount})</span>
+        <div className="responsive-section-divider" />
+
+        <div className="responsive-col-box desktop-time-box">
+          <span className="desktop-section-title">TIME</span>
+          <span className="desktop-time-val-txt">
+            {order.time || "25/04/2020"}
+          </span>
+          <span
+            className="desktop-delivery-eta-txt"
+            style={{
+              color: order.status === "Delivered" ? "#16a34a" : "#374151",
+            }}
+          >
+            {order.deliveryDate || "Expected in 5 Days"}
+          </span>
+          <div className="desktop-review-trigger-slot">
+            {reviewed ? (
+              <div className="desktop-reviewed-badge">
+                <MdVerified size={14} /> Review Submitted
               </div>
-            </div>
-
-            <div className="price-section">
-              <div className="current-price">$ {discountedPrice}</div>
-              {originalPrice > discountedPrice ? (
-                <div className="original-price">$ {originalPrice}</div>
-              ) : (
-                <div className="original-price">$ {discountedPrice}</div>
-              )}
-            </div>
-
-            <p className="quantity">Qty:{quantity}</p>
-          </div>
-
-          {/* Status Section */}
-          <div className="status-section">
-            <p className="section-label">Status</p>
-            <span className="status-value" style={{ color: statusColor }}>
-              {status}
-            </span>
-            <button
-              onMouseEnter={() => setHovered(true)}
-              onMouseLeave={() => setHovered(false)}
-              onClick={handleTrackClick}
-              className={`track-button ${hovered ? "hovered" : ""}`}
-              disabled={status.toLowerCase().includes("cancel")}
-              style={{ 
-                opacity: status.toLowerCase().includes("cancel") ? 0.5 : 1,
-                cursor: status.toLowerCase().includes("cancel") ? "not-allowed" : "pointer"
-              }}
-            >
-              Track order
-            </button>
-          </div>
-
-          {/* Time Section */}
-          <div className="time-section">
-            <p className="section-label">Time</p>
-            <div className="delivery-date">
-              <p className="delivery-text">{timeLabel}</p>
-              <p className="delivery-text">{deliveryDate}</p>
-            </div>
-            <button className="rate-link-btn" onClick={handleRateClick}>
-              <StarIcon filled size={14} color="#C97E2A" />
-              <span className="rate-text">Rate Your Product</span>
-            </button>
+            ) : (
+              <button
+                className="desktop-rate-action-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReviewClick();
+                }}
+              >
+                ★ Rate Your Product
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      <ReviewModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSubmit={handleReviewSubmit}
-        rating={modalRating}
-        setRating={setModalRating}
-      />
-    </>
+      {/* ─── 📱 MOBILE VIEW STRUCTURE (STRICT 4-ROW MATRIX) ─── */}
+      <div className="mobile-card-layout-view">
+        {/* UPPER BLOCK : Image + Right Side Rows */}
+        <div className="mobile-upper-mesh-block">
+          <div className="mobile-image-frame">
+            {order.image ? (
+              <img
+                src={order.image}
+                alt={order.product}
+                className="mobile-img-element"
+              />
+            ) : (
+              <div className="mobile-img-element-fallback">🛍️</div>
+            )}
+          </div>
+
+          <div className="mobile-right-specs-column">
+            {/* ROW 1 : Product Name (Ellipsis) + Right End Rating Score */}
+            <div className="mobile-specs-row-one">
+              <span className="mobile-product-title-string">
+                {order.product}
+              </span>
+              <span className="mobile-product-rating-badge">
+                {(order.rating || 4.2).toFixed(1)}{" "}
+                <FaStar
+                  style={{
+                    color: "#f59e0b",
+                    fontSize: "11px",
+                    marginBottom: "2px",
+                  }}
+                />
+              </span>
+            </div>
+
+            {/* ROW 2 : Pricing + Right End Qty */}
+            <div className="mobile-specs-row-two">
+              <div className="mobile-price-inline-group">
+                <span className="mobile-curr-price-txt">
+                  {fmt(discountedPrice)}
+                </span>
+                {hasDiscount && (
+                  <span className="mobile-orig-price-txt">
+                    {fmt(originalPrice)}
+                  </span>
+                )}
+              </div>
+              <span className="mobile-qty-string-txt">
+                Qty: {order.quantity || 1}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* LOWER BLOCK : Image Down Side Grid (Status, Date, Button parallel) */}
+        <div className="mobile-lower-actions-tray-block">
+          <div className="mobile-action-status-cell">
+            <span className="mobile-action-label">Status</span>
+            <span
+              className="mobile-action-status-val"
+              style={{ color: statusColor }}
+            >
+              {order.status === "Processing" ? "Order Placed" : order.status}
+            </span>
+          </div>
+
+          <div className="mobile-action-time-cell">
+            <span className="mobile-action-label">Time</span>
+            <span className="mobile-action-time-val">
+              {order.time || "25/04/2020"}
+            </span>
+          </div>
+
+          <button
+            className="mobile-action-track-submit-btn"
+            onClick={() => navigate("/TrackOrder", { state: { order } })}
+          >
+            Track order
+          </button>
+        </div>
+      </div>
+    </div>
   );
-}
+};
 
-
-
+export default OrderCard;
