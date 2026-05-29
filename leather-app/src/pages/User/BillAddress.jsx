@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
 import { TbCreditCardPay } from "react-icons/tb";
@@ -95,11 +95,13 @@ const BillAddress = () => {
     const displayDate = today.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
     const displayTime = today.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
+    const paymentLabel = paymentMethod === "cod" ? "Cash on delivery" : "Prepaid (Online/Card Payment)";
+
     const newOrderPayloads = cartItems.map((item, idx) => {
       const productCategory = item.category?.toLowerCase() || "bag";
       let catToken = "BAG"; 
-      if (productCategory === "wallet") catToken = "WLT";
-      if (productCategory === "belt") catToken = "BLT";
+      if (productCategory === "wallet" || item.name.toLowerCase().includes("wallet")) catToken = "WLT";
+      if (productCategory === "belt" || item.name.toLowerCase().includes("belt")) catToken = "BLT";
 
       const randomCount = String(Math.floor(Math.random() * 900) + (idx + 1)).padStart(3, '0');
       const uniqueOrderId = `SBO-${catToken}-${dateString}-${randomCount}`;
@@ -107,27 +109,30 @@ const BillAddress = () => {
       return {
         id: uniqueOrderId,
         product: item.name,
-        status: "Processing",
+        category: catToken,
+        status: "Order Placed",
         time: displayDate,
-        rating: item.rating || 4.5,
+        rating: item.rating || 4.2,
         reviews: item.reviews || 120,
-        deliveryDate: "Expected in 5 Days",
+        deliveryDate: "Expected inside 5 to 6 days",
         discountedPrice: Number(item.price) * (item.qty || 1), 
         originalPrice: (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
         quantity: item.qty || 1,
-        image: item.image || "../src/assets/images/leather1.png"
+        image: item.image || "../src/assets/images/leather1.png",
+        // FIXED TRICK: Injecting selected billing configurations directly into order schemas context
+        selectedAddress: selectedAddress,
+        paymentMethod: paymentLabel
       };
     });
 
-    const paymentLabel = paymentMethod === "cod" ? "Cash On Delivery" : "Online Payment";
-    
     setPopupDetails({
       amount: `₹${activeFinalTotal.toFixed(2)}`,
       transactionId: newOrderPayloads[0]?.id,
       paymentMethod: paymentLabel,
       date: displayDate,
       time: displayTime,
-      merchant: "Krish Leather Factory"
+      merchant: "Star Bags Premium Factory",
+      selectedAddress: selectedAddress
     });
 
     // Purge cart item dependencies out of global hooks directly
@@ -155,7 +160,7 @@ const BillAddress = () => {
           setIsPopupOpen(false);
           navigate("/orders", { state: { newOrderPayloads } });
         }, 3000);
-      }, 10000);
+      }, 4000); // Optimized transition load times cleanly
     } else {
       setIsPopupOpen(true);
       setTimeout(() => {
@@ -187,7 +192,7 @@ const BillAddress = () => {
         </div>
       )}
 
-      <PaymentPopup isOpen={isPopupOpen} details={popupDetails} onClose={() => setIsPopupOpen(false)} />
+      <PaymentPopup isOpen={isPopupOpen} details={popupDetails} onClose={() => setIsPopupOpen(false)} status="success" />
 
       <div className="cart-page style-page-billing">
         <div className="checkout-header">
@@ -211,11 +216,11 @@ const BillAddress = () => {
               <div className="address-top"><h5>Address</h5></div>
               <div className="address-content">
                 {selectedAddress ? (
-                  <p>
+                  <p style={{ fontSize: "0.92rem", lineHeight: "1.5" }}>
                     <strong>{selectedAddress.name}</strong><br />
                     {selectedAddress.address}<br />
                     {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pin}<br />
-                    Mobile: {selectedAddress.mobile}
+                    <strong>Mobile: {selectedAddress.mobile || selectedAddress.contact}</strong>
                   </p>
                 ) : (
                   <p className="text-muted">No selected destination address passed.</p>

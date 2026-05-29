@@ -5,6 +5,10 @@ import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import { MdEdit, MdAdd, MdDelete } from "react-icons/md";
 import { IoMdClose } from "react-icons/io";
+import { useAuth } from "../../context/AuthContext";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 const emptyForm = {
   email: "",
@@ -27,41 +31,83 @@ const indianStates = [
 ];
 
 function SavedAddress() {
-  const [savedAddresses, setSavedAddresses] = useState(() => {
-    const data = localStorage.getItem("savedAddresses");
-    return data ? JSON.parse(data) : [];
-  });
+  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
 
   const hasAddresses = savedAddresses.length > 0;
-  const [showForm, setShowForm] = useState(!hasAddresses);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState(null);
 
+  // Fetch addresses from Firestore & Sync to LocalStorage for pages fallback
   useEffect(() => {
-    localStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
-  }, [savedAddresses]);
+    const fetchAddresses = async () => {
+      if (!currentUser) {
+        navigate("/login");
+        return;
+      }
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.addresses && Array.isArray(data.addresses)) {
+            setSavedAddresses(data.addresses);
+            // FIXED TRICK: Write layout cache immediately to resolve cross-page dependency blockers
+            localStorage.setItem("savedAddresses", JSON.stringify(data.addresses));
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching addresses:", err);
+      } finally {
+        setLoadingAddresses(false);
+      }
+    };
+    fetchAddresses();
+  }, [currentUser, navigate]);
+
+  useEffect(() => {
+    if (!loadingAddresses && savedAddresses.length === 0) {
+      setShowForm(true);
+    }
+  }, [loadingAddresses, savedAddresses.length]);
+
+  const syncAddressesToDB = async (updatedAddresses) => {
+    if (currentUser) {
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userDocRef, { addresses: updatedAddresses });
+        // Keeping LocalCaches fresh as well to protect other views routing switches
+        localStorage.setItem("savedAddresses", JSON.stringify(updatedAddresses));
+      } catch (err) {
+        console.error("Error saving addresses to DB:", err);
+      }
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
+    let updatedAddresses;
     if (editingId !== null) {
-      setSavedAddresses((prev) =>
-        prev.map((addr) =>
-          addr.id === editingId
-            ? {
-                ...addr,
-                ...formData,
-                mobile: formData.contact,
-              }
-            : addr
-        )
+      updatedAddresses = savedAddresses.map((addr) =>
+        addr.id === editingId
+          ? {
+              ...addr,
+              ...formData,
+              mobile: formData.contact,
+            }
+          : addr
       );
       setEditingId(null);
     } else {
@@ -70,8 +116,11 @@ function SavedAddress() {
         ...formData,
         mobile: formData.contact,
       };
-      setSavedAddresses((prev) => [...prev, newAddr]);
+      updatedAddresses = [...savedAddresses, newAddr];
     }
+    setSavedAddresses(updatedAddresses);
+    await syncAddressesToDB(updatedAddresses);
+    
     setFormData(emptyForm);
     setShowForm(false);
   };
@@ -106,9 +155,10 @@ function SavedAddress() {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteAction = () => {
+  const confirmDeleteAction = async () => {
     const remaining = savedAddresses.filter((addr) => addr.id !== addressToDelete);
     setSavedAddresses(remaining);
+    await syncAddressesToDB(remaining);
     setShowDeleteModal(false);
     setAddressToDelete(null);
 
@@ -125,7 +175,7 @@ function SavedAddress() {
       setTimeout(() => {
         document
           .getElementById("address-form-section")
-          .scrollIntoView({ behavior: "smooth" });
+          ?.scrollIntoView({ behavior: "smooth" });
       }, 100);
     }
   };
@@ -151,13 +201,9 @@ function SavedAddress() {
                     type="button"
                   >
                     {showForm && editingId === null ? (
-                      <>
-                        <IoMdClose /> Close
-                      </>
+                      <><IoMdClose /> Close</>
                     ) : (
-                      <>
-                        <MdAdd /> Add a New Address
-                      </>
+                      <><MdAdd /> Add a New Address</>
                     )}
                   </button>
                 </div>
@@ -177,34 +223,20 @@ function SavedAddress() {
                 </div>
 
                 <div className="address-list">
-                  {/* FIXED: We calculate the text label based purely on array index runtime position layout mapping rules */}
                   {savedAddresses.map((addr, index) => (
                     <div key={addr.id} className="address-item">
                       <div className="d-flex justify-content-between align-items-start">
                         <div>
                           <p className="address-label">Address {index + 1}</p>
-                          <p className="address-text">
-                            {addr.name}, {addr.address}
-                          </p>
-                          <p className="address-text">
-                            {addr.city}, {addr.state} – {addr.pin}
-                          </p>
-                          <p className="address-text">Mobile: {addr.mobile}</p>
+                          <p className="address-text">{addr.name}, {addr.address}</p>
+                          <p className="address-text">{addr.city}, {addr.state} – {addr.pin}</p>
+                          <p className="address-text">Mobile: {addr.mobile || addr.contact}</p>
                         </div>
                         <div className="d-flex gap-2">
-                          <button
-                            className="btn edit-addr-btn d-flex align-items-center gap-1"
-                            onClick={() => handleEdit(addr)}
-                            type="button"
-                          >
+                          <button className="btn edit-addr-btn d-flex align-items-center gap-1" onClick={() => handleEdit(addr)} type="button">
                             <MdEdit /> Edit
                           </button>
-                          <button
-                            className="btn edit-addr-btn text-danger d-flex align-items-center gap-1"
-                            style={{ borderColor: "#fee2e2" }}
-                            onClick={() => triggerDeletePrompt(addr.id)}
-                            type="button"
-                          >
+                          <button className="btn edit-addr-btn text-danger d-flex align-items-center gap-1" style={{ borderColor: "#fee2e2" }} onClick={() => triggerDeletePrompt(addr.id)} type="button">
                             <MdDelete /> Delete
                           </button>
                         </div>
@@ -231,27 +263,14 @@ function SavedAddress() {
         </div>
       </div>
 
-      {/* CONFIRMATION POPUP MODAL */}
       {showDeleteModal && (
         <div className="modal-overlay-custom">
           <div className="modal-box-custom shadow-lg">
             <h5>Confirm Deletion</h5>
             <p>Are you absolutely sure you want to delete this delivery address? This action cannot be reverted.</p>
             <div className="d-flex gap-3 mt-4">
-              <button
-                className="btn btn-modal-cancel"
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-modal-confirm"
-                type="button"
-                onClick={confirmDeleteAction}
-              >
-                Delete
-              </button>
+              <button className="btn btn-modal-cancel" type="button" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn btn-modal-confirm" type="button" onClick={confirmDeleteAction}>Delete</button>
             </div>
           </div>
         </div>

@@ -1,15 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { WishlistProvider } from './context/WishlistContext.jsx' // 1. Import the provider
+import { WishlistProvider } from './context/WishlistContext.jsx'
+import { AuthProvider } from './context/AuthContext.jsx'
 import './index.css'
 import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {/* 2. Wrap the App component inside the provider */}
-    <WishlistProvider>
-      <App />
-    </WishlistProvider>
+    <AuthProvider>
+      <WishlistProvider>
+        <App />
+      </WishlistProvider>
+    </AuthProvider>
   </StrictMode>,
 )
 

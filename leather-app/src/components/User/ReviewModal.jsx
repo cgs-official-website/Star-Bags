@@ -8,7 +8,6 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
 
   useEffect(() => {
     if (isOpen) {
-      // Clear out text state context on fresh open triggers cleanly
       setReviewText("");
       if (textareaRef.current) {
         textareaRef.current.focus();
@@ -30,21 +29,17 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
     setHoverRating(0);
   };
 
-  // ─── FIXED CRITICAL SYSTEM TRICK: ENFORCES BOTH STAR AND TEXT VALIDATION ───
   const handleSubmit = () => {
-    // 1. Check if star selection gauge is untouched
     if (rating === 0) {
       alert("Please select a star rating for the product before submitting.");
       return;
     }
 
-    // 2. STRICTOR CHECK: Blocks submit if user has NOT typed comments context box area
     if (!reviewText || reviewText.trim() === "") {
       alert("Please write your thoughts and feedback in the review section before submitting.");
       return;
     }
 
-    // Fires the payload forward only if both conditions pass criteria cleanly thalaiva
     onSubmit(rating, reviewText.trim());
     setReviewText("");
     setRating(0);
@@ -65,13 +60,9 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
   return (
     <div className="rm-overlay" onClick={onClose}>
       <div className="rm-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="rm-close" onClick={onClose}>
-          ×
-        </button>
-
+        <button className="rm-close" onClick={onClose}>×</button>
         <h3 className="rm-title">Write Your Reviews</h3>
 
-        {/* Rating Section */}
         <div className="rm-rating-label">Give it to us your rating</div>
         <div className="rm-star-row">
           {[1, 2, 3, 4, 5].map((star) => (
@@ -88,7 +79,6 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
           ))}
         </div>
 
-        {/* Review Section */}
         <div className="rm-review-label">
           Do you have any thoughts, you would like to share
           <span className="rm-review-sub">Write your reviews and about your product</span>
@@ -102,14 +92,9 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
           style={{ width: "100%", boxSizing: "border-box" }}
         />
 
-        {/* Action Buttons Terminal Tray Layout */}
         <div className="rm-actions">
-          <button className="rm-cancel" onClick={handleCancel} style={{ cursor: "pointer" }}>
-            Cancel
-          </button>
-          <button className="rm-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>
-            Submit your review
-          </button>
+          <button className="rm-cancel" onClick={handleCancel} style={{ cursor: "pointer" }}>Cancel</button>
+          <button className="rm-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>Submit your review</button>
         </div>
       </div>
     </div>

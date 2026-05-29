@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CgAsterisk } from "react-icons/cg";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
+import { auth, db } from "../../firebase";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 import "../../assets/styles/Login.css";
 
@@ -11,6 +14,19 @@ import { NavLink } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
   
   const [formData, setFormData] = useState({
     email: "",
@@ -66,12 +82,63 @@ const Login = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Proceed to login
-      console.log("Login submitted:", formData);
-      navigate('/');
+      setLoading(true);
+      console.log("Login submitted:", formData.email);
+      
+      const email = formData.email.includes("@") ? formData.email.trim() : `${formData.email.trim()}@starbags.com`;
+      
+      try {
+        let userCredential;
+        userCredential = await signInWithEmailAndPassword(auth, email, formData.password);
+
+        const user = userCredential.user;
+
+        // Fetch user data from firestore
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+
+        // Check role strictly from Firestore document
+        const role = userData.role === 'admin' ? 'admin' : 'user';
+
+        localStorage.setItem("user", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          role: role,
+          name: userData.name || user.displayName || (role === 'admin' ? 'Starbags Admin' : user.email.split("@")[0]),
+          mobile: userData.mobile || (formData.email.includes("@") ? "" : formData.email),
+          gender: userData.gender || "Male"
+        }));
+
+        if (role === 'admin') {
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/");
+        }
+      } catch (err) {
+        console.error("Firebase Auth Error:", err);
+        let errorMsg = "Invalid email or password.";
+        if (
+          err.code === "auth/invalid-credential" || 
+          err.code === "auth/wrong-password" || 
+          err.code === "auth/user-not-found"
+        ) {
+          errorMsg = "Incorrect email/mobile or password.";
+        } else if (err.code === "auth/too-many-requests") {
+          errorMsg = "Too many failed login attempts. Try again later.";
+        } else if (err.code === "auth/network-request-failed") {
+          errorMsg = "Network error. Please check your connection.";
+        }
+        setErrors({
+          email: errorMsg,
+          password: errorMsg
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -112,9 +179,9 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               {/* EMAIL */}
               <div className="mb-1">
-                <label className="form-label required">
+                <label className="form-label" >
                   Email or Mobile Number
-                  <sup>
+                  <sup style={{color:'red', fontSize:'10px',top:'-2px'}}>
                     <CgAsterisk />
                   </sup>
                 </label>
@@ -126,6 +193,7 @@ const Login = () => {
                   onChange={handleChange}
                   className={`form-control ${errors.email ? "is-invalid" : ""}`}
                   placeholder="Enter your email or mobile number"
+                  disabled={loading}
                 />
                 {errors.email && (
                   <div className="invalid-feedback">{errors.email}</div>
@@ -134,7 +202,7 @@ const Login = () => {
 
               {/* PASSWORD */}
               <div className="mb-2">
-                <label className="form-label required">
+                <label className="form-label">
                   Password
                   <sup>
                     <CgAsterisk />
@@ -148,6 +216,7 @@ const Login = () => {
                   onChange={handleChange}
                   className={`form-control ${errors.password ? "is-invalid" : ""}`}
                   placeholder="Enter your Password"
+                  disabled={loading}
                 />
                 {errors.password && (
                   <div className="invalid-feedback">{errors.password}</div>
@@ -161,8 +230,8 @@ const Login = () => {
               
               {/* BUTTON */}
               <div className="d-grid">
-                <button className="btn login-btn" type="submit">
-                  Log in
+                <button className="btn login-btn" type="submit" disabled={loading}>
+                  {loading ? "Logging in..." : "Log in"}
                 </button>
               </div>
             </form>
@@ -183,10 +252,10 @@ const Login = () => {
                 Sign in with Google
               </button>
 
-              <button className="social-btn">
+              {/* <button className="social-btn">
                 <FaApple className="social-icon" />
                 Sign in with Apple
-              </button>
+              </button> */}
             </div>
 
             {/* FOOTER */}

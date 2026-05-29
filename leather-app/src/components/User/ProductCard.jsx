@@ -1,4 +1,5 @@
-import React from "react";
+// ProductCard.jsx - Just add ONE line at the top and modify ONE line
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import { useWishlist } from "../../context/WishlistContext"; 
 import { allProductsData } from "../../pages/User/Allproducts"; 
@@ -97,7 +98,7 @@ const ProductCard = ({ products = null }) => {
                       </span>
                     </div>
 
-                    {/* Action Buttons Section */}
+                    {/* Buttons removed */}
                     {/* <div className="d-flex gap-3 pt-2">
                       <button 
                         className="btn buy-now-btn flex-grow-1" 
@@ -136,6 +137,7 @@ const ProductCard = ({ products = null }) => {
                         <MdOutlineShoppingCart style={{ fontSize: "1.1rem" }} />
                       </button>
                     </div> */}
+
 
                   </div>
                 </div>

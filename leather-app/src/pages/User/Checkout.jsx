@@ -14,38 +14,25 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import { useWishlist } from "../../context/WishlistContext";
 import CouponCard, { couponsDataList } from "../../components/User/CouponCard";
+import { useAuth } from "../../context/AuthContext";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import "../../assets/styles/Cart.css";
 import "../../assets/styles/checkout.css";
 
 const Checkout = () => {
-  // ─── 1. CORE COMPONENT ROUTER & CONTEXT HOOKS ───
   const navigate = useNavigate();
   const location = useLocation();
+  const { currentUser } = useAuth();
   const { toggleWishlist } = useWishlist();
 
-  // ─── 2. ALL STATE INITIALIZATIONS ───
-  const [savedAddresses, setSavedAddresses] = useState(() => {
-    const rawData = localStorage.getItem("savedAddresses");
-    return rawData ? JSON.parse(rawData) : [];
-  });
-
-  const [selectedAddressId, setSelectedAddressId] = useState(() => {
-    if (location.state?.returnedAddressId) {
-      return location.state.returnedAddressId;
-    }
-    const rawData = localStorage.getItem("savedAddresses");
-    const parsed = rawData ? JSON.parse(rawData) : [];
-    return parsed.length > 0 ? parsed[0].id : null;
-  });
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState(null);
   const [showAddressWarningModal, setShowAddressWarningModal] = useState(false);
-
-  // TIMEOUT PROCESSING LOADERS STATES
-  const [isOrderingLoader, setIsOrderingLoader] = useState(false);
-  const [isSuccessPopup, setIsSuccessPopup] = useState(false);
 
   const {
     allCartItems = [],
@@ -60,7 +47,36 @@ const Checkout = () => {
     couponPercentageLabel,
   );
 
-  // ─── 3. SIDE EFFECTS MANAGEMENT ───
+  // ─── FIXED TRICK: DIRECT FIRESTORE REAL-TIME ADAPTER SYNC LAYER ───
+  useEffect(() => {
+    const fetchAddressesDirectly = async () => {
+      if (!currentUser) return;
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.addresses && Array.isArray(data.addresses)) {
+            setSavedAddresses(data.addresses);
+            localStorage.setItem(
+              "savedAddresses",
+              JSON.stringify(data.addresses),
+            );
+
+            if (location.state?.returnedAddressId) {
+              setSelectedAddressId(location.state.returnedAddressId);
+            } else if (data.addresses.length > 0) {
+              setSelectedAddressId(data.addresses[0].id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Firebase Sync error inside checkout ledger:", err);
+      }
+    };
+    fetchAddressesDirectly();
+  }, [currentUser, location.state]);
+
   useEffect(() => {
     if (initialSelected.length === 0) {
       navigate("/cart");
@@ -68,7 +84,6 @@ const Checkout = () => {
     window.scrollTo(0, 0);
   }, [initialSelected, navigate]);
 
-  // ─── 4. CALCULATIONS AND METRIC LEDGER PARSING ───
   const totalItemsCount = checkoutItems.reduce(
     (acc, item) => acc + (item.qty || 1),
     0,
@@ -173,10 +188,15 @@ const Checkout = () => {
     setShowDeleteModal(true);
   };
 
-  const executeDeleteAddress = () => {
+  const executeDeleteAddress = async () => {
     const updated = savedAddresses.filter((addr) => addr.id !== targetDeleteId);
     setSavedAddresses(updated);
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
+    if (currentUser) {
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        addresses: updated,
+      });
+    }
     if (selectedAddressId === targetDeleteId) {
       setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
     }
@@ -226,7 +246,6 @@ const Checkout = () => {
   return (
     <>
       <Navbar />
-
       <div className="cart-page style-page-checkout">
         <div className="checkout-header">
           <h2 className="main-title">Product Checkout</h2>
@@ -292,7 +311,9 @@ const Checkout = () => {
                     - {activeSelectedAddress.pin}
                   </p>
                   <p className="user-phone-line">
-                    Mobile: {activeSelectedAddress.mobile}
+                    Mobile:{" "}
+                    {activeSelectedAddress.mobile ||
+                      activeSelectedAddress.contact}
                   </p>
                 </div>
               )}
@@ -314,7 +335,6 @@ const Checkout = () => {
           </div>
 
           <div className="cart-right">
-            {/* ─── FIXED ORDER SUMMARY: PASSES `isCheckoutPage={true}` PROPS FOR DYNAMIC TEXT ─── */}
             <OrderSummary
               totalItemsCount={totalItemsCount}
               rawTotal={rawTotal}
@@ -325,7 +345,7 @@ const Checkout = () => {
               gstTotal={gstTotal}
               finalTotal={finalTotal}
               isBillingPage={false}
-              isCheckoutPage={true} // TARGET FLAG PASSED SAFELY
+              isCheckoutPage={true}
               handleCheckout={handleProceedToBilling}
             />
 
@@ -409,7 +429,6 @@ const Checkout = () => {
         </div>
       </div>
 
-      {/* ─── OVERLAY MODALS ─── */}
       {isModalOpen && (
         <div
           className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
@@ -568,7 +587,7 @@ const Checkout = () => {
                     {addr.city}, {addr.state} - {addr.pin}
                   </p>
                   <p className="text-muted m-0" style={{ fontSize: "0.85rem" }}>
-                    Mobile: {addr.mobile}
+                    Mobile: {addr.mobile || addr.contact}
                   </p>
                 </div>
               ))}

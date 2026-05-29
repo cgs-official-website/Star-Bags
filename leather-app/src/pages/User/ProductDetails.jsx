@@ -10,15 +10,37 @@ import { FaCircleUser } from "react-icons/fa6";
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiHeart } from "react-icons/fi";
 import { IoMdCart } from "react-icons/io";
-import { MdAdd, MdClose, MdModeEdit } from "react-icons/md";
+import { MdAdd, MdClose, MdModeEdit, MdVerified } from "react-icons/md";
 import { TiPencil } from "react-icons/ti";
 import { useWishlist } from "../../context/WishlistContext";
+import { useAuth } from "../../context/AuthContext";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 import "../../assets/styles/ProductDetails.css";
+
+// ─── HELPER: Check if user already reviewed a specific product ───
+const getReviewedProducts = () => {
+  const raw = localStorage.getItem("user_reviewed_products");
+  return raw ? JSON.parse(raw) : [];
+};
+
+const markProductAsReviewed = (productName) => {
+  const reviewed = getReviewedProducts();
+  if (!reviewed.includes(productName)) {
+    reviewed.push(productName);
+    localStorage.setItem("user_reviewed_products", JSON.stringify(reviewed));
+  }
+};
+
+const hasReviewedProduct = (productName) => {
+  return getReviewedProducts().includes(productName);
+};
 
 function ProductDetails() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const { wishlist, toggleWishlist, cart, addToCart } = useWishlist();
 
   const productData = location.state?.product;
@@ -38,7 +60,7 @@ function ProductDetails() {
       "Premium stitched leather detailing, sleek craftsmanship, and smart storage compartments—designed for everyday convenience and built to last.",
   };
 
-  // Address and Selector States
+  // Address and Selector States (Initialized from LocalStorage for instant render)
   const [savedAddresses, setSavedAddresses] = useState(() => {
     const rawData = localStorage.getItem("savedAddresses");
     return rawData ? JSON.parse(rawData) : [];
@@ -53,16 +75,34 @@ function ProductDetails() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetDeleteId, setTargetDeleteId] = useState(null);
-
-  const activeSelectedAddress = savedAddresses.find(
-    (addr) => addr.id === selectedAddressId,
-  );
   const [quantity, setQuantity] = useState(1);
 
+  // ─── FIRESTORE ADDRESS INTEGRATION SYNC ENGINE ───
+  useEffect(() => {
+    const fetchAddressesForProductView = async () => {
+      if (!currentUser) return;
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userSnap = await getDoc(userDocRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          if (data.addresses && Array.isArray(data.addresses)) {
+            setSavedAddresses(data.addresses);
+            localStorage.setItem("savedAddresses", JSON.stringify(data.addresses));
+            if (data.addresses.length > 0 && !selectedAddressId) {
+              setSelectedAddressId(data.addresses[0].id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Firebase sync blocker inside ProductDetails screen:", err);
+      }
+    };
+    fetchAddressesForProductView();
+  }, [currentUser]);
+
   // Wishlist and Category Parsing
-  const isProductInWishlist = wishlist?.some(
-    (item) => item.id === currentProduct.id,
-  );
+  const isProductInWishlist = wishlist?.some((item) => item.id === currentProduct.id);
   const productCategory =
     currentProduct.category?.toLowerCase() === "wallet"
       ? "Wallet"
@@ -70,9 +110,7 @@ function ProductDetails() {
         ? "Belt"
         : "Bag";
 
-  const [selectedSize, setSelectedSize] = useState(
-    productCategory === "Bag" ? "40L" : "M",
-  );
+  const [selectedSize, setSelectedSize] = useState(productCategory === "Bag" ? "40L" : "M");
 
   // ─── REVIEW SYSTEM STATE MANAGEMENT ENGINE ───
   const [dynamicReviews, setDynamicReviews] = useState([]);
@@ -80,90 +118,73 @@ function ProductDetails() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(4);
   const [feedbackState, setFeedbackState] = useState({});
-
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [isReviewsHovered, setIsReviewsHovered] = useState(false);
   const reviewsScrollRef = useRef(null);
 
-  // Fetch product matches from global review index
+  // ─── TRACK IF CURRENT USER ALREADY REVIEWED THIS PRODUCT ───
+  const [userAlreadyReviewed, setUserAlreadyReviewed] = useState(false);
+
+  // Fetch product reviews from global review index
   useEffect(() => {
     const savedReviews = localStorage.getItem("global_product_reviews");
     if (savedReviews) {
       const parsed = JSON.parse(savedReviews);
-      const matchedProductReviews = parsed.filter(
-        (r) => r.productName === currentProduct.name,
-      );
+      const matchedProductReviews = parsed.filter((r) => r.productName === currentProduct.name);
       setDynamicReviews(matchedProductReviews);
     } else {
       setDynamicReviews([]);
     }
+
+    setUserAlreadyReviewed(hasReviewedProduct(currentProduct.name));
     window.scrollTo(0, 0);
   }, [currentProduct.name, currentProduct.id]);
 
-  // Mobile Auto Scroll Carousel Animation Effect for Reviews
+  // Mobile Auto Scroll Carousel Animation
   useEffect(() => {
     if (window.innerWidth > 768) return;
-
     let animationFrameId;
     const scrollStep = () => {
       if (reviewsScrollRef.current && !isReviewsHovered) {
         reviewsScrollRef.current.scrollLeft += 1;
         if (
           reviewsScrollRef.current.scrollLeft >=
-          reviewsScrollRef.current.scrollWidth -
-            reviewsScrollRef.current.clientWidth -
-            1
+          reviewsScrollRef.current.scrollWidth - reviewsScrollRef.current.clientWidth - 1
         ) {
           reviewsScrollRef.current.scrollLeft = 0;
         }
       }
       animationFrameId = requestAnimationFrame(scrollStep);
     };
-
     animationFrameId = requestAnimationFrame(scrollStep);
     return () => cancelAnimationFrame(animationFrameId);
   }, [isReviewsHovered]);
 
-  // Live Score System Calculations
+  // Live Score Calculations
   const totalReviewsCount = dynamicReviews.length;
   const averageRatingScore =
     totalReviewsCount > 0
-      ? (
-          dynamicReviews.reduce((sum, r) => sum + r.rating, 0) /
-          totalReviewsCount
-        ).toFixed(1)
+      ? (dynamicReviews.reduce((sum, r) => sum + r.rating, 0) / totalReviewsCount).toFixed(1)
       : "0.0";
 
-  const getStarCountFactor = (starNum) =>
-    dynamicReviews.filter((r) => r.rating === starNum).length;
+  const getStarCountFactor = (starNum) => dynamicReviews.filter((r) => r.rating === starNum).length;
   const getStarPercentFactor = (starNum) =>
-    totalReviewsCount > 0
-      ? `${(getStarCountFactor(starNum) / totalReviewsCount) * 100}%`
-      : "0%";
+    totalReviewsCount > 0 ? `${(getStarCountFactor(starNum) / totalReviewsCount) * 100}%` : "0%";
 
-  // ─── REFACTORED CUSTOM FILTER AND MATRIX SORT CONDITIONAL PIPELINE ───
+  // Filter and Sort
   const getFilteredAndSortedReviews = () => {
     if (activeFilter === "Positive") {
-      return dynamicReviews
-        .filter((review) => review.rating > 2) // Rated above 2 stars (3, 4, 5 stars)
-        .sort((a, b) => b.id - a.id); // Ordered by newest first (First In, Last Out)
+      return dynamicReviews.filter((review) => review.rating > 2).sort((a, b) => b.id - a.id);
     }
     if (activeFilter === "Negative") {
-      return dynamicReviews
-        .filter((review) => review.rating <= 2) // Rated 2 stars and below (1, 2 stars)
-        .sort((a, b) => b.id - a.id); // Ordered by newest first (First In, Last Out)
+      return dynamicReviews.filter((review) => review.rating <= 2).sort((a, b) => b.id - a.id);
     }
-    
-    // Default Tab Pathway: "All" Review Elements
-    return dynamicReviews
-      .sort((a, b) => b.rating - a.rating); // Ordered explicitly by standard 5 to 1 score sorting
+    return dynamicReviews.sort((a, b) => b.rating - a.rating);
   };
 
-  const filteredReviews = getFilteredAndSortedReviews().slice(0, 6); // Global display cap set to 6 total items maximum
-
-  const visibleReviews = showAllReviews
-    ? filteredReviews
-    : filteredReviews.slice(0, 3);
+  const filteredReviews = getFilteredAndSortedReviews();
+  const visibleReviews = showAllReviews ? filteredReviews.slice(0, 6) : filteredReviews.slice(0, 3);
+  const activeSelectedAddress = savedAddresses.find((addr) => addr.id === selectedAddressId);
 
   const handleFeedback = (id, type) => {
     setFeedbackState((prev) => ({
@@ -172,9 +193,16 @@ function ProductDetails() {
     }));
   };
 
+  // ─── REVIEW SUBMIT HANDLER — One review per product ───
   const handleWriteReviewSubmit = (rating, text) => {
     if (!text || !text.trim()) {
       alert("Please write a comment before submitting your review.");
+      return;
+    }
+
+    if (hasReviewedProduct(currentProduct.name)) {
+      alert("You have already submitted a review for this product.");
+      setModalOpen(false);
       return;
     }
 
@@ -198,12 +226,11 @@ function ProductDetails() {
 
     const rawGlobalReviews = localStorage.getItem("global_product_reviews");
     const parsedGlobal = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-    localStorage.setItem(
-      "global_product_reviews",
-      JSON.stringify([freshReviewObj, ...parsedGlobal]),
-    );
+    localStorage.setItem("global_product_reviews", JSON.stringify([freshReviewObj, ...parsedGlobal]));
 
-    alert("Thank you! Your review has been successfully submitted.");
+    markProductAsReviewed(currentProduct.name);
+    setUserAlreadyReviewed(true);
+    setModalOpen(false);
   };
 
   // Size Configurations
@@ -225,12 +252,9 @@ function ProductDetails() {
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
+  const increaseQuantity = () => setQuantity(quantity + 1);
 
-  const increaseQuantity = () => {
-    setQuantity(quantity + 1);
-  };
-
-  // Image Gallery Configurations
+  // Image Gallery
   const images = [
     currentProduct.image,
     "../src/assets/images/bag.png",
@@ -242,13 +266,10 @@ function ProductDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const mainImage = images[currentImageIndex];
 
-  const handlePrevImage = () => {
+  const handlePrevImage = () =>
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  const handleNextImage = () => {
+  const handleNextImage = () =>
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
 
   const promptDeleteAddress = (e, id) => {
     e.stopPropagation();
@@ -256,10 +277,19 @@ function ProductDetails() {
     setShowDeleteModal(true);
   };
 
-  const executeDeleteAddress = () => {
+  const executeDeleteAddress = async () => {
     const updated = savedAddresses.filter((addr) => addr.id !== targetDeleteId);
     setSavedAddresses(updated);
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
+    if (currentUser) {
+      try {
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          addresses: updated,
+        });
+      } catch (err) {
+        console.error("Failed to delete address profile from Firestore:", err);
+      }
+    }
     if (selectedAddressId === targetDeleteId) {
       setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
     }
@@ -268,19 +298,18 @@ function ProductDetails() {
   };
 
   const isCurrentlyInCartWithThisSize = cart?.some(
-    (item) => item.id === currentProduct.id && item.size === selectedSize,
+    (item) => item.id === currentProduct.id && item.size === selectedSize
   );
 
   const handleAddToCartAction = () => {
     if (isCurrentlyInCartWithThisSize) {
       navigate("/cart");
     } else {
-      const cartPayload = {
+      addToCart({
         ...currentProduct,
         qty: quantity,
         size: selectedSize,
-      };
-      addToCart(cartPayload);
+      });
     }
   };
 
@@ -308,12 +337,8 @@ function ProductDetails() {
         <div className="row mb-4">
           <div className="col-lg-6 d-flex align-items-center"></div>
           <div className="col-lg-6 ps-lg-5 d-flex justify-content-between align-items-center">
-            <div
-              className="breadcrumb-text"
-              style={{ textTransform: "capitalize" }}
-            >
-              {currentProduct.category}s /{" "}
-              <span className="active">{currentProduct.name}</span>
+            <div className="breadcrumb-text" style={{ textTransform: "capitalize" }}>
+              {currentProduct.category}s / <span className="active">{currentProduct.name}</span>
             </div>
             <div
               className="text-danger fs-4 cursor-pointer wishlist-btn"
@@ -327,10 +352,7 @@ function ProductDetails() {
         <div className="row mb-5">
           <div className="col-lg-6 mb-4 mb-lg-0">
             <div className="main-image-container">
-              <button
-                className="arrow-btn d-none d-md-block"
-                onClick={handlePrevImage}
-              >
+              <button className="arrow-btn d-none d-md-block" onClick={handlePrevImage}>
                 <IoIosArrowBack />
               </button>
               <img
@@ -339,10 +361,7 @@ function ProductDetails() {
                 alt={currentProduct.name}
                 className="main-product-image mx-4"
               />
-              <button
-                className="arrow-btn d-none d-md-block"
-                onClick={handleNextImage}
-              >
+              <button className="arrow-btn d-none d-md-block" onClick={handleNextImage}>
                 <IoIosArrowForward />
               </button>
             </div>
@@ -353,7 +372,7 @@ function ProductDetails() {
                   className={`thumbnail-box ${currentImageIndex === idx ? "active" : ""}`}
                   onClick={() => setCurrentImageIndex(idx)}
                 >
-                  <img src={img} alt="Thumbnail segment element" />
+                  <img src={img} alt="Thumbnail" />
                 </div>
               ))}
             </div>
@@ -364,12 +383,8 @@ function ProductDetails() {
             <h1 className="product-title">{currentProduct.name}</h1>
             <div className="price-section d-flex align-items-center mb-2">
               <span className="current-price">₹ {currentProduct.price}</span>
-              <span className="original-price">
-                ₹ {currentProduct.realPrice || "799"}
-              </span>
-              <span className="discount">
-                {currentProduct.offer || "37% off"} off
-              </span>
+              <span className="original-price">₹ {currentProduct.realPrice || "799"}</span>
+              <span className="discount">{currentProduct.offer || "37% off"} off</span>
             </div>
 
             <div className="d-flex align-items-center mb-3">
@@ -379,17 +394,12 @@ function ProductDetails() {
                     <FaStar key={i} />
                   ) : (
                     <FaRegStar key={i} style={{ color: "#d1d5db" }} />
-                  ),
+                  )
                 )}
               </div>
-              <span
-                className="rating-count"
-                style={{ fontSize: "0.85rem", color: "#6b7280" }}
-              >
-                {totalReviewsCount > 0
-                  ? `${averageRatingScore} / 5.0`
-                  : "No ratings yet"}{" "}
-                ({totalReviewsCount} Reviews)
+              <span className="rating-count" style={{ fontSize: "0.85rem", color: "#6b7280" }}>
+                {totalReviewsCount > 0 ? `${averageRatingScore} / 5.0` : "No ratings yet"} (
+                {totalReviewsCount} Reviews)
               </span>
             </div>
             <p className="product-description">{currentProduct.description}</p>
@@ -430,25 +440,17 @@ function ProductDetails() {
                 className="btn-add-cart"
                 onClick={handleAddToCartAction}
                 style={{
-                  backgroundColor: isCurrentlyInCartWithThisSize
-                    ? "#4b5563"
-                    : "#f3f4f6",
+                  backgroundColor: isCurrentlyInCartWithThisSize ? "#4b5563" : "#f3f4f6",
                   color: isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
-                  border: isCurrentlyInCartWithThisSize
-                    ? "none"
-                    : "1px solid #d1d5db",
+                  border: isCurrentlyInCartWithThisSize ? "none" : "1px solid #d1d5db",
                   fontWeight: "600",
                   transition: "all 0.2s ease",
                 }}
               >
-                <IoMdCart />{" "}
-                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
+                <IoMdCart /> {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
               </button>
             </div>
-            <button
-              className="btn-buy-now"
-              onClick={handleProceedToCheckoutDirectly}
-            >
+            <button className="btn-buy-now" onClick={handleProceedToCheckoutDirectly}>
               Buy Now
             </button>
 
@@ -465,10 +467,7 @@ function ProductDetails() {
                   </h6>
                 )}
               </div>
-              <hr
-                style={{ width: "100%", borderColor: "#ddd" }}
-                className="my-2"
-              />
+              <hr style={{ width: "100%", borderColor: "#ddd" }} className="my-2" />
 
               {savedAddresses.length === 0 ? (
                 <div
@@ -489,8 +488,7 @@ function ProductDetails() {
                     }}
                     onClick={() => navigate("/address")}
                   >
-                    <TiPencil style={{ transform: "rotate(-45deg)" }} /> Add
-                    your Delivery Address
+                    <TiPencil style={{ transform: "rotate(-45deg)" }} /> Add your Delivery Address
                   </button>
                 </div>
               ) : !activeSelectedAddress ? (
@@ -500,20 +498,22 @@ function ProductDetails() {
               ) : (
                 <div className="text-muted mt-2" style={{ fontSize: "0.9rem" }}>
                   <p className="mb-1">
-                    <strong>{activeSelectedAddress.name}</strong>,{" "}
-                    {activeSelectedAddress.address}
+                    <strong>{activeSelectedAddress.name}</strong>, {activeSelectedAddress.address}
                   </p>
                   <p className="mb-1">
-                    {activeSelectedAddress.city}, {activeSelectedAddress.state}{" "}
-                    - {activeSelectedAddress.pin}
+                    {activeSelectedAddress.city}, {activeSelectedAddress.state} -{" "}
+                    {activeSelectedAddress.pin}
                   </p>
-                  <p className="mb-0">Mobile: {activeSelectedAddress.mobile}</p>
+                  <p className="mb-0">
+                    Mobile: {activeSelectedAddress.mobile || activeSelectedAddress.contact}
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
+        {/* Product Details Table */}
         <div className="details-section mb-5">
           <h3>Product details</h3>
           <div className="table-responsive">
@@ -539,10 +539,7 @@ function ProductDetails() {
                 </tr>
                 <tr>
                   <td>Material</td>
-                  <td>
-                    {currentProduct.material ||
-                      "Genuine Leather, Premium Inner Lining"}
-                  </td>
+                  <td>{currentProduct.material || "Genuine Leather, Premium Inner Lining"}</td>
                 </tr>
               </tbody>
             </table>
@@ -553,18 +550,38 @@ function ProductDetails() {
         <div className="reviews-section">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4>Rating And Reviews</h4>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="btn text-white fw-bold px-3 py-1.5"
-              style={{
-                backgroundColor: "#8b5cf6",
-                borderRadius: "6px",
-                fontSize: "0.8rem",
-                border: "none",
-              }}
-            >
-              Write a Review
-            </button>
+
+            {userAlreadyReviewed ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  backgroundColor: "#f0fdf4",
+                  border: "1px solid #bbf7d0",
+                  color: "#16a34a",
+                  padding: "6px 14px",
+                  borderRadius: "6px",
+                  fontSize: "0.8rem",
+                  fontWeight: "700",
+                }}
+              >
+                <MdVerified size={15} /> Review Submitted
+              </div>
+            ) : (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="btn text-white fw-bold px-3 py-1.5"
+                style={{
+                  backgroundColor: "#8b5cf6",
+                  borderRadius: "6px",
+                  fontSize: "0.8rem",
+                  border: "none",
+                }}
+              >
+                Write a Review
+              </button>
+            )}
           </div>
 
           <div className="overall-rating-card shadow-sm mb-4">
@@ -589,8 +606,7 @@ function ProductDetails() {
                     {star}{" "}
                     <FaStar
                       style={{
-                        color:
-                          getStarCountFactor(star) > 0 ? "#fbbf24" : "#e5e7eb",
+                        color: getStarCountFactor(star) > 0 ? "#fbbf24" : "#e5e7eb",
                       }}
                     />
                   </span>
@@ -600,18 +616,11 @@ function ProductDetails() {
                       style={{
                         width: getStarPercentFactor(star),
                         backgroundColor:
-                          star >= 3
-                            ? "#22c55e"
-                            : star === 2
-                              ? "#fbbf24"
-                              : "#ef4444",
+                          star >= 3 ? "#22c55e" : star === 2 ? "#fbbf24" : "#ef4444",
                       }}
                     />
                   </div>
-                  <span
-                    className="text-muted"
-                    style={{ width: "40px", textAlign: "right" }}
-                  >
+                  <span className="text-muted" style={{ width: "40px", textAlign: "right" }}>
                     {getStarCountFactor(star)}
                   </span>
                 </div>
@@ -619,7 +628,7 @@ function ProductDetails() {
             </div>
           </div>
 
-          <div className="filter-buttons">
+          <div className="filter-buttons mb-4">
             {["All", "Positive", "Negative"].map((type) => (
               <button
                 key={type}
@@ -634,7 +643,7 @@ function ProductDetails() {
             ))}
           </div>
 
-          {filteredReviews.length === 0 ? (
+          {visibleReviews.length === 0 ? (
             <div
               className="text-center py-5 shadow-sm border rounded-3 my-3 bg-white"
               style={{ fontFamily: "system-ui" }}
@@ -642,16 +651,29 @@ function ProductDetails() {
               <div style={{ fontSize: "2.8rem", color: "#a8a29e" }} className="mb-2">
                 ✍️
               </div>
-              <h5
-                className="fw-bold mb-1 text-dark"
-                style={{ fontSize: "1.1rem" }}
-              >
+              <h5 className="fw-bold mb-1 text-dark" style={{ fontSize: "1.1rem" }}>
                 No matching reviews yet
               </h5>
               <p className="text-muted small mb-3">
-                Be the first to leave a verified review matching your selected
-                filter metrics!
+                Be the first to leave a verified review for {currentProduct.name}!
               </p>
+              {!userAlreadyReviewed && (
+                <button
+                  onClick={() => setModalOpen(true)}
+                  style={{
+                    backgroundColor: "#8b5cf6",
+                    color: "#fff",
+                    border: "none",
+                    padding: "8px 18px",
+                    borderRadius: "6px",
+                    fontWeight: "600",
+                    fontSize: "0.82rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  Write First Review
+                </button>
+              )}
             </div>
           ) : (
             <div
@@ -662,105 +684,61 @@ function ProductDetails() {
               onMouseEnter={() => setIsReviewsHovered(true)}
               onMouseLeave={() => setIsReviewsHovered(false)}
             >
-              <div
-                className="row flex-nowrap flex-md-wrap g-4 mt-2 reviews-row"
-                style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}
-              >
+              {/* FIXED: Standardized responsive layout container matrix */}
+              <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 reviews-row">
                 {visibleReviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="col-10 col-sm-6 col-md-4 review-col flex-shrink-0"
-                  >
-                    <div className="review-card p-3 border rounded bg-white shadow-sm">
-                      <div className="review-header d-flex justify-content-between mb-2">
-                        <div className="reviewer-info d-flex align-items-center gap-2">
-                          <FaCircleUser className="fs-4 text-secondary" />
-                          <p
-                            className="reviewer-name fw-bold m-0 small"
-                            style={{ color: "#111827" }}
-                          >
-                            {review.name}
-                          </p>
+                  <div key={review.id} className="col review-col">
+                    <div className="review-card p-3 border rounded bg-white shadow-sm h-100 d-flex flex-column justify-content-between">
+                      <div>
+                        <div className="review-header d-flex justify-content-between align-items-start mb-2">
+                          <div className="reviewer-info d-flex align-items-center gap-2">
+                            <FaCircleUser className="fs-4 text-secondary flex-shrink-0" />
+                            <p
+                              className="reviewer-name fw-bold m-0 small text-truncate"
+                              style={{ color: "#111827", maxWidth: "110px" }}
+                            >
+                              {review.name}
+                            </p>
+                          </div>
+                          <div className="rating-stars text-warning small flex-shrink-0">
+                            {[...Array(5)].map((_, i) =>
+                              i < review.rating ? <FaStar key={i} /> : <FaRegStar key={i} />
+                            )}
+                          </div>
                         </div>
-                        <div className="rating-stars text-warning small">
-                          {[...Array(5)].map((_, i) =>
-                            i < review.rating ? (
-                              <FaStar key={i} />
-                            ) : (
-                              <FaRegStar key={i} />
-                            ),
-                          )}
-                        </div>
-                      </div>
-                      <p
-                        className="review-text small text-muted"
-                        style={{
-                          lineHeight: "1.5",
-                          height: "65px",
-                          overflowY: "auto",
-                        }}
-                      >
-                        {review.text}
-                      </p>
-
-                      <div className="review-actions d-flex justify-content-between align-items-center mt-3 border-top pt-2">
-                        <span
-                          className="text-muted"
-                          style={{ fontSize: "0.7rem" }}
+                        <p
+                          className="review-text small text-muted mb-3"
+                          style={{
+                            lineHeight: "1.5",
+                            height: "65px",
+                            overflowY: "auto",
+                          }}
                         >
+                          {review.text}
+                        </p>
+                      </div>
+
+                      <div className="review-actions d-flex justify-content-between align-items-center mt-auto border-top pt-2">
+                        <span className="text-muted" style={{ fontSize: "0.7rem" }}>
                           {review.date}
                         </span>
                         <div className="helpful-btns d-flex gap-2">
                           <button
-                            style={{
-                              color: "#058aff",
-                              background: "none",
-                              border: "none",
-                              fontSize: "16px",
-                            }}
+                            style={{ color: "#058aff", background: "none", border: "none", fontSize: "16px" }}
                             onClick={() => handleFeedback(review.id, "like")}
                           >
-                            {feedbackState[review.id] === "like" ? (
-                              <BiSolidLike />
-                            ) : (
-                              <BiLike />
-                            )}
-                            <span
-                              style={{
-                                fontSize: "12px",
-                                marginLeft: "3px",
-                                color: "#6c757d",
-                              }}
-                            >
-                              {feedbackState[review.id] === "like"
-                                ? review.likes + 1
-                                : review.likes}
+                            {feedbackState[review.id] === "like" ? <BiSolidLike /> : <BiLike />}
+                            <span style={{ fontSize: "12px", marginLeft: "3px", color: "#6c757d" }}>
+                              {feedbackState[review.id] === "like" ? review.likes + 1 : review.likes}
                             </span>
                           </button>
                           <button
-                            style={{
-                              color: "#f25858",
-                              background: "none",
-                              border: "none",
-                              fontSize: "16px",
-                            }}
+                            style={{ color: "#f25858", background: "none", border: "none", fontSize: "16px" }}
                             onClick={() => handleFeedback(review.id, "dislike")}
                           >
-                            {feedbackState[review.id] === "dislike" ? (
-                              <BiSolidDislike />
-                            ) : (
-                              <BiDislike />
-                            )}
-                            <span
-                              style={{
-                                fontSize: "12px",
-                                marginLeft: "3px",
-                                color: "#6c757d",
-                              }}
-                            >
-                              {feedbackState[review.id] === "dislike"
-                                ? review.dislikes + 1
-                                : review.dislikes}
+                            {feedbackState[review.id] === "dislike" ? <BiSolidDislike /> : <BiDislike />}
+                            <span style={{ fontSize: "12px", marginLeft: "3px", color: "#6c757d" }}>
+                              {feedbackState[review.id] === "dislike" ? review.dislikes + 1 : review.dislikes}
                             </span>
                           </button>
                         </div>
@@ -780,12 +758,7 @@ function ProductDetails() {
                   e.preventDefault();
                   setShowAllReviews(true);
                 }}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                }}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
               >
                 See all →
               </button>
@@ -800,7 +773,7 @@ function ProductDetails() {
         </div>
       </div>
 
-      {/* Address Selection Modal Grid */}
+      {/* Address Selection Modal */}
       {isModalOpen && (
         <div
           className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
@@ -828,11 +801,7 @@ function ProductDetails() {
               </h4>
               <button
                 type="button"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                }}
+                style={{ background: "transparent", border: "none", cursor: "pointer" }}
                 onClick={() => setIsModalOpen(false)}
               >
                 <MdClose size={24} />
@@ -914,17 +883,11 @@ function ProductDetails() {
                           navigate("/address");
                         }}
                       >
-                        <MdModeEdit size={14} />{" "}
-                        <span style={{ marginLeft: "2px" }}>Edit</span>
+                        <MdModeEdit size={14} /> <span style={{ marginLeft: "2px" }}>Edit</span>
                       </button>
                       <button
                         type="button"
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: "#9ca3af",
-                          cursor: "pointer",
-                        }}
+                        style={{ background: "transparent", border: "none", color: "#9ca3af", cursor: "pointer" }}
                         onClick={(e) => promptDeleteAddress(e, addr.id)}
                       >
                         <FaTrashAlt size={13} />
@@ -938,7 +901,7 @@ function ProductDetails() {
                     {addr.city}, {addr.state} - {addr.pin}
                   </p>
                   <p className="text-muted m-0" style={{ fontSize: "0.85rem" }}>
-                    Mobile: {addr.mobile}
+                    Mobile: {addr.mobile || addr.contact}
                   </p>
                 </div>
               ))}
@@ -990,13 +953,16 @@ function ProductDetails() {
       )}
 
       {/* Review Modal */}
-      <ReviewModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleWriteReviewSubmit}
-        rating={modalRating}
-        setRating={setModalRating}
-      />
+      {!userAlreadyReviewed && (
+        <ReviewModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onSubmit={handleWriteReviewSubmit}
+          rating={modalRating}
+          setRating={setModalRating}
+        />
+      )}
+
       <Footer />
     </div>
   );

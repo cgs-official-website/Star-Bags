@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CgAsterisk } from "react-icons/cg";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "../../firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 
 import "../../assets/styles/CreateAccount.css";
 
@@ -9,6 +13,21 @@ import LoginImage from "../../assets/images/login-image.png";
 import { NavLink } from "react-router-dom";
 
 const CreateAccount = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -46,6 +65,9 @@ const CreateAccount = () => {
     if (!formData.email.trim()) {
       newErrors.email = "Please enter your email address or mobile number.";
       isValid = false;
+    } else if (formData.email.trim() === "admin@starbags.com") {
+      newErrors.email = "This email is reserved for Admin use.";
+      isValid = false;
     } else if (!isEmail && !isMobile) {
       newErrors.email = "Please enter a valid email address or mobile number";
       isValid = false;
@@ -64,12 +86,59 @@ const CreateAccount = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Proceed to signup verification
+      setLoading(true);
       console.log("Form submitted:", formData);
-      // Navigate to signupVerify - you can add navigation logic here
+      
+      const email = formData.email.includes("@") ? formData.email.trim() : `${formData.email.trim()}@starbags.com`;
+      const isMobile = !formData.email.includes("@");
+      
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
+        const user = userCredential.user;
+
+        // Create the user document in firestore
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          role: "user",
+          name: email.split("@")[0],
+          mobile: isMobile ? formData.email.trim() : "",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+
+        // Auto-login registered user
+        localStorage.setItem("user", JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          role: "user",
+          name: email.split("@")[0],
+          mobile: isMobile ? formData.email.trim() : "",
+          gender: "Male"
+        }));
+
+        navigate("/");
+      } catch (err) {
+        console.error("Firebase Registration Error:", err);
+        let errorMsg = "Failed to register account.";
+        if (err.code === "auth/email-already-in-use") {
+          errorMsg = "This email/mobile number is already registered.";
+        } else if (err.code === "auth/invalid-email") {
+          errorMsg = "Please enter a valid email format.";
+        } else if (err.code === "auth/weak-password") {
+          errorMsg = "Password is too weak.";
+        }
+        setErrors({
+          email: errorMsg,
+          password: ""
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -126,6 +195,7 @@ const CreateAccount = () => {
                   onChange={handleChange}
                   className={`form-control ${errors.email ? "is-invalid" : ""}`}
                   placeholder="Enter your email or mobile number"
+                  disabled={loading}
                 />
                 {errors.email && (
                   <div className="invalid-feedback">{errors.email}</div>
@@ -148,6 +218,7 @@ const CreateAccount = () => {
                   onChange={handleChange}
                   className={`form-control ${errors.password ? "is-invalid" : ""}`}
                   placeholder="Create your Password"
+                  disabled={loading}
                 />
                 {errors.password && (
                   <div className="invalid-feedback">{errors.password}</div>
@@ -163,6 +234,7 @@ const CreateAccount = () => {
                   name="termsAccepted"
                   checked={formData.termsAccepted}
                   onChange={handleChange}
+                  disabled={loading}
                 />
 
                 <label className="form-check-label" htmlFor="remember">
@@ -172,8 +244,8 @@ const CreateAccount = () => {
 
               {/* BUTTON */}
               <div className="d-grid">
-                <button className="btn signup-btn" type="submit">
-                  Sign up
+                <button className="btn signup-btn" type="submit" disabled={loading}>
+                  {loading ? "Registering..." : "Sign up"}
                 </button>
               </div>
             </form>
@@ -194,10 +266,10 @@ const CreateAccount = () => {
                 Sign in with Google
               </button>  
 
-              <button className="social-btn">
+              {/* <button className="social-btn">
                 <FaApple className="social-icon" />
                 Sign in with Apple
-              </button>
+              </button> */}
             </div>
             {/* FOOTER */}
             <div className="signin-footer">
