@@ -14,7 +14,6 @@ function Orders() {
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ─── REVIEW SYSTEM STATE MATRIX ───
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(5);
   const [activeOrderForReview, setActiveOrderForReview] = useState(null);
@@ -77,7 +76,9 @@ function Orders() {
         id: Date.now(),
         productName: productName,
         name: "Rahul Sharma", 
-        avatar: "https://i.pravatar.cc/150?img=11",
+        // FIXED TRICK: Captures and saves the real item/product image instead of user avatars thalaiva
+        image: activeOrderForReview.image || "../src/assets/images/leather1.png",
+        productImage: activeOrderForReview.image || "../src/assets/images/leather1.png",
         rating: Number(rating),
         text: text,
         likes: 0,

@@ -4,11 +4,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../../assets/styles/FilterSideBar.css";
 
 // ── Static Data ───────────────────────────────────────────────────────────────
-export const BAG_TYPES = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
-export const BRANDS    = ['Puma', 'American Tourist', 'Sky bags', 'VIP', 'Safari'];
-export const MATERIALS = ['Leather bags', 'Canvas bags', 'Nylon bags', 'Polyester bags'];
-export const SIZES     = ['Small', 'Medium', 'Large', 'XL'];
-export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
+export const BAG_TYPES = ['Trolly bag', 'Hand bag', 'Lunch bag','Office bag','Travel bag','School Bag','College Bag'];
+export const BRANDS    = ['Puma', 'American Tourister', 'Sky bags', 'VIP', 'Safari','Wildcraft'];
+export const MATERIALS = ['Leather bags', 'Canvas bags',];
+export const SIZES     = ['Small', 'Medium', 'Large', ];
+// export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
 export const CAPACITIES = ['20L', '30L', '40L'];
 
 // Belt uses the same SIZES but without XL

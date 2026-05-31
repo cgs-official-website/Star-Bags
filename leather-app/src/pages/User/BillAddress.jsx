@@ -77,7 +77,7 @@ const BillAddress = () => {
   const activeCouponDiscount = (activeBaseSubTotal * couponPercentValue) / 100;
 
   const activeCalculatedSubTotal = activeBaseSubTotal - activeCouponDiscount;
-  const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.05);
+  const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.18);
   const activeFinalTotal = activeCalculatedSubTotal + activeGstTotal;
 
   const increaseQty = (id) => {

@@ -191,7 +191,7 @@ function ProductDetails() {
     );
 
     alert(
-      "Thank you thalaiva! Your review has been updated in the dataset cleanly.",
+      "Thank you ! Your review has been updated in the dataset cleanly.",
     );
   };
 
@@ -488,6 +488,7 @@ function ProductDetails() {
                       color: "#8b5cf6",
                       fontSize: "13px",
                       fontWeight: "600",
+                      cursor: "pointer",
                     }}
                     onClick={() => setIsModalOpen(true)}
                   >

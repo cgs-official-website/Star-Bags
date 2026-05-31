@@ -1,19 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../../assets/styles/ReviewModal.css";
 
-function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
+function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating, defaultText = "", isEditMode = false }) {
   const [reviewText, setReviewText] = useState("");
   const [hoverRating, setHoverRating] = useState(0);
   const textareaRef = useRef(null);
 
+  // Sync incoming review data logic context immediately upon mount frames
   useEffect(() => {
     if (isOpen) {
-      setReviewText("");
+      setReviewText(defaultText);
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
     }
-  }, [isOpen]);
+  }, [isOpen, defaultText]);
 
   if (!isOpen) return null;
 
@@ -61,7 +62,7 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
     <div className="rm-overlay" onClick={onClose}>
       <div className="rm-modal" onClick={(e) => e.stopPropagation()}>
         <button className="rm-close" onClick={onClose}>×</button>
-        <h3 className="rm-title">Write Your Reviews</h3>
+        <h3 className="rm-title">{isEditMode ? "Modify Your Review" : "Write Your Reviews"}</h3>
 
         <div className="rm-rating-label">Give it to us your rating</div>
         <div className="rm-star-row">
@@ -94,7 +95,9 @@ function ReviewModal({ isOpen, onClose, onSubmit, rating, setRating }) {
 
         <div className="rm-actions">
           <button className="rm-cancel" onClick={handleCancel} style={{ cursor: "pointer" }}>Cancel</button>
-          <button className="rm-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>Submit your review</button>
+          <button className="rm-submit" onClick={handleSubmit} style={{ cursor: "pointer" }}>
+            {isEditMode ? "Save Changes" : "Submit your review"}
+          </button>
         </div>
       </div>
     </div>

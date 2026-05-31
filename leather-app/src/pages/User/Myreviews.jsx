@@ -1,150 +1,414 @@
-import React, { useState } from 'react';
-import Navbar from '../../components/User/Navbar';
-import Footer from '../../components/User/Footer';
-import ProfileSideNav from '../../components/User/Profile-Side-Nav';
-import ReviewCard from '../../components/User/ReviewCard';
-import '../../assets/styles/Myreviews.css';
-
-const initialReviews = [
-  {
-    id: 1,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 2,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 4,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 3,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 4,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 4,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 5,
-    productName: 'Leather Wallet',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 3,
-    reviewText: 'Decent quality for the price. Stitching could be better but overall it holds up well after a few months of use.',
-    shortReview: 'Average product',
-  },
-  {
-    id: 6,
-    productName: 'Canvas Tote Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'Absolutely love this bag! Very spacious and the material is durable. Got compliments from friends too.',
-    shortReview: 'Highly recommended!',
-  },
-];
+import React, { useState, useEffect, useRef } from "react";
+import Navbar from "../../components/User/Navbar";
+import Footer from "../../components/User/Footer";
+import ProfileSideNav from "../../components/User/Profile-Side-Nav";
+import ReviewModal from "../../components/User/ReviewModal";
+import { FaStar, FaRegStar, FaTrashAlt } from "react-icons/fa";
+import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
+import { MdModeEdit } from "react-icons/md";
+import { BsThreeDotsVertical } from "react-icons/bs"; // IMPORTED FOR 3-DOT MENU TRICK
+import "../../assets/styles/Myreviews.css";
 
 function Myreviews() {
-  const [reviews, setReviews] = useState(initialReviews);
+  const [reviews, setReviews] = useState(() => {
+    try {
+      const savedReviews = localStorage.getItem("global_product_reviews");
+      return savedReviews ? JSON.parse(savedReviews) : [];
+    } catch {
+      return [];
+    }
+  });
 
-  // Edit modal state
+  const [feedbackState, setFeedbackState] = useState({});
+  const [activeMenuId, setActiveMenuId] = useState(null); // Tracks which 3-dot menu dropdown is currently active
+
+  // Edit/Delete triggers states
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingReview, setEditingReview] = useState(null);
-  const [editForm, setEditForm] = useState({ reviewText: '', shortReview: '', rating: 5 });
+  const [activeEditingReview, setActiveEditingReview] = useState(null);
+  const [editRating, setEditRating] = useState(5);
 
-  // Delete confirm modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [targetDeleteId, setTargetDeleteId] = useState(null);
 
-  /* ── Edit handlers ── */
-  const handleEdit = (review) => {
-    setEditingReview(review);
-    setEditForm({
-      reviewText: review.reviewText,
-      shortReview: review.shortReview,
-      rating: review.rating,
-    });
-    setEditModalOpen(true);
+  useEffect(() => {
+    const syncReviewsLedger = () => {
+      try {
+        const savedReviews = localStorage.getItem("global_product_reviews");
+        setReviews(savedReviews ? JSON.parse(savedReviews) : []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    window.addEventListener("storage", syncReviewsLedger);
+    return () => window.removeEventListener("storage", syncReviewsLedger);
+  }, []);
+
+  // FIXED TRICK: Auto-closes dropdown menu when clicking anywhere else on document window safely
+  useEffect(() => {
+    const closeAllDropdowns = () => setActiveMenuId(null);
+    window.addEventListener("click", closeAllDropdowns);
+    return () => window.removeEventListener("click", closeAllDropdowns);
+  }, []);
+
+  const handleFeedbackToggle = (id, type) => {
+    setFeedbackState((prev) => ({
+      ...prev,
+      [id]: prev[id] === type ? null : type,
+    }));
   };
 
-  const handleEditSave = () => {
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === editingReview.id ? { ...r, ...editForm } : r
-      )
+  const toggleThreeDotMenu = (e, id) => {
+    e.stopPropagation(); // Block window context click trigger to prevent immediate closing layout loops
+    setActiveMenuId(activeMenuId === id ? null : id);
+  };
+
+  /* ─── EDIT WORKFLOWS ─── */
+  const triggerEditWorkflow = (reviewItem) => {
+    setActiveEditingReview(reviewItem);
+    setEditRating(Number(reviewItem.rating) || 5);
+    setEditModalOpen(true);
+    setActiveMenuId(null); // Close active menu context tray
+  };
+
+  const handleEditSaveExecution = (finalRating, updatedText) => {
+    if (!activeEditingReview) return;
+
+    const modifiedMasterCollection = reviews.map((r) =>
+      r.id === activeEditingReview.id
+        ? {
+            ...r,
+            rating: Number(finalRating),
+            text: updatedText.trim(),
+            reviewText: updatedText.trim(),
+          }
+        : r,
+    );
+
+    setReviews(modifiedMasterCollection);
+    localStorage.setItem(
+      "global_product_reviews",
+      JSON.stringify(modifiedMasterCollection),
     );
     setEditModalOpen(false);
-    setEditingReview(null);
+    setActiveEditingReview(null);
   };
 
-  /* ── Delete handlers ── */
-  const handleDelete = (id) => {
-    setDeletingId(id);
+  /* ─── DELETE WORKFLOWS ─── */
+  const triggerDeleteWorkflow = (id) => {
+    setTargetDeleteId(id);
     setDeleteModalOpen(true);
+    setActiveMenuId(null); // Close active menu context tray
   };
 
-  const confirmDelete = () => {
-    setReviews((prev) => prev.filter((r) => r.id !== deletingId));
+  const executeDeleteAction = () => {
+    const remains = reviews.filter((r) => r.id !== targetDeleteId);
+    setReviews(remains);
+    localStorage.setItem("global_product_reviews", JSON.stringify(remains));
+
     setDeleteModalOpen(false);
-    setDeletingId(null);
+    setTargetDeleteId(null);
   };
 
   return (
-    <div className="reviews-page-app-wrapper">
+    <div
+      className="reviews-page-app-wrapper"
+      style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}
+    >
       <Navbar />
 
-      <main className="container py-3 my-2">
-        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
+      <main className="reviews-container container py-3 my-2">
+        <h4 className="mb-4 fw-bold outfit-font page-section-title">
+          Settings and Profile
+        </h4>
 
         <div className="row justify-content-center">
-          {/* Sidebar */}
           <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* Main Reviews Panel */}
           <div className="col-lg-9 col-md-7 list-column-view">
-            <div className="reviews-card">
-
-              {/* Header */}
-              <div className="reviews-header">
-                <h4 className="fw-bold mb-1 outfit-font text-dark-theme">My Reviews</h4>
-                <p className="reviews-subtitle">All your product reviews in one place</p>
+            <div className="reviews-card p-4 bg-white shadow-sm border rounded-3">
+              <div className="reviews-header ">
+                <h4 className="fw-bold mb-1 outfit-font text-dark-theme">
+                  My Reviews
+                </h4>
+                <p className="reviews-subtitle text-muted small m-0">
+                  All your real-time verified purchase feedbacks
+                </p>
               </div>
 
-              {/* Scrollable Reviews List */}
-              <div className="reviews-list-wrapper">
+              <div
+                className="reviews-list-wrapper"
+                style={{ minHeight: "300px" }}
+              >
                 {reviews.length > 0 ? (
-                  <div className="reviews-scroll-list">
-                    {reviews.map((review) => (
-                      <ReviewCard
-                        key={review.id}
-                        review={review}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                      />
-                    ))}
+                  <div className="reviews-scroll-list d-flex flex-column gap-3">
+                    {reviews.map((review) => {
+                      const hasLiked = feedbackState[review.id] === "like";
+                      const hasDisliked =
+                        feedbackState[review.id] === "dislike";
+                      const currentLikesCount = hasLiked
+                        ? (review.likes || 0) + 1
+                        : review.likes || 0;
+                      const currentDislikesCount = hasDisliked
+                        ? (review.dislikes || 0) + 1
+                        : review.dislikes || 0;
+                      const isMenuDropdownOpen = activeMenuId === review.id;
+
+                      return (
+                        <div
+                          key={review.id}
+                          className="custom-review-card-item p-3 border rounded-3 bg-white mb-2 shadow-sm position-relative"
+                          style={{ fontFamily: "system-ui" }}
+                        >
+                          {/* Top Row Block Layout Panels */}
+                          <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <div className="d-flex align-items-center gap-2">
+                              <img
+                                src={
+                                  review.image ||
+                                  review.productImage ||
+                                  "../src/assets/images/leather1.png"
+                                }
+                                alt={review.productName || review.product}
+                                style={{
+                                  width: "45px",
+                                  height: "45px",
+                                  objectFit: "cover",
+                                  borderRadius: "6px",
+                                  border: "1px solid #e5e7eb",
+                                }}
+                              />
+                              <span
+                                className="fw-bold text-dark"
+                                style={{ fontSize: "0.95rem" }}
+                              >
+                                {review.productName ||
+                                  review.product ||
+                                  "Leather Premium Item"}
+                              </span>
+                            </div>
+
+                            {/* Stars Alignment Corner Block Layout Inline Matrix */}
+                            <div
+                              className="d-flex align-items-center gap-3 position-relative"
+                              style={{ zIndex: "10" }}
+                            >
+                              <div className="d-flex align-items-center gap-0.5 text-warning">
+                                {[...Array(5)].map((_, i) =>
+                                  i < Math.round(review.rating) ? (
+                                    <FaStar key={i} size={14} />
+                                  ) : (
+                                    <FaRegStar
+                                      key={i}
+                                      size={14}
+                                      style={{ color: "#d1d5db" }}
+                                    />
+                                  ),
+                                )}
+                              </div>
+
+                              {/* ─── FIXED TRICK: THREE DOT BUTTON OVER TRIGGER CONSOLE ─── */}
+                              <div
+                                className="three-dot-menu-anchor-wrapper"
+                                style={{ position: "relative" }}
+                              >
+                                <button
+                                  onClick={(e) =>
+                                    toggleThreeDotMenu(e, review.id)
+                                  }
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#64748b",
+                                    padding: "6px",
+                                    cursor: "pointer",
+                                    fontSize: "1.15rem",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    borderRadius: "50%",
+                                  }}
+                                  className="three-dot-interactive-trigger-btn"
+                                  type="button"
+                                >
+                                  <BsThreeDotsVertical />
+                                </button>
+
+                                {/* FLOATING DROP-DOWN MENU TRAY CONTAINER PANELS */}
+                                {isMenuDropdownOpen && (
+                                  <div
+                                    className="floating-three-dot-dropdown-tray shadow-lg border rounded-2"
+                                    style={{
+                                      position: "absolute",
+                                      right: "0",
+                                      top: "34px",
+                                      background: "#ffffff",
+                                      minWidth: "120px",
+                                      zIndex: "100",
+                                      overflow: "hidden",
+                                      padding: "4px 0",
+                                    }}
+                                    onClick={(e) => e.stopPropagation()} // Stop propagation layer locks
+                                  >
+                                    <button
+                                      onClick={() =>
+                                        triggerEditWorkflow(review)
+                                      }
+                                      style={{
+                                        width: "100%",
+                                        border: "none",
+                                        background: "none",
+                                        padding: "8px 14px",
+                                        textAlign: "left",
+                                        fontSize: "0.85rem",
+                                        fontWeight: "600",
+                                        color: "#334155",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        cursor: "pointer",
+                                      }}
+                                      className="dropdown-menu-item-action"
+                                    >
+                                      <MdModeEdit
+                                        style={{ color: "#8b5cf6" }}
+                                      />{" "}
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        triggerDeleteWorkflow(review.id)
+                                      }
+                                      style={{
+                                        width: "100%",
+                                        border: "none",
+                                        background: "none",
+                                        padding: "8px 14px",
+                                        textAlign: "left",
+                                        fontSize: "0.85rem",
+                                        fontWeight: "600",
+                                        color: "#ef4444",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "8px",
+                                        cursor: "pointer",
+                                        borderTop: "1px solid #f1f5f9",
+                                      }}
+                                      className="dropdown-menu-item-action text-danger"
+                                    >
+                                      <FaTrashAlt /> Delete
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Central Commentary Review Text Labels */}
+                          {/* <p
+                            className="m-0 mt-2 text-dark fw-semibold"
+                            style={{ fontSize: "0.85rem", opacity: "0.65" }}
+                          >
+                            Comment Review Statement:
+                          </p> */}
+                          <p
+                            className="text-secondary small m-0 mb-3 mt-1"
+                            style={{
+                              lineHeight: "1.45",
+                              wordBreak: "break-word",
+                            }}
+                          >
+                            {review.text ||
+                              review.reviewText ||
+                              "No feedback summary its entered."}
+                          </p>
+
+                          {/* Lower Action Row Panel Blocks Container - STYLING SYNC WITH PRODUCT DETAILS PAGE */}
+                          <div className="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
+                            <span
+                              className="text-muted font-monospace"
+                              style={{ fontSize: "0.75rem" }}
+                            >
+                              {review.date || "29 May 2026"}
+                            </span>
+
+                            {/* Like & Dislike Engine Injected Directly Matching Product Details View Panels */}
+                            <div className="d-flex align-items-center gap-3">
+                              <button
+                                onClick={() =>
+                                  handleFeedbackToggle(review.id, "like")
+                                }
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#2563eb",
+                                  fontSize: "1.1rem",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: 0,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {hasLiked ? <BiSolidLike /> : <BiLike />}
+                                <span
+                                  style={{ fontSize: "12px", color: "#64748b" }}
+                                >
+                                  {currentLikesCount}
+                                </span>
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  handleFeedbackToggle(review.id, "dislike")
+                                }
+                                style={{
+                                  background: "none",
+                                  border: "none",
+                                  color: "#ef4444",
+                                  fontSize: "1.1rem",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: 0,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                {hasDisliked ? (
+                                  <BiSolidDislike />
+                                ) : (
+                                  <BiDislike />
+                                )}
+                                <span
+                                  style={{ fontSize: "12px", color: "#64748b" }}
+                                >
+                                  {currentDislikesCount}
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
-                  <div className="reviews-empty-container">
-                    <h3 className="reviews-empty-heading">No reviews yet!</h3>
-                    <p className="reviews-empty-sub">Your product reviews will appear here.</p>
+                  <div className="reviews-empty-container text-center py-5 border dashed rounded-3 bg-light">
+                    <div style={{ fontSize: "2.8rem" }} className="mb-2">
+                      ✍️
+                    </div>
+                    <h3
+                      className="reviews-empty-heading fw-bold"
+                      style={{ fontSize: "1.2rem", color: "#374151" }}
+                    >
+                      No reviews submitted yet!
+                    </h3>
+                    <p className="reviews-empty-sub text-muted small">
+                      Feedback forms you submit from your orders dashboard will
+                      print here directly.
+                    </p>
                   </div>
                 )}
               </div>
-
             </div>
           </div>
         </div>
@@ -152,72 +416,77 @@ function Myreviews() {
 
       <Footer />
 
-      {/* ── Edit Modal ── */}
-      {editModalOpen && (
-        <div className="rv-modal-backdrop" onClick={() => setEditModalOpen(false)}>
-          <div className="rv-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="rv-modal-header">
-              <h5 className="rv-modal-title">Edit Review</h5>
-              <button className="rv-modal-close" onClick={() => setEditModalOpen(false)}>×</button>
-            </div>
+      {/* ─── DUAL-PURPOSE POPUP WINDOW INJECTION SLOT ─── */}
+      <ReviewModal
+        isOpen={editModalOpen}
+        isEditMode={true}
+        defaultText={
+          activeEditingReview
+            ? activeEditingReview.text || activeEditingReview.reviewText
+            : ""
+        }
+        rating={editRating}
+        setRating={setEditRating}
+        onClose={() => {
+          setEditModalOpen(false);
+          setActiveEditingReview(null);
+        }}
+        onSubmit={handleEditSaveExecution}
+      />
 
-            <div className="rv-modal-body">
-              {/* Star Rating Picker */}
-              <label className="rv-label">Rating</label>
-              <div className="rv-star-picker">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    className={`rv-star-btn ${star <= editForm.rating ? 'filled' : ''}`}
-                    onClick={() => setEditForm((f) => ({ ...f, rating: star }))}
-                    aria-label={`${star} star`}
-                  >
-                    ★
-                  </button>
-                ))}
-              </div>
-
-              <label className="rv-label mt-3">Review</label>
-              <textarea
-                className="rv-textarea"
-                rows={4}
-                value={editForm.reviewText}
-                onChange={(e) => setEditForm((f) => ({ ...f, reviewText: e.target.value }))}
-                placeholder="Write your review..."
-              />
-
-              <label className="rv-label mt-3">Short Summary</label>
-              <input
-                className="rv-input"
-                type="text"
-                value={editForm.shortReview}
-                onChange={(e) => setEditForm((f) => ({ ...f, shortReview: e.target.value }))}
-                placeholder="One-line summary"
-              />
-            </div>
-
-            <div className="rv-modal-footer">
-              <button className="rv-btn-cancel" onClick={() => setEditModalOpen(false)}>Cancel</button>
-              <button className="rv-btn-save" onClick={handleEditSave}>Save Changes</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Delete Confirm Modal ── */}
+      {/* ─── STRICT VERIFIED DELETE MODAL CONFIRMATION TRAY ─── */}
       {deleteModalOpen && (
-        <div className="rv-modal-backdrop" onClick={() => setDeleteModalOpen(false)}>
-          <div className="rv-modal rv-modal-sm" onClick={(e) => e.stopPropagation()}>
-            <div className="rv-modal-header">
-              <h5 className="rv-modal-title">Delete Review</h5>
-              <button className="rv-modal-close" onClick={() => setDeleteModalOpen(false)}>×</button>
+        <div
+          className="rv-modal-backdrop"
+          onClick={() => setDeleteModalOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            zIndex: 20000,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            className="bg-white p-4 rounded-3 text-center shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "90%", maxWidth: "380px" }}
+          >
+            <div className="pb-2 border-bottom d-flex justify-content-between align-items-center mb-3">
+              <h5
+                className="fw-bold m-0 text-dark"
+                style={{ fontSize: "1.1rem" }}
+              >
+                Confirm Deletion
+              </h5>
+              <button
+                className="btn border-0 p-0 fs-4"
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                ×
+              </button>
             </div>
-            <div className="rv-modal-body">
-              <p className="rv-delete-msg">Are you sure you want to delete this review? This action cannot be undone.</p>
-            </div>
-            <div className="rv-modal-footer">
-              <button className="rv-btn-cancel" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
-              <button className="rv-btn-delete" onClick={confirmDelete}>Yes, Delete</button>
+            <p className="text-muted small my-3">
+              Are you absolutely sure you want to delete this verified review
+              history track item? This change cannot be reverted.
+            </p>
+            <div className="d-flex gap-3 mt-3 pt-2 border-top justify-content-end">
+              <button
+                className="btn btn-light border px-3 small fw-bold"
+                style={{ borderRadius: "6px" }}
+                onClick={() => setDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-danger px-3 small fw-bold"
+                style={{ borderRadius: "6px" }}
+                onClick={executeDeleteAction}
+              >
+                Delete Review
+              </button>
             </div>
           </div>
         </div>
@@ -227,422 +496,3 @@ function Myreviews() {
 }
 
 export default Myreviews;
-
-
-
-
-
-// import React, { useState } from 'react';
-// import Navbar from '../../components/User/Navbar';
-// import Footer from '../../components/User/Footer';
-// import ProfileSideNav from '../../components/User/Profile-Side-Nav';
-// import ReviewCard from '../../components/User/ReviewCard';
-// import '../../assets/styles/Myreviews.css';
-
-// const initialReviews = [
-//   {
-//     id: 1,
-//     productName: 'Leather product Bag',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 5,
-//     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-//     shortReview: 'It was very help full',
-//   },
-//   {
-//     id: 2,
-//     productName: 'Leather product Bag',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 4,
-//     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-//     shortReview: 'It was very help full',
-//   },
-//   {
-//     id: 3,
-//     productName: 'Leather product Bag',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 5,
-//     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-//     shortReview: 'It was very help full',
-//   },
-//   {
-//     id: 4,
-//     productName: 'Leather product Bag',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 4,
-//     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-//     shortReview: 'It was very help full',
-//   },
-//   {
-//     id: 5,
-//     productName: 'Leather Wallet',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 3,
-//     reviewText: 'Decent quality for the price. Stitching could be better but overall it holds up well after a few months of use.',
-//     shortReview: 'Average product',
-//   },
-//   {
-//     id: 6,
-//     productName: 'Canvas Tote Bag',
-//     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-//     rating: 5,
-//     reviewText: 'Absolutely love this bag! Very spacious and the material is durable. Got compliments from friends too.',
-//     shortReview: 'Highly recommended!',
-//   },
-// ];
-
-// function Myreviews() {
-//   const [reviews, setReviews] = useState(initialReviews);
-
-//   // Edit modal state
-//   const [editModalOpen, setEditModalOpen] = useState(false);
-//   const [editingReview, setEditingReview] = useState(null);
-//   const [editForm, setEditForm] = useState({ reviewText: '', shortReview: '', rating: 5 });
-
-//   // Delete confirm modal state
-//   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-//   const [deletingId, setDeletingId] = useState(null);
-
-//   /* ── Edit handlers ── */
-//   const handleEdit = (review) => {
-//     setEditingReview(review);
-//     setEditForm({
-//       reviewText: review.reviewText,
-//       shortReview: review.shortReview,
-//       rating: review.rating,
-//     });
-//     setEditModalOpen(true);
-//   };
-
-//   const handleEditSave = () => {
-//     setReviews((prev) =>
-//       prev.map((r) =>
-//         r.id === editingReview.id ? { ...r, ...editForm } : r
-//       )
-//     );
-//     setEditModalOpen(false);
-//     setEditingReview(null);
-//   };
-
-//   /* ── Delete handlers ── */
-//   const handleDelete = (id) => {
-//     setDeletingId(id);
-//     setDeleteModalOpen(true);
-//   };
-
-//   const confirmDelete = () => {
-//     setReviews((prev) => prev.filter((r) => r.id !== deletingId));
-//     setDeleteModalOpen(false);
-//     setDeletingId(null);
-//   };
-
-//   return (
-//     <div className="reviews-page-app-wrapper">
-//       <Navbar />
-
-//       <main className="reviews-container container py-4 my-2">
-//         <h4 className="mb-4 fw-bold outfit-font page-section-title">Settings and Profile</h4>
-
-//         <div className="row justify-content-center">
-//           {/* Sidebar */}
-//           <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
-//             <ProfileSideNav />
-//           </div>
-
-//           {/* Main Reviews Panel */}
-//           <div className="col-lg-9 col-md-7 list-column-view">
-//             <div className="reviews-card">
-
-//               {/* Header */}
-//               <div className="reviews-header">
-//                 <h4 className="fw-bold mb-1 outfit-font text-dark-theme">My Reviews</h4>
-//                 <p className="reviews-subtitle">All your product reviews in one place</p>
-//               </div>
-
-//               {/* Scrollable Reviews List */}
-//               <div className="reviews-list-wrapper">
-//                 {reviews.length > 0 ? (
-//                   <div className="reviews-scroll-list">
-//                     {reviews.map((review) => (
-//                       <ReviewCard
-//                         key={review.id}
-//                         review={review}
-//                         onEdit={handleEdit}
-//                         onDelete={handleDelete}
-//                       />
-//                     ))}
-//                   </div>
-//                 ) : (
-//                   <div className="reviews-empty-container">
-//                     <h3 className="reviews-empty-heading">No reviews yet!</h3>
-//                     <p className="reviews-empty-sub">Your product reviews will appear here.</p>
-//                   </div>
-//                 )}
-//               </div>
-
-//             </div>
-//           </div>
-//         </div>
-//       </main>
-
-//       <Footer />
-
-//       {/* ── Edit Modal ── */}
-//       {editModalOpen && (
-//         <div className="rv-modal-backdrop" onClick={() => setEditModalOpen(false)}>
-//           <div className="rv-modal" onClick={(e) => e.stopPropagation()}>
-//             <div className="rv-modal-header">
-//               <h5 className="rv-modal-title">Edit Review</h5>
-//               <button className="rv-modal-close" onClick={() => setEditModalOpen(false)}>×</button>
-//             </div>
-
-//             <div className="rv-modal-body">
-//               {/* Star Rating Picker */}
-//               <label className="rv-label">Rating</label>
-//               <div className="rv-star-picker">
-//                 {[1, 2, 3, 4, 5].map((star) => (
-//                   <button
-//                     key={star}
-//                     className={`rv-star-btn ${star <= editForm.rating ? 'filled' : ''}`}
-//                     onClick={() => setEditForm((f) => ({ ...f, rating: star }))}
-//                     aria-label={`${star} star`}
-//                   >
-//                     ★
-//                   </button>
-//                 ))}
-//               </div>
-
-//               <label className="rv-label mt-3">Review</label>
-//               <textarea
-//                 className="rv-textarea"
-//                 rows={4}
-//                 value={editForm.reviewText}
-//                 onChange={(e) => setEditForm((f) => ({ ...f, reviewText: e.target.value }))}
-//                 placeholder="Write your review..."
-//               />
-
-//               <label className="rv-label mt-3">Short Summary</label>
-//               <input
-//                 className="rv-input"
-//                 type="text"
-//                 value={editForm.shortReview}
-//                 onChange={(e) => setEditForm((f) => ({ ...f, shortReview: e.target.value }))}
-//                 placeholder="One-line summary"
-//               />
-//             </div>
-
-//             <div className="rv-modal-footer">
-//               <button className="rv-btn-cancel" onClick={() => setEditModalOpen(false)}>Cancel</button>
-//               <button className="rv-btn-save" onClick={handleEditSave}>Save Changes</button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-
-//       {/* ── Delete Confirm Modal ── */}
-//       {deleteModalOpen && (
-//         <div className="rv-modal-backdrop" onClick={() => setDeleteModalOpen(false)}>
-//           <div className="rv-modal rv-modal-sm" onClick={(e) => e.stopPropagation()}>
-//             <div className="rv-modal-header">
-//               <h5 className="rv-modal-title">Delete Review</h5>
-//               <button className="rv-modal-close" onClick={() => setDeleteModalOpen(false)}>×</button>
-//             </div>
-//             <div className="rv-modal-body">
-//               <p className="rv-delete-msg">Are you sure you want to delete this review? This action cannot be undone.</p>
-//             </div>
-//             <div className="rv-modal-footer">
-//               <button className="rv-btn-cancel" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
-//               <button className="rv-btn-delete" onClick={confirmDelete}>Yes, Delete</button>
-//             </div>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default Myreviews;
-
-
-
-// // import React, { useState } from 'react';
-// // import { useNavigate } from 'react-router-dom';
-// // import Navbar from '../../components/User/Navbar';
-// // import Footer from '../../components/User/Footer';
-// // import ProfileSideNav from '../../components/User/Profile-Side-Nav';
-// // import { FaThumbsUp, FaThumbsDown, FaStar } from 'react-icons/fa';
-// // import { BsThreeDotsVertical } from 'react-icons/bs';
-// // import '../../assets/styles/Myreviews.css';
-
-// // const reviewsData = [
-// //   {
-// //     id: 1,
-// //     productName: 'Leather product Bag',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 5,
-// //     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-// //     shortReview: 'It was very help full',
-// //   },
-// //   {
-// //     id: 2,
-// //     productName: 'Leather product Bag',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 4,
-// //     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-// //     shortReview: 'It was very help full',
-// //   },
-// //   {
-// //     id: 3,
-// //     productName: 'Leather product Bag',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 5,
-// //     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-// //     shortReview: 'It was very help full',
-// //   },
-// //   {
-// //     id: 4,
-// //     productName: 'Leather product Bag',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 4,
-// //     reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-// //     shortReview: 'It was very help full',
-// //   },
-// //   {
-// //     id: 5,
-// //     productName: 'Leather Wallet',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 3,
-// //     reviewText: 'Decent quality for the price. Stitching could be better but overall it holds up well after a few months of use.',
-// //     shortReview: 'Average product',
-// //   },
-// //   {
-// //     id: 6,
-// //     productName: 'Canvas Tote Bag',
-// //     productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-// //     rating: 5,
-// //     reviewText: 'Absolutely love this bag! Very spacious and the material is durable. Got compliments from friends too.',
-// //     shortReview: 'Highly recommended!',
-// //   },
-// // ];
-
-// // function StarRating({ rating, max = 5 }) {
-// //   return (
-// //     <div className="d-flex align-items-center gap-1">
-// //       {Array.from({ length: max }, (_, i) => (
-// //         <FaStar
-// //           key={i}
-// //           style={{ color: i < rating ? '#FFC107' : '#e0e0e0', fontSize: '1rem' }}
-// //         />
-// //       ))}
-// //     </div>
-// //   );
-// // }
-
-// // function ReviewCard({ review }) {
-// //   const [liked, setLiked] = useState(false);
-// //   const [disliked, setDisliked] = useState(false);
-
-// //   const handleLike = () => {
-// //     if (liked) { setLiked(false); }
-// //     else { setLiked(true); if (disliked) setDisliked(false); }
-// //   };
-
-// //   const handleDislike = () => {
-// //     if (disliked) { setDisliked(false); }
-// //     else { setDisliked(true); if (liked) setLiked(false); }
-// //   };
-
-// //   return (
-// //     <div className="review-card mb-3">
-// //       <div className="d-flex align-items-center justify-content-between mb-2">
-// //         <div className="d-flex align-items-center gap-2">
-// //           <img
-// //             src={review.productImage}
-// //             alt={review.productName}
-// //             className="review-product-img"
-// //           />
-// //           <span className="review-product-name">{review.productName}</span>
-// //         </div>
-// //         <div className="d-flex align-items-center gap-2">
-// //           <StarRating rating={review.rating} />
-// //           <button className="review-menu-btn">
-// //             <BsThreeDotsVertical />
-// //           </button>
-// //         </div>
-// //       </div>
-
-// //       <p className="review-body-text mb-1">{review.reviewText}</p>
-// //       <p className="review-short-text mb-0">{review.shortReview}</p>
-
-// //       <div className="d-flex align-items-center justify-content-end gap-3 mt-2">
-// //         <button
-// //           className={`review-action-btn ${liked ? 'active-like' : ''}`}
-// //           onClick={handleLike}
-// //           aria-label="Like this review"
-// //         >
-// //           <FaThumbsUp />
-// //         </button>
-// //         <button
-// //           className={`review-action-btn dislike ${disliked ? 'active-dislike' : ''}`}
-// //           onClick={handleDislike}
-// //           aria-label="Dislike this review"
-// //         >
-// //           <FaThumbsDown />
-// //         </button>
-// //       </div>
-// //     </div>
-// //   );
-// // }
-
-// // function Myreviews() {
-// //   return (
-// //     <div className="reviews-page-app-wrapper">
-// //       <Navbar />
-
-// //       <main className="reviews-container container py-4 my-2">
-// //         <h4 className="mb-4 fw-bold outfit-font page-section-title">Settings and Profile</h4>
-
-// //         <div className="row justify-content-center">
-// //           {/* Sidebar */}
-// //           <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
-// //             <ProfileSideNav />
-// //           </div>
-
-// //           {/* Main Reviews Panel */}
-// //           <div className="col-lg-9 col-md-7 list-column-view">
-// //             <div className="reviews-card">
-
-// //               {/* Header */}
-// //               <div className="reviews-header">
-// //                 <div>
-// //                   <h4 className="fw-bold mb-1 outfit-font text-dark-theme">My Reviews</h4>
-// //                   <p className="reviews-subtitle">All your product reviews in one place</p>
-// //                 </div>
-// //               </div>
-
-// //               {/* Scrollable Reviews List */}
-// //               <div className="reviews-list-wrapper">
-// //                 {reviewsData.length > 0 ? (
-// //                   <div className="reviews-scroll-list">
-// //                     {reviewsData.map((review) => (
-// //                       <ReviewCard key={review.id} review={review} />
-// //                     ))}
-// //                   </div>
-// //                 ) : (
-// //                   <div className="reviews-empty-container">
-// //                     <h3 className="reviews-empty-heading">No reviews yet!</h3>
-// //                     <p className="reviews-empty-sub">Your product reviews will appear here.</p>
-// //                   </div>
-// //                 )}
-// //               </div>
-
-// //             </div>
-// //           </div>
-// //         </div>
-// //       </main>
-
-// //       <Footer />
-// //     </div>
-// //   );
-// // }
-
-// // export default Myreviews;

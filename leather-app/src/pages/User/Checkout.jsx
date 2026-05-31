@@ -259,7 +259,7 @@ const Checkout = () => {
   const dynamicallyAdjustedSubTotal = baseSubTotal - calculatedCouponDiscount;
   const mtGstInput =
     dynamicallyAdjustedSubTotal > 0 ? dynamicallyAdjustedSubTotal : 0;
-  const gstTotal = Math.round(mtGstInput * 0.05);
+  const gstTotal = Math.round(mtGstInput * 0.18);
   const finalTotal = mtGstInput + gstTotal;
 
   const activeSelectedAddress = savedAddresses.find(
