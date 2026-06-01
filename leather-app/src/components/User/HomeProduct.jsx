@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // FIXED: Imported useNavigate for clean redirection
 import { FaStar, FaHeart } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
 import { useWishlist } from "../../context/WishlistContext";
@@ -18,7 +20,7 @@ const WishlistHeart = ({ product }) => {
       <button
         className="wishlist-toggle shadow-sm"
         onClick={(e) => {
-          e.stopPropagation();
+          e.stopPropagation(); // FIXED: Stops event bubbling up to prevent triggering card redirection!
           toggleWishlist(product);
         }}
         type="button"
@@ -34,11 +36,25 @@ const WishlistHeart = ({ product }) => {
 };
 
 const HomeProduct = ({ products = [] }) => {
+  const navigate = useNavigate(); // FIXED: Initialized routing context handler
+
+  // FIXED: Programmatic redirect navigation mapping array elements cleanly forward to details page
+  const handleProductDetailsRedirect = (selectedProduct) => {
+    navigate("/product", {
+      state: { product: selectedProduct }
+    });
+  };
+
   return (
     <div className="ProductCard-section my-3">
       <div className="container">
         {products.map((pro, index) => (
-          <div className="card border-0 shadow-sm" key={pro.id || index}>
+          <div 
+            className="card border-0 shadow-sm" 
+            key={pro.id || index}
+            onClick={() => handleProductDetailsRedirect(pro)} // FIXED: Clicking anywhere on the card opens product details
+            style={{ cursor: "pointer", transition: "transform 0.2s ease" }}
+          >
             <img src={pro.image} className="card-img-top" alt={pro.name} />
             
             {/* Context Connected Heart Toggle Button */}
@@ -58,13 +74,17 @@ const HomeProduct = ({ products = [] }) => {
               <div className="price-details d-flex align-items-center gap-4 pt-1">
                 <p className="mb-1" style={{ color: "#1A1A1A", fontWeight: "600" }}>
                   ₹{pro.price}{" "}
-                  <span>
-                    <del style={{ fontWeight: "500" }}>₹{pro.realPrice}</del>
-                  </span>
+                  {Number(pro.discount || 0) > 0 && (
+                    <span>
+                      <del style={{ fontWeight: "500" }}>₹{pro.realPrice}</del>
+                    </span>
+                  )}
                 </p>
-                <span className="mb-1 text-success small">
-                  <b>{pro.offer} off</b>
-                </span>
+                {Number(pro.discount || 0) > 0 && (
+                  <span className="mb-1 text-success small">
+                    <b>{pro.offer || `${pro.discount}%`} off</b>
+                  </span>
+                )}
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import AdminSidebar from "../../components/Admin/AdminSidebar";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
 } from "recharts";
 import { FaCcVisa, FaCcMastercard, FaCcAmex, FaPaypal, FaMoneyBillWave, FaCreditCard, FaUniversity } from "react-icons/fa";
@@ -9,127 +9,223 @@ import "../../assets/styles/AdminDashboard.css";
 import { useNavigate, Link } from "react-router-dom";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import { FiArrowUpRight, FiArrowDownRight } from "react-icons/fi";
+import { DashboardSkeleton } from "../../components/Admin/AdminSkeleton";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const renderPayModeIcon = (payMode) => {
-  const modeLower = payMode.toLowerCase();
-  if (modeLower.includes('visa')) {
-    return <FaCcVisa size={22} color="#1a1f71" />;
-  } else if (modeLower.includes('mastercard')) {
-    return <FaCcMastercard size={22} color="#eb001b" />;
-  } else if (modeLower.includes('amex')) {
-    return <FaCcAmex size={22} color="#006fcf" />;
-  } else if (modeLower.includes('account') || modeLower.includes('bank')) {
-    return <FaUniversity size={20} color="#8b5cf6" />;
-  } else if (modeLower.includes('paypal')) {
-    return <FaPaypal size={22} color="#003087" />;
-  } else {
-    return <FaCreditCard size={22} color="#0072bc" />;
-  }
+  const modeLower = (payMode || '').toLowerCase();
+  if (modeLower.includes('visa')) return <FaCcVisa size={22} color="#1a1f71" />;
+  if (modeLower.includes('mastercard')) return <FaCcMastercard size={22} color="#eb001b" />;
+  if (modeLower.includes('amex')) return <FaCcAmex size={22} color="#006fcf" />;
+  if (modeLower.includes('account') || modeLower.includes('bank')) return <FaUniversity size={20} color="#8b5cf6" />;
+  if (modeLower.includes('paypal')) return <FaPaypal size={22} color="#003087" />;
+  return <FaCreditCard size={22} color="#0072bc" />;
 };
 
-// Mock Data
-const statCards = [
-  { label: "Total Sales", value: "₹89,000", icon: "bi-graph-up-arrow", iconBg: "#dcfce7", iconColor: "#16a34a", badge: "4.3% Down from yesterday", badgeClass: "down" },
-  { label: "Total Products", value: "70000", icon: "bi-bag", iconBg: "#ede9fe", iconColor: "#7c3aed", badge: "85 % Available Products", badgeClass: "up" },
-  { label: "Low Stock Items", value: "20", icon: "bi-clock-history", iconBg: "#ffedd5", iconColor: "#f97316", badge: "1.8% Up from yesterday", badgeClass: "up" },
-  { label: "New Customers", value: "1,342", icon: "bi-bag-dash", iconBg: "#e0e7ff", iconColor: "#4f46e5", badge: "85 % Available Products", badgeClass: "up" },
-  { label: "Total Order", value: "10293", icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: "1.3% Up from past week", badgeClass: "up" },
-  { label: "Pending Orders", value: "10293", icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: "1.3% Up from past week", badgeClass: "up" },
-];
-
-const revenueDataWeek = [
-  { name: "Mon", revenue: 10 },
-  { name: "Tue", revenue: 35 },
-  { name: "Wed", revenue: 25 },
-  { name: "Thu", revenue: 15 },
-  { name: "Fri", revenue: 35 },
-  { name: "Sat", revenue: 15 },
-  { name: "Sun", revenue: 38 },
-];
-
-const revenueDataMonth = [
-  { name: "Week 1", revenue: 80 },
-  { name: "Week 2", revenue: 150 },
-  { name: "Week 3", revenue: 110 },
-  { name: "Week 4", revenue: 180 },
-];
-
-const revenueDataYear = [
-  { name: "Jan", revenue: 150 },
-  { name: "Feb", revenue: 230 },
-  { name: "Mar", revenue: 180 },
-  { name: "Apr", revenue: 290 },
-  { name: "May", revenue: 210 },
-  { name: "Jun", revenue: 350 },
-  { name: "Jul", revenue: 300 },
-  { name: "Aug", revenue: 410 },
-  { name: "Sep", revenue: 380 },
-  { name: "Oct", revenue: 520 },
-  { name: "Nov", revenue: 480 },
-  { name: "Dec", revenue: 600 },
-];
-
-const topSellingData = [
-  { img: "../src/assets/images/bag.png", name: "Leather Duffel Bag", category: "Bags", sold: 248, revenue: "₹25,000", status: "In stock", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { img: "../src/assets/images/wallet.png", name: "Classic Leather Wallet", category: "Wallets", sold: 100, revenue: "₹20,000", status: "Low inventory", statusColor: "#d97706", statusBg: "#fef3c7" },
-  { img: "../src/assets/images/bag.png", name: "Crossbody Saddle Bag", category: "Bags", sold: 119, revenue: "₹18,055", status: "In stock", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { img: "../src/assets/images/wallet.png", name: "Premium Leather Wallet", category: "Wallets", sold: 25, revenue: "₹5,000", status: "Out of stock", statusColor: "#ef4444", statusBg: "#fee2e2" },
-];
-
-const lowStockData = [
-  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
-  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
-  { img: "../src/assets/images/wallet.png", name: "Leather Wallet Classic", left: 2 },
-  { img: "../src/assets/images/bag.png", name: "Brown Duffel Bag", left: 2 },
-  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", left: 2 },
-  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", left: 2 },
-];
-
-const orderStatusPie = [
-  { name: 'Delivered', value: 45643, color: '#a3e635' }, // green-ish
-  { name: 'Shipped', value: 45643, color: '#a78bfa' }, // purple-ish
-  { name: 'Pending', value: 45643, color: '#fdba74' }, // orange-ish
-];
-
-const todayOrderData = [
-  { img: "../src/assets/images/wallet.png", name: "Wallet", orderId: "SBO-WLT-20260712-001", total: 255, brand: "-", price: "₹1255" },
-  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", orderId: "SBO-BAG-20260712-002", total: 255, brand: "American Tourister", price: "₹1255" },
-  { img: "../src/assets/images/bag.png", name: "Leather Sling Bag", orderId: "SBO-BAG-20260712-003", total: 255, brand: "American Tourister", price: "₹1255" },
-  { img: "../src/assets/images/bag.png", name: "Hand bag", orderId: "SBO-BAG-20260712-004", total: 255, brand: "Puma", price: "₹1255" },
-  { img: "../src/assets/images/bag.png", name: "Side motion bag", orderId: "SBO-BAG-20260712-005", total: 255, brand: "American Tourister", price: "₹1255" },
-  { img: "../src/assets/images/bag.png", name: "Trolley bag", orderId: "SBO-BAG-20260712-006", total: 255, brand: "American Tourister", price: "₹1255" },
-];
-
-const transactionsData = [
-  { id: "SBO-WLT-20260712-001", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Visa card **** 4931", payType: "Card payment", amount: "₹18,294.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { id: "SBO-WLT-20260712-002", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Mastercard **** 5442", payType: "Card payment", amount: "₹9,900.00", date: "Jan 17, 2022", status: "Completed", statusColor: "#16a34a", statusBg: "#dcfce7" },
-  { id: "SBO-WLT-20260712-003", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Account ****882", payType: "Bank payment", amount: "₹24,994.00", date: "Jan 17, 2022", status: "Pending", statusColor: "#d97706", statusBg: "#fef3c7" },
-  { id: "SBO-WLT-20260712-004", img: "../src/assets/images/bag.png", category: "Leather Wallet", payMode: "Amex card **** 5666", payType: "Card payment", amount: "₹19,924.00", date: "Jan 17, 2022", status: "Canceled", statusColor: "#ef4444", statusBg: "#fee2e2" },
-];
-
-import { DashboardSkeleton } from "../../components/Admin/AdminSkeleton";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [revenueFilter, setRevenueFilter] = useState("Last Week");
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+  // Live Firestore data
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const [prodSnap, orderSnap] = await Promise.all([
+          getDocs(collection(db, 'products')),
+          getDocs(collection(db, 'orders')),
+        ]);
+
+        const prodList = [];
+        prodSnap.forEach(d => prodList.push({ id: d.id, ...d.data() }));
+
+        const orderList = [];
+        orderSnap.forEach(d => {
+          const data = d.data();
+          orderList.push({
+            id: data.id || d.id,
+            img: data.items?.[0]?.image || data.items?.[0]?.img || '',
+            productName: data.items?.[0]?.productName || data.items?.[0]?.name || '',
+            category: data.items?.[0]?.category || '',
+            brand: data.items?.[0]?.brand || '-',
+            customer: data.customerDetails?.name || '',
+            address: data.customerDetails?.shippingAddress || '',
+            orderDate: data.orderDate?.toDate ? data.orderDate.toDate() : (data.orderDate ? new Date(data.orderDate) : null),
+            paymentMode: data.paymentMode || '',
+            payMethod: data.paymentDetails?.method || 'card',
+            payType: data.paymentDetails?.payType || 'Card payment',
+            amount: data.paymentDetails?.total ? `₹${data.paymentDetails.total}` : '',
+            amountRaw: data.paymentDetails?.total || 0,
+            status: data.status || '',
+            isCOD: (data.paymentMode || '').toLowerCase().includes('cod') || (data.paymentMode || '').toLowerCase().includes('cash'),
+          });
+        });
+
+        setProducts(prodList);
+        setOrders(orderList);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAll();
   }, []);
 
-  const getRevenueData = () => {
-    if (revenueFilter === "Last Month") return revenueDataMonth;
-    if (revenueFilter === "Last Year") return revenueDataYear;
-    return revenueDataWeek;
-  };
+  // Derived stats
+  const totalProducts = products.length;
+  const lowStockCount = products.filter(p => parseInt(p.stocks) > 0 && parseInt(p.stocks) <= 10).length;
+  const totalOrders = orders.length;
+  const pendingOrders = orders.filter(o => o.status === 'Order Placed' || o.status === 'Pending').length;
+  const totalRevenue = orders.reduce((sum, o) => sum + (Number(o.amountRaw) || 0), 0);
+
+  const inStockCount = products.filter(p => parseInt(p.stocks) > 0).length;
+  const outOfStockCount = products.filter(p => parseInt(p.stocks) === 0).length;
+  const inStockPct = totalProducts > 0 ? Math.round((inStockCount / totalProducts) * 100) : 0;
+
+  const statCards = [
+    { label: "Total Sales", value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: "bi-graph-up-arrow", iconBg: "#dcfce7", iconColor: "#16a34a", badge: `${orders.filter(o => o.status === 'Delivered').length} Delivered`, badgeClass: "up" },
+    { label: "Total Products", value: totalProducts, icon: "bi-bag", iconBg: "#ede9fe", iconColor: "#7c3aed", badge: `${inStockPct}% Available`, badgeClass: "up" },
+    { label: "Low Stock Items", value: lowStockCount, icon: "bi-clock-history", iconBg: "#ffedd5", iconColor: "#f97316", badge: `${outOfStockCount} Out of stock`, badgeClass: outOfStockCount > 0 ? "down" : "up" },
+    { label: "Total Orders", value: totalOrders, icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: `${pendingOrders} Pending`, badgeClass: pendingOrders > 0 ? "down" : "up" },
+  ];
+
+  // --- Dynamic Revenue Chart ---
+  const revenueChartData = useMemo(() => {
+    const now = new Date();
+
+    if (revenueFilter === 'Last Week') {
+      // Last 7 days grouped by day name
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const map = {};
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        map[days[d.getDay()]] = 0;
+      }
+      orders.forEach(o => {
+        if (!o.orderDate) return;
+        const diff = Math.floor((now - o.orderDate) / 86400000);
+        if (diff >= 0 && diff <= 6) {
+          const key = days[o.orderDate.getDay()];
+          map[key] = (map[key] || 0) + Number(o.amountRaw || 0);
+        }
+      });
+      return Object.entries(map).map(([name, revenue]) => ({ name, revenue: Math.round(revenue) }));
+    }
+
+    if (revenueFilter === 'Last Month') {
+      // Last 4 weeks
+      const map = { 'Week 1': 0, 'Week 2': 0, 'Week 3': 0, 'Week 4': 0 };
+      orders.forEach(o => {
+        if (!o.orderDate) return;
+        const diff = Math.floor((now - o.orderDate) / 86400000);
+        if (diff >= 0 && diff <= 27) {
+          const week = `Week ${4 - Math.floor(diff / 7)}`;
+          map[week] = (map[week] || 0) + Number(o.amountRaw || 0);
+        }
+      });
+      return Object.entries(map).map(([name, revenue]) => ({ name, revenue: Math.round(revenue) }));
+    }
+
+    if (revenueFilter === 'Last Year') {
+      // Last 12 months
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const map = {};
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        map[months[d.getMonth()]] = 0;
+      }
+      orders.forEach(o => {
+        if (!o.orderDate) return;
+        const monthsAgo = (now.getFullYear() - o.orderDate.getFullYear()) * 12 + (now.getMonth() - o.orderDate.getMonth());
+        if (monthsAgo >= 0 && monthsAgo <= 11) {
+          const key = months[o.orderDate.getMonth()];
+          if (key in map) map[key] = (map[key] || 0) + Number(o.amountRaw || 0);
+        }
+      });
+      return Object.entries(map).map(([name, revenue]) => ({ name, revenue: Math.round(revenue) }));
+    }
+
+    return [];
+  }, [orders, revenueFilter]);
+
+
+  // Top selling products — sorted by order frequency
+  const productSalesCount = {};
+  orders.forEach(o => {
+    const name = o.productName;
+    if (name) productSalesCount[name] = (productSalesCount[name] || 0) + 1;
+  });
+  const topSellingData = Object.entries(productSalesCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([name, sold]) => {
+      const prod = products.find(p => p.name === name);
+      const stocks = parseInt(prod?.stocks ?? 0);
+      return {
+        img: prod?.image || '',
+        name,
+        category: prod?.category || '-',
+        sold,
+        revenue: `₹${(sold * (Number(prod?.price?.replace(/[^0-9.]/g, '')) || 0)).toLocaleString('en-IN')}`,
+        status: stocks === 0 ? 'Out of stock' : stocks <= 10 ? 'Low inventory' : 'In stock',
+        statusColor: stocks === 0 ? '#ef4444' : stocks <= 10 ? '#d97706' : '#16a34a',
+        statusBg: stocks === 0 ? '#fee2e2' : stocks <= 10 ? '#fef3c7' : '#dcfce7',
+      };
+    });
+
+  // Low stock list
+  const lowStockData = products
+    .filter(p => parseInt(p.stocks) > 0 && parseInt(p.stocks) <= 10)
+    .sort((a, b) => parseInt(a.stocks) - parseInt(b.stocks))
+    .slice(0, 6)
+    .map(p => ({ img: p.image || '', name: p.name, left: parseInt(p.stocks) }));
+
+  // Order status pie
+  const delivered = orders.filter(o => o.status === 'Delivered').length;
+  const shipped = orders.filter(o => o.status === 'Shipped' || o.status === 'Out for Delivery').length;
+  const pending = orders.filter(o => o.status === 'Order Placed' || o.status === 'Pending').length;
+  const orderStatusPie = [
+    { name: 'Delivered', value: delivered || 0, color: '#a3e635' },
+    { name: 'Shipped', value: shipped || 0, color: '#a78bfa' },
+    { name: 'Pending', value: pending || 0, color: '#fdba74' },
+  ];
+
+  // Today's orders
+  const todayStr = new Date().toDateString();
+  const todayOrderData = orders
+    .filter(o => o.orderDate && o.orderDate.toDateString() === todayStr)
+    .slice(0, 6);
+
+  // Transactions
+  const transactionsData = orders
+    .filter(o => o.amount)
+    .slice(0, 5)
+    .map(o => ({
+      id: o.id,
+      img: o.img,
+      category: o.productName || o.category,
+      payMode: o.paymentMode || 'Card',
+      payType: o.isCOD ? 'Cash on delivery' : 'Card payment',
+      amount: o.amount,
+      date: o.orderDate ? o.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : '-',
+      status: o.status === 'Delivered' ? 'Completed' : o.status === 'Cancelled' ? 'Canceled' : 'Pending',
+      statusColor: o.status === 'Delivered' ? '#16a34a' : o.status === 'Cancelled' ? '#ef4444' : '#d97706',
+      statusBg: o.status === 'Delivered' ? '#dcfce7' : o.status === 'Cancelled' ? '#fee2e2' : '#fef3c7',
+    }));
+
+  const getRevenueData = () => revenueChartData;
 
   return (
     <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-main">
-        {/* Header */}
         <AdminHeader title="Admin Dashboard" subtitle="" />
 
         <main className="admin-content" style={{ background: '#fafafa' }}>
@@ -185,11 +281,11 @@ const AdminDashboard = () => {
                 </defs>
                 <CartesianGrid strokeDasharray="0" vertical={false} stroke="#f3f4f6" />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => "₹" + val + "k"} dx={-5} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#9ca3af' }} tickFormatter={(val) => val >= 100000 ? `₹${(val/100000).toFixed(1)}L` : val >= 1000 ? `₹${(val/1000).toFixed(0)}k` : `₹${val}`} dx={-5} />
                 <Tooltip 
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   labelStyle={{ color: '#6b7280', marginBottom: '4px' }}
-                  formatter={(value) => [`₹${value}k`, "Revenue"]}
+                  formatter={(value) => [`₹${Number(value).toLocaleString('en-IN')}`, "Revenue"]}
                 />
                 <Area type="linear" dataKey="revenue" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorRevenue)" strokeWidth={2} />
               </AreaChart>
@@ -214,11 +310,17 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
-                      {topSellingData.map((item, i) => (
+                      {topSellingData.length > 0 ? topSellingData.map((item, i) => (
                         <tr key={i}>
                           <td>
                             <div className="d-flex align-items-center gap-2">
-                              <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                              {item.img ? (
+                                <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                              ) : (
+                                <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <i className="bi bi-bag" style={{ color: '#9ca3af' }} />
+                                </div>
+                              )}
                               <span>{item.name}</span>
                             </div>
                           </td>
@@ -232,7 +334,9 @@ const AdminDashboard = () => {
                             </span>
                           </td>
                         </tr>
-                      ))}
+                      )) : (
+                        <tr><td colSpan="5" className="text-center text-muted py-4">No order data yet.</td></tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -248,15 +352,23 @@ const AdminDashboard = () => {
                 </div>
                 <p className="text-muted" style={{ fontSize: '12px', marginBottom: '20px' }}>Products requiring attention</p>
                 <div className="d-flex flex-column gap-3">
-                  {lowStockData.map((item, i) => (
+                  {lowStockData.length > 0 ? lowStockData.map((item, i) => (
                     <div key={i} className="d-flex justify-content-between align-items-center border-bottom pb-2">
                       <div className="d-flex align-items-center gap-2">
-                        <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                        {item.img ? (
+                          <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                        ) : (
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <i className="bi bi-bag" style={{ color: '#9ca3af' }} />
+                          </div>
+                        )}
                         <span style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</span>
                       </div>
                       <span className="text-danger" style={{ fontSize: '12px', fontWeight: 500 }}>Only {item.left} left</span>
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-muted" style={{ fontSize: '13px' }}>No low stock items. 🎉</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -269,11 +381,6 @@ const AdminDashboard = () => {
               <div className="bg-white p-4 rounded-3 border h-100">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <h5 className="fw-bold m-0">Order Status</h5>
-                  <select className="form-select form-select-sm" style={{ width: '130px', fontSize: '13px' }}>
-                    <option>This Week</option>
-                    <option>This Month</option>
-                    <option>This Year</option>
-                  </select>
                 </div>
                 <div className="position-relative d-flex justify-content-center my-4">
                   <PieChart width={200} height={200}>
@@ -284,7 +391,7 @@ const AdminDashboard = () => {
                     </Pie>
                   </PieChart>
                   <div className="position-absolute top-50 start-50 translate-middle text-center">
-                    <h5 className="m-0 fw-bold">10,956</h5>
+                    <h5 className="m-0 fw-bold">{totalOrders.toLocaleString('en-IN')}</h5>
                     <span style={{ fontSize: '12px', color: '#6b7280' }}>Total orders</span>
                   </div>
                 </div>
@@ -292,10 +399,10 @@ const AdminDashboard = () => {
                   {orderStatusPie.map((item, i) => (
                     <div key={i} className="d-flex justify-content-between align-items-center" style={{ fontSize: '13px', fontWeight: 500 }}>
                       <div className="d-flex align-items-center gap-2">
-                        <span style={{ width: 10, height: 10, background: item.color }}></span>
+                        <span style={{ width: 10, height: 10, background: item.color, display: 'inline-block', borderRadius: 2 }}></span>
                         {item.name}
                       </div>
-                      <span>{item.value} <span className="text-muted">({item.name === 'Delivered' ? '62%' : '37%'})</span></span>
+                      <span>{item.value} <span className="text-muted">({totalOrders > 0 ? Math.round((item.value / totalOrders) * 100) : 0}%)</span></span>
                     </div>
                   ))}
                 </div>
@@ -306,34 +413,42 @@ const AdminDashboard = () => {
             <div className="col-lg-8">
               <div className="bg-white p-4 rounded-3 border h-100">
                 <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h5 className="fw-bold m-0">Today Order</h5>
+                  <h5 className="fw-bold m-0">Today Orders</h5>
                   <Link to="/admin/order-management" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>View all &rarr;</Link>
                 </div>
                 <div className="table-responsive">
                   <table className="table align-middle border-bottom-0 custom-table">
                     <thead className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>
                       <tr>
-                        <th>Order ID</th>
+                        <th>Image</th>
                         <th>Product Name</th>
                         <th>Order ID</th>
-                        <th>Total order</th>
+                        <th>Customer</th>
                         <th>Brand</th>
-                        <th>Price</th>
+                        <th>Amount</th>
                       </tr>
                     </thead>
                     <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
-                      {todayOrderData.map((item, i) => (
+                      {todayOrderData.length > 0 ? todayOrderData.map((item, i) => (
                         <tr key={i}>
                           <td>
-                            <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                            {item.img ? (
+                              <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                            ) : (
+                              <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <i className="bi bi-bag" style={{ color: '#9ca3af' }} />
+                              </div>
+                            )}
                           </td>
-                          <td>{item.name}</td>
-                          <td>{item.orderId}</td>
-                          <td>{item.total}</td>
+                          <td>{item.productName}</td>
+                          <td style={{ color: '#6b7280', fontSize: 12 }}>{item.id}</td>
+                          <td>{item.customer}</td>
                           <td>{item.brand}</td>
-                          <td>{item.price}</td>
+                          <td>{item.amount}</td>
                         </tr>
-                      ))}
+                      )) : (
+                        <tr><td colSpan="6" className="text-center text-muted py-4">No orders today yet.</td></tr>
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -344,16 +459,16 @@ const AdminDashboard = () => {
           
           <div className="bg-white p-4 rounded-3 border mb-4">
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <h5 className="fw-bold m-0">Transactions</h5>
-              <Link to="/admin/payment-details" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>See All Transactions &gt;</Link>
+              <h5 className="fw-bold m-0">Recent Transactions</h5>
+              <Link to="/admin/payment-details" className="text-decoration-none" style={{ color: '#6366f1', fontSize: '13px' }}>See All &gt;</Link>
             </div>
             <div className="table-responsive">
               <table className="table align-middle border-bottom-0 custom-table">
                 <thead className="text-muted" style={{ fontSize: '11px', textTransform: 'uppercase' }}>
                   <tr>
-                    <th>Product ID</th>
+                    <th>Order ID</th>
                     <th>Image</th>
-                    <th>Category</th>
+                    <th>Product</th>
                     <th style={{ textAlign: 'center' }}>Payment mode</th>
                     <th>Amount</th>
                     <th>Date</th>
@@ -361,11 +476,17 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody style={{ fontSize: '13px', fontWeight: 500 }}>
-                  {transactionsData.map((item, i) => (
+                  {transactionsData.length > 0 ? transactionsData.map((item, i) => (
                     <tr key={i}>
-                      <td>{item.id}</td>
+                      <td style={{ color: '#6b7280' }}>{item.id}</td>
                       <td>
-                        <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                        {item.img ? (
+                          <img src={item.img} alt="img" style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                        ) : (
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <i className="bi bi-bag" style={{ color: '#9ca3af' }} />
+                          </div>
+                        )}
                       </td>
                       <td>{item.category}</td>
                       <td style={{ textAlign: 'center' }}>
@@ -381,12 +502,14 @@ const AdminDashboard = () => {
                       <td>{item.date}</td>
                       <td>
                         <span style={{ color: item.statusColor, background: item.statusBg, padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>
-                          <i className={`bi ${item.status === 'Completed' ? 'bi-circle-fill' : item.status === 'Pending' ? 'bi-circle-fill' : 'bi-circle-fill'} me-1`} style={{ fontSize: '8px' }} />
+                          <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }} />
                           {item.status}
                         </span>
                       </td>
                     </tr>
-                  ))}
+                  )) : (
+                    <tr><td colSpan="7" className="text-center text-muted py-4">No transactions yet.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -400,3 +523,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

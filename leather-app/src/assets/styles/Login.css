@@ -134,14 +134,15 @@
     margin-bottom: 8px;
     display: inline-flex;
     align-items: center;
+    /* color: #a5a5a5; */
     gap: 2px;
 }
 
-.form-label sup {
+/* .form-label sup {
     color: #ff4d4d;
     font-size: 10px;
     top: -2px;
-}
+} */
 
 /* INPUTS */
 .form-control {

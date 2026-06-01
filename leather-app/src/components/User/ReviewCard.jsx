@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 // import { thumbsUp, FaThumbsDown, FaStar } from 'react-icons/fa';
 import { FaRegThumbsUp, FaRegThumbsDown ,FaStar} from 'react-icons/fa6';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiEyeOff } from 'react-icons/fi';
 import '../../assets/styles/ReviewCard.css';
 
 function StarRating({ rating, max = 5 }) {
@@ -55,7 +55,7 @@ function ReviewCard({ review, onEdit, onDelete }) {
   };
 
   return (
-    <div className="review-card mb-3">
+    <div className={`review-card mb-3 ${review.isHidden ? 'review-card--hidden' : ''}`}>
 
       {/* Header: product image + name | stars + menu */}
       <div className="d-flex align-items-center justify-content-between mb-2">
@@ -67,6 +67,14 @@ function ReviewCard({ review, onEdit, onDelete }) {
           />
           <span className="review-product-name">{review.productName}</span>
         </div>
+
+        {/* Hidden by admin badge */}
+        {review.isHidden && (
+          <span className="review-hidden-badge">
+            <FiEyeOff size={12} style={{ marginRight: '4px' }} />
+            Hidden by admin
+          </span>
+        )}
 
         <div className="d-flex align-items-center gap-2">
           <StarRating rating={review.rating} />
@@ -83,7 +91,12 @@ function ReviewCard({ review, onEdit, onDelete }) {
 
             {menuOpen && (
               <div className="review-dropdown">
-                <button className="review-dropdown-item edit" onClick={handleEdit}>
+                <button
+                  className={`review-dropdown-item edit ${review.isHidden ? 'disabled' : ''}`}
+                  onClick={review.isHidden ? undefined : handleEdit}
+                  style={review.isHidden ? { opacity: 0.45, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
+                  title={review.isHidden ? 'Cannot edit a hidden review' : 'Edit review'}
+                >
                   <FiEdit2 className="dropdown-icon" />
                   Edit
                 </button>

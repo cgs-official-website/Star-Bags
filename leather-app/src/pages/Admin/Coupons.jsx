@@ -9,11 +9,30 @@ import toast, { Toaster } from 'react-hot-toast';
 import '../../assets/styles/AdminCoupons.css';
 import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleton';
 import { MdRedeem } from "react-icons/md";
+import { collection, getDocs, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
+
 const Coupons = () => {
   const [loading, setLoading] = useState(true);
+  const [coupons, setCoupons] = useState([]);
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
+    const fetchCoupons = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'coupons'));
+        const list = [];
+        querySnapshot.forEach((docSnap) => {
+          list.push({ ...docSnap.data(), id: docSnap.id });
+        });
+        setCoupons(list);
+      } catch (err) {
+        console.error('Error fetching coupons:', err);
+        toast.error('Failed to load coupons!');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCoupons();
   }, []);
 
   const [showModal, setShowModal] = useState(false);
@@ -25,11 +44,6 @@ const Coupons = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [deleteModalId, setDeleteModalId] = useState(null);
 
-  const [coupons, setCoupons] = useState([
-    { id: 1, code: 'SBC-BAG-001', discount: '20', minOrder: '₹999', category: 'Bag', subCategory: 'Hand bag', expiry: '31 May 2025', status: 'Active', discountType: 'green', desc: 'Sample condition text.', usageLimit: '5000', startDate: '2025-05-01', endDate: '2025-05-31', usedCount: 150 },
-    { id: 2, code: 'SBC-WLT-002', discount: '30', minOrder: '₹1,999', category: 'Wallet', subCategory: '', expiry: '10 Apr 2025', status: 'Expired', discountType: 'green', desc: 'Summer discount.', usageLimit: '2000', startDate: '2025-03-01', endDate: '2025-04-10', usedCount: 0 },
-  ]);
-
   const [formData, setFormData] = useState({
     id: null,
     code: '',
@@ -38,7 +52,7 @@ const Coupons = () => {
     expiry: '',
     discount: '',
     category: 'Bag',
-    subCategory: 'Hand bag',
+    subCategory: 'All Bags',
     desc: '',
     startDate: '',
     endDate: '',
@@ -109,7 +123,7 @@ const Coupons = () => {
     },
     {
       title: 'Total Redemption',
-      value: '1,293',
+      value: coupons.reduce((total, coupon) => total + (Number(coupon.usedCount) || 0), 0),
       sub: 'All time usage',
       icon: <BsCart3 />,
       bgColor: '#e0f2fe',
@@ -161,58 +175,76 @@ const Coupons = () => {
     setFormData(prev => ({ ...prev, code: `SBC-${prefix}-${randNum}` }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.code || !formData.discount || !formData.minOrder || !formData.usageLimit || !formData.category || !formData.desc || !formData.startDate || !formData.endDate) {
-      return toast.error("All fields are required.");
+      return toast.error('All fields are required.');
     }
     if (formData.category === 'Bag' && !formData.subCategory) {
-      return toast.error("Sub category is required for Bags.");
+      return toast.error('Sub category is required for Bags.');
     }
 
-    const discountStr = formData.discount.toLowerCase();
+    const discountStr = String(formData.discount).toLowerCase();
     let type = 'green';
     if (discountStr.includes('₹') || discountStr.includes('fixed')) type = 'blue';
     if (discountStr.includes('free')) type = 'orange';
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let calculatedStatus = 'Active';
     
+    const currentUsedCount = modalMode === 'create' ? 0 : (Number(formData.usedCount) || 0);
+    
+    let calculatedStatus = 'Active';
     if (formData.startDate) {
       const startDate = new Date(formData.startDate);
       startDate.setHours(0, 0, 0, 0);
-      if (startDate > today) {
-        calculatedStatus = 'Scheduled';
-      }
+      if (startDate > today) calculatedStatus = 'Scheduled';
     }
-    
     if (formData.endDate) {
       const expDate = new Date(formData.endDate);
       expDate.setHours(0, 0, 0, 0);
-      if (expDate < today) {
-        calculatedStatus = 'Expired';
-      }
+      if (expDate < today) calculatedStatus = 'Expired';
     }
 
-    if (modalMode === 'create') {
-      const newCoupon = { ...formData, id: Date.now(), discountType: type, status: calculatedStatus, usedCount: 0 };
-      setCoupons([newCoupon, ...coupons]);
-      toast.success("Coupon created successfully!");
-    } else {
-      setCoupons(coupons.map(c => c.id === formData.id ? { ...formData, discountType: type, status: calculatedStatus } : c));
-      toast.success("Coupon updated successfully!");
+    const couponId = modalMode === 'create' ? formData.code : formData.id;
+    const couponToSave = {
+      ...formData,
+      id: couponId,
+      discountType: type,
+      status: calculatedStatus,
+      usedCount: currentUsedCount,
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      await setDoc(doc(db, 'coupons', String(couponId)), couponToSave);
+      if (modalMode === 'create') {
+        setCoupons([couponToSave, ...coupons]);
+        toast.success('Coupon created successfully!');
+      } else {
+        setCoupons(coupons.map(c => c.id === formData.id ? couponToSave : c));
+        toast.success('Coupon updated successfully!');
+      }
+      closeModal();
+    } catch (err) {
+      console.error('Error saving coupon:', err);
+      toast.error('Failed to save coupon!');
     }
-    closeModal();
   };
 
   const handleDeleteClick = (id) => {
     setDeleteModalId(id);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteModalId !== null) {
-      setCoupons(coupons.filter(c => c.id !== deleteModalId));
-      toast.success("Coupon deleted successfully!");
+      try {
+        await deleteDoc(doc(db, 'coupons', String(deleteModalId)));
+        setCoupons(coupons.filter(c => c.id !== deleteModalId));
+        toast.success('Coupon deleted successfully!');
+      } catch (err) {
+        console.error('Error deleting coupon:', err);
+        toast.error('Failed to delete coupon!');
+      }
       setDeleteModalId(null);
     }
   };
@@ -361,9 +393,9 @@ const Coupons = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {/* <FiCalendar className="cp-cal-icon" style={{ fontSize: '16px' }} /> */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', fontSize: '13px', fontWeight: 500, lineHeight: '1.4' }}>
-                          <span>{c.startDate}</span>
+                          <span>{c.startDate ? new Date(c.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : ''}</span>
                           <span style={{ fontWeight: 600, color: '#9ca3af', fontSize: '12px' }}>to</span>
-                          <span>{c.endDate}</span>
+                          <span>{c.endDate ? new Date(c.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : ''}</span>
                         </div>
                       </div>
                     </td>
@@ -514,6 +546,7 @@ const Coupons = () => {
                       cursor: formData.category !== 'Bag' ? 'not-allowed' : 'pointer'
                     }}
                   >
+                    <option value="All Bags">All Bags</option>
                     <option value="Trolley Bag">Trolley Bag</option>
                     <option value="Hand Bag">Hand Bag</option>
                     <option value="Lunch Bag">Lunch Bag</option>

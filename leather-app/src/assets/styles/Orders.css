@@ -1,43 +1,21 @@
 /* ==========================================================
-   ORDERS PAGE - MATCHING SAVED ADDRESS CARD STYLE
+   ORDERS PAGE - MATCHING PROFILE CARD STYLE
    ========================================================== */
 
-.orders-page-app-wrapper {
-  background-color: #f8fafc;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.orders-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  flex: 1;
-}
-
-/* Sticky sidebar - matching SavedAddress */
-.sidebar-sticky {
-  position: sticky;
-  top: 75px;
-  align-self: flex-start;
-}
-
-/* Central Dashboard Card Container - matching saved-address-card */
-.orders-card {
+/* Main card container matching Profile component */
+.profile-details-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
   padding: 24px;
   background: #fff;
-  border-radius: 14px;
-  padding: 24px 28px;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  border: 1px solid #ececec;
 }
-.orders-purchase-history-text{
+
+/* Orders purchase history text */
+.orders-purchase-history-text {
   font-size: 0.85rem;
   color: #64748b;
   margin: 0;
+  font-weight: 400;
 }
 
 /* Search Bar Styling */
@@ -62,10 +40,10 @@
 
 .orders-search .search-input {
   width: 100%;
-  padding: 12px 16px 12px 42px;
-  font-size: 14px;
-  border-radius: 30px;
-  border: 1.5px solid #dcd1ff;
+  padding: 10px 16px 10px 42px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
   background: #ffffff;
   color: #1e293b;
   outline: none;
@@ -79,7 +57,7 @@
 
 .orders-search .search-input::placeholder {
   color: #94a3b8;
-  font-weight: 450;
+  font-size: 0.85rem;
 }
 
 /* Orders List Wrapper */
@@ -87,7 +65,7 @@
   min-height: 400px;
 }
 
-/* Orders Grid for multiple cards - SCROLLBAR HIDDEN BUT FUNCTIONAL */
+/* Orders Grid - SCROLLBAR HIDDEN BUT FUNCTIONAL */
 .orders-grid {
   display: flex;
   flex-direction: column;
@@ -95,33 +73,16 @@
   max-height: 550px;
   overflow-y: auto;
   padding-right: 8px;
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 .orders-grid::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  background: transparent;
-}
-
-/* Remove custom scrollbar styling completely */
-.orders-grid::-webkit-scrollbar-track {
-  display: none;
-}
-
-.orders-grid::-webkit-scrollbar-thumb {
-  display: none;
-}
-
-.orders-grid::-webkit-scrollbar-thumb:hover {
   display: none;
 }
 
 /* ==========================================================
-   EMPTY ORDERS STATE - Matching SavedAddress card style
+   EMPTY ORDERS STATE
    ========================================================== */
 
 .orders-empty-container {
@@ -133,6 +94,7 @@
   text-align: center;
   background-color: #ffffff;
   border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .orders-empty-image-wrapper {
@@ -159,7 +121,7 @@
 }
 
 .orders-empty-shop-btn {
-  background-color: var(--levender, #8B5CF6) !important;
+  background-color: #8B5CF6 !important;
   color: #ffffff !important;
   font-size: 16px;
   font-weight: 500;
@@ -179,30 +141,47 @@
 }
 
 /* ==========================================================
-   RESPONSIVE LAYOUT BREAKPOINTS - Matching SavedAddress
+   RESPONSIVE LAYOUT BREAKPOINTS
    ========================================================== */
 
-@media (max-width: 991px) {
-  .sidebar-sticky {
-    display: none;
+/* 1024px Specific Fixes */
+@media (max-width: 1024px) {
+  .profile-details-card {
+    padding: 20px;
   }
   
-  .orders-card {
-    padding: 18px 16px;
+  .orders-grid {
+    gap: 14px;
+  }
+  
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 991px) {
+  .profile-details-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-details-card {
+    padding: 16px;
+  }
+  
   .orders-grid {
     max-height: 450px;
+    gap: 12px;
   }
   
   .orders-empty-container {
-    padding: 2.5rem 1rem;
+    padding: 2rem 1rem;
   }
   
   .orders-empty-image-wrapper {
-    max-width: 220px;
+    max-width: 200px;
   }
   
   .orders-empty-heading {
@@ -210,18 +189,36 @@
   }
   
   .orders-empty-shop-btn {
-    font-size: 15px;
+    font-size: 14px;
     padding: 8px 24px;
+  }
+  
+  .orders-purchase-history-text {
+    font-size: 0.75rem;
+  }
+  
+  .orders-search {
+    max-width: 100%;
+  }
+  
+  .orders-search .search-input {
+    padding: 8px 16px 8px 38px;
+    font-size: 0.85rem;
+  }
+  
+  .orders-search .search-icon {
+    font-size: 12px;
+    left: 14px;
   }
 }
 
 @media (max-width: 576px) {
   .orders-empty-container {
-    padding: 2rem 1rem;
+    padding: 1.5rem 1rem;
   }
   
   .orders-empty-image-wrapper {
-    max-width: 180px;
+    max-width: 160px;
     margin-bottom: 1rem;
   }
   
@@ -231,83 +228,7 @@
   }
   
   .orders-empty-shop-btn {
-    font-size: 14px;
-    padding: 8px 22px;
-  }
-}
-
-@media (max-width: 375px) {
-  .orders-empty-image-wrapper {
-    max-width: 150px;
-  }
-  
-  .orders-empty-heading {
-    font-size: 16px;
-  }
-  
-  .orders-empty-shop-btn {
     font-size: 13px;
     padding: 6px 20px;
   }
-}
-
-/* ==========================================================
-   DARK THEMING overrides - Matching SavedAddress
-   ========================================================== */
-
-body.dark-theme .orders-page-app-wrapper,
-[data-theme="dark"] .orders-page-app-wrapper {
-  background-color: #0b0f19;
-}
-
-body.dark-theme .orders-card,
-[data-theme="dark"] .orders-card {
-  background: #1e293b;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-}
-
-body.dark-theme .orders-search .search-input,
-[data-theme="dark"] .orders-search .search-input {
-  background: #0f172a;
-  border-color: #334155;
-  color: #f8fafc;
-}
-
-body.dark-theme .orders-search .search-input:focus,
-[data-theme="dark"] .orders-search .search-input:focus {
-  border-color: #a855f7;
-  box-shadow: 0 0 0 0.2rem rgba(168, 85, 247, 0.25);
-}
-
-body.dark-theme .orders-empty-container,
-[data-theme="dark"] .orders-empty-container {
-  background: #1e293b;
-}
-
-body.dark-theme .orders-empty-heading,
-[data-theme="dark"] .orders-empty-heading {
-  color: #f8fafc;
-}
-
-body.dark-theme .orders-empty-shop-btn,
-[data-theme="dark"] .orders-empty-shop-btn {
-  background-color: #8B5CF6 !important;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
-}
-
-body.dark-theme .orders-empty-shop-btn:hover,
-[data-theme="dark"] .orders-empty-shop-btn:hover {
-  background-color: #7c3aed !important;
-}
-
-/* Dark theme scrollbar - still hidden */
-body.dark-theme .orders-grid,
-[data-theme="dark"] .orders-grid {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-body.dark-theme .orders-grid::-webkit-scrollbar,
-[data-theme="dark"] .orders-grid::-webkit-scrollbar {
-  display: none;
 }

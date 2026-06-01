@@ -247,6 +247,25 @@
   background: #e5e7eb;
 }
 
+.nav-login-btn {
+  text-decoration: none !important;
+  padding: 8px 15px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  background-color: var(--levender) !important;
+  border-radius: 5px;
+  color: var(--white-color) !important;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.nav-login-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-0.5px);
+}
+
 /* ─── USER DROPDOWN ──────────────────────────────────────────────── */
 .user-dropdown-menu {
   min-width: 200px;
@@ -436,6 +455,11 @@
     height: 40px;
     font-size: 13px;
   }
+
+  .nav-login-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -472,6 +496,11 @@
     width: 38px;
     height: 38px;
     font-size: 1.05rem;
+  }
+
+  .nav-login-btn {
+    padding: 5px 10px;
+    font-size: 0.78rem;
   }
 }
 
@@ -515,6 +544,11 @@
   .nav-actions {
     gap: 5px;
   }
+
+  .nav-login-btn {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -551,5 +585,10 @@
 
   .nav-actions {
     gap: 3px;
+  }
+
+  .nav-login-btn {
+    padding: 3px 6px;
+    font-size: 0.65rem;
   }
 }

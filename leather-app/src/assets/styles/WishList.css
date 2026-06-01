@@ -9,23 +9,11 @@
   background: #fff;
 }
 
-/* Wishlist Header */
-.wishlist-header {
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 16px;
-  margin-bottom: 20px;
-}
-
-.wishlist-header h4 {
-  font-size: 1.25rem;
-  margin-bottom: 5px;
-  color: #333;
-}
-
 .wishlist-subtitle {
   font-size: 0.85rem;
   color: #64748b;
   margin: 0;
+  font-weight: 400;
 }
 
 /* ── Grid ─────────────────────────────────────── */
@@ -224,7 +212,7 @@
   padding: 3.5rem 1.5rem;
   text-align: center;
   background-color: #ffffff;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
 
@@ -257,7 +245,7 @@
   font-size: 16px;
   font-weight: 500;
   padding: 10px 32px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-decoration: none;
   display: inline-block;
   border: none;
@@ -274,19 +262,7 @@
    RESPONSIVE BREAKPOINTS
    ═══════════════════════════════════════════════ */
 
-/* ── Laptop (≤ 1200px): Adjust grid ─────────── */
-@media (max-width: 1200px) {
-  .wl-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  
-  .wl-img-wrap {
-    height: 180px;
-  }
-}
-
-/* ── Tablet (≤ 992px): Adjust card size ─────── */
+/* ── Tablet (≤ 992px) ────────────────────────── */
 @media (max-width: 992px) {
   .profile-details-card {
     padding: 20px;
@@ -302,7 +278,7 @@
   }
 }
 
-/* ── Mobile (≤ 768px): Single column or adjust ─── */
+/* ── Mobile (≤ 768px) ────────────────────────── */
 @media (max-width: 768px) {
   .profile-details-card {
     padding: 16px;
@@ -351,9 +327,13 @@
     height: 32px;
     font-size: 1rem;
   }
+  
+  .wishlist-subtitle {
+    font-size: 0.75rem;
+  }
 }
 
-/* ── Small Mobile (≤ 576px): Single column ───── */
+/* ── Small Mobile (≤ 576px) ───────────────────── */
 @media (max-width: 576px) {
   .wl-grid {
     grid-template-columns: 1fr;
@@ -377,24 +357,24 @@
   }
   
   .wl-empty-container {
-    padding: 2.5rem 1rem;
+    padding: 2rem 1rem;
   }
   
   .wl-empty-image-wrapper {
-    max-width: 220px;
+    max-width: 200px;
   }
   
   .wl-empty-heading {
-    font-size: 19px;
+    font-size: 20px;
   }
   
   .wl-empty-shop-btn {
-    font-size: 15px;
+    font-size: 14px;
     padding: 8px 24px;
   }
 }
 
-/* ── Extra Small Mobile (≤ 375px) ────────────── */
+/* ── Extra Small Mobile (≤ 375px) ─────────────── */
 @media (max-width: 375px) {
   .wl-img-wrap {
     height: 180px;
@@ -411,5 +391,17 @@
   .wl-price-row {
     gap: 0.3rem;
     margin-bottom: 0.5rem;
+  }
+  
+  .wl-empty-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .wl-empty-image-wrapper {
+    max-width: 160px;
+  }
+  
+  .wl-empty-heading {
+    font-size: 18px;
   }
 }

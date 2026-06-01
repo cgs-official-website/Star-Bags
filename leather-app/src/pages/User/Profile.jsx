@@ -1,21 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import "../../assets/styles/Profile.css";
-import { MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
+import { useAuth } from "../../context/AuthContext";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
+  const { currentUser, userData, loading } = useAuth();
+  const navigate = useNavigate();
+
   const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "John",
+    name: "",
     gender: "Male",
-    mobile: "9874561230",
-    email: "Samplemail@gmail.com",
+    mobile: "",
+    email: "",
+    photo: "",
   });
 
   const [tempData, setTempData] = useState({ ...formData });
+
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      navigate("/login");
+    } else if (userData) {
+      const data = {
+        name: userData.name || "",
+        gender: userData.gender || "Male",
+        mobile: userData.mobile || "",
+        email: userData.email || currentUser?.email || "",
+        photo: userData.photo || "",
+      };
+      setFormData(data);
+      setTempData(data);
+    }
+  }, [userData, currentUser, loading, navigate]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -27,14 +51,56 @@ function Profile() {
     setTempData({ ...formData });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsEditing(false);
     setFormData({ ...tempData });
+    try {
+      if (currentUser) {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userDocRef, {
+          name: tempData.name,
+          gender: tempData.gender,
+          mobile: tempData.mobile,
+          email: tempData.email,
+          photo: tempData.photo || "",
+          updatedAt: new Date().toISOString()
+        });
+        
+        // Update local storage to keep it synced for immediate fallback
+        const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+        localStorage.setItem("user", JSON.stringify({
+          ...storedUser,
+          name: tempData.name,
+          gender: tempData.gender,
+          mobile: tempData.mobile,
+          email: tempData.email,
+          photo: tempData.photo || ""
+        }));
+      }
+    } catch (error) {
+      console.error("Error updating profile in DB:", error);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTempData({ ...tempData, [name]: value });
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Limit base64 photo size to 800KB to fit easily in Firestore document limits (1MB max document limit is strict, but 800KB is safe)
+      if (file.size > 800 * 1024) {
+        alert("Please upload a photo smaller than 800KB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempData((prev) => ({ ...prev, photo: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -75,7 +141,6 @@ function Profile() {
                   </div>
                 )}
               </div>
-
               <form>
                 <div className="mb-2">
                   <label className="form-label">Name</label>

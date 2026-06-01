@@ -7,13 +7,16 @@ import { BsSun } from "react-icons/bs";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from '../../context/SearchContext';
 import { useWishlist } from '../../context/WishlistContext';
+import { useProducts } from '../../context/ProductsContext';
 import SearchModal from '../User/SearchModal';
-import { allProductsData } from '../../pages/User/Allproducts';
 import '../../assets/styles/Navbar.css';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
   const { cart } = useWishlist();
+  const { currentUser, userData, logout } = useAuth();
+  const { products: liveProducts } = useProducts();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,7 +55,7 @@ const Navbar = () => {
   const handleSearch = (query) => {
     closeMenu();
     if (query.trim()) {
-      performSearch(query, allProductsData);
+      performSearch(query, liveProducts);
     } else {
       clearSearch();
     }
@@ -98,7 +101,7 @@ const Navbar = () => {
         {/* 3. DESKTOP SEARCH */}
         <div className="nav-search-desktop">
           <SearchModal
-            products={allProductsData}
+            products={liveProducts}
             onSearch={handleSearch}
             placeholder="Search products..."
           />
@@ -107,7 +110,7 @@ const Navbar = () => {
         {/* 4. MOBILE SEARCH */}
         <div className="nav-search-mobile">
           <SearchModal
-            products={allProductsData}
+            products={liveProducts}
             onSearch={handleSearch}
             placeholder="Search..."
           />
@@ -116,71 +119,123 @@ const Navbar = () => {
         {/* 5. RIGHT ACTIONS */}
         <div className="nav-actions">
 
-          {/* Desktop: direct profile link */}
-          <NavLink
-            to="/profile"
-            className="icon-btn d-none d-lg-flex"
-            aria-label="My Profile"
-          >
-            <FaUserCircle />
-          </NavLink>
+
+          {/* A. DESKTOP ONLY: Direct route navigation link jump */}
+          {currentUser ? (
+            <NavLink 
+              to="/profile" 
+              className="icon-btn d-none d-lg-flex p-0 align-items-center justify-content-center" 
+              aria-label="My Profile Page Link"
+              style={{ overflow: 'hidden', width: '30px', height: '30px', borderRadius: '50%' }}
+            >
+              {userData?.photo ? (
+                <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+              )}
+            </NavLink>
+          ) : (
+            <NavLink 
+              to="/login" 
+              className="d-none d-lg-flex align-items-center nav-login-btn" 
+            >
+              Login
+            </NavLink>
+          )}
+
 
           {/* Mobile: dropdown menu */}
           <div className="dropdown d-lg-none">
-            <button
-              className="icon-btn"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-label="User menu"
-              onClick={closeMenu}
-            >
-              <FaUserCircle />
-            </button>
-            <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
-              <li>
-                <NavLink to="/profile" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FaRegUserCircle className="profile-item-icon" /> My profile
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/orders" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FiBox className="profile-item-icon" /> My orders
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/wishlist" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <FaRegHeart className="profile-item-icon" /> Wish list
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/address" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <GrLocation className="profile-item-icon" /> Saved address
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/reviews" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                  <MdOutlineRateReview className="profile-item-icon" /> My Reviews
-                </NavLink>
-              </li>
-              <li><hr className="dropdown-divider my-1" /></li>
-              <li>
-                <div className="dropdown-item d-flex align-items-center justify-content-between profile-dropdown-item" style={{ cursor: "default" }}>
-                  <div className="d-flex align-items-center gap-2">
-                    <BsSun className="profile-item-icon" /> Dark Theme
-                  </div>
-                  <div className="form-check form-switch m-0">
-                    <input className="form-check-input" type="checkbox" role="switch" />
-                  </div>
-                </div>
-              </li>
-              <li><hr className="dropdown-divider my-1" /></li>
-              <li>
-                <NavLink to="/login" onClick={closeMenu} className="dropdown-item d-flex align-items-center text-danger profile-dropdown-item logout-link">
-                  <FiLogOut className="profile-item-icon logout-icon" /> Log out
-                </NavLink>
-              </li>
-            </ul>
+
+            {currentUser ? (
+              <>
+                <button
+                  className="icon-btn p-0 d-flex align-items-center justify-content-center"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                  aria-label="User contextual menu"
+                  onClick={closeMenu}
+                  style={{ overflow: 'hidden', width: '28px', height: '28px', borderRadius: '50%' }}
+                >
+                  {userData?.photo ? (
+                    <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+                  )}
+                </button>
+                <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
+                  <li>
+                    <NavLink to="/profile" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      {userData?.photo ? (
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', overflow: 'hidden', marginRight: '8px' }}>
+                          <img src={userData.photo} alt="Profile Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      ) : (
+                        <FaRegUserCircle className="profile-item-icon" />
+                      )}
+                      My profile
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/orders" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      <FiBox className="profile-item-icon" /> My orders
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/wishlist" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      <FaRegHeart className="profile-item-icon" /> Wish list
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/address" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      <GrLocation className="profile-item-icon" /> Saved address
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/reviews" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
+                      <MdOutlineRateReview className="profile-item-icon" /> My Reviews
+                    </NavLink>
+                  </li>
+                  <li><hr className="dropdown-divider my-1" /></li>
+                  <li>
+                    <div className="dropdown-item d-flex align-items-center justify-content-between profile-dropdown-item" style={{ cursor: "default" }}>
+                      <div className="d-flex align-items-center gap-2">
+                        <BsSun className="profile-item-icon" /> Dark Theme
+                      </div>
+                      <div className="form-check form-switch m-0">
+                        <input className="form-check-input" type="checkbox" role="switch" />
+                      </div>
+                    </div>
+                  </li>
+                  <li><hr className="dropdown-divider my-1" /></li>
+                  <li>
+                    <button
+                      onClick={async () => {
+                        closeMenu();
+                        await logout();
+                        localStorage.removeItem("user");
+                        navigate("/login");
+                      }}
+                      className="dropdown-item d-flex align-items-center text-danger profile-dropdown-item logout-link"
+                      style={{ border: 'none', background: 'none', width: '100%', textAlign: 'left', padding: '0.25rem 1rem' }}
+                    >
+                      <FiLogOut className="profile-item-icon logout-icon" /> Log out
+                    </button>
+                  </li>
+                </ul>
+              </>
+            ) : (
+              <NavLink 
+                to="/login" 
+                onClick={closeMenu}
+                className="d-flex align-items-center nav-login-btn"
+                style={{ marginRight: '5px' }}
+              >
+                Login
+              </NavLink>
+            )}
+
           </div>
 
           {/* Cart */}

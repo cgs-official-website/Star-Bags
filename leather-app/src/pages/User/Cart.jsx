@@ -1,5 +1,5 @@
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-// FIX: Imports directly from WishlistContext, matching your single-file structure
 import { useWishlist } from "../../context/WishlistContext"; 
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
@@ -33,25 +33,46 @@ const EmptyCartView = () => {
 
 const CartPage = () => {
   const navigate = useNavigate();
-  const { cart, toggleWishlist, removeFromCart, updateCartQty, toggleCartSelect } = useWishlist();
+  const { cart, setCart, toggleWishlist, removeFromCart, updateCartQty, toggleCartSelect } = useWishlist();
 
-  // Core calculations engine matching your updated schemas
+  // ─── STAGE 1: LOCALSTORAGE VERIFICATION ENGINE ───
+  useEffect(() => {
+    const rawUserCart = localStorage.getItem("user_cart");
+    const rawCart = localStorage.getItem("cart");
+    const rawCartItems = localStorage.getItem("cartItems");
+    
+    // Selects the first active and valid cache scheme present in browser environment
+    const activeRawData = rawUserCart || rawCart || rawCartItems;
+    
+    if (activeRawData) {
+      const parsedData = JSON.parse(activeRawData);
+      // Synchronize context mesh instantly if memory variations occur
+      if (parsedData.length !== (cart?.length || 0) && setCart) {
+        setCart(parsedData);
+      }
+    } else if (cart && cart.length > 0 && setCart) {
+      setCart([]);
+    }
+    window.scrollTo(0, 0);
+  }, [cart, setCart]);
+
+  // Core calculations engine matching your transaction ledger guidelines
   const selectedItems = cart ? cart.filter((item) => item.selected) : [];
   const totalItemsCount = selectedItems.reduce((acc, item) => acc + (item.qty || 1), 0);
 
-  // Raw Total calculation using original realPrice
+  // Raw Total calculation using top-grain baseline parameters (Strict INR Currency ₹)
   const rawTotal = selectedItems.reduce((acc, item) => {
     const originalPrice = Number(item.realPrice) || Number(item.price) || 0;
     return acc + (originalPrice * (item.qty || 1));
   }, 0);
   
-  // Checkout Total after item discount offers
+  // Checkout Subtotal after target wholesale item discount matrices
   const subTotal = selectedItems.reduce((acc, item) => {
     return acc + (Number(item.price) * (item.qty || 1));
   }, 0);
 
   const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-  const gstTotal = Math.round(subTotal * 0.05);
+  const gstTotal = Math.round(subTotal * 0.18);
   const finalTotal = subTotal + gstTotal;
 
   const handleCheckout = () => {
@@ -84,18 +105,18 @@ const CartPage = () => {
         </h4>
         <p className="cart-subtitle">Review your items and proceed to checkout</p>
 
-        {/* ─── CONDITIONAL LAYOUT SPLIT ─── */}
+        {/* ─── CONDITIONAL LAYOUT SPLIT MATRIX ─── */}
         {!cart || cart.length === 0 ? (
           <>
-            {/* Display empty cart status graphics */}
+            {/* Display clean empty graphics if ledger holds zero entries */}
             <EmptyCartView />
             
-            {/* Display the 6 recommendations products strip panel */}
+            {/* Recommendation products strip grid panel banner link layout */}
             <RecentProduct />
           </>
         ) : (
-          /* Displays the checkout calculation columns when active items are present */
           <div className="cart-layout-grid">
+            {/* Left Block: Render list elements with dynamic custom triggers */}
             <div className="cart-left">
               <div className="cart-items">
                 {cart.map((item, index) => (
@@ -112,6 +133,7 @@ const CartPage = () => {
               </div>
             </div>
             
+            {/* Right Block: Order Total Calculation Summary column layout box panel */}
             <div className="cart-right">
               <OrderSummary 
                 totalItemsCount={totalItemsCount} 

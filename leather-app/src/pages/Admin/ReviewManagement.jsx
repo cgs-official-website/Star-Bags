@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../assets/styles/AdminReviewManagement.css';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
 import AdminHeader from '../../components/Admin/AdminHeader';
@@ -6,26 +6,43 @@ import { CardSkeleton, TableSkeleton } from '../../components/Admin/AdminSkeleto
 import { BiMessageRoundedDetail, BiLike, BiDislike, BiSearch } from 'react-icons/bi';
 import { FiRefreshCw, FiTrash2, FiEye, FiEyeOff, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
-
-// Dummy data
-const initialReviews = [
-  { id: 1, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop", productName: "American Tourist Travel and Trolley bag 30 L", customerName: "Selva", rating: 2, date: "2026-12-24" },
-  { id: 2, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop", productName: "Wallet", customerName: "Murali venkata prasadh", rating: 1, date: "2026-12-24" },
-  { id: 3, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied nfkjfjgewbkwbgbwekgbew jktjbtqkjq43 2j", image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=100&h=100&fit=crop", productName: "Belt", customerName: "Vinoth Billa", rating: 3, date: "2026-12-24" },
-  { id: 4, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1627123424574-724758594e93?w=100&h=100&fit=crop", productName: "Wallet", customerName: "Sudhagar kasi medu", rating: 4, date: "2026-12-24" },
-  { id: 5, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop", productName: "Leather Sling Bag", customerName: "Virat kohali", rating: 5, date: "2026-12-24" },
-  { id: 6, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop", productName: "Leather Bag", customerName: "Ansul kamboj", rating: 5, date: "2026-12-24" },
-  { id: 7, text: "The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop", productName: "Leather Bag", customerName: "karthi keyan", rating: 5, date: "2026-12-24" },
-];
+import toast, { Toaster } from 'react-hot-toast';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 function ReviewManagement() {
   const [loading, setLoading] = useState(true);
-  React.useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+  const [reviews, setReviews] = useState([]);
 
-  const [reviews, setReviews] = useState(initialReviews);
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'reviews'));
+        const list = [];
+        querySnapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          list.push({
+            id: docSnap.id,
+            productId: data.productId || '',
+            text: data.text || data.comment || '',
+            image: data.image || data.productImage || '',
+            productName: data.productName || '',
+            customerName: data.customerName || data.userName || '',
+            rating: data.rating || 0,
+            date: data.date || data.createdAt || null,
+            isHidden: data.isHidden || false,
+          });
+        });
+        setReviews(list);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        toast.error('Failed to load reviews!');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReviews();
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [ratingFilter, setRatingFilter] = useState('');
@@ -52,19 +69,54 @@ function ReviewManagement() {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    setReviews(reviews.filter(r => r.id !== deleteTargetId));
+  const confirmDelete = async () => {
+    try {
+      const review = reviews.find(r => r.id === deleteTargetId);
+      if (review) {
+        const reviewRef = doc(db, 'reviews', review.id);
+        await deleteDoc(reviewRef);
+        setReviews(reviews.filter(r => r.id !== deleteTargetId));
+        toast.success('Review deleted!');
+      }
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      toast.error('Failed to delete review!');
+    }
     setShowDeleteModal(false);
     setDeleteTargetId(null);
   };
 
-  const handleToggleHide = (id) => {
-    setReviews(reviews.map(r => r.id === id ? { ...r, isHidden: !r.isHidden } : r));
+  const handleToggleHide = async (id) => {
+    const review = reviews.find(r => r.id === id);
+    if (!review) return;
+    const newHidden = !review.isHidden;
+    try {
+      const reviewRef = doc(db, 'reviews', review.id);
+      await updateDoc(reviewRef, { isHidden: newHidden });
+      setReviews(reviews.map(r => r.id === id ? { ...r, isHidden: newHidden } : r));
+      if (newHidden) {
+        toast.success('Review hidden — only visible to the reviewer');
+      } else {
+        toast.success('Review is now visible to all users');
+      }
+    } catch (err) {
+      console.error('Error toggling review visibility:', err);
+      toast.error('Failed to update review!');
+    }
   };
 
   const filteredReviews = reviews.filter((review) => {
     if (searchQuery && !review.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (dateFilter && review.date !== dateFilter) return false;
+    
+    // Date filter helper matching
+    let reviewDateStr = "";
+    if (review.date) {
+      const d = review.date.toDate ? review.date.toDate() : new Date(review.date);
+      if (!isNaN(d.getTime())) {
+        reviewDateStr = d.toISOString().split('T')[0];
+      }
+    }
+    if (dateFilter && reviewDateStr !== dateFilter) return false;
     if (ratingFilter && review.rating.toString() !== ratingFilter) return false;
     return true;
   });
@@ -76,6 +128,17 @@ function ReviewManagement() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const formatDate = (dateVal) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+      if (isNaN(d.getTime())) return "N/A";
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/');
+    } catch (e) {
+      return "N/A";
     }
   };
 
@@ -114,7 +177,7 @@ function ReviewManagement() {
                 </div>
               </div>
               <div className="rm-stat-bottom rm-stat-up">
-                <FiArrowUpRight style={{ fontSize: '16px' }} /> 5.2% Up from past week
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> {totalReviews} total reviews
               </div>
             </div>
             <div className="rm-stat-card">
@@ -127,8 +190,11 @@ function ReviewManagement() {
                   <BiLike />
                 </div>
               </div>
-              <div className="rm-stat-bottom rm-stat-up">
-                <FiArrowUpRight style={{ fontSize: '16px' }} /> 8.1% Up from past week
+              <div className={positiveReviews > negativeReviews ? "rm-stat-bottom rm-stat-up" : "rm-stat-bottom rm-stat-down"}>
+                {positiveReviews > negativeReviews
+                  ? <FiArrowUpRight style={{ fontSize: '16px' }} />
+                  : <FiArrowDownRight style={{ fontSize: '16px' }} />}
+                {' '}{totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0}% Positive rate
               </div>
             </div>
             <div className="rm-stat-card">
@@ -141,8 +207,11 @@ function ReviewManagement() {
                   <BiDislike />
                 </div>
               </div>
-              <div className="rm-stat-bottom rm-stat-down">
-                <FiArrowDownRight style={{ fontSize: '16px' }} /> 2.3% Down from past week
+              <div className={negativeReviews > 0 ? "rm-stat-bottom rm-stat-down" : "rm-stat-bottom rm-stat-up"}>
+                {negativeReviews > 0
+                  ? <FiArrowDownRight style={{ fontSize: '16px' }} />
+                  : <FiArrowUpRight style={{ fontSize: '16px' }} />}
+                {' '}{totalReviews > 0 ? Math.round((negativeReviews / totalReviews) * 100) : 0}% Negative rate
               </div>
             </div>
           </div>
@@ -227,7 +296,7 @@ function ReviewManagement() {
                       </div>
                     </td>
                     <td>
-                      {review.date.split('-').reverse().join('/')}
+                      {formatDate(review.date)}
                     </td>
                     <td>
                       <div className="rm-action-btn-group">

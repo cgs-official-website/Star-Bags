@@ -24,6 +24,11 @@ const CartItem = ({
     (wItem) => wItem.name === item.name && Number(wItem.price) === Number(item.price)
   ) : false;
 
+  // Category identification checks
+  const categoryToken = item.category?.toLowerCase() || "";
+  const isBelt = categoryToken === "belt" || item.name?.toLowerCase().includes("belt");
+  const isBag = categoryToken === "bag" || item.name?.toLowerCase().includes("bag");
+
   const handleSingleItemCheckout = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -33,7 +38,7 @@ const CartItem = ({
     const rawTotal = (Number(item.realPrice) || Number(item.price)) * totalItemsCount;
     const subTotal = Number(item.price) * totalItemsCount;
     const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-    const gstTotal = Math.round(subTotal * 0.05);
+    const gstTotal = Math.round(subTotal * 0.18);
     const finalTotal = subTotal + gstTotal;
 
     navigate("/checkout", {
@@ -104,7 +109,22 @@ const CartItem = ({
               <button onClick={() => onIncrease(item.id)} className="qty-btn" type="button"><FaPlus /></button>
             </div>
           </div>
+          
           <p className="pattern-text">Pattern : Leather</p>
+
+          {/* ─── FIXED: EXPLICIT BELT SIZE OR BAG CAPACITY RENDERING INSERTS ─── */}
+          {isBelt && (
+            <p className="pattern-text" style={{ marginTop: "-8px" }}>
+              Size : <span style={{ color: "#8b5cf6", fontWeight: "600" }}>{item.size || "M"}</span>
+            </p>
+          )}
+
+          {isBag && (
+            <p className="pattern-text" style={{ marginTop: "-8px" }}>
+              Capacity : <span style={{ color: "#8b5cf6", fontWeight: "600" }}>{item.size || "40L"}</span>
+            </p>
+          )}
+
           <div className="cod-box">
             <p><span><TbTruckDelivery /></span>Cash On Delivery Available</p>
           </div>

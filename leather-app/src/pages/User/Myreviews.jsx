@@ -1,104 +1,135 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/User/Navbar';
 import Footer from '../../components/User/Footer';
 import ProfileSideNav from '../../components/User/Profile-Side-Nav';
 import ReviewCard from '../../components/User/ReviewCard';
+import { useAuth } from '../../context/AuthContext';
+import { db } from '../../firebase';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
 import '../../assets/styles/Myreviews.css';
 
-const initialReviews = [
-  {
-    id: 1,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 2,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 4,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 3,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 4,
-    productName: 'Leather product Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 4,
-    reviewText: 'The Product was quite good my relative was using this product i will give 5 star for this product more over i am satisfied',
-    shortReview: 'It was very help full',
-  },
-  {
-    id: 5,
-    productName: 'Leather Wallet',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 3,
-    reviewText: 'Decent quality for the price. Stitching could be better but overall it holds up well after a few months of use.',
-    shortReview: 'Average product',
-  },
-  {
-    id: 6,
-    productName: 'Canvas Tote Bag',
-    productImage: 'https://via.placeholder.com/48x48/8B6914/ffffff?text=Bag',
-    rating: 5,
-    reviewText: 'Absolutely love this bag! Very spacious and the material is durable. Got compliments from friends too.',
-    shortReview: 'Highly recommended!',
-  },
-];
-
 function Myreviews() {
-  const [reviews, setReviews] = useState(initialReviews);
+  const { currentUser } = useAuth();
+
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
-  const [editForm, setEditForm] = useState({ reviewText: '', shortReview: '', rating: 5 });
+  const [editForm, setEditForm] = useState({ reviewText: '', rating: 5 });
+  const [saving, setSaving] = useState(false);
 
   // Delete confirm modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  /* ── Edit handlers ── */
+  // ─── Real-time listener: load this user's reviews from Firestore ──────────
+  useEffect(() => {
+    if (!currentUser) {
+      setReviews([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'reviews'),
+      where('customerId', '==', currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const fetched = snapshot.docs.map((d) => ({
+          // Map Firestore fields → ReviewCard expected props
+          id: d.id,                          // firestoreId used for edit/delete
+          firestoreId: d.id,
+          productName: d.data().productName || 'Unknown Product',
+          productImage: d.data().image || '',
+          rating: d.data().rating || 0,
+          reviewText: d.data().text || '',
+          shortReview: '',                   // not in schema, shown as empty
+          date: d.data().date,
+          likeCount: d.data().likeCount || 0,
+          dislikeCount: d.data().dislikeCount || 0,
+          isHidden: d.data().isHidden || false, // admin may hide the review
+        }));
+
+        // Sort fetched reviews by date descending in-memory
+        fetched.sort((a, b) => {
+          const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+          const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+          return dateB - dateA;
+        });
+
+        setReviews(fetched);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error loading reviews:', err);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // ─── Edit handlers ─────────────────────────────────────────────────────────
   const handleEdit = (review) => {
     setEditingReview(review);
-    setEditForm({
-      reviewText: review.reviewText,
-      shortReview: review.shortReview,
-      rating: review.rating,
-    });
+    setEditForm({ reviewText: review.reviewText, rating: review.rating });
     setEditModalOpen(true);
   };
 
-  const handleEditSave = () => {
-    setReviews((prev) =>
-      prev.map((r) =>
-        r.id === editingReview.id ? { ...r, ...editForm } : r
-      )
-    );
-    setEditModalOpen(false);
-    setEditingReview(null);
+  const handleEditSave = async () => {
+    if (!editingReview) return;
+    setSaving(true);
+    try {
+      await updateDoc(doc(db, 'reviews', editingReview.firestoreId), {
+        text: editForm.reviewText.trim(),
+        rating: editForm.rating,
+      });
+      setEditModalOpen(false);
+      setEditingReview(null);
+    } catch (err) {
+      console.error('Error updating review:', err);
+      alert('Failed to update review. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  /* ── Delete handlers ── */
+  // ─── Delete handlers ───────────────────────────────────────────────────────
   const handleDelete = (id) => {
     setDeletingId(id);
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
-    setReviews((prev) => prev.filter((r) => r.id !== deletingId));
-    setDeleteModalOpen(false);
-    setDeletingId(null);
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'reviews', deletingId));
+      setDeleteModalOpen(false);
+      setDeletingId(null);
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      alert('Failed to delete review. Please try again.');
+    }
+  };
+
+  // ─── Date formatter ───────────────────────────────────────────────────────
+  const formatDate = (ts) => {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   return (
@@ -117,23 +148,39 @@ function Myreviews() {
                 <p className="reviews-subtitle">All your product reviews in one place</p>
               </div>
 
-              {/* Scrollable Reviews List */}
+              {/* Reviews List */}
               <div className="reviews-list-wrapper">
-                {reviews.length > 0 ? (
+                {loading ? (
+                  <div className="d-flex justify-content-center align-items-center py-5">
+                    <div
+                      className="spinner-border"
+                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
+                      role="status"
+                    />
+                  </div>
+                ) : reviews.length > 0 ? (
                   <div className="reviews-scroll-list">
                     {reviews.map((review) => (
-                      <ReviewCard
-                        key={review.id}
-                        review={review}
-                        onEdit={handleEdit}
-                        onDelete={handleDelete}
-                      />
+                      <div key={review.id}>
+                        <ReviewCard
+                          review={review}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                        {review.date && (
+                          <p className="text-muted" style={{ fontSize: '0.72rem', marginTop: '-8px', paddingLeft: '4px' }}>
+                            Reviewed on {formatDate(review.date)}
+                          </p>
+                        )}
+                      </div>
                     ))}
                   </div>
                 ) : (
                   <div className="reviews-empty-container">
                     <h3 className="reviews-empty-heading">No reviews yet!</h3>
-                    <p className="reviews-empty-sub">Your product reviews will appear here.</p>
+                    <p className="reviews-empty-sub">
+                      Your product reviews will appear here after you review a purchased product.
+                    </p>
                   </div>
                 )}
               </div>
@@ -176,20 +223,13 @@ function Myreviews() {
                 onChange={(e) => setEditForm((f) => ({ ...f, reviewText: e.target.value }))}
                 placeholder="Write your review..."
               />
-
-              <label className="rv-label mt-3">Short Summary</label>
-              <input
-                className="rv-input"
-                type="text"
-                value={editForm.shortReview}
-                onChange={(e) => setEditForm((f) => ({ ...f, shortReview: e.target.value }))}
-                placeholder="One-line summary"
-              />
             </div>
 
             <div className="rv-modal-footer">
               <button className="rv-btn-cancel" onClick={() => setEditModalOpen(false)}>Cancel</button>
-              <button className="rv-btn-save" onClick={handleEditSave}>Save Changes</button>
+              <button className="rv-btn-save" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
+              </button>
             </div>
           </div>
         </div>
@@ -216,6 +256,7 @@ function Myreviews() {
     </>
   );
 }
+
 
 export default Myreviews;
 
@@ -868,3 +909,5 @@ export default Myreviews;
 // // }
 
 // // export default Myreviews;
+
+

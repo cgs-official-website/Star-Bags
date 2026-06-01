@@ -1,107 +1,165 @@
 import React from "react";
-import { FaRegCopy, FaLock, FaCheckCircle, FaArrowRight, FaCalendarAlt, FaUserCheck, FaShoppingBag } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaRegCopy } from "react-icons/fa";
 import "../../assets/styles/coupon.css";
 
-const CouponCard = ({ coupon, onSelectCoupon, currentSubTotal }) => {
-  const navigate = useNavigate();
+export const couponsDataList = [
+  {
+    code: "SBC-WLT-001",
+    offer: "10%",
+    percentage: 10,
+    minThreshold: 1000,
+    category: "Wallet",
+    subCategory: "All",
+    usageLimit: 2,
+    description: "Save 10% on leather wallets and cardholders.",
+    startDate: "2026-04-01",
+    endDate: "2026-07-01",
+  },
+  {
+    code: "SBC-BLT-001",
+    offer: "10%",
+    percentage: 10,
+    minThreshold: 1000,
+    category: "Belt",
+    subCategory: "All",
+    usageLimit: 5,
+    description: "Flat discount active on genuine leather apparel belts.",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
+  },
+  {
+    code: "SBC-BAG-001",
+    offer: "15%",
+    percentage: 15,
+    minThreshold: 1500,
+    category: "Bag",
+    subCategory: "Hand Bag",
+    usageLimit: 1,
+    description: "Get 15% off on our premium Hand Bag collections.",
+    startDate: "2026-05-01",
+    endDate: "2026-06-30",
+  },
+  {
+    code: "SBC-BAG-002",
+    offer: "30%",
+    percentage: 30,
+    minThreshold: 2500,
+    category: "Bag",
+    subCategory: "Sling Bag",
+    usageLimit: 1,
+    description: "Exclusive discount on luxury Sling Bags.",
+    startDate: "2026-05-10",
+    endDate: "2026-06-15",
+  },
+  {
+    code: "SBC-BAG-003",
+    offer: "20%",
+    percentage: 20,
+    minThreshold: 3000,
+    category: "Bag",
+    subCategory: "Tolly Bag",
+    usageLimit: 1,
+    description: "Save big on durable, high-capacity premium Tolly Bags.",
+    startDate: "2026-05-01",
+    endDate: "2026-08-31",
+  },
+  {
+    code: "SBC-BAG-004",
+    offer: "25%",
+    percentage: 25,
+    minThreshold: 4000,
+    category: "Bag",
+    subCategory: "Travel Bag",
+    usageLimit: 1,
+    description: "Special seasonal discount applied to all classic Travel Bags.",
+    startDate: "2026-05-01",
+    endDate: "2026-07-15",
+  },
+  {
+    code: "SBC-BAG-005",
+    offer: "12%",
+    percentage: 12,
+    minThreshold: 1200,
+    category: "Bag",
+    subCategory: "School Bag",
+    usageLimit: 2,
+    description: "Back-to-school offer on highly ergonomic School Bags.",
+    startDate: "2026-05-15",
+    endDate: "2026-06-30",
+  },
+  {
+    code: "SBC-BAG-006",
+    offer: "18%",
+    percentage: 18,
+    minThreshold: 2000,
+    category: "Bag",
+    subCategory: "Office Bag",
+    usageLimit: 1,
+    description: "Professional markdown valid on executive Office Bags.",
+    startDate: "2026-04-01",
+    endDate: "2026-09-01",
+  },
+  {
+    code: "SBC-BAG-007",
+    offer: "10%",
+    percentage: 10,
+    minThreshold: 800,
+    category: "Bag",
+    subCategory: "Lunch Bag",
+    usageLimit: 3,
+    description: "Compact deal valid on insulated, fresh Lunch Bags.",
+    startDate: "2026-02-01",
+    endDate: "2026-12-31",
+  },
+  {
+    code: "SBC-BAG-008",
+    offer: "22%",
+    percentage: 22,
+    minThreshold: 2200,
+    category: "Bag",
+    subCategory: "Laptop Bag",
+    usageLimit: 1,
+    description: "Secure savings on shockproof protective Laptop Bags.",
+    startDate: "2026-03-15",
+    endDate: "2026-07-31",
+  }
+];
 
-  // Read minThreshold from the object structure
+const CouponCard = ({ coupon, onSelectCoupon, currentSubTotal }) => {
   const minThreshold = coupon.minThreshold || 1000; 
-  const isLocked = currentSubTotal < minThreshold;
-  const remainingAmount = minThreshold - currentSubTotal;
 
   const copyCoupon = (e) => {
     e.stopPropagation();
-    if (isLocked) return;
     navigator.clipboard.writeText(coupon.code);
     alert(`Coupon "${coupon.code}" copied to clipboard!`);
   };
 
-  // Safe parsing helper for date formats
-  const formatDate = (dateStr) => {
-    if (!dateStr) return "";
-    const options = { month: "short", day: "numeric", year: "numeric" };
-    return new Date(dateStr).toLocaleDateString("en-US", options);
-  };
-
   return (
-    <div className={`coupon-card-premium ${isLocked ? "coupon-state-locked" : "coupon-state-unlocked"}`}>
-      <div className="coupon-card-body-wrapper">
-        
-        {/* TOP BADGE AND STATUS ROW */}
-        <div className="coupon-top">
-          <span className="offer-tag-premium">{coupon.offer} OFF</span>
-          <button 
-            className="coupon-apply-btn-premium" 
-            onClick={() => onSelectCoupon(coupon.code)}
-            disabled={isLocked}
-          >
-            {isLocked ? "Locked" : "Apply"}
-          </button>
-        </div>
-        
-        {/* CODE ROW CONTAINER */}
-        <div className="coupon-code-row">
-          <div className="coupon-badge-pill">
-            <span className="code-text-highlight">{coupon.code}</span>
-            <FaRegCopy 
-              className={`cp-copy-action-icon ${isLocked ? "disabled-icon" : ""}`} 
-              onClick={copyCoupon} 
-            />
-          </div>
-        </div>
-
-        {/* METADATA TARGET TAGS ROW */}
-        <div className="coupon-metadata-tags">
-          <span className="meta-tag">
-            <FaShoppingBag size={10} /> {coupon.category} 
-            {coupon.subCategory && coupon.subCategory !== "All" && ` • ${coupon.subCategory}`}
-          </span>
-          <span className="meta-tag">
-            <FaUserCheck size={10} /> Limit: {coupon.usageLimit || 1}
-          </span>
-        </div>
-
-        {/* CORE CONDITIONS AND DESCRIPTION DETAILS */}
-        <p className="save-text-premium">
-          {isLocked 
-            ? `Minimum purchase required: ₹${minThreshold}` 
-            : `Coupon unlocked for this order!`
-          }
-        </p>
-        <p className="coupon-description-premium">{coupon.description}</p>
-
-        {/* TIMELINE VALIDITY META LINES */}
-        {coupon.startDate && coupon.endDate && (
-          <div className="coupon-timeline-row">
-            <FaCalendarAlt size={10} />
-            <span>Valid: {formatDate(coupon.startDate)} - {formatDate(coupon.endDate)}</span>
-          </div>
-        )}
+    <div className="custom-coupon-card">
+      <div className="coupon-header-row">
+        <span className="coupon-discount-badge">{coupon.offer} off</span>
+        <button 
+          className="coupon-action-apply-btn"
+          onClick={() => onSelectCoupon(coupon.code)}
+        >
+          Apply
+        </button>
       </div>
 
-      {/* DYNAMIC INFOBAR DISPLAYED BELOW INPUT WRAPPER BOUNDS */}
-      {isLocked ? (
-        <div 
-          className="coupon-card-slogan-footer"
-          onClick={() => navigate("/allProducts")}
-          title="Browse catalog to unlock this offer"
-        >
-          <div className="slogan-footer-content">
-            <FaLock className="lock-pulse" />
-            <p>Purchase <span>₹{remainingAmount.toFixed(0)}</span> extra to open premium coupons!</p>
-          </div>
-          <FaArrowRight className="arrow-slide-icon" />
-        </div>
-      ) : (
-        <div className="coupon-card-slogan-footer success-footer">
-          <div className="slogan-footer-content">
-            <FaCheckCircle className="check-pulse" />
-            <p>Premium coupon unlocked! Ready to apply.</p>
-          </div>
-        </div>
-      )}
+      <div className="coupon-code-clipboard-row">
+        <span className="coupon-plain-code-text">{coupon.code}</span>
+        <FaRegCopy className="coupon-copy-utility-icon" onClick={copyCoupon} />
+      </div>
+
+      <p className="coupon-savings-green-text">
+        Save ₹{((currentSubTotal * (coupon.percentage || 0)) / 100).toFixed(0)} on this order
+      </p>
+
+      <div className="coupon-card-divider-dashed"></div>
+
+      <p className="coupon-terms-description-text">
+        If you want to Claim Coupon Add minimum ₹{minThreshold} Product, If not , you can't claim this coupon
+      </p>
     </div>
   );
 };
