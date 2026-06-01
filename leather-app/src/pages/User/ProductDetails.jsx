@@ -15,7 +15,7 @@ import { TiPencil } from "react-icons/ti";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, query, where, orderBy, onSnapshot, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 
 import "../../assets/styles/ProductDetails.css";
 
@@ -87,20 +87,35 @@ function ProductDetails() {
   const [isReviewsHovered, setIsReviewsHovered] = useState(false);
   const reviewsScrollRef = useRef(null);
 
-  // Fetch product matches from global review index
+  // ─── Load reviews from Firestore (real-time) ───────────────────────────────
   useEffect(() => {
-    const savedReviews = localStorage.getItem("global_product_reviews");
-    if (savedReviews) {
-      const parsed = JSON.parse(savedReviews);
-      const matchedProductReviews = parsed.filter(
-        (r) => r.productName === currentProduct.name,
-      );
-      setDynamicReviews(matchedProductReviews);
-    } else {
+    if (!currentProduct.id) {
       setDynamicReviews([]);
+      return;
     }
+    const q = query(
+      collection(db, "reviews"),
+      where("productId", "==", currentProduct.id)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reviews = snapshot.docs
+        .map(d => ({ ...d.data(), firestoreId: d.id }))
+        .filter(r => !r.isHidden);
+      
+      // Sort reviews in-memory by date descending
+      reviews.sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+        return dateB - dateA;
+      });
+
+      setDynamicReviews(reviews);
+    }, (err) => {
+      console.error("Error loading reviews:", err);
+    });
     window.scrollTo(0, 0);
-  }, [currentProduct.name, currentProduct.id]);
+    return () => unsubscribe();
+  }, [currentProduct.id]);
 
   // Mobile Auto Scroll Carousel Animation Effect for Reviews
   useEffect(() => {
@@ -157,42 +172,76 @@ function ProductDetails() {
     // Enforces strict sorting sequence from 5 Stars down to 1 Star
     .sort((a, b) => b.rating - a.rating);
 
-  const handleFeedback = (id, type) => {
-    setFeedbackState((prev) => ({
-      ...prev,
-      [id]: prev[id] === type ? null : type,
-    }));
+  const handleFeedback = async (review, type) => {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    const ref = doc(db, "reviews", review.firestoreId);
+    const alreadyLiked = (review.likes || []).includes(uid);
+    const alreadyDisliked = (review.dislikes || []).includes(uid);
+
+    try {
+      if (type === "like") {
+        if (alreadyLiked) {
+          await updateDoc(ref, { likes: arrayRemove(uid), likeCount: increment(-1) });
+        } else {
+          const updates = { likes: arrayUnion(uid), likeCount: increment(1) };
+          if (alreadyDisliked) {
+            updates.dislikes = arrayRemove(uid);
+            updates.dislikeCount = increment(-1);
+          }
+          await updateDoc(ref, updates);
+        }
+      } else {
+        if (alreadyDisliked) {
+          await updateDoc(ref, { dislikes: arrayRemove(uid), dislikeCount: increment(-1) });
+        } else {
+          const updates = { dislikes: arrayUnion(uid), dislikeCount: increment(1) };
+          if (alreadyLiked) {
+            updates.likes = arrayRemove(uid);
+            updates.likeCount = increment(-1);
+          }
+          await updateDoc(ref, updates);
+        }
+      }
+    } catch (err) {
+      console.error("Error updating feedback:", err);
+    }
   };
 
-  const handleWriteReviewSubmit = (rating, text) => {
-    const freshReviewObj = {
-      id: Date.now(),
-      productName: currentProduct.name,
-      name: "Anonymous User",
-      rating: rating,
-      text: text,
-      date: new Date().toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      likes: 0,
-      dislikes: 0,
-    };
+  const handleWriteReviewSubmit = async (rating, text) => {
+    try {
+      // Resolve reviewer display name from Firestore profile, fallback to email or "Anonymous"
+      let customerName = "Anonymous User";
+      if (currentUser) {
+        try {
+          const snap = await getDoc(doc(db, "users", currentUser.uid));
+          if (snap.exists()) {
+            customerName = snap.data().name || snap.data().displayName || currentUser.email || "Anonymous User";
+          }
+        } catch (_) {}
+      }
 
-    const updatedReviewsList = [freshReviewObj, ...dynamicReviews];
-    setDynamicReviews(updatedReviewsList);
+      const reviewPayload = {
+        productId: currentProduct.id,
+        productName: currentProduct.name,
+        image: currentProduct.image || "",
+        customerId: currentUser?.uid || "guest",
+        customerName,
+        text,
+        rating,
+        likes: [],
+        dislikes: [],
+        likeCount: 0,
+        dislikeCount: 0,
+        date: new Date(),
+        isHidden: false,
+      };
 
-    const rawGlobalReviews = localStorage.getItem("global_product_reviews");
-    const parsedGlobal = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-    localStorage.setItem(
-      "global_product_reviews",
-      JSON.stringify([freshReviewObj, ...parsedGlobal]),
-    );
-
-    alert(
-      "Thank you thalaiva! Your review has been updated in the dataset cleanly.",
-    );
+      await addDoc(collection(db, "reviews"), reviewPayload);
+    } catch (err) {
+      console.error("Error saving review:", err);
+      alert("Failed to submit review. Please try again.");
+    }
   };
 
   // Size Configurations — driven by DB `size` field (comma-separated, e.g. "20L, 30L" or "Small, Medium")
@@ -599,18 +648,9 @@ function ProductDetails() {
         <div className="reviews-section">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4>Rating And Reviews</h4>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="btn text-white fw-bold px-3 py-1.5"
-              style={{
-                backgroundColor: "#8b5cf6",
-                borderRadius: "6px",
-                fontSize: "0.8rem",
-                border: "none",
-              }}
-            >
-              Write a Review
-            </button>
+            {/* <span className="text-muted small" style={{ fontSize: "0.78rem" }}>
+              ✅ Only verified buyers can write a review
+            </span> */}
           </div>
 
           <div className="overall-rating-card shadow-sm mb-4">
@@ -725,7 +765,7 @@ function ProductDetails() {
                             className="reviewer-name fw-bold m-0 small"
                             style={{ color: "#111827" }}
                           >
-                            {review.name}
+                            {review.customerName || review.name || "Anonymous"}
                           </p>
                         </div>
                         <div className="rating-stars text-warning small">
@@ -754,19 +794,21 @@ function ProductDetails() {
                           className="text-muted"
                           style={{ fontSize: "0.7rem" }}
                         >
-                          {review.date}
+                          {review.date?.toDate
+                            ? review.date.toDate().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                            : review.date}
                         </span>
                         <div className="helpful-btns d-flex gap-2">
                           <button
                             style={{
-                              color: "#058aff",
+                              color: (review.likes || []).includes(currentUser?.uid) ? "#058aff" : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
                             }}
-                            onClick={() => handleFeedback(review.id, "like")}
+                            onClick={() => handleFeedback(review, "like")}
                           >
-                            {feedbackState[review.id] === "like" ? (
+                            {(review.likes || []).includes(currentUser?.uid) ? (
                               <BiSolidLike />
                             ) : (
                               <BiLike />
@@ -778,21 +820,19 @@ function ProductDetails() {
                                 color: "#6c757d",
                               }}
                             >
-                              {feedbackState[review.id] === "like"
-                                ? review.likes + 1
-                                : review.likes}
+                              {review.likeCount || 0}
                             </span>
                           </button>
                           <button
                             style={{
-                              color: "#f25858",
+                              color: (review.dislikes || []).includes(currentUser?.uid) ? "#f25858" : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
                             }}
-                            onClick={() => handleFeedback(review.id, "dislike")}
+                            onClick={() => handleFeedback(review, "dislike")}
                           >
-                            {feedbackState[review.id] === "dislike" ? (
+                            {(review.dislikes || []).includes(currentUser?.uid) ? (
                               <BiSolidDislike />
                             ) : (
                               <BiDislike />
@@ -804,9 +844,7 @@ function ProductDetails() {
                                 color: "#6c757d",
                               }}
                             >
-                              {feedbackState[review.id] === "dislike"
-                                ? review.dislikes + 1
-                                : review.dislikes}
+                              {review.dislikeCount || 0}
                             </span>
                           </button>
                         </div>

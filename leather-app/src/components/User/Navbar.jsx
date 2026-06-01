@@ -15,7 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
   const { cart } = useWishlist();
-  const { currentUser, logout } = useAuth();
+  const { currentUser, userData, logout } = useAuth();
   const { products: liveProducts } = useProducts();
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,10 +124,15 @@ const Navbar = () => {
           {currentUser ? (
             <NavLink 
               to="/profile" 
-              className="icon-btn d-none d-lg-flex" 
+              className="icon-btn d-none d-lg-flex p-0 align-items-center justify-content-center" 
               aria-label="My Profile Page Link"
+              style={{ overflow: 'hidden', width: '30px', height: '30px', borderRadius: '50%' }}
             >
-              <FaRegUserCircle />
+              {userData?.photo ? (
+                <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+              )}
             </NavLink>
           ) : (
             <NavLink 
@@ -145,19 +150,31 @@ const Navbar = () => {
             {currentUser ? (
               <>
                 <button
-                  className="icon-btn"
+                  className="icon-btn p-0 d-flex align-items-center justify-content-center"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                   aria-label="User contextual menu"
                   onClick={closeMenu}
+                  style={{ overflow: 'hidden', width: '28px', height: '28px', borderRadius: '50%' }}
                 >
-                  <FaRegUserCircle />
+                  {userData?.photo ? (
+                    <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+                  )}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
                   <li>
                     <NavLink to="/profile" onClick={closeMenu} className="dropdown-item d-flex align-items-center profile-dropdown-item">
-                      <FaRegUserCircle className="profile-item-icon" /> My profile
+                      {userData?.photo ? (
+                        <div style={{ width: '16px', height: '16px', borderRadius: '50%', overflow: 'hidden', marginRight: '8px' }}>
+                          <img src={userData.photo} alt="Profile Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      ) : (
+                        <FaRegUserCircle className="profile-item-icon" />
+                      )}
+                      My profile
                     </NavLink>
                   </li>
                   <li>

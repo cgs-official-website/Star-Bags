@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import { useProducts } from "../../context/ProductsContext";
 
 const STATUS_MAP = {
   "Order Placed": { color: "#8b5cf6" },
@@ -11,15 +12,6 @@ const STATUS_MAP = {
   Processing: { color: "#f59e0b" },
 };
 const getStatusColor = (s) => (STATUS_MAP[s] || { color: "#f59e0b" }).color;
-
-const isProductReviewed = (productName) => {
-  try {
-    const raw = localStorage.getItem("user_reviewed_products");
-    return raw ? JSON.parse(raw).includes(productName) : false;
-  } catch {
-    return false;
-  }
-};
 
 const Stars = ({ rating }) => (
   <span style={{ display: "inline-flex", gap: "1px" }}>
@@ -33,21 +25,13 @@ const Stars = ({ rating }) => (
   </span>
 );
 
-const OrderCard = ({ order, onReviewClick }) => {
+const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
   const navigate = useNavigate();
-  const [reviewed, setReviewed] = useState(() =>
-    isProductReviewed(order.product),
-  );
+  const { products } = useProducts();
 
-  useEffect(() => {
-    const sync = () => setReviewed(isProductReviewed(order.product));
-    window.addEventListener("storage", sync);
-    const id = setInterval(sync, 500);
-    return () => {
-      window.removeEventListener("storage", sync);
-      clearInterval(id);
-    };
-  }, [order.product]);
+  const matchedProduct = products.find(
+    (p) => p.name === order.product || p.id === order.productId || p.productId === order.productId
+  );
 
   // Dynamic SBO ID Formatter for Desktop Layouts
   const getFormattedOrderId = () => {
@@ -76,6 +60,7 @@ const OrderCard = ({ order, onReviewClick }) => {
   const fmt = (n) => "₹" + Number(n).toLocaleString("en-IN");
 
   const statusColor = getStatusColor(order.status);
+  const isDelivered = order.status === "Delivered";
 
   return (
     <div className="responsive-order-card-root">
@@ -99,10 +84,14 @@ const OrderCard = ({ order, onReviewClick }) => {
               <span className="desktop-product-title-name">
                 {order.product}
               </span>
-              <Stars rating={order.rating || 4.2} />
-              <span className="desktop-reviews-count-lbl">
-                ({order.reviews || 120})
-              </span>
+              {matchedProduct && matchedProduct.reviewCount > 0 && (
+                <>
+                  <Stars rating={matchedProduct.rating || 0} />
+                  <span className="desktop-reviews-count-lbl">
+                    ({matchedProduct.reviewCount || 0})
+                  </span>
+                </>
+              )}
             </div>
             <div className="desktop-price-row">
               <span className="desktop-current-price">
@@ -152,20 +141,22 @@ const OrderCard = ({ order, onReviewClick }) => {
             {order.deliveryDate || "Expected in 5 Days"}
           </span>
           <div className="desktop-review-trigger-slot">
-            {reviewed ? (
-              <div className="desktop-reviewed-badge">
-                <MdVerified size={14} /> Review Submitted
-              </div>
-            ) : (
-              <button
-                className="desktop-rate-action-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReviewClick();
-                }}
-              >
-                ★ Rate Your Product
-              </button>
+            {isDelivered && (
+              reviewed ? (
+                <div className="desktop-reviewed-badge">
+                  <MdVerified size={14} /> Review Submitted
+                </div>
+              ) : (
+                <button
+                  className="desktop-rate-action-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onReviewClick();
+                  }}
+                >
+                  ★ Rate Your Product
+                </button>
+              )
             )}
           </div>
         </div>
@@ -188,21 +179,23 @@ const OrderCard = ({ order, onReviewClick }) => {
           </div>
 
           <div className="mobile-right-specs-column">
-            {/* ROW 1 : Product Name (Ellipsis) + Right End Rating Score */}
-            <div className="mobile-specs-row-one">
-              <span className="mobile-product-title-string">
+            {/* ROW 1 : Product Name (Ellipsis) */}
+            <div className="mobile-specs-row-one d-flex justify-content-between align-items-center" style={{ width: "100%" }}>
+              <span className="mobile-product-title-string" style={{ maxWidth: matchedProduct && matchedProduct.reviewCount > 0 ? "70%" : "100%" }}>
                 {order.product}
               </span>
-              <span className="mobile-product-rating-badge">
-                {(order.rating || 4.2).toFixed(1)}{" "}
-                <FaStar
-                  style={{
-                    color: "#f59e0b",
-                    fontSize: "11px",
-                    marginBottom: "2px",
-                  }}
-                />
-              </span>
+              {matchedProduct && matchedProduct.reviewCount > 0 && (
+                <span className="mobile-product-rating-badge">
+                  {Number(matchedProduct.rating || 0).toFixed(1)}{" "}
+                  <FaStar
+                    style={{
+                      color: "#f59e0b",
+                      fontSize: "11px",
+                      marginBottom: "2px",
+                    }}
+                  />
+                </span>
+              )}
             </div>
 
             {/* ROW 2 : Pricing + Right End Qty */}
@@ -245,11 +238,33 @@ const OrderCard = ({ order, onReviewClick }) => {
 
           <button
             className="mobile-action-track-submit-btn"
-            onClick={() => navigate("/TrackOrder", { state: { order } })}
+            onClick={() => navigate("/Track-Order", { state: { order } })}
           >
             Track order
           </button>
         </div>
+
+        {/* REVIEW ROW : only shown for delivered orders */}
+        {isDelivered && (
+          <div style={{ padding: "8px 12px 12px" }}>
+            {reviewed ? (
+              <div className="desktop-reviewed-badge" style={{ justifyContent: "center" }}>
+                <MdVerified size={14} /> Review Submitted
+              </div>
+            ) : (
+              <button
+                className="desktop-rate-action-btn"
+                style={{ width: "100%" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onReviewClick();
+                }}
+              >
+                ★ Rate Your Product
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

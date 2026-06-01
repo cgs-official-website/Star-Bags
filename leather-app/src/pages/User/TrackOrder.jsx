@@ -19,6 +19,10 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { IoReceiptOutline } from "react-icons/io5";
 import ReviewModal from "../../components/User/ReviewModal";
 import RecentProduct from "../../components/User/RecentProduct";
+import { useAuth } from "../../context/AuthContext";
+import { useProducts } from "../../context/ProductsContext";
+import { db } from "../../firebase";
+import { collection, query, where, getDocs, addDoc, doc, getDoc } from "firebase/firestore";
 
 function StarDisplay({ value, max = 5 }) {
   return (
@@ -34,19 +38,18 @@ function StarDisplay({ value, max = 5 }) {
   );
 }
 
-const isProductReviewedLocally = (productName) => {
-  try {
-    const raw = localStorage.getItem("user_reviewed_products");
-    return raw ? JSON.parse(raw).includes(productName) : false;
-  } catch { return false; }
-};
 
 function TrackOrder() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { products } = useProducts();
 
   // Extract realtime order payload variables from location router context
   const { order } = location.state || {};
+
+  const matchedProduct = products.find(
+    (p) => p.name === order?.product || p.id === order?.productId || p.productId === order?.productId
+  );
 
   useEffect(() => {
     if (!order) {
@@ -55,10 +58,30 @@ function TrackOrder() {
     window.scrollTo(0, 0);
   }, [order, navigate]);
 
+  const { currentUser } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(5);
-  const [reviewed, setReviewed] = useState(() => order ? isProductReviewedLocally(order.product) : false);
+  const [reviewed, setReviewed] = useState(false);
   const [invoicePopupOpen, setInvoicePopupOpen] = useState(false);
+
+  // Check Firestore if this order was already reviewed by the user
+  useEffect(() => {
+    if (!currentUser || !order) return;
+    const checkReviewed = async () => {
+      try {
+        const q = query(
+          collection(db, "reviews"),
+          where("customerId", "==", currentUser.uid),
+          where("orderId", "==", order.id)
+        );
+        const snap = await getDocs(q);
+        setReviewed(!snap.empty);
+      } catch (err) {
+        console.error("Error checking review status:", err);
+      }
+    };
+    checkReviewed();
+  }, [currentUser, order]);
 
   // ─── FIXED REAL-TIME DATABINDING FALLBACK MATRIX TRICK ───
   // Extractor Engine: Attempts to read directly from the parent order object block context.
@@ -148,37 +171,46 @@ function TrackOrder() {
     },
   ];
 
-  const handleReviewSubmit = (rating, text) => {
-    const productName = order.product;
+  const handleReviewSubmit = async (rating, text) => {
+    if (!currentUser || !order) return;
     try {
-      const rawReviewed = localStorage.getItem("user_reviewed_products");
-      const reviewedList = rawReviewed ? JSON.parse(rawReviewed) : [];
-      if (!reviewedList.includes(productName)) {
-        reviewedList.push(productName);
-        localStorage.setItem("user_reviewed_products", JSON.stringify(reviewedList));
-      }
-    } catch (e) { console.error(e); }
+      let customerName = currentUser.email || "Anonymous User";
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) {
+          customerName = snap.data().name || snap.data().displayName || customerName;
+        }
+      } catch (_) {}
 
-    try {
-      const rawGlobalReviews = localStorage.getItem("global_product_reviews");
-      const globalReviews = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-      
-      const freshReviewObj = {
-        id: Date.now(),
-        productName: productName,
-        name: "Rahul Sharma", 
-        avatar: "https://i.pravatar.cc/150?img=11",
-        rating: Number(rating),
+      const matchedProduct = products.find(
+        (p) => p.name === order.product || p.id === order.productId || p.productId === order.productId
+      );
+      const realProductId = matchedProduct?.id || order.productId || order.items?.[0]?.productId || order.id;
+
+      const reviewPayload = {
+        productId: realProductId,
+        productName: order.product,
+        image: order.image || "",
+        customerId: currentUser.uid,
+        customerName,
+        orderId: order.id,
         text: text.trim(),
-        likes: 0,
-        dislikes: 0,
-        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+        rating: Number(rating),
+        likes: [],
+        dislikes: [],
+        likeCount: 0,
+        dislikeCount: 0,
+        date: new Date(),
+        isHidden: false,
       };
-      localStorage.setItem("global_product_reviews", JSON.stringify([freshReviewObj, ...globalReviews]));
-    } catch (e) { console.error(e); }
 
-    setReviewed(true);
-    setModalOpen(false);
+      await addDoc(collection(db, "reviews"), reviewPayload);
+      setReviewed(true);
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      alert("Failed to submit review. Please try again.");
+    }
   };
 
   const itemsPrice = Number(order.originalPrice) || Number(order.discountedPrice) || 0;
@@ -228,9 +260,11 @@ function TrackOrder() {
                     Qty: {order.quantity || 1} &nbsp;|&nbsp; Date: {order.time}
                   </p>
                 </div>
-                <div className="to-product-rating-badge badge bg-light text-dark border p-2 d-flex align-items-center gap-1" style={{ height: "fit-content", fontWeight: "700" }}>
-                  <FaStar style={{ color: "#f59e0b" }} /> {order.rating || "4.2"}
-                </div>
+                {matchedProduct && (
+                  <div className="to-product-rating-badge badge bg-light text-dark border p-2 d-flex align-items-center gap-1" style={{ height: "fit-content", fontWeight: "700" }}>
+                    <FaStar style={{ color: "#f59e0b" }} /> {Number(matchedProduct.rating || 0).toFixed(1)}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -263,23 +297,36 @@ function TrackOrder() {
             {/* RATINGS CAPTURE SYSTEM BLOCK */}
             <div
               className="to-card to-rating-card border rounded-3 p-4 bg-white shadow-sm d-flex justify-content-between align-items-center"
-              onClick={() => !reviewed && setModalOpen(true)}
-              style={{ cursor: reviewed ? "default" : "pointer" }}
+              onClick={() => order.status === "Delivered" && !reviewed && setModalOpen(true)}
+              style={{ cursor: order.status === "Delivered" && !reviewed ? "pointer" : "default" }}
             >
               <div>
                 <p className="to-rating-prompt fw-bold m-0 text-dark" style={{ fontSize: "0.95rem" }}>
-                  {reviewed ? "Your feedback has been verified" : "Give Us your rating"}
+                  {reviewed
+                    ? "Your feedback has been verified"
+                    : order.status === "Delivered"
+                    ? "Give Us your rating"
+                    : "Rate after delivery"}
                 </p>
+                {order.status !== "Delivered" && !reviewed && (
+                  <p className="text-muted small m-0 mt-1">You can rate this product once it is delivered.</p>
+                )}
                 {reviewed && (
                   <p className="to-rating-submitted-text text-success small fw-semibold m-0 mt-1 d-flex align-items-center gap-1">
                     <span style={{ fontSize: "1.1rem" }}>✓</span> Review Submitted Successfully
                   </p>
                 )}
               </div>
-              {!reviewed ? <StarDisplay value={modalRating} /> : <span className="text-success fw-bold" style={{ fontSize: "1.2rem" }}>✓</span>}
+              {reviewed
+                ? <span className="text-success fw-bold" style={{ fontSize: "1.2rem" }}>✓</span>
+                : order.status === "Delivered"
+                ? <StarDisplay value={modalRating} />
+                : <span className="text-muted" style={{ fontSize: "1.4rem" }}>🔒</span>
+              }
             </div>
 
             <ReviewModal isOpen={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleReviewSubmit} rating={modalRating} setRating={setModalRating} />
+
           </div>
 
           {/* RIGHT PANELS SIDE BAR COLUMNS */}
@@ -344,8 +391,8 @@ function TrackOrder() {
                   <span>₹{finalPrice}.00</span>
                 </div>
                 <div className="to-summary-row d-flex justify-content-between text-secondary small">
-                  <span>GST Taxes breakdown (Included 5%)</span>
-                  <span>₹{Math.round(finalPrice * 0.05)}.00</span>
+                  <span>GST Taxes breakdown (Included 18%)</span>
+                  <span>₹{Math.round(finalPrice * 0.18)}.00</span>
                 </div>
                 <hr className="to-divider my-2" />
                 <div className="to-summary-row total d-flex justify-content-between fw-bold text-dark fs-5">

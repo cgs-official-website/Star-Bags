@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"; // ← ADDED for robust routing
 import { useWishlist } from "../../context/WishlistContext";
+import { useProducts } from "../../context/ProductsContext";
 import "../../assets/styles/WishList.css";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
@@ -90,7 +91,22 @@ function EmptyWishlist() {
 
 // ─── Main WishList Page ───────────────────────────────────────────────────────
 function WishList() {
-  const { wishlist, removeFromWishlist, addToCart } = useWishlist();
+  const { wishlist, wishlistLoading, removeFromWishlist, addToCart } = useWishlist();
+  const { products } = useProducts();
+
+  const liveWishlist = wishlist.map((item) => {
+    const liveProduct = products.find(
+      (p) => p.id === item.id || p.productId === item.productId || p.name === item.name
+    );
+    if (liveProduct) {
+      return {
+        ...item,
+        rating: liveProduct.rating,
+        ratingCount: liveProduct.reviewCount || 0,
+      };
+    }
+    return item;
+  });
 
   return (
     <>
@@ -107,11 +123,15 @@ function WishList() {
 
           {/* Main Context Dynamic Grid Column Area */}
           <div className="col-lg-9 col-12">
-            {wishlist.length === 0 ? (
+            {wishlistLoading ? (
+              <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
+                <div className="spinner-border" style={{ color: "#8b5cf6", width: "2.5rem", height: "2.5rem" }} role="status" />
+              </div>
+            ) : liveWishlist.length === 0 ? (
               <EmptyWishlist />
             ) : (
               <div className="wl-grid">
-                {wishlist.map((item) => (
+                {liveWishlist.map((item) => (
                   <WishlistCard
                     key={item.id}
                     item={item}

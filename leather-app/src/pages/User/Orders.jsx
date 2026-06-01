@@ -6,6 +6,10 @@ import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import OrderCard from "../../components/User/OrderCard";
 import ReviewModal from "../../components/User/ReviewModal"; 
 import { FaSearch } from "react-icons/fa";
+import { useAuth } from "../../context/AuthContext";
+import { useProducts } from "../../context/ProductsContext";
+import { db } from "../../firebase";
+import { collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import "../../assets/styles/Orders.css";
 import emptyOrders from "../../assets/images/empty.png";
 
@@ -13,41 +17,107 @@ function Orders() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
+  const { products } = useProducts();
 
-  // ─── REVIEW SYSTEM STATE MATRIX ───
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(5);
   const [activeOrderForReview, setActiveOrderForReview] = useState(null);
+  const [reviewedOrderIds, setReviewedOrderIds] = useState(new Set());
 
-  const [orders, setOrders] = useState(() => {
-    try {
-      const raw = localStorage.getItem("user_orders");
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
+  const { currentUser } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const incoming = location.state?.newOrderPayloads || [];
-
-    if (incoming.length > 0) {
-      const normalised = incoming.map((o) => ({
-        ...o,
-        discountedPrice: Number(o.discountedPrice) || 0,
-        originalPrice: Number(o.originalPrice) || 0,
-      }));
-
-      setOrders((prevOrders) => {
-        const merged = [...normalised, ...prevOrders];
-        const unique = merged.filter(
-          (o, idx, self) => idx === self.findIndex((x) => x.id === o.id)
+    const fetchUserOrders = async () => {
+      if (!currentUser) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+      try {
+        const q = query(
+          collection(db, "orders"),
+          where("userId", "==", currentUser.uid)
         );
-        localStorage.setItem("user_orders", JSON.stringify(unique));
-        return unique;
-      });
+        const querySnapshot = await getDocs(q);
+        const list = [];
+        querySnapshot.forEach((docSnap) => {
+          list.push(docSnap.data());
+        });
 
+        // Merge with incoming location state payload if not present yet
+        const incoming = location.state?.newOrderPayloads || [];
+        const normalizedIncoming = incoming.map((o) => ({
+          ...o,
+          discountedPrice: Number(o.discountedPrice) || 0,
+          originalPrice: Number(o.originalPrice) || 0,
+        }));
+
+        const merged = [...list];
+        normalizedIncoming.forEach((item) => {
+          if (!merged.some((o) => o.id === item.id)) {
+            merged.push(item);
+          }
+        });
+
+        // Sort orders by orderDate descending
+        merged.sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
+
+        setOrders(merged);
+        localStorage.setItem("user_orders", JSON.stringify(merged));
+      } catch (err) {
+        console.error("Error fetching user orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserOrders();
+
+    // Clean up location state once handled
+    if (location.state?.newOrderPayloads) {
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [currentUser, location.state]);
+
+  // Track which orders this user has already reviewed and auto-migrate legacy ones
+  useEffect(() => {
+    if (!currentUser || products.length === 0) return;
+    const fetchReviewedOrders = async () => {
+      try {
+        const q = query(
+          collection(db, "reviews"),
+          where("customerId", "==", currentUser.uid)
+        );
+        const snap = await getDocs(q);
+        const ids = new Set(snap.docs.map(d => d.data().orderId).filter(Boolean));
+        setReviewedOrderIds(ids);
+
+        // Auto-migrate legacy order-ID-based productIds to catalog IDs
+        snap.docs.forEach(async (docSnap) => {
+          const r = docSnap.data();
+          const currentProductId = r.productId;
+          if (currentProductId && (currentProductId.startsWith("SBO-") || !currentProductId)) {
+            const matched = products.find((p) => p.name === r.productName);
+            if (matched) {
+              try {
+                await updateDoc(doc(db, "reviews", docSnap.id), {
+                  productId: matched.id
+                });
+                console.log(`Auto-migrated review ${docSnap.id} to correct productId: ${matched.id}`);
+              } catch (migrateErr) {
+                console.error("Failed to auto-migrate review:", migrateErr);
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error checking reviewed orders:", err);
+      }
+    };
+    fetchReviewedOrders();
+  }, [currentUser, products]);
 
   const handleOpenReviewModal = (orderItem) => {
     setActiveOrderForReview(orderItem);
@@ -55,44 +125,45 @@ function Orders() {
     setModalOpen(true);
   };
 
-  const handleReviewSubmit = (rating, text) => {
-    if (!activeOrderForReview) return;
-
-    const productName = activeOrderForReview.product;
-
+  const handleReviewSubmit = async (rating, text) => {
+    if (!activeOrderForReview || !currentUser) return;
     try {
-      const rawReviewed = localStorage.getItem("user_reviewed_products");
-      const reviewedList = rawReviewed ? JSON.parse(rawReviewed) : [];
-      if (!reviewedList.includes(productName)) {
-        reviewedList.push(productName);
-        localStorage.setItem("user_reviewed_products", JSON.stringify(reviewedList));
-      }
-    } catch (e) { console.error(e); }
+      let customerName = currentUser.email || "Anonymous User";
+      try {
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        if (snap.exists()) {
+          customerName = snap.data().name || snap.data().displayName || customerName;
+        }
+      } catch (_) {}
 
-    try {
-      const rawGlobalReviews = localStorage.getItem("global_product_reviews");
-      const globalReviews = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-      
-      const freshReviewObj = {
-        id: Date.now(),
-        productName: productName,
-        name: "Rahul Sharma", 
-        avatar: "https://i.pravatar.cc/150?img=11",
+      const matchedProduct = products.find(
+        (p) => p.name === activeOrderForReview.product || p.id === activeOrderForReview.productId || p.productId === activeOrderForReview.productId
+      );
+      const realProductId = matchedProduct?.id || activeOrderForReview.productId || activeOrderForReview.items?.[0]?.productId || activeOrderForReview.id;
+
+      const reviewPayload = {
+        productId: realProductId,
+        productName: activeOrderForReview.product,
+        image: activeOrderForReview.image || "",
+        customerId: currentUser.uid,
+        customerName,
+        orderId: activeOrderForReview.id,
+        text: text.trim(),
         rating: Number(rating),
-        text: text,
-        likes: 0,
-        dislikes: 0,
-        date: new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+        likes: [],
+        dislikes: [],
+        likeCount: 0,
+        dislikeCount: 0,
+        date: new Date(),
+        isHidden: false,
       };
 
-      localStorage.setItem("global_product_reviews", JSON.stringify([freshReviewObj, ...globalReviews]));
-    } catch (e) { console.error(e); }
-
-    setOrders([...orders]);
-
-    setTimeout(() => {
-      alert("Thank you! Your review has been submitted successfully.");
-    }, 100);
+      await addDoc(collection(db, "reviews"), reviewPayload);
+      setReviewedOrderIds(prev => new Set([...prev, activeOrderForReview.id]));
+    } catch (err) {
+      console.error("Error submitting review:", err);
+      alert("Failed to submit review. Please try again.");
+    }
   };
 
   const filteredOrders = orders.filter(
@@ -149,12 +220,20 @@ function Orders() {
               </div>
 
               <div className="orders-list-wrapper">
-                {filteredOrders.length > 0 ? (
+                {loading ? (
+                  <div className="text-center py-5">
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <p className="mt-2 text-muted">Loading your orders...</p>
+                  </div>
+                ) : filteredOrders.length > 0 ? (
                   <div className="orders-grid d-flex flex-column gap-3">
                     {filteredOrders.map((order, index) => (
                       <OrderCard 
                         key={`${order.id}-${index}`} 
-                        order={order} 
+                        order={order}
+                        reviewed={reviewedOrderIds.has(order.id)}
                         onReviewClick={() => handleOpenReviewModal(order)} 
                       />
                     ))}

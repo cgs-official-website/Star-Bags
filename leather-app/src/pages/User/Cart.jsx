@@ -72,7 +72,7 @@ const CartPage = () => {
   }, 0);
 
   const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-  const gstTotal = Math.round(subTotal * 0.05);
+  const gstTotal = Math.round(subTotal * 0.18);
   const finalTotal = subTotal + gstTotal;
 
   const handleCheckout = () => {

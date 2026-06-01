@@ -234,6 +234,10 @@ Stores user reviews, comments, and rating reviews for specific products.
 | `customerName` | `string` | Profile name of customer | `"Selva"` |
 | `text` | `string` | Body text of review | `"The Product was quite good... satisfied"` |
 | `rating` | `number` | Numeric rating score (`1` to `5`) | `5` |
+| `likes` | `array` | List of user IDs who liked the review | `["user_12345", "user_12345"]` |
+| `dislikes` | `array` | List of user IDs who disliked the review | `["user_12345", "user_12345"]` |
+| `likeCount` | `number` | Total number of likes | `5` |
+| `dislikeCount` | `number` | Total number of dislikes | `5` |
 | `date` | `timestamp` | Time review was submitted | `Dec 24, 2026 at 12:00:00 AM UTC` |
 | `isHidden` | `boolean` | Toggled by Admin to hide from public product view | `false` |
 

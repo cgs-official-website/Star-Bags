@@ -13,7 +13,7 @@ import PaymentPopup from "../../components/User/PaymentPopup";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
 import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
@@ -77,7 +77,7 @@ const BillAddress = () => {
   const activeCouponDiscount = (activeBaseSubTotal * couponPercentValue) / 100;
 
   const activeCalculatedSubTotal = activeBaseSubTotal - activeCouponDiscount;
-  const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.05);
+  const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.18);
   const activeFinalTotal = activeCalculatedSubTotal + activeGstTotal;
 
   const increaseQty = (id) => {
@@ -152,6 +152,7 @@ const BillAddress = () => {
 
       return {
         id: uniqueOrderId,
+        productId: item.productId || item.id,
         product: item.name,
         category: catToken,
         status: "Order Placed",
@@ -163,10 +164,87 @@ const BillAddress = () => {
         discountedPrice: Number(item.price) * (item.qty || 1),
         originalPrice:
           (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
-        quantity: item.qty || 1,
-        image: item.image || "../src/assets/images/leather1.png",
+        quantity: item.qty ,
+        image: item.image ,
+        brand: item.brand,
+        material: item.material,
+        size: item.size ,
+        subCategory: item.subCategory ,
       };
     });
+
+    // Write orders to Firestore database
+    try {
+      for (const orderPayload of newOrderPayloads) {
+        const detectCategory = (productName) => {
+          const nameLower = productName.toLowerCase();
+          if (nameLower.includes("wallet")) return "Wallet";
+          if (nameLower.includes("belt")) return "Belt";
+          return "Bag";
+        };
+
+        const dbOrderPayload = {
+          id: orderPayload.id,
+          userId: currentUser ? currentUser.uid : "guest",
+          productId: orderPayload.productId,
+          product: orderPayload.product,
+          status: "Order Placed",
+          time: displayDate,
+          rating: orderPayload.rating,
+          reviews: orderPayload.reviews,
+          deliveryDate: orderPayload.deliveryDate,
+          discountedPrice: orderPayload.discountedPrice,
+          originalPrice: orderPayload.originalPrice,
+          quantity: orderPayload.quantity,
+          image: orderPayload.image,
+          brand: orderPayload.brand,
+          material: orderPayload.material,
+          size: orderPayload.size,
+          subCategory: orderPayload.subCategory,
+          
+          // Schema fields for Admin / OrderManagement.jsx
+          items: [
+            {
+              productId: orderPayload.productId,
+              productName: orderPayload.product,
+              img: orderPayload.image,
+              price: orderPayload.discountedPrice / orderPayload.quantity,
+              qty: orderPayload.quantity,
+              category: detectCategory(orderPayload.product),
+              brand: orderPayload.brand,
+              material: orderPayload.material,
+              size: orderPayload.size,
+              subCategory: orderPayload.subCategory
+            }
+          ],
+          customerDetails: {
+            name: selectedAddress?.name || "Customer",
+            shippingAddress: selectedAddress 
+              ? `${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pin}`
+              : "No shipping address details",
+            email: currentUser ? currentUser.email : "guest@starbags.com",
+            mobile: selectedAddress?.mobile || ""
+          },
+          orderDate: new Date().toISOString(), // ISO String representation of order date
+          paymentMode: paymentMethod === "cod" ? "COD" : "Online",
+          paymentDetails: {
+            itemsCount: orderPayload.quantity,
+            itemsTotal: orderPayload.originalPrice,
+            discount: Math.max(0, orderPayload.originalPrice - orderPayload.discountedPrice),
+            subTotal: orderPayload.discountedPrice,
+            gst: Math.round(orderPayload.discountedPrice * 0.18),
+            shippingFee: 0,
+            total: orderPayload.discountedPrice + Math.round(orderPayload.discountedPrice * 0.18)
+          },
+          orderType: "Direct"
+        };
+
+        await setDoc(doc(db, "orders", orderPayload.id), dbOrderPayload);
+        console.log(`Successfully saved order ${orderPayload.id} to Firestore!`);
+      }
+    } catch (dbErr) {
+      console.error("Error saving orders to database:", dbErr);
+    }
 
     // const paymentLabel = 
     //   paymentMethod === "cod" ? "Cash On Delivery" : "Online Payment";

@@ -51,7 +51,7 @@ const OrderSummary = ({
       </div>
       
       <div className="summary-row">
-        <span>GST Include (5%)</span>
+        <span>GST Include (18%)</span>
         <span>
           ₹{typeof gstTotal === "number" ? gstTotal.toFixed(2) : Number(gstTotal).toFixed(2)}
         </span>

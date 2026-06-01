@@ -38,7 +38,7 @@ const CartItem = ({
     const rawTotal = (Number(item.realPrice) || Number(item.price)) * totalItemsCount;
     const subTotal = Number(item.price) * totalItemsCount;
     const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-    const gstTotal = Math.round(subTotal * 0.05);
+    const gstTotal = Math.round(subTotal * 0.18);
     const finalTotal = subTotal + gstTotal;
 
     navigate("/checkout", {

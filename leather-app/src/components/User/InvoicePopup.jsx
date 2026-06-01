@@ -8,7 +8,7 @@ const InvoicePopup = ({ isOpen, onClose, order, userAddress, paymentMethod, item
   if (!isOpen || !order) return null;
 
   const fmt = (n) => "₹" + Number(n).toFixed(2);
-  const gstIncluded = Math.round(finalPrice * 0.05);
+  const gstIncluded = Math.round(finalPrice * 0.18);
 
   return (
     <div 
@@ -123,7 +123,7 @@ const InvoicePopup = ({ isOpen, onClose, order, userAddress, paymentMethod, item
             </div>
 
             <div style={{ display: "flex", justifyContent: "between", alignItems: "center", width: "100%", fontSize: "0.92rem", borderBottom: "1px solid #f1f5f9", paddingBottom: "12px" }}>
-              <span style={{ color: "#334155" }}>GST Include (5%)</span>
+              <span style={{ color: "#334155" }}>GST Include (18%)</span>
               <span style={{ fontWeight: "600", marginLeft: "auto" }}>{fmt(gstIncluded)}</span>
             </div>
 

@@ -7,7 +7,7 @@ import { BiMessageRoundedDetail, BiLike, BiDislike, BiSearch } from 'react-icons
 import { FiRefreshCw, FiTrash2, FiEye, FiEyeOff, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
 import toast, { Toaster } from 'react-hot-toast';
-import { collectionGroup, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 function ReviewManagement() {
@@ -17,23 +17,19 @@ function ReviewManagement() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const querySnapshot = await getDocs(collectionGroup(db, 'reviews'));
+        const querySnapshot = await getDocs(collection(db, 'reviews'));
         const list = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
           list.push({
             id: docSnap.id,
-            productId: docSnap.ref.parent.parent?.id || '',
-            text: data.comment || data.text || '',
-            image: data.productImage || data.image || '',
+            productId: data.productId || '',
+            text: data.text || data.comment || '',
+            image: data.image || data.productImage || '',
             productName: data.productName || '',
-            customerName: data.userName || data.customerName || '',
+            customerName: data.customerName || data.userName || '',
             rating: data.rating || 0,
-            date: data.createdAt
-              ? (data.createdAt.toDate
-                  ? data.createdAt.toDate().toISOString().split('T')[0]
-                  : String(data.createdAt).split('T')[0])
-              : '',
+            date: data.date || data.createdAt || null,
             isHidden: data.isHidden || false,
           });
         });
@@ -75,10 +71,13 @@ function ReviewManagement() {
 
   const confirmDelete = async () => {
     try {
-      const reviewRef = doc(db, 'products', reviews.find(r => r.id === deleteTargetId)?.productId || '_', 'reviews', deleteTargetId);
-      await deleteDoc(reviewRef);
-      setReviews(reviews.filter(r => r.id !== deleteTargetId));
-      toast.success('Review deleted!');
+      const review = reviews.find(r => r.id === deleteTargetId);
+      if (review) {
+        const reviewRef = doc(db, 'reviews', review.id);
+        await deleteDoc(reviewRef);
+        setReviews(reviews.filter(r => r.id !== deleteTargetId));
+        toast.success('Review deleted!');
+      }
     } catch (err) {
       console.error('Error deleting review:', err);
       toast.error('Failed to delete review!');
@@ -92,9 +91,14 @@ function ReviewManagement() {
     if (!review) return;
     const newHidden = !review.isHidden;
     try {
-      const reviewRef = doc(db, 'products', review.productId || '_', 'reviews', id);
+      const reviewRef = doc(db, 'reviews', review.id);
       await updateDoc(reviewRef, { isHidden: newHidden });
       setReviews(reviews.map(r => r.id === id ? { ...r, isHidden: newHidden } : r));
+      if (newHidden) {
+        toast.success('Review hidden — only visible to the reviewer');
+      } else {
+        toast.success('Review is now visible to all users');
+      }
     } catch (err) {
       console.error('Error toggling review visibility:', err);
       toast.error('Failed to update review!');
@@ -103,7 +107,16 @@ function ReviewManagement() {
 
   const filteredReviews = reviews.filter((review) => {
     if (searchQuery && !review.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (dateFilter && review.date !== dateFilter) return false;
+    
+    // Date filter helper matching
+    let reviewDateStr = "";
+    if (review.date) {
+      const d = review.date.toDate ? review.date.toDate() : new Date(review.date);
+      if (!isNaN(d.getTime())) {
+        reviewDateStr = d.toISOString().split('T')[0];
+      }
+    }
+    if (dateFilter && reviewDateStr !== dateFilter) return false;
     if (ratingFilter && review.rating.toString() !== ratingFilter) return false;
     return true;
   });
@@ -115,6 +128,17 @@ function ReviewManagement() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const formatDate = (dateVal) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+      if (isNaN(d.getTime())) return "N/A";
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/');
+    } catch (e) {
+      return "N/A";
     }
   };
 
@@ -272,7 +296,7 @@ function ReviewManagement() {
                       </div>
                     </td>
                     <td>
-                      {new Date(review.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/')}
+                      {formatDate(review.date)}
                     </td>
                     <td>
                       <div className="rm-action-btn-group">
