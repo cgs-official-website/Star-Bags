@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -51,6 +51,8 @@ export const ProductsProvider = ({ children }) => {
   const [reviewsMap, setReviewsMap]   = useState({});
   const [loading, setLoading]       = useState(true);
   const [error, setError]           = useState(null);
+  // Tracks whether the first Firestore snapshot has arrived
+  const snapshotReceived = useRef(false);
 
   // 1. Listen to products in real-time
   useEffect(() => {
@@ -62,6 +64,7 @@ export const ProductsProvider = ({ children }) => {
           docId: doc.id,
           data: doc.data(),
         }));
+        snapshotReceived.current = true;
         setRawProducts(docs);
         setError(null);
       },
@@ -104,6 +107,9 @@ export const ProductsProvider = ({ children }) => {
 
   // 3. Combine raw products and dynamic reviews
   useEffect(() => {
+    // Don't resolve loading until the first Firestore snapshot has arrived
+    if (!snapshotReceived.current) return;
+
     if (rawProducts.length === 0) {
       setProducts([]);
       setLoading(false);

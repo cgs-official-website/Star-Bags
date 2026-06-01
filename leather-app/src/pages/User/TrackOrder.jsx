@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
-import InvoicePopup from "../../components/User/InvoicePopup"; 
+import { generateInvoicePDF } from "../../utils/generateInvoicePDF";
 import "../../assets/styles/TrackOrder.css";
 import {
   FaStar,
@@ -62,7 +62,6 @@ function TrackOrder() {
   const [modalOpen, setModalOpen] = useState(false);
   const [modalRating, setModalRating] = useState(5);
   const [reviewed, setReviewed] = useState(false);
-  const [invoicePopupOpen, setInvoicePopupOpen] = useState(false);
 
   // Check Firestore if this order was already reviewed by the user
   useEffect(() => {
@@ -222,12 +221,12 @@ function TrackOrder() {
       <Navbar />
 
       <div className="container to-page py-4">
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4 to-header-row">
           <h4 className="to-page-title m-0 fw-bold">
             Track Order ID: <span style={{ color: "#8b5cf6" }}>{order.id}</span>
           </h4>
           <button
-            className="btn btn-sm btn-outline-secondary fw-bold px-3"
+            className="btn btn-sm btn-outline-secondary fw-bold px-3 to-back-btn"
             onClick={() => navigate("/orders")}
             style={{ borderRadius: "6px" }}
           >
@@ -239,16 +238,23 @@ function TrackOrder() {
           <div className="to-left">
             
             {/* PRODUCT SPEC DETAIL VIEW BLOCK */}
-            <div className="to-card to-product-card border rounded-3 p-4 bg-white shadow-sm">
-              <div className="to-product-info d-flex align-items-center gap-3">
+            <div className="to-card to-product-card border bg-white">
+              <div className="to-product-info d-flex gap-3">
                 <img
                   src={order.image || "../src/assets/images/leather1.png"}
                   alt={order.product}
                   className="to-product-img rounded"
-                  style={{ width: "90px", height: "90px", objectFit: "cover", border: "1px solid #f1f5f9" }}
+                  style={{ objectFit: "cover", border: "1px solid #f1f5f9" }}
                 />
                 <div className="to-product-details flex-grow-1">
-                  <h6 className="to-product-name fw-bold mb-1 text-dark" style={{ fontSize: "1.1rem" }}>{order.product}</h6>
+                  <div className="to-product-title-row">
+                    <h6 className="to-product-name fw-bold mb-1 text-dark" style={{ fontSize: "1.1rem" }}>{order.product}</h6>
+                    {matchedProduct && (
+                      <div className="to-product-rating-badge badge bg-light text-dark border p-2 d-flex align-items-center gap-1" style={{ height: "fit-content", fontWeight: "700" }}>
+                        <FaStar style={{ color: "#f59e0b" }} /> {Number(matchedProduct.rating || 0).toFixed(1)}
+                      </div>
+                    )}
+                  </div>
                   <p className="to-product-sub text-muted small mb-2">Premium Crafted Edition</p>
                   <div className="to-product-price-row d-flex align-items-baseline gap-2 mb-2">
                     <span className="to-product-price fw-bold text-dark" style={{ fontSize: "1.15rem" }}>₹{finalPrice}</span>
@@ -260,16 +266,11 @@ function TrackOrder() {
                     Qty: {order.quantity || 1} &nbsp;|&nbsp; Date: {order.time}
                   </p>
                 </div>
-                {matchedProduct && (
-                  <div className="to-product-rating-badge badge bg-light text-dark border p-2 d-flex align-items-center gap-1" style={{ height: "fit-content", fontWeight: "700" }}>
-                    <FaStar style={{ color: "#f59e0b" }} /> {Number(matchedProduct.rating || 0).toFixed(1)}
-                  </div>
-                )}
               </div>
             </div>
 
             {/* LIVE DYNAMIC TIMELINE STATUS PROGRESS CARD */}
-            <div className="to-card border rounded-3 p-4 bg-white shadow-sm">
+            <div className="to-card border bg-white">
               <h6 className="to-section-title fw-bold mb-4 text-dark" style={{ fontSize: "1rem" }}>Order tracking status</h6>
               <div className="to-timeline d-flex flex-column gap-3">
                 {activeOrderSteps.map((step, idx) => (
@@ -296,7 +297,7 @@ function TrackOrder() {
 
             {/* RATINGS CAPTURE SYSTEM BLOCK */}
             <div
-              className="to-card to-rating-card border rounded-3 p-4 bg-white shadow-sm d-flex justify-content-between align-items-center"
+              className="to-card to-rating-card border bg-white d-flex justify-content-between align-items-center"
               onClick={() => order.status === "Delivered" && !reviewed && setModalOpen(true)}
               style={{ cursor: order.status === "Delivered" && !reviewed ? "pointer" : "default" }}
             >
@@ -333,7 +334,7 @@ function TrackOrder() {
           <div className="to-right d-flex flex-column gap-3">
             
             {/* REAL USER DELIVERED ADDRESS CARDS HOOK MAPPING */}
-            <div className="to-card border rounded-3 p-4 bg-white shadow-sm">
+            <div className="to-card border bg-white">
               <h6 className="to-section-title fw-bold mb-3 text-dark">Address Profile Customer</h6>
               <div className="to-address-block">
                 <p className="to-address-sub-title fw-bold text-secondary small mb-2 d-flex align-items-center gap-1">
@@ -373,7 +374,7 @@ function TrackOrder() {
             </div>
 
             {/* LIVE PRICE ANALYSIS MATRIX COMPLIANT TRADING CARD LEDGER */}
-            <div className="to-card border rounded-3 p-4 bg-white shadow-sm">
+            <div className="to-card border bg-white">
               <h6 className="to-section-title fw-bold mb-3 text-dark">Order Pricing Invoice Summary</h6>
               <div className="to-summary-table d-flex flex-column gap-2">
                 <div className="to-summary-row d-flex justify-content-between text-secondary small">
@@ -404,7 +405,15 @@ function TrackOrder() {
               <button
                 className="to-invoice-btn btn w-100 text-white mt-4 fw-bold d-flex align-items-center justify-content-center"
                 style={{ backgroundColor: "#8b5cf6", gap: "6px", height: "44px", borderRadius: "8px" }}
-                onClick={() => setInvoicePopupOpen(true)}
+                onClick={() =>
+                  generateInvoicePDF({
+                    order,
+                    userAddress: placedDeliveryAddress,
+                    itemsPrice,
+                    savings,
+                    finalPrice,
+                  })
+                }
               >
                 <IoReceiptOutline style={{ fontSize: "1.15rem" }} /> Download Invoice
               </button>
@@ -418,17 +427,7 @@ function TrackOrder() {
         </section>
       </div>
 
-      {/* DYNAMIC PIPING INVOICE POPUP TERMINAL SCREEN */}
-      <InvoicePopup 
-        isOpen={invoicePopupOpen}
-        onClose={() => setInvoicePopupOpen(false)}
-        order={order}
-        userAddress={placedDeliveryAddress}
-        paymentMethod={placedPaymentMethod}
-        itemsPrice={itemsPrice}
-        savings={savings}
-        finalPrice={finalPrice}
-      />
+
 
       <Footer />
     </div>

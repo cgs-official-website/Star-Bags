@@ -3,6 +3,7 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import "../../assets/styles/Profile.css";
+import "../../assets/styles/Skeleton.css";
 import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
 import { useAuth } from "../../context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
@@ -113,8 +114,24 @@ function Profile() {
             <ProfileSideNav />
           </div>
           <div className="col-lg-8 col-md-7">
-            <div className="profile-details-card">
-              <div className="d-flex justify-content-between align-items-center mb-2">
+            {loading ? (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '120px', height: '24px' }} />
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '100px', height: '36px', borderRadius: '6px' }} />
+                </div>
+                <div className="d-flex flex-column gap-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="d-flex flex-column gap-2">
+                      <div className="skeleton-shimmer skeleton-block" style={{ width: '80px', height: '14px' }} />
+                      <div className="skeleton-shimmer skeleton-block" style={{ height: '42px', borderRadius: '6px' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-2">
                 <h4 className="fw-bold mb-0">Profile</h4>
 
                 {!isEditing ? (
@@ -198,7 +215,8 @@ function Profile() {
                   />
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -32,15 +32,58 @@ export const WishlistProvider = ({ children }) => {
         try {
           await currentUser.getIdToken(true);
           const querySnapshot = await getDocs(collection(db, `users/${currentUser.uid}/wishlist`));
-          setWishlist(querySnapshot.docs.map(d => ({ ...d.data(), firestoreId: d.id })));
+          const rawDocs = querySnapshot.docs.map(d => ({ ...d.data(), firestoreId: d.id }));
+          
+          const uniqueItems = [];
+          const seen = new Set();
+          for (const item of rawDocs) {
+            const key = `${item.name}-${item.price}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              uniqueItems.push(item);
+            } else {
+              // Self-clean: delete the duplicate document from Firestore in the background
+              deleteDoc(doc(db, `users/${currentUser.uid}/wishlist`, item.firestoreId))
+                .catch(err => console.error("Error cleaning up duplicate wishlist item:", err));
+            }
+          }
+          setWishlist(uniqueItems);
         } catch (err) {
           console.error("Error loading wishlist from Firestore:", err);
           const saved = localStorage.getItem("user_wishlist");
-          setWishlist(saved ? JSON.parse(saved) : []);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            const uniqueItems = [];
+            const seen = new Set();
+            for (const item of parsed) {
+              const key = `${item.name}-${item.price}`;
+              if (!seen.has(key)) {
+                seen.add(key);
+                uniqueItems.push(item);
+              }
+            }
+            setWishlist(uniqueItems);
+          } else {
+            setWishlist([]);
+          }
         }
       } else {
         const saved = localStorage.getItem("user_wishlist");
-        setWishlist(saved ? JSON.parse(saved) : []);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          const uniqueItems = [];
+          const seen = new Set();
+          for (const item of parsed) {
+            const key = `${item.name}-${item.price}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              uniqueItems.push(item);
+            }
+          }
+          setWishlist(uniqueItems);
+        } else {
+          setWishlist([]);
+        }
       }
       setWishlistLoading(false);
     };
@@ -70,19 +113,34 @@ export const WishlistProvider = ({ children }) => {
     const exists = wishlist.find((item) => item.name === product.name && Number(item.price) === Number(product.price));
     
     if (exists) {
-      if (currentUser && exists.firestoreId) {
-        await deleteDoc(doc(db, `users/${currentUser.uid}/wishlist`, exists.firestoreId));
+      // Remove all matching items (in case duplicates somehow exist)
+      const matches = wishlist.filter((item) => item.name === product.name && Number(item.price) === Number(product.price));
+      if (currentUser) {
+        for (const match of matches) {
+          if (match.firestoreId) {
+            await deleteDoc(doc(db, `users/${currentUser.uid}/wishlist`, match.firestoreId));
+          }
+        }
       }
       setWishlist((prev) => prev.filter((item) => !(item.name === product.name && Number(item.price) === Number(product.price))));
       showNotification(`Removed "${product.name}" from Wishlist`, "info");
     } else {
-      const newItem = { ...product, id: product.id || Date.now() + Math.random() };
+      // Ensure we don't have duplicates by using a deterministic Firestore doc ID
+      const safeId = String(product.id || product.productId || Date.now() + Math.random());
+      const docId = String(product.name).replace(/[^a-zA-Z0-9-_]/g, "_") + "_" + safeId.substring(0, 8);
+      
+      const newItem = { ...product, id: product.id || safeId };
       if (currentUser) {
-        const docRef = doc(collection(db, `users/${currentUser.uid}/wishlist`));
+        const docRef = doc(db, `users/${currentUser.uid}/wishlist`, docId);
         await setDoc(docRef, newItem);
-        newItem.firestoreId = docRef.id;
+        newItem.firestoreId = docId;
       }
-      setWishlist((prev) => [...prev, newItem]);
+      
+      setWishlist((prev) => {
+        const alreadyIn = prev.some((item) => item.name === product.name && Number(item.price) === Number(product.price));
+        if (alreadyIn) return prev;
+        return [...prev, newItem];
+      });
       showNotification(`Added "${product.name}" to Wishlist!`, "success");
     }
   };

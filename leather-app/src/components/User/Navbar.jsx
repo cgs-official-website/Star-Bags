@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MdOutlineShoppingCart, MdOutlineRateReview } from "react-icons/md";
 import { FaUserCircle, FaRegUserCircle, FaRegHeart } from "react-icons/fa";
-import { FiBox, FiLogOut } from "react-icons/fi";
+import { FiBox, FiLogOut, FiUser } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { BsSun } from "react-icons/bs";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
@@ -126,12 +126,12 @@ const Navbar = () => {
               to="/profile" 
               className="icon-btn d-none d-lg-flex p-0 align-items-center justify-content-center" 
               aria-label="My Profile Page Link"
-              style={{ overflow: 'hidden', width: '30px', height: '30px', borderRadius: '50%' }}
+              style={{ overflow: 'hidden' }}
             >
               {userData?.photo ? (
                 <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               ) : (
-                <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+                <FiUser />
               )}
             </NavLink>
           ) : (
@@ -156,12 +156,12 @@ const Navbar = () => {
                   aria-expanded="false"
                   aria-label="User contextual menu"
                   onClick={closeMenu}
-                  style={{ overflow: 'hidden', width: '28px', height: '28px', borderRadius: '50%' }}
+                  style={{ overflow: 'hidden' }}
                 >
                   {userData?.photo ? (
                     <img src={userData.photo} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   ) : (
-                    <FaRegUserCircle style={{ width: '100%', height: '100%' }} />
+                    <FiUser />
                   )}
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end shadow-sm user-dropdown-menu">
@@ -172,7 +172,7 @@ const Navbar = () => {
                           <img src={userData.photo} alt="Profile Icon" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                         </div>
                       ) : (
-                        <FaRegUserCircle className="profile-item-icon" />
+                        <FiUser className="profile-item-icon" />
                       )}
                       My profile
                     </NavLink>

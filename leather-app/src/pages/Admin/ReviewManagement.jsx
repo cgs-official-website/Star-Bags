@@ -49,10 +49,20 @@ function ReviewManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(6);
 
-  // Stats calculation
-  const totalReviews = reviews.length;
-  const positiveReviews = reviews.filter(r => r.rating >= 4).length;
-  const negativeReviews = reviews.filter(r => r.rating <= 2).length;
+  // Stats calculation (Last 30 Days)
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const reviewsLast30Days = reviews.filter(r => {
+    if (!r.date) return false;
+    const d = r.date.toDate ? r.date.toDate() : new Date(r.date);
+    return !isNaN(d.getTime()) && d >= thirtyDaysAgo;
+  });
+
+  const totalReviewsLast30Days = reviewsLast30Days.length;
+  const positiveReviewsLast30Days = reviewsLast30Days.filter(r => r.rating >= 4).length;
+  const negativeReviewsLast30Days = reviewsLast30Days.filter(r => r.rating <= 2).length;
 
   const handleResetFilter = () => {
     setSearchQuery('');
@@ -154,7 +164,7 @@ function ReviewManagement() {
     <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-main">
-        <AdminHeader title="Review management" />
+        <AdminHeader title="Review Management" subtitle="Showing feedback and review statistics for the last 30 days." />
         
         <div className="admin-content rm-content">
           {loading ? (
@@ -169,49 +179,49 @@ function ReviewManagement() {
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Total reviews</span>
-                  <span className="rm-stat-value">{totalReviews}</span>
+                  <span className="rm-stat-label">Total reviews (30 Days)</span>
+                  <span className="rm-stat-value">{totalReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon purple">
                   <BiMessageRoundedDetail />
                 </div>
               </div>
               <div className="rm-stat-bottom rm-stat-up">
-                <FiArrowUpRight style={{ fontSize: '16px' }} /> {totalReviews} total reviews
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> {totalReviewsLast30Days} new reviews
               </div>
             </div>
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Positive reviews</span>
-                  <span className="rm-stat-value">{positiveReviews}</span>
+                  <span className="rm-stat-label">Positive reviews (30 Days)</span>
+                  <span className="rm-stat-value">{positiveReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon green">
                   <BiLike />
                 </div>
               </div>
-              <div className={positiveReviews > negativeReviews ? "rm-stat-bottom rm-stat-up" : "rm-stat-bottom rm-stat-down"}>
-                {positiveReviews > negativeReviews
+              <div className={positiveReviewsLast30Days > negativeReviewsLast30Days ? "rm-stat-bottom rm-stat-up" : "rm-stat-bottom rm-stat-down"}>
+                {positiveReviewsLast30Days > negativeReviewsLast30Days
                   ? <FiArrowUpRight style={{ fontSize: '16px' }} />
                   : <FiArrowDownRight style={{ fontSize: '16px' }} />}
-                {' '}{totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0}% Positive rate
+                {' '}{totalReviewsLast30Days > 0 ? Math.round((positiveReviewsLast30Days / totalReviewsLast30Days) * 100) : 0}% Positive rate
               </div>
             </div>
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Negative Reviews</span>
-                  <span className="rm-stat-value">{negativeReviews}</span>
+                  <span className="rm-stat-label">Negative Reviews (30 Days)</span>
+                  <span className="rm-stat-value">{negativeReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon red">
                   <BiDislike />
                 </div>
               </div>
-              <div className={negativeReviews > 0 ? "rm-stat-bottom rm-stat-down" : "rm-stat-bottom rm-stat-up"}>
-                {negativeReviews > 0
+              <div className={negativeReviewsLast30Days > 0 ? "rm-stat-bottom rm-stat-down" : "rm-stat-bottom rm-stat-up"}>
+                {negativeReviewsLast30Days > 0
                   ? <FiArrowDownRight style={{ fontSize: '16px' }} />
                   : <FiArrowUpRight style={{ fontSize: '16px' }} />}
-                {' '}{totalReviews > 0 ? Math.round((negativeReviews / totalReviews) * 100) : 0}% Negative rate
+                {' '}{totalReviewsLast30Days > 0 ? Math.round((negativeReviewsLast30Days / totalReviewsLast30Days) * 100) : 0}% Negative rate
               </div>
             </div>
           </div>
