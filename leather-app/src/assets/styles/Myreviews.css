@@ -1,38 +1,29 @@
 /* ==========================================================
-   REVIEWS PAGE
+   MAIN CARD STYLES - Matching Profile Component
    ========================================================== */
 
-.reviews-page-app-wrapper {
-  background-color: #f8fafc;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.reviews-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  flex: 1;
-}
-
-.reviews-card {
-  background: #ffffff;
-  border-radius: 12px;
+.profile-details-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
   padding: 24px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  background: #fff;
 }
 
+/* Reviews Header */
 .reviews-header {
   border-bottom: 1px solid #f1f5f9;
   padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.reviews-header h4 {
+  font-size: 1.25rem;
+  margin-bottom: 5px;
+  color: #333;
 }
 
 .reviews-subtitle {
-  font-size: 13px;
+  font-size: 0.85rem;
   color: #64748b;
   margin: 0;
 }
@@ -48,13 +39,13 @@
 .reviews-scroll-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
   max-height: 550px;
   overflow-y: auto;
   padding-right: 8px;
   /* Hide scrollbar but keep functionality */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -78,8 +69,12 @@
 }
 
 @keyframes backdropFade {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .rv-modal {
@@ -98,8 +93,14 @@
 }
 
 @keyframes modalSlide {
-  from { opacity: 0; transform: translateY(16px) scale(0.98); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .rv-modal-header {
@@ -166,7 +167,7 @@
 }
 
 .rv-star-btn.filled {
-  color: #FFC107;
+  color: #ffc107;
 }
 
 .rv-star-btn:hover {
@@ -280,17 +281,18 @@
   text-align: center;
   border-radius: 16px;
   border: 1px solid #e2e8f0;
+  background: #fafafa;
 }
 
 .reviews-empty-heading {
-  font-size: 24px;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #0f172a;
   margin: 0 0 0.5rem 0;
 }
 
 .reviews-empty-sub {
-  font-size: 14px;
+  font-size: 0.85rem;
   color: #64748b;
   margin: 0;
 }
@@ -300,28 +302,19 @@
    ========================================================== */
 
 @media (max-width: 991px) {
-  .sidebar-column-view {
-    display: none !important;
-  }
-
-  .list-column-view {
-    width: 100%;
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-
-  .reviews-card {
-    padding: 16px;
+  .profile-details-card {
+    padding: 20px;
   }
 }
 
-@media (max-width: 767px) {
-  .reviews-scroll-list {
-    max-height: 450px;
+@media (max-width: 768px) {
+  .profile-details-card {
+    padding: 16px;
   }
 
-  .reviews-card {
-    padding: 14px;
+  .reviews-scroll-list {
+    max-height: 450px;
+    gap: 12px;
   }
 
   .rv-modal {
@@ -333,6 +326,10 @@
   .rv-modal-footer {
     padding-left: 16px;
     padding-right: 16px;
+  }
+
+  .reviews-empty-container {
+    padding: 2rem 1rem;
   }
 }
 

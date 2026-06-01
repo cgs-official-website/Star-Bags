@@ -24,6 +24,7 @@
 
 /* Central Dashboard Card Container - matching saved-address-card */
 .orders-card {
+  padding: 24px;
   background: #fff;
   border-radius: 14px;
   padding: 24px 28px;
@@ -32,6 +33,11 @@
   flex-direction: column;
   gap: 20px;
   border: 1px solid #ececec;
+}
+.orders-purchase-history-text{
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
 }
 
 /* Search Bar Styling */
