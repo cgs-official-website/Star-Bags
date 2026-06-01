@@ -11,6 +11,8 @@ import { useProducts } from '../../context/ProductsContext';
 import SearchModal from '../User/SearchModal';
 import '../../assets/styles/Navbar.css';
 import { useAuth } from '../../context/AuthContext';
+import brandLogoLight from '../../assets/images/brand-logo-light.png';
+import brandLogoDark from '../../assets/images/brand-logo-dark.png';
 
 const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
@@ -76,9 +78,14 @@ const Navbar = () => {
         <div className="nav-logo-wrap">
           <NavLink to="/" onClick={closeMenu}>
             <img
-              src="/src/assets/images/brand-logo-light.png"
+              src={brandLogoLight}
               alt="Brand Logo"
-              className="logo"
+              className="logo logo-light"
+            />
+            <img
+              src={brandLogoDark}
+              alt="Brand Logo"
+              className="logo logo-dark"
             />
           </NavLink>
         </div>
@@ -203,7 +210,7 @@ const Navbar = () => {
                       <div className="d-flex align-items-center gap-2">
                         <BsSun className="profile-item-icon" /> Dark Theme
                       </div>
-                      <div className="form-check form-switch m-0">
+                      <div className="form-check form-switch dark-theme-switch m-0">
                         <input className="form-check-input" type="checkbox" role="switch" />
                       </div>
                     </div>

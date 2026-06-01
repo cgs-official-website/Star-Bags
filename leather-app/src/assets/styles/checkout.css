@@ -158,3 +158,35 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+body.dark-theme .empty-address-viewport,
+[data-theme="dark"] .empty-address-viewport,
+body.dark-theme .address-popup-modal-box,
+[data-theme="dark"] .address-popup-modal-box,
+body.dark-theme .popup-address-item-card,
+[data-theme="dark"] .popup-address-item-card,
+body.dark-theme .popup-address-item-card.active-selected-card,
+[data-theme="dark"] .popup-address-item-card.active-selected-card {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .popup-address-item-card:hover,
+[data-theme="dark"] .popup-address-item-card:hover {
+  background: rgba(139, 92, 246, 0.08) !important;
+}
+
+body.dark-theme .popup-add-new-address-btn,
+[data-theme="dark"] .popup-add-new-address-btn,
+body.dark-theme .add-delivery-trigger-btn,
+[data-theme="dark"] .add-delivery-trigger-btn {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .add-delivery-trigger-btn:hover,
+[data-theme="dark"] .add-delivery-trigger-btn:hover {
+  background-color: var(--button-bg-hover) !important;
+}

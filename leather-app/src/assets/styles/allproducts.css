@@ -308,6 +308,64 @@
   to { transform: translateY(0); }
 }
 
+body.dark-theme .all-products-page,
+[data-theme="dark"] .all-products-page {
+  background: var(--surface);
+  color: var(--text);
+}
+
+body.dark-theme .all-products-sidebar,
+[data-theme="dark"] .all-products-sidebar,
+body.dark-theme .filter-drawer,
+[data-theme="dark"] .filter-drawer {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+body.dark-theme .all-products-topbar,
+[data-theme="dark"] .all-products-topbar {
+  border-color: var(--border);
+}
+
+body.dark-theme .all-products-title,
+[data-theme="dark"] .all-products-title,
+body.dark-theme .filter-toggle-btn,
+[data-theme="dark"] .filter-toggle-btn,
+body.dark-theme .sort-by-select select,
+[data-theme="dark"] .sort-by-select select {
+  color: var(--text);
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+body.dark-theme .filter-toggle-btn:hover,
+[data-theme="dark"] .filter-toggle-btn:hover {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--border);
+}
+
+body.dark-theme .all-products-grid .ProductCard-section .container .card,
+[data-theme="dark"] .all-products-grid .ProductCard-section .container .card {
+  background: var(--surface-alt);
+  border-color: var(--border);
+}
+
+body.dark-theme .no-results-banner,
+[data-theme="dark"] .no-results-banner {
+  background-color: rgba(253, 224, 71, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f8c231;
+}
+
+body.dark-theme .filter-drawer-header,
+[data-theme="dark"] .filter-drawer-header,
+body.dark-theme .filter-drawer-close,
+[data-theme="dark"] .filter-drawer-close,
+body.dark-theme .filter-drawer-body,
+[data-theme="dark"] .filter-drawer-body {
+  color: var(--text);
+}
+
 /* ════════════════════════════════════════
    DESKTOP LARGE (1440px+) - 5 columns
 ════════════════════════════════════════ */
@@ -644,10 +702,9 @@
     max-height: 90vh;
   }
 }
-/* 
 /* ════════════════════════════════════════
    DARK THEME SUPPORT
-════════════════════════════════════════ 
+════════════════════════════════════════ */
 body.dark-theme .all-products-page,
 [data-theme="dark"] .all-products-page {
   background-color: #0f1218;
@@ -682,4 +739,14 @@ body.dark-theme .all-products-sidebar,
 [data-theme="dark"] .all-products-sidebar {
   background: #1e293b;
   border-color: #334155;
-} */
+}
+
+body.dark-theme .filter-drawer-title,
+[data-theme="dark"] .filter-drawer-title {
+  color: var(--text) !important;
+}
+
+body.dark-theme .filter-drawer-close:hover,
+[data-theme="dark"] .filter-drawer-close:hover {
+  background: var(--hover-soft) !important;
+}

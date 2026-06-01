@@ -78,6 +78,53 @@
   padding: 0.85rem 0.9rem 1rem;
 }
 
+body.dark-theme .wl-card,
+[data-theme="dark"] .wl-card,
+body.dark-theme .wl-img-wrap,
+[data-theme="dark"] .wl-img-wrap,
+body.dark-theme .wl-card-body,
+[data-theme="dark"] .wl-card-body,
+body.dark-theme .wl-empty-container,
+[data-theme="dark"] .wl-empty-container {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .wl-heart-btn,
+[data-theme="dark"] .wl-heart-btn,
+body.dark-theme .wl-cart-btn,
+[data-theme="dark"] .wl-cart-btn {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .wl-name,
+[data-theme="dark"] .wl-name,
+body.dark-theme .wl-rating,
+[data-theme="dark"] .wl-rating,
+body.dark-theme .wl-price,
+[data-theme="dark"] .wl-price,
+body.dark-theme .wl-real-price,
+[data-theme="dark"] .wl-real-price,
+body.dark-theme .wl-offer,
+[data-theme="dark"] .wl-offer,
+body.dark-theme .wl-empty-heading,
+[data-theme="dark"] .wl-empty-heading,
+body.dark-theme .wl-empty-sub,
+[data-theme="dark"] .wl-empty-sub {
+  color: var(--text) !important;
+}
+
+body.dark-theme .wl-buy-btn,
+[data-theme="dark"] .wl-buy-btn,
+body.dark-theme .wl-empty-shop-btn,
+[data-theme="dark"] .wl-empty-shop-btn {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+}
+
 /* Title + rating row */
 .wl-title-row {
   display: flex;

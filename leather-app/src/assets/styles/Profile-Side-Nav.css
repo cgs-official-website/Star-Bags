@@ -107,3 +107,81 @@
     box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
     border-color: var(--levender, #8B5CF6);
 }
+
+body.dark-theme .profile-sidebar-card,
+[data-theme="dark"] .profile-sidebar-card,
+body.dark-theme .profile-menu-link,
+[data-theme="dark"] .profile-menu-link,
+body.dark-theme .profile-menu-link.active,
+[data-theme="dark"] .profile-menu-link.active,
+body.dark-theme .theme-toggle-item,
+[data-theme="dark"] .theme-toggle-item,
+body.dark-theme .logout-btn,
+[data-theme="dark"] .logout-btn {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .profile-menu-link,
+[data-theme="dark"] .profile-menu-link {
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .profile-menu-link:hover,
+[data-theme="dark"] .profile-menu-link:hover {
+  border-color: var(--button-bg) !important;
+  color: var(--button-bg) !important;
+}
+
+body.dark-theme .menu-icon,
+[data-theme="dark"] .menu-icon {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .avatar-add-icon,
+[data-theme="dark"] .avatar-add-icon {
+  color: var(--text) !important;
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .form-check-input:checked,
+[data-theme="dark"] .form-check-input:checked {
+  background-color: var(--button-bg) !important;
+  border-color: var(--button-bg) !important;
+}
+
+.dark-theme-switch .form-check-input {
+  width: 44px;
+  height: 24px;
+  margin-top: 0;
+  cursor: pointer;
+}
+
+body.dark-theme .dark-theme-switch .form-check-input,
+[data-theme="dark"] .dark-theme-switch .form-check-input {
+  background-color: #182033 !important;
+  border: 1px solid rgba(148, 163, 184, 0.6) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbd5e1'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+  box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.65);
+}
+
+body.dark-theme .dark-theme-switch .form-check-input:checked,
+[data-theme="dark"] .dark-theme-switch .form-check-input:checked {
+  background-color: #8b5cf6 !important;
+  border-color: #a78bfa !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.24), inset 0 1px 2px rgba(2, 6, 23, 0.45);
+}
+
+body.dark-theme .dark-theme-switch .form-check-input:focus,
+[data-theme="dark"] .dark-theme-switch .form-check-input:focus {
+  border-color: #c4b5fd !important;
+  box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.28) !important;
+}
+

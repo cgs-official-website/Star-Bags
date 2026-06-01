@@ -732,3 +732,90 @@
     height: 65px;
   }
 }
+
+body.dark-theme .to-page,
+[data-theme="dark"] .to-page {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .to-card,
+[data-theme="dark"] .to-card,
+body.dark-theme .to-sug-card,
+[data-theme="dark"] .to-sug-card,
+body.dark-theme .to-sug-img-wrap,
+[data-theme="dark"] .to-sug-img-wrap {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .to-page-title,
+[data-theme="dark"] .to-page-title,
+body.dark-theme .to-section-title,
+[data-theme="dark"] .to-section-title,
+body.dark-theme .to-product-name,
+[data-theme="dark"] .to-product-name,
+body.dark-theme .to-product-price,
+[data-theme="dark"] .to-product-price,
+body.dark-theme .to-product-rating-badge,
+[data-theme="dark"] .to-product-rating-badge,
+body.dark-theme .to-step-label,
+[data-theme="dark"] .to-step-label,
+body.dark-theme .to-otp-label,
+[data-theme="dark"] .to-otp-label,
+body.dark-theme .to-rating-prompt,
+[data-theme="dark"] .to-rating-prompt,
+body.dark-theme .to-address-sub-title,
+[data-theme="dark"] .to-address-sub-title,
+body.dark-theme .to-addr-name,
+[data-theme="dark"] .to-addr-name,
+body.dark-theme .to-sug-heading,
+[data-theme="dark"] .to-sug-heading,
+body.dark-theme .to-sug-name,
+[data-theme="dark"] .to-sug-name,
+body.dark-theme .to-sug-rating,
+[data-theme="dark"] .to-sug-rating,
+body.dark-theme .to-sug-price,
+[data-theme="dark"] .to-sug-price {
+  color: var(--text) !important;
+}
+
+body.dark-theme .to-product-sub,
+[data-theme="dark"] .to-product-sub,
+body.dark-theme .to-product-real,
+[data-theme="dark"] .to-product-real,
+body.dark-theme .to-product-qty,
+[data-theme="dark"] .to-product-qty,
+body.dark-theme .to-step-date,
+[data-theme="dark"] .to-step-date,
+body.dark-theme .to-step-desc,
+[data-theme="dark"] .to-step-desc,
+body.dark-theme .to-otp-hint,
+[data-theme="dark"] .to-otp-hint,
+body.dark-theme .to-rating-submitted-text,
+[data-theme="dark"] .to-rating-submitted-text,
+body.dark-theme .to-addr-line,
+[data-theme="dark"] .to-addr-line,
+body.dark-theme .to-summary-row,
+[data-theme="dark"] .to-summary-row,
+body.dark-theme .to-sug-subheading,
+[data-theme="dark"] .to-sug-subheading,
+body.dark-theme .to-sug-real,
+[data-theme="dark"] .to-sug-real,
+body.dark-theme .to-sug-count,
+[data-theme="dark"] .to-sug-count {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .to-otp-input,
+[data-theme="dark"] .to-otp-input {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--input-border) !important;
+}
+
+body.dark-theme .to-divider,
+[data-theme="dark"] .to-divider {
+  border-color: var(--border) !important;
+}

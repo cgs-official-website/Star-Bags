@@ -715,3 +715,179 @@
     opacity: 1;
   }
 }
+
+/* ════════════════════════════════════════
+   DARK THEME — Cart Page
+════════════════════════════════════════ */
+body.dark-theme .cart-page,
+[data-theme="dark"] .cart-page {
+  background: var(--surface);
+}
+
+body.dark-theme .back-navigation-btn,
+[data-theme="dark"] .back-navigation-btn {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .back-navigation-btn:hover,
+[data-theme="dark"] .back-navigation-btn:hover {
+  color: var(--text);
+}
+
+body.dark-theme .cart-image-wrapper,
+[data-theme="dark"] .cart-image-wrapper {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+body.dark-theme .cart-product-name,
+[data-theme="dark"] .cart-product-name {
+  color: var(--text);
+}
+
+body.dark-theme .current-price,
+[data-theme="dark"] .current-price {
+  color: var(--text);
+}
+
+body.dark-theme .old-price,
+[data-theme="dark"] .old-price {
+  color: var(--text-muted);
+}
+
+body.dark-theme .rating-box,
+[data-theme="dark"] .rating-box {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .rating-count,
+[data-theme="dark"] .rating-count {
+  color: var(--text-muted);
+}
+
+body.dark-theme .pattern-text,
+[data-theme="dark"] .pattern-text {
+  color: var(--text-muted);
+}
+
+body.dark-theme .cod-box,
+[data-theme="dark"] .cod-box {
+  color: var(--text-muted);
+}
+
+body.dark-theme .qty-box,
+[data-theme="dark"] .qty-box {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+body.dark-theme .qty-btn,
+[data-theme="dark"] .qty-btn {
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+}
+
+body.dark-theme .qty-btn:hover,
+[data-theme="dark"] .qty-btn:hover {
+  background: var(--surface-strong);
+}
+
+body.dark-theme .qty-number,
+[data-theme="dark"] .qty-number {
+  color: var(--text);
+}
+
+body.dark-theme .remove-btn,
+[data-theme="dark"] .remove-btn {
+  background: var(--surface-strong);
+  color: var(--text-secondary);
+}
+
+body.dark-theme .remove-btn:hover,
+[data-theme="dark"] .remove-btn:hover {
+  background: var(--surface-soft);
+}
+
+body.dark-theme .summary-row,
+[data-theme="dark"] .summary-row {
+  border-bottom-color: var(--border);
+  color: var(--text-secondary);
+}
+
+body.dark-theme .total-row,
+[data-theme="dark"] .total-row {
+  color: var(--text);
+}
+
+body.dark-theme .coupon-input,
+[data-theme="dark"] .coupon-input {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text);
+}
+
+body.dark-theme .save-content,
+[data-theme="dark"] .save-content {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+}
+
+body.dark-theme .payment-card,
+[data-theme="dark"] .payment-card {
+  background: var(--surface-soft);
+  border-color: var(--border);
+}
+
+body.dark-theme .payment-card.active-payment,
+[data-theme="dark"] .payment-card.active-payment {
+  background: rgba(139, 92, 246, 0.12);
+  border-color: var(--button-bg);
+}
+
+body.dark-theme .payment-left p,
+[data-theme="dark"] .payment-left p {
+  color: var(--text-muted);
+}
+
+body.dark-theme .payment-subtitle,
+[data-theme="dark"] .payment-subtitle {
+  color: var(--text-muted);
+}
+
+body.dark-theme .address-body-content p,
+body.dark-theme .address-content p,
+[data-theme="dark"] .address-body-content p,
+[data-theme="dark"] .address-content p {
+  color: var(--text-secondary);
+}
+
+body.dark-theme .choose-address-btn,
+[data-theme="dark"] .choose-address-btn {
+  border-color: var(--button-bg);
+  color: #c4b5fd;
+}
+
+body.dark-theme .cart-title,
+[data-theme="dark"] .cart-title,
+body.dark-theme .main-title,
+[data-theme="dark"] .main-title,
+body.dark-theme .summary-title,
+[data-theme="dark"] .summary-title,
+body.dark-theme .coupon-title,
+[data-theme="dark"] .coupon-title,
+body.dark-theme .section-subtitle-heading,
+[data-theme="dark"] .section-subtitle-heading,
+body.dark-theme .payment-title,
+[data-theme="dark"] .payment-title,
+body.dark-theme .payment-left p.fw-bold,
+[data-theme="dark"] .payment-left p.fw-bold {
+  color: var(--text) !important;
+}
+
+body.dark-theme .cart-subtitle,
+[data-theme="dark"] .cart-subtitle,
+body.dark-theme .coupon-input::placeholder,
+[data-theme="dark"] .coupon-input::placeholder {
+  color: var(--text-secondary) !important;
+}

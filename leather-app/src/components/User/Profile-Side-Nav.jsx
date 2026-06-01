@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import "../../assets/styles/Profile-Side-Nav.css";
 import { FaRegUserCircle, FaRegHeart } from "react-icons/fa";
 import { FiBox, FiLogOut } from "react-icons/fi";
@@ -18,7 +18,22 @@ function ProfileSideNav() {
   const navigate = useNavigate();
   const { userData, currentUser, logout } = useAuth();
   const fileInputRef = React.useRef(null);
-  
+
+  // ── Dark mode state (persisted in localStorage) ──────────────────
+  const [isDark, setIsDark] = useState(
+    () => localStorage.getItem('theme') === 'dark'
+  );
+
+  useEffect(() => {
+    if (isDark) {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDark]);
+
   const userName = userData?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
 
   const handleLogout = async () => {
@@ -148,8 +163,14 @@ function ProfileSideNav() {
                 <BsSun className="menu-icon" />
                 Dark Theme
               </div>
-              <div className="form-check form-switch m-0">
-                <input className="form-check-input" type="checkbox" id="themeSwitch" />
+              <div className="form-check form-switch dark-theme-switch m-0">
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  id="themeSwitch"
+                  checked={isDark}
+                  onChange={() => setIsDark(prev => !prev)}
+                />
               </div>
             </div>
           </li>

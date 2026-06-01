@@ -592,3 +592,328 @@
     display: none;
   }
 }
+
+/* ─────────────────────────────────────────────
+   DARK MODE SUPPORT
+──────────────────────────────────────────── */
+body.dark-theme .product-details-page,
+[data-theme="dark"] .product-details-page {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .breadcrumb-text,
+[data-theme="dark"] .breadcrumb-text {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .breadcrumb-text span.active,
+[data-theme="dark"] .breadcrumb-text span.active {
+  color: var(--text) !important;
+}
+
+body.dark-theme .main-image-container,
+[data-theme="dark"] .main-image-container,
+body.dark-theme .thumbnail-box,
+[data-theme="dark"] .thumbnail-box,
+body.dark-theme .delivery-box,
+[data-theme="dark"] .delivery-box,
+body.dark-theme .overall-rating-card,
+[data-theme="dark"] .overall-rating-card,
+body.dark-theme .review-card,
+[data-theme="dark"] .review-card,
+body.dark-theme .size-option-box,
+[data-theme="dark"] .size-option-box {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .thumbnail-box.active,
+[data-theme="dark"] .thumbnail-box.active {
+  border-color: var(--button-bg) !important;
+}
+
+body.dark-theme .thumbnail-box img,
+[data-theme="dark"] .thumbnail-box img,
+body.dark-theme .product-table th,
+[data-theme="dark"] .product-table th,
+body.dark-theme .product-table td,
+[data-theme="dark"] .product-table td,
+body.dark-theme .reviewer-name,
+[data-theme="dark"] .reviewer-name,
+body.dark-theme .review-text,
+[data-theme="dark"] .review-text,
+body.dark-theme .product-description,
+[data-theme="dark"] .product-description,
+body.dark-theme .desktop-text-wrapper,
+[data-theme="dark"] .desktop-text-wrapper {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .product-title,
+[data-theme="dark"] .product-title,
+body.dark-theme .price-section .current-price,
+[data-theme="dark"] .price-section .current-price,
+body.dark-theme .price-section .original-price,
+[data-theme="dark"] .price-section .original-price,
+body.dark-theme .price-section .discount,
+[data-theme="dark"] .price-section .discount {
+  color: var(--text) !important;
+}
+
+body.dark-theme .quantity-selector,
+[data-theme="dark"] .quantity-selector,
+body.dark-theme .quantity-selector button,
+[data-theme="dark"] .quantity-selector button,
+body.dark-theme .quantity-selector input,
+[data-theme="dark"] .quantity-selector input {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .btn-add-cart,
+[data-theme="dark"] .btn-add-cart {
+  background-color: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .btn-buy-now,
+[data-theme="dark"] .btn-buy-now {
+  background-color: var(--button-bg) !important;
+  color: #ffffff !important;
+}
+
+body.dark-theme .change-location-btn,
+[data-theme="dark"] .change-location-btn {
+  background: var(--surface-alt) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .product-table th,
+[data-theme="dark"] .product-table th {
+  background-color: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .product-table td,
+[data-theme="dark"] .product-table td {
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .rating-bar-row,
+[data-theme="dark"] .rating-bar-row {
+  background: rgba(148, 163, 184, 0.12) !important;
+}
+
+body.dark-theme .filter-btn-user,
+[data-theme="dark"] .filter-btn-user {
+  background: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .filter-btn-user.active,
+[data-theme="dark"] .filter-btn-user.active {
+  background-color: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .size-option-box.selected,
+[data-theme="dark"] .size-option-box.selected {
+  background-color: #1e293b !important;
+}
+
+body.dark-theme .details-section h3,
+[data-theme="dark"] .details-section h3,
+body.dark-theme .reviews-section h4,
+[data-theme="dark"] .reviews-section h4,
+body.dark-theme .related-products-section h2,
+[data-theme="dark"] .related-products-section h2,
+body.dark-theme .delivery-box h6,
+[data-theme="dark"] .delivery-box h6,
+body.dark-theme .size-selector-section h6,
+[data-theme="dark"] .size-selector-section h6 {
+  color: var(--text) !important;
+}
+
+body.dark-theme .price-section .current-price,
+[data-theme="dark"] .price-section .current-price {
+  color: #ffffff !important;
+}
+
+body.dark-theme .price-section .original-price,
+[data-theme="dark"] .price-section .original-price {
+  color: var(--text-muted) !important;
+}
+
+body.dark-theme .price-section .discount,
+[data-theme="dark"] .price-section .discount {
+  color: #86efac !important;
+}
+
+body.dark-theme .rating-count,
+[data-theme="dark"] .rating-count,
+body.dark-theme .rating-score p,
+[data-theme="dark"] .rating-score p,
+body.dark-theme .review-actions,
+[data-theme="dark"] .review-actions,
+body.dark-theme .helpful-btns button,
+[data-theme="dark"] .helpful-btns button,
+body.dark-theme .delivery-box p,
+[data-theme="dark"] .delivery-box p,
+body.dark-theme .related-products-section p,
+[data-theme="dark"] .related-products-section p,
+body.dark-theme .size-label,
+[data-theme="dark"] .size-label {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .reviewer-name,
+[data-theme="dark"] .reviewer-name,
+body.dark-theme .size-value,
+[data-theme="dark"] .size-value {
+  color: var(--text) !important;
+}
+
+body.dark-theme .progress-custom,
+[data-theme="dark"] .progress-custom {
+  background-color: var(--surface) !important;
+}
+
+body.dark-theme .product-details-page .text-muted,
+[data-theme="dark"] .product-details-page .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .product-details-page .text-dark,
+[data-theme="dark"] .product-details-page .text-dark {
+  color: var(--text) !important;
+}
+
+body.dark-theme .product-details-page .bg-white,
+[data-theme="dark"] .product-details-page .bg-white,
+body.dark-theme .recent-products-outer-container,
+[data-theme="dark"] .recent-products-outer-container {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+}
+
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ADDITIONAL DARK THEME AUDIT CLEANUPS (PRODUCT DETAILS ONLY)
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Image navigation arrows white in dark mode */
+body.dark-theme .main-image-container .arrow-btn,
+[data-theme="dark"] .main-image-container .arrow-btn {
+  color: #ffffff !important;
+}
+
+/* 2. Override hardcoded white background on empty address viewport */
+body.dark-theme .empty-address-viewport,
+[data-theme="dark"] .empty-address-viewport {
+  background-color: var(--surface-alt) !important;
+  border: 1px dashed var(--border) !important;
+}
+
+/* 3. Dark mode for the Address Selection modal overlay and card */
+body.dark-theme .address-popup-modal-overlay,
+[data-theme="dark"] .address-popup-modal-overlay {
+  background-color: rgba(2, 6, 23, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+body.dark-theme .address-popup-modal-box,
+[data-theme="dark"] .address-popup-modal-box {
+  background-color: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+
+/* 4. Dark mode for Address item cards inside the selection modal */
+body.dark-theme .popup-address-item-card,
+[data-theme="dark"] .popup-address-item-card {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .popup-address-item-card:has(span[style*="color: rgb(109, 40, 217)"]),
+body.dark-theme .popup-address-item-card:has(span[style*="color: #6d28d9"]),
+[data-theme="dark"] .popup-address-item-card:has(span[style*="color: rgb(109, 40, 217)"]),
+[data-theme="dark"] .popup-address-item-card:has(span[style*="color: #6d28d9"]) {
+  background-color: rgba(139, 92, 246, 0.12) !important;
+  border-color: var(--button-bg) !important;
+}
+
+body.dark-theme .popup-address-item-card span[style*="color: #6d28d9"],
+body.dark-theme .popup-address-item-card span[style*="color: rgb(109, 40, 217)"],
+[data-theme="dark"] .popup-address-item-card span[style*="color: #6d28d9"],
+[data-theme="dark"] .popup-address-item-card span[style*="color: rgb(109, 40, 217)"] {
+  background-color: rgba(139, 92, 246, 0.25) !important;
+  color: #d8b4fe !important;
+}
+
+/* 5. Dark mode for delete address confirmation modal overlay & dialog */
+body.dark-theme .modal-overlay-custom,
+[data-theme="dark"] .modal-overlay-custom {
+  background: rgba(2, 6, 23, 0.75) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+body.dark-theme .modal-box-custom,
+[data-theme="dark"] .modal-box-custom {
+  background-color: var(--surface-alt) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+body.dark-theme .modal-box-custom h5,
+[data-theme="dark"] .modal-box-custom h5 {
+  color: var(--text) !important;
+}
+
+body.dark-theme .modal-box-custom p,
+[data-theme="dark"] .modal-box-custom p {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .modal-box-custom .btn-secondary,
+[data-theme="dark"] .modal-box-custom .btn-secondary {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* 6. Dark mode for helpful review action buttons */
+body.dark-theme .helpful-btns button,
+[data-theme="dark"] .helpful-btns button {
+  color: var(--text-muted) !important;
+}
+
+body.dark-theme .helpful-btns button span,
+[data-theme="dark"] .helpful-btns button span {
+  color: var(--text-muted) !important;
+}
+
+body.dark-theme .helpful-btns button[style*="color: rgb(5, 138, 255)"],
+body.dark-theme .helpful-btns button[style*="color: #058aff"],
+[data-theme="dark"] .helpful-btns button[style*="color: rgb(5, 138, 255)"],
+[data-theme="dark"] .helpful-btns button[style*="color: #058aff"] {
+  color: #38bdf8 !important; /* Brighter blue for liked active state in dark mode */
+}
+
+body.dark-theme .helpful-btns button[style*="color: rgb(242, 88, 88)"],
+body.dark-theme .helpful-btns button[style*="color: #f25858"],
+[data-theme="dark"] .helpful-btns button[style*="color: rgb(242, 88, 88)"],
+[data-theme="dark"] .helpful-btns button[style*="color: #f25858"] {
+  color: #fca5a5 !important; /* Brighter red/pink for disliked active state in dark mode */
+}

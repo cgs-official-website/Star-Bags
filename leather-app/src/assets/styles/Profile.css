@@ -66,3 +66,40 @@
     }
    
 }
+
+/* Dark mode overrides */
+body.dark-theme .profile-details-card,
+[data-theme="dark"] .profile-details-card {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .edit-profile-btn,
+[data-theme="dark"] .edit-profile-btn,
+body.dark-theme .cancel-profile-btn,
+[data-theme="dark"] .cancel-profile-btn {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .cancel-profile-btn:hover,
+[data-theme="dark"] .cancel-profile-btn:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+}
+
+body.dark-theme .profile-details-card .form-control,
+[data-theme="dark"] .profile-details-card .form-control,
+body.dark-theme .profile-details-card .custom-form-select,
+[data-theme="dark"] .profile-details-card .custom-form-select {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--input-border) !important;
+}
+
+body.dark-theme .profile-details-card .form-label,
+[data-theme="dark"] .profile-details-card .form-label {
+  color: var(--text-secondary) !important;
+}
+

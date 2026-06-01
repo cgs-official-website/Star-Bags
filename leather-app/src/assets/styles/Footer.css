@@ -63,6 +63,31 @@ footer {
     margin-bottom: 1rem;
 }
 
+body.dark-theme footer,
+[data-theme="dark"] footer {
+    background-color: #2f0b4b; /* purple footer in dark mode */
+    color: #ffffff;
+}
+
+body.dark-theme .footer-link a,
+[data-theme="dark"] .footer-link a {
+    color: rgba(255,255,255,0.9);
+}
+
+body.dark-theme .footer-link a:hover,
+[data-theme="dark"] .footer-link a:hover,
+body.dark-theme .social-icons a:hover,
+[data-theme="dark"] .social-icons a:hover {
+    opacity: 1;
+    color: #8b5cf6; /* lavender accent on hover */
+    text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
+
+body.dark-theme .footer-end,
+[data-theme="dark"] .footer-end {
+    border-top-color: rgba(255,255,255,0.08) !important;
+}
+
 .address p {
     opacity: 0.8;
     margin: 0;

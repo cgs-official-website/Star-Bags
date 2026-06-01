@@ -530,3 +530,71 @@
     transform: scale(0.97);
   }
 }
+
+body.dark-theme .order-card-desktop,
+[data-theme="dark"] .order-card-desktop,
+body.dark-theme .order-card-mobile,
+[data-theme="dark"] .order-card-mobile,
+body.dark-theme .product-image-wrapper,
+[data-theme="dark"] .product-image-wrapper,
+body.dark-theme .status-section,
+[data-theme="dark"] .status-section,
+body.dark-theme .time-section,
+[data-theme="dark"] .time-section {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .product-image-wrapper,
+[data-theme="dark"] .product-image-wrapper {
+  background: var(--surface) !important;
+}
+
+body.dark-theme .product-name,
+[data-theme="dark"] .product-name,
+body.dark-theme .rating-number,
+[data-theme="dark"] .rating-number,
+body.dark-theme .current-price,
+[data-theme="dark"] .current-price,
+body.dark-theme .original-price,
+[data-theme="dark"] .original-price,
+body.dark-theme .quantity,
+[data-theme="dark"] .quantity,
+body.dark-theme .delivery-text,
+[data-theme="dark"] .delivery-text,
+body.dark-theme .rate-text,
+[data-theme="dark"] .rate-text {
+  color: var(--text) !important;
+}
+
+body.dark-theme .track-button,
+[data-theme="dark"] .track-button,
+body.dark-theme .mobile-action-btn.rate-btn,
+[data-theme="dark"] .mobile-action-btn.rate-btn {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .order-card-desktop:hover,
+[data-theme="dark"] .order-card-desktop:hover {
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.18) !important;
+}
+
+body.dark-theme .original-price,
+[data-theme="dark"] .original-price,
+body.dark-theme .section-label,
+[data-theme="dark"] .section-label,
+body.dark-theme .order-id,
+[data-theme="dark"] .order-id,
+body.dark-theme .rating-count,
+[data-theme="dark"] .rating-count,
+body.dark-theme .mobile-original-price,
+[data-theme="dark"] .mobile-original-price,
+body.dark-theme .mobile-order-id,
+[data-theme="dark"] .mobile-order-id,
+body.dark-theme .mobile-rating-count,
+[data-theme="dark"] .mobile-rating-count {
+  color: var(--text-muted) !important;
+}

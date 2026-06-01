@@ -348,3 +348,81 @@
     text-align: center;
   }
 }
+
+body.dark-theme .reviews-page-app-wrapper,
+[data-theme="dark"] .reviews-page-app-wrapper,
+body.dark-theme .reviews-card,
+[data-theme="dark"] .reviews-card,
+body.dark-theme .rv-modal,
+[data-theme="dark"] .rv-modal,
+body.dark-theme .rv-modal-header,
+[data-theme="dark"] .rv-modal-header,
+body.dark-theme .rv-modal-body,
+[data-theme="dark"] .rv-modal-body,
+body.dark-theme .rv-modal-footer,
+[data-theme="dark"] .rv-modal-footer,
+body.dark-theme .rv-textarea,
+[data-theme="dark"] .rv-textarea,
+body.dark-theme .rv-input,
+[data-theme="dark"] .rv-input,
+body.dark-theme .reviews-empty-container,
+[data-theme="dark"] .reviews-empty-container {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .reviews-header,
+[data-theme="dark"] .reviews-header,
+body.dark-theme .reviews-subtitle,
+[data-theme="dark"] .reviews-subtitle,
+body.dark-theme .rv-modal-title,
+[data-theme="dark"] .rv-modal-title,
+body.dark-theme .rv-label,
+[data-theme="dark"] .rv-label,
+body.dark-theme .review-text,
+[data-theme="dark"] .review-text,
+body.dark-theme .reviews-empty-heading,
+[data-theme="dark"] .reviews-empty-heading,
+body.dark-theme .reviews-empty-sub,
+[data-theme="dark"] .reviews-empty-sub {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .rv-textarea:focus,
+[data-theme="dark"] .rv-textarea:focus,
+body.dark-theme .rv-input:focus,
+[data-theme="dark"] .rv-input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.18) !important;
+  border-color: var(--button-bg) !important;
+}
+
+body.dark-theme .rv-btn-cancel,
+[data-theme="dark"] .rv-btn-cancel {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .rv-btn-save,
+[data-theme="dark"] .rv-btn-save,
+body.dark-theme .rv-btn-delete,
+[data-theme="dark"] .rv-btn-delete {
+  box-shadow: none !important;
+}
+
+body.dark-theme .rv-textarea::placeholder,
+[data-theme="dark"] .rv-textarea::placeholder,
+body.dark-theme .rv-input::placeholder,
+[data-theme="dark"] .rv-input::placeholder,
+body.dark-theme .rv-delete-msg,
+[data-theme="dark"] .rv-delete-msg {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .rv-modal-title,
+[data-theme="dark"] .rv-modal-title,
+body.dark-theme .reviews-empty-heading,
+[data-theme="dark"] .reviews-empty-heading {
+  color: var(--text) !important;
+}

@@ -18,7 +18,7 @@
   background: var(--nav-bg);
   border-bottom: 1px solid var(--nav-border);
   padding: 0;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.12);
 }
 
 /* ─── CONTAINER ──────────────────────────────────────────────────── */
@@ -40,10 +40,19 @@
   align-items: center;
 }
 
+.nav-logo-wrap a {
+  display: flex;
+  align-items: center;
+}
+
 .logo {
   height: 80px !important; /* Bigger logo as requested */
   display: block;
   object-fit: contain;
+}
+
+.logo-dark {
+  display: none;
 }
 
 /* ─── DESKTOP NAV LINKS — centered between logo and search ──────── */
@@ -181,7 +190,7 @@
   height: var(--nav-icon-size);
   border: none;
   border-radius: 50%;
-  background: #f3f4f6 !important;
+  background: transparent !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -197,8 +206,8 @@
 }
 
 .icon-btn:hover {
-  background: #e5e7eb !important;
-  color: var(--nav-accent);
+  background: rgba(0, 0, 0, 0.04) !important;
+  color: var(--nav-text);
 }
 
 .icon-btn:focus-visible {
@@ -316,6 +325,137 @@
 .dark-theme-switch .form-check-input:checked {
   background-color: var(--nav-accent);
   border-color: var(--nav-accent);
+}
+
+.dark-theme-switch .form-check-input {
+  width: 44px;
+  height: 24px;
+  margin-top: 0;
+  cursor: pointer;
+}
+
+body.dark-theme .dark-theme-switch .form-check-input,
+[data-theme="dark"] .dark-theme-switch .form-check-input {
+  background-color: #182033 !important;
+  border: 1px solid rgba(148, 163, 184, 0.6) !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbd5e1'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: left center !important;
+  box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.65);
+}
+
+body.dark-theme .dark-theme-switch .form-check-input:checked,
+[data-theme="dark"] .dark-theme-switch .form-check-input:checked {
+  background-color: #8b5cf6 !important;
+  border-color: #a78bfa !important;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.24), inset 0 1px 2px rgba(2, 6, 23, 0.45);
+}
+
+body.dark-theme .dark-theme-switch .form-check-input:focus,
+[data-theme="dark"] .dark-theme-switch .form-check-input:focus {
+  border-color: #c4b5fd !important;
+  box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.28) !important;
+}
+
+body.dark-theme .navbar,
+[data-theme="dark"] .navbar {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.dark-theme .nav-links-desktop .custom-nav-btn,
+[data-theme="dark"] .nav-links-desktop .custom-nav-btn {
+  color: #e2e8f0;
+}
+
+body.dark-theme .nav-search-form input,
+[data-theme="dark"] .nav-search-form input {
+  background: #090b14;
+  color: #f8fafc;
+  border-color: #8b5cf6;
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.35);
+}
+
+body.dark-theme .nav-search-form input:focus,
+[data-theme="dark"] .nav-search-form input:focus {
+  border-color: #9d7cff;
+  background: #07080f;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.22);
+}
+
+body.dark-theme .nav-search-form button,
+[data-theme="dark"] .nav-search-form button {
+  color: #ffffff;
+  background: #050506;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  right: 10px;
+  justify-content: center;
+}
+
+body.dark-theme .nav-search-form button:hover,
+[data-theme="dark"] .nav-search-form button:hover {
+  color: #ffffff;
+  background: #111111;
+}
+
+body.dark-theme .logo,
+[data-theme="dark"] .logo {
+  opacity: 1;
+  filter: none;
+}
+
+body.dark-theme .logo-light,
+[data-theme="dark"] .logo-light {
+  display: none;
+}
+
+body.dark-theme .logo-dark,
+[data-theme="dark"] .logo-dark {
+  display: block;
+}
+
+body.dark-theme .icon-btn,
+[data-theme="dark"] .icon-btn,
+body.dark-theme .nav-toggler,
+[data-theme="dark"] .nav-toggler {
+  background: rgba(255,255,255,0.06);
+  color: rgba(226,232,240,0.72);
+  border-color: rgba(148,163,184,0.18);
+}
+
+body.dark-theme .icon-btn:hover,
+[data-theme="dark"] .icon-btn:hover,
+body.dark-theme .nav-toggler:hover,
+[data-theme="dark"] .nav-toggler:hover {
+  background: rgba(139,92,246,0.18);
+  color: #f8fafc;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.55);
+}
+
+body.dark-theme .cart-badge,
+[data-theme="dark"] .cart-badge {
+  border-color: rgba(15,23,42,0.95);
+  background: rgba(139,92,246,0.92);
+}
+
+body.dark-theme .cart-badge,
+[data-theme="dark"] .cart-badge {
+  border-color: rgba(15,23,42,0.95);
+}
+body.dark-theme .profile-dropdown-item:hover,
+[data-theme="dark"] .profile-dropdown-item:hover {
+  background: rgba(139, 92, 246, 0.14) !important;
+}
+
+body.dark-theme .nav-login-btn,
+[data-theme="dark"] .nav-login-btn {
+  background-color: var(--nav-accent);
+  color: #ffffff !important;
 }
 
 /* ─── MOBILE DRAWER ──────────────────────────────────────────────── */

@@ -52,6 +52,26 @@
     transform: translateY(-4px);
 }
 
+/* Dark-mode elevated shadows and subtle card tone */
+body.dark-theme .card,
+[data-theme="dark"] .card,
+body.dark-theme .wl-card,
+[data-theme="dark"] .wl-card,
+body.dark-theme .cart-card,
+[data-theme="dark"] .cart-card {
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.18s ease, transform 0.15s ease;
+}
+
+body.dark-theme .card:hover,
+[data-theme="dark"] .card:hover,
+body.dark-theme .wl-card:hover,
+[data-theme="dark"] .wl-card:hover,
+body.dark-theme .cart-card:hover,
+[data-theme="dark"] .cart-card:hover {
+    box-shadow: var(--card-shadow-elevated);
+}
+
 .card img {
     width: 100%;
     height: 14rem;
@@ -315,4 +335,79 @@
     flex: 0 0 auto !important; 
     width: 15rem !important;
     margin: 0 !important;
+}
+
+body.dark-theme .card,
+[data-theme="dark"] .card {
+    background: #111827;
+    border-color: #334155;
+}
+
+body.dark-theme .card-body h6,
+[data-theme="dark"] .card-body h6,
+body.dark-theme .card-body p,
+[data-theme="dark"] .card-body p {
+    color: #eff6ff;
+}
+
+body.dark-theme .card-body span del,
+[data-theme="dark"] .card-body span del {
+    color: #94a3b8;
+}
+
+body.dark-theme .card-body a.buy-now-btn,
+[data-theme="dark"] .card-body a.buy-now-btn {
+    background-color: #8b5cf6 !important;
+}
+
+body.dark-theme .icon-btn-cart,
+[data-theme="dark"] .icon-btn-cart {
+    border-color: #7c3aed !important;
+    color: #c7d2fe !important;
+}
+
+body.dark-theme .wishlist button,
+[data-theme="dark"] .wishlist button {
+    background-color: #111827;
+    color: #f8fafc;
+    border-color: #334155;
+}
+
+body.dark-theme .card-body,
+[data-theme="dark"] .card-body {
+    background: transparent !important;
+}
+
+body.dark-theme .card-title,
+[data-theme="dark"] .card-title,
+body.dark-theme .card-body h6,
+[data-theme="dark"] .card-body h6 {
+    color: var(--text) !important;
+}
+
+body.dark-theme .rating-stars,
+[data-theme="dark"] .rating-stars {
+    color: #e2e8f0 !important;
+}
+
+body.dark-theme .card,
+[data-theme="dark"] .card {
+    background: var(--surface-alt) !important;
+}
+
+body.dark-theme .price-details p,
+[data-theme="dark"] .price-details p {
+    color: #ffffff !important;
+}
+
+body.dark-theme .price-details del,
+[data-theme="dark"] .price-details del {
+    color: var(--text-muted) !important;
+}
+
+body.dark-theme .price-details .text-success,
+body.dark-theme .price-details b,
+[data-theme="dark"] .price-details .text-success,
+[data-theme="dark"] .price-details b {
+    color: #86efac !important;
 }

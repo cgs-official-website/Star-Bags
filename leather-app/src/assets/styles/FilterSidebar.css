@@ -355,6 +355,148 @@
 
 /* REMOVED: Apply Button Styles - No longer needed */
 
+body.dark-theme .filter-sidebar-flipkart,
+[data-theme="dark"] .filter-sidebar-flipkart {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .filter-header,
+[data-theme="dark"] .filter-header {
+  border-bottom-color: var(--border) !important;
+}
+
+body.dark-theme .filter-title,
+[data-theme="dark"] .filter-title,
+body.dark-theme .filter-section-title,
+[data-theme="dark"] .filter-section-title,
+body.dark-theme .price-option,
+[data-theme="dark"] .price-option,
+body.dark-theme .checkbox-item,
+[data-theme="dark"] .checkbox-item,
+body.dark-theme .radio-item,
+[data-theme="dark"] .radio-item,
+body.dark-theme .capacity-value,
+[data-theme="dark"] .capacity-value {
+  color: var(--text) !important;
+}
+
+body.dark-theme .capacity-card,
+[data-theme="dark"] .capacity-card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .capacity-card.active,
+[data-theme="dark"] .capacity-card.active {
+  background: rgba(139, 92, 246, 0.14) !important;
+}
+
+body.dark-theme .capacity-label,
+[data-theme="dark"] .capacity-label {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .clear-all-btn,
+[data-theme="dark"] .clear-all-btn {
+  color: var(--button-bg) !important;
+}
+
+body.dark-theme .clear-all-btn:hover,
+[data-theme="dark"] .clear-all-btn:hover {
+  background: rgba(139, 92, 246, 0.08) !important;
+}
+
+body.dark-theme .active-filters-tags,
+[data-theme="dark"] .active-filters-tags,
+body.dark-theme .active-filter-tag,
+[data-theme="dark"] .active-filter-tag {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .active-filter-tag:hover,
+[data-theme="dark"] .active-filter-tag:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+body.dark-theme .filter-section-header,
+[data-theme="dark"] .filter-section-header {
+  background: transparent !important;
+}
+
+body.dark-theme .filter-section-header:hover,
+[data-theme="dark"] .filter-section-header:hover {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+body.dark-theme .category-btn,
+[data-theme="dark"] .category-btn {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .category-btn:hover,
+[data-theme="dark"] .category-btn:hover {
+  background: rgba(139,92,246,0.08) !important;
+}
+
+body.dark-theme .category-btn.active,
+[data-theme="dark"] .category-btn.active {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .price-option input[type="radio"],
+[data-theme="dark"] .price-option input[type="radio"],
+body.dark-theme .checkbox-item input[type="checkbox"],
+[data-theme="dark"] .checkbox-item input[type="checkbox"],
+body.dark-theme .radio-item input[type="radio"],
+[data-theme="dark"] .radio-item input[type="radio"] {
+  accent-color: var(--button-bg) !important;
+}
+
+body.dark-theme .size-btn,
+[data-theme="dark"] .size-btn {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .size-btn:hover,
+[data-theme="dark"] .size-btn:hover {
+  border-color: var(--button-bg) !important;
+  color: var(--button-bg) !important;
+}
+
+body.dark-theme .size-btn.active,
+[data-theme="dark"] .size-btn.active {
+  background: var(--button-bg) !important;
+  border-color: var(--button-bg) !important;
+  color: #ffffff !important;
+}
+
+body.dark-theme .filter-section,
+[data-theme="dark"] .filter-section {
+  border-bottom-color: var(--border) !important;
+}
+
+body.dark-theme .remove-filter-btn,
+[data-theme="dark"] .remove-filter-btn,
+body.dark-theme .show-more-btn,
+[data-theme="dark"] .show-more-btn {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .show-more-btn:hover,
+[data-theme="dark"] .show-more-btn:hover {
+  color: var(--button-bg) !important;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .filter-sidebar {
