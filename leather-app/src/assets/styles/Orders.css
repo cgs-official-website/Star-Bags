@@ -27,11 +27,11 @@
   background: #fff;
   border-radius: 14px;
   padding: 24px 28px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
   border: none;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border: 1px solid #ececec;
 }
 
 /* Search Bar Styling */
