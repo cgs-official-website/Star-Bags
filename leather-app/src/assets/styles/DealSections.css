@@ -127,6 +127,58 @@
   text-overflow: ellipsis;
 }
 
+/* Dark theme overrides for category and product boxes */
+body.dark-theme .category-card,
+[data-theme="dark"] .category-card {
+  background: var(--surface-alt) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: none !important;
+}
+
+body.dark-theme .product-item,
+[data-theme="dark"] .product-item {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .product-image-wrapper,
+[data-theme="dark"] .product-image-wrapper {
+  background: #ffffff !important;
+}
+
+body.dark-theme .category-title,
+[data-theme="dark"] .category-title,
+body.dark-theme .arrow-icon,
+[data-theme="dark"] .arrow-icon {
+  color: var(--text) !important;
+}
+
+body.dark-theme .arrow-btn,
+[data-theme="dark"] .arrow-btn {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme .product-name,
+[data-theme="dark"] .product-name {
+  color: #fff !important;
+}
+
+body.dark-theme .product-discount,
+[data-theme="dark"] .product-discount {
+  color: #8b5cf6 !important;
+}
+
+body.dark-theme .product-name,
+[data-theme="dark"] .product-name {
+  color: var(--text) !important;
+}
+
+body.dark-theme .product-discount,
+[data-theme="dark"] .product-discount {
+  color: var(--text-h) !important;
+}
+
 /* Value discount text markup */
 .product-discount {
   font-size: 12px;

@@ -207,6 +207,73 @@
     box-shadow: 0 4px 12px var(--hover-color);
 }
 
+body.dark-theme .login,
+[data-theme="dark"] .login {
+    background-color: var(--surface);
+    color: var(--text);
+    --gray: var(--text-secondary);
+    --text-gray: var(--text-secondary);
+}
+
+body.dark-theme .login-content,
+[data-theme="dark"] .login-content {
+    color: var(--text);
+}
+
+body.dark-theme .login-form,
+[data-theme="dark"] .login-form {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+body.dark-theme .login-form h6,
+[data-theme="dark"] .login-form h6,
+body.dark-theme .login-form p,
+[data-theme="dark"] .login-form p,
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label {
+    color: var(--text);
+}
+
+body.dark-theme .form-control,
+[data-theme="dark"] .form-control {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--input-border);
+}
+
+body.dark-theme .form-control:focus,
+[data-theme="dark"] .form-control:focus {
+    background: var(--input-bg);
+    border-color: var(--button-bg);
+    box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.18);
+}
+
+body.dark-theme .form-control::placeholder,
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+body.dark-theme .forgot-password .navigate,
+[data-theme="dark"] .forgot-password .navigate,
+body.dark-theme .navigate,
+[data-theme="dark"] .navigate {
+    color: var(--button-bg);
+}
+
+body.dark-theme .login-btn,
+[data-theme="dark"] .login-btn {
+    background-color: var(--button-bg);
+}
+
+body.dark-theme .divider span,
+[data-theme="dark"] .divider span,
+body.dark-theme .form-check-label,
+[data-theme="dark"] .form-check-label {
+  color: var(--text-secondary) !important;
+}
+
 /* DIVIDER */
 .divider {
     display: flex;
@@ -359,4 +426,33 @@
     .social-icon {
         font-size: 20px;
     }
+}
+
+body.dark-theme .login-form,
+[data-theme="dark"] .login-form {
+  border: 1px solid var(--border) !important;
+}
+
+body.dark-theme .login-content h3,
+[data-theme="dark"] .login-content h3,
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label,
+body.dark-theme .signup-footer p,
+[data-theme="dark"] .signup-footer p,
+body.dark-theme .signup-footer a,
+[data-theme="dark"] .signup-footer a {
+  color: var(--text) !important;
+}
+
+body.dark-theme .social-btn,
+[data-theme="dark"] .social-btn {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .social-btn:hover,
+[data-theme="dark"] .social-btn:hover {
+  background: var(--hover-soft) !important;
+  color: var(--text) !important;
 }

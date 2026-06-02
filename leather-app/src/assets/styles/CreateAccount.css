@@ -401,3 +401,55 @@
         font-size: 20px;
     }
 }
+
+body.dark-theme .sign-up,
+[data-theme="dark"] .sign-up,
+body.dark-theme .form-section,
+[data-theme="dark"] .form-section,
+body.dark-theme .sign-up-form,
+[data-theme="dark"] .sign-up-form {
+  background: var(--surface) !important;
+  color: var(--text) !important;
+  --gray: var(--text-secondary);
+  --text-gray: var(--text-secondary);
+}
+
+body.dark-theme .sign-up-form,
+[data-theme="dark"] .sign-up-form {
+  border: 1px solid var(--border) !important;
+}
+
+body.dark-theme .sign-up-form h6,
+[data-theme="dark"] .sign-up-form h6,
+body.dark-theme .sign-up-form p,
+[data-theme="dark"] .sign-up-form p,
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label,
+body.dark-theme .signin-footer p,
+[data-theme="dark"] .signin-footer p,
+body.dark-theme .signin-footer a,
+[data-theme="dark"] .signin-footer a {
+  color: var(--text) !important;
+}
+
+body.dark-theme .social-btn,
+[data-theme="dark"] .social-btn {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .social-btn:hover,
+[data-theme="dark"] .social-btn:hover {
+  background: var(--hover-soft) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .divider span,
+[data-theme="dark"] .divider span,
+body.dark-theme .form-check-label,
+[data-theme="dark"] .form-check-label,
+body.dark-theme .signin-footer p,
+[data-theme="dark"] .signin-footer p {
+  color: var(--text-secondary) !important;
+}
