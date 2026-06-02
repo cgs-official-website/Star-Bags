@@ -15,11 +15,9 @@ import { db } from "../../firebase";
 
 const renderPayModeIcon = (payMode) => {
   const modeLower = (payMode || '').toLowerCase();
-  if (modeLower.includes('visa')) return <FaCcVisa size={22} color="#1a1f71" />;
-  if (modeLower.includes('mastercard')) return <FaCcMastercard size={22} color="#eb001b" />;
-  if (modeLower.includes('amex')) return <FaCcAmex size={22} color="#006fcf" />;
-  if (modeLower.includes('account') || modeLower.includes('bank')) return <FaUniversity size={20} color="#8b5cf6" />;
-  if (modeLower.includes('paypal')) return <FaPaypal size={22} color="#003087" />;
+  if (modeLower.includes('cod') || modeLower.includes('cash')) {
+    return <FaMoneyBillWave size={22} color="#8b5cf6" />;
+  }
   return <FaCreditCard size={22} color="#0072bc" />;
 };
 
@@ -66,6 +64,12 @@ const AdminDashboard = () => {
           });
         });
 
+        orderList.sort((a, b) => {
+          const timeA = a.orderDate ? a.orderDate.getTime() : 0;
+          const timeB = b.orderDate ? b.orderDate.getTime() : 0;
+          return timeB - timeA;
+        });
+
         setProducts(prodList);
         setOrders(orderList);
       } catch (err) {
@@ -77,7 +81,16 @@ const AdminDashboard = () => {
     fetchAll();
   }, []);
 
-  // Derived stats
+  // Derived stats (Last 30 Days)
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const ordersLast30Days = orders.filter(o => o.orderDate && o.orderDate >= thirtyDaysAgo);
+  const totalOrdersLast30Days = ordersLast30Days.length;
+  const pendingOrdersLast30Days = ordersLast30Days.filter(o => o.status === 'Order Placed' || o.status === 'Pending').length;
+  const totalRevenueLast30Days = ordersLast30Days.reduce((sum, o) => sum + (Number(o.amountRaw) || 0), 0);
+
   const totalProducts = products.length;
   const lowStockCount = products.filter(p => parseInt(p.stocks) > 0 && parseInt(p.stocks) <= 10).length;
   const totalOrders = orders.length;
@@ -89,10 +102,10 @@ const AdminDashboard = () => {
   const inStockPct = totalProducts > 0 ? Math.round((inStockCount / totalProducts) * 100) : 0;
 
   const statCards = [
-    { label: "Total Sales", value: `₹${totalRevenue.toLocaleString('en-IN')}`, icon: "bi-graph-up-arrow", iconBg: "#dcfce7", iconColor: "#16a34a", badge: `${orders.filter(o => o.status === 'Delivered').length} Delivered`, badgeClass: "up" },
+    { label: "Total Sales (30 Days)", value: `₹${totalRevenueLast30Days.toLocaleString('en-IN')}`, icon: "bi-graph-up-arrow", iconBg: "#dcfce7", iconColor: "#16a34a", badge: `${ordersLast30Days.filter(o => o.status === 'Delivered').length} Delivered`, badgeClass: "up" },
     { label: "Total Products", value: totalProducts, icon: "bi-bag", iconBg: "#ede9fe", iconColor: "#7c3aed", badge: `${inStockPct}% Available`, badgeClass: "up" },
     { label: "Low Stock Items", value: lowStockCount, icon: "bi-clock-history", iconBg: "#ffedd5", iconColor: "#f97316", badge: `${outOfStockCount} Out of stock`, badgeClass: outOfStockCount > 0 ? "down" : "up" },
-    { label: "Total Orders", value: totalOrders, icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: `${pendingOrders} Pending`, badgeClass: pendingOrders > 0 ? "down" : "up" },
+    { label: "Total Orders (30 Days)", value: totalOrdersLast30Days, icon: "bi-boxes", iconBg: "#fef3c7", iconColor: "#d97706", badge: `${pendingOrdersLast30Days} Pending`, badgeClass: pendingOrdersLast30Days > 0 ? "down" : "up" },
   ];
 
   // --- Dynamic Revenue Chart ---
@@ -156,9 +169,9 @@ const AdminDashboard = () => {
   }, [orders, revenueFilter]);
 
 
-  // Top selling products — sorted by order frequency
+  // Top selling products — sorted by order frequency (Last 30 Days)
   const productSalesCount = {};
-  orders.forEach(o => {
+  ordersLast30Days.forEach(o => {
     const name = o.productName;
     if (name) productSalesCount[name] = (productSalesCount[name] || 0) + 1;
   });
@@ -187,14 +200,14 @@ const AdminDashboard = () => {
     .slice(0, 6)
     .map(p => ({ img: p.image || '', name: p.name, left: parseInt(p.stocks) }));
 
-  // Order status pie
-  const delivered = orders.filter(o => o.status === 'Delivered').length;
-  const shipped = orders.filter(o => o.status === 'Shipped' || o.status === 'Out for Delivery').length;
-  const pending = orders.filter(o => o.status === 'Order Placed' || o.status === 'Pending').length;
+  // Order status pie (Last 30 Days)
+  const deliveredLast30Days = ordersLast30Days.filter(o => o.status === 'Delivered').length;
+  const shippedLast30Days = ordersLast30Days.filter(o => o.status === 'Shipped' || o.status === 'Out for Delivery').length;
+  const pendingLast30Days = ordersLast30Days.filter(o => o.status === 'Order Placed' || o.status === 'Pending').length;
   const orderStatusPie = [
-    { name: 'Delivered', value: delivered || 0, color: '#a3e635' },
-    { name: 'Shipped', value: shipped || 0, color: '#a78bfa' },
-    { name: 'Pending', value: pending || 0, color: '#fdba74' },
+    { name: 'Delivered', value: deliveredLast30Days || 0, color: '#a3e635' },
+    { name: 'Shipped', value: shippedLast30Days || 0, color: '#a78bfa' },
+    { name: 'Pending', value: pendingLast30Days || 0, color: '#fdba74' },
   ];
 
   // Today's orders
@@ -211,8 +224,8 @@ const AdminDashboard = () => {
       id: o.id,
       img: o.img,
       category: o.productName || o.category,
-      payMode: o.paymentMode || 'Card',
-      payType: o.isCOD ? 'Cash on delivery' : 'Card payment',
+      payMode: o.isCOD ? 'COD' : 'Razorpay',
+      payType: o.isCOD ? 'Cash on delivery' : 'Online payment',
       amount: o.amount,
       date: o.orderDate ? o.orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : '-',
       status: o.status === 'Delivered' ? 'Completed' : o.status === 'Cancelled' ? 'Canceled' : 'Pending',
@@ -226,7 +239,7 @@ const AdminDashboard = () => {
     <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-main">
-        <AdminHeader title="Admin Dashboard" subtitle="" />
+        <AdminHeader title="Admin Dashboard" subtitle="Showing statistics and sales analysis for the last 30 days." />
 
         <main className="admin-content" style={{ background: '#fafafa' }}>
           {loading ? (
@@ -353,18 +366,18 @@ const AdminDashboard = () => {
                 <p className="text-muted" style={{ fontSize: '12px', marginBottom: '20px' }}>Products requiring attention</p>
                 <div className="d-flex flex-column gap-3">
                   {lowStockData.length > 0 ? lowStockData.map((item, i) => (
-                    <div key={i} className="d-flex justify-content-between align-items-center border-bottom pb-2">
-                      <div className="d-flex align-items-center gap-2">
+                    <div key={i} className="d-flex justify-content-between align-items-center border-bottom pb-2" style={{ gap: '12px' }}>
+                      <div className="d-flex align-items-center gap-2" style={{ minWidth: 0, flex: 1 }}>
                         {item.img ? (
-                          <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6' }} />
+                          <img src={item.img} alt={item.name} style={{ width: 36, height: 36, borderRadius: 6, objectFit: 'cover', background: '#f3f4f6', flexShrink: 0 }} />
                         ) : (
-                          <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 6, background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <i className="bi bi-bag" style={{ color: '#9ca3af' }} />
                           </div>
                         )}
-                        <span style={{ fontSize: '13px', fontWeight: 500 }}>{item.name}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.name}</span>
                       </div>
-                      <span className="text-danger" style={{ fontSize: '12px', fontWeight: 500 }}>Only {item.left} left</span>
+                      <span className="text-danger" style={{ fontSize: '12px', fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>Only {item.left} left</span>
                     </div>
                   )) : (
                     <p className="text-muted" style={{ fontSize: '13px' }}>No low stock items. 🎉</p>
@@ -391,8 +404,8 @@ const AdminDashboard = () => {
                     </Pie>
                   </PieChart>
                   <div className="position-absolute top-50 start-50 translate-middle text-center">
-                    <h5 className="m-0 fw-bold">{totalOrders.toLocaleString('en-IN')}</h5>
-                    <span style={{ fontSize: '12px', color: '#6b7280' }}>Total orders</span>
+                    <h5 className="m-0 fw-bold">{totalOrdersLast30Days.toLocaleString('en-IN')}</h5>
+                    <span style={{ fontSize: '11px', color: '#6b7280', whiteSpace: 'nowrap' }}>Orders (30 days)</span>
                   </div>
                 </div>
                 <div className="d-flex flex-column gap-3 mt-4">
@@ -402,7 +415,7 @@ const AdminDashboard = () => {
                         <span style={{ width: 10, height: 10, background: item.color, display: 'inline-block', borderRadius: 2 }}></span>
                         {item.name}
                       </div>
-                      <span>{item.value} <span className="text-muted">({totalOrders > 0 ? Math.round((item.value / totalOrders) * 100) : 0}%)</span></span>
+                      <span>{item.value} <span className="text-muted">({totalOrdersLast30Days > 0 ? Math.round((item.value / totalOrdersLast30Days) * 100) : 0}%)</span></span>
                     </div>
                   ))}
                 </div>

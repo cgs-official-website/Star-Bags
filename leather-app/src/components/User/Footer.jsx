@@ -3,12 +3,21 @@ import { FiPhone } from "react-icons/fi";
 import { IoLocationOutline } from "react-icons/io5";
 import { FaXTwitter } from "react-icons/fa6";
 import { FaInstagram, FaFacebookF } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
   const year = new Date().getFullYear();
   
   // Safe URL-encoded dynamic link targeted directly to the Perundurai - Bhavani road address
   const mapUrl = "https://www.google.com/maps/search/?api=1&query=Star+Bags+Perundhurai+-+Bhavani+Rd+Perundurai+Tamil+Nadu+638052";
+
+  const handleCategoryClick = (e, category) => {
+    e.preventDefault();
+    navigate("/AllProducts", {
+      state: { filters: { category } },
+    });
+  };
 
   return (
     <footer>
@@ -53,9 +62,9 @@ const Footer = () => {
           <div className="col-lg-2 col-6 product-details ps-4">
             <h6>Shop</h6>
             <ul className="footer-link">
-              <li><a href="#">Bags</a></li>
-              <li><a href="#">Wallets</a></li>
-              <li><a href="#">Belts</a></li>
+              <li><a href="#" onClick={(e) => handleCategoryClick(e, "bag")}>Bags</a></li>
+              <li><a href="#" onClick={(e) => handleCategoryClick(e, "wallet")}>Wallets</a></li>
+              <li><a href="#" onClick={(e) => handleCategoryClick(e, "belt")}>Belts</a></li>
             </ul>
           </div>
 

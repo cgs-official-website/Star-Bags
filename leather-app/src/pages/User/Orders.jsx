@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import Navbar from "../../components/User/Navbar";
@@ -9,6 +9,7 @@ import ReviewModal from "../../components/User/ReviewModal";
 import { FaSearch } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useProducts } from "../../context/ProductsContext";
+import { OrderSkeleton } from "../../components/User/UserSkeleton";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import "../../assets/styles/Orders.css";
@@ -232,13 +233,7 @@ function Orders() {
 
               <div className="orders-list-wrapper">
                 {loading ? (
-                  <div className="d-flex justify-content-center align-items-center py-5">
-                    <div
-                      className="spinner-border"
-                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
-                      role="status"
-                    />
-                  </div>
+                  <OrderSkeleton />
                 ) : filteredOrders.length > 0 ? (
                   <div className="orders-grid">
                     {filteredOrders.map((order, index) => (
@@ -274,6 +269,7 @@ function Orders() {
 }
 
 export default Orders;
+
 
 
 

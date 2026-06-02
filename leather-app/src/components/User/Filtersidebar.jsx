@@ -3,10 +3,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../../assets/styles/FilterSideBar.css";
 
 // ── Static Data ───────────────────────────────────────────────────────────────
-export const BAG_TYPES = ['Laptop Bag', 'Travel bag', 'Lunch bag', 'Hand bag', 'Briefcase', 'Travel Duffel Bag'];
-export const BRANDS    = ['Puma', 'American Tourist', 'Sky bags', 'VIP', 'Safari'];
-export const MATERIALS = ['Leather bags', 'Canvas bags', 'Nylon bags', 'Polyester bags'];
-export const SIZES     = ['Small', 'Medium', 'Large', 'XL'];
+
+export const BAG_TYPES = ['College Bag', 'Hand Bag', 'Lunch Bag', 'Office Bag', 'School Bag', 'Travel Bag', 'Trolley Bag'];
+export const BRANDS    = ['American Tourister', 'Puma', 'Rubee bags', 'Safari', 'Sky bags', 'VIP', 'Wildcraft'];
+export const MATERIALS = ['Leather', 'Canvas'];
+export const SIZES     = ['Small', 'Medium', 'Large'];
 export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
 export const CAPACITIES = ['20L', '30L', '40L'];
 
@@ -25,9 +26,9 @@ export const DEFAULT_FILTERS = {
   bags:       [],
   brands:     [],
   material:   [],
-  size:       '',
+  sizes:      [],
   priceRange: '',
-  capacity:   '',
+  capacities: [],
 };
 
 // ── Flipkart-style collapsible section ─────────────────────────────────────────
@@ -76,7 +77,7 @@ const CheckboxList = ({ options, selected, onChange, color = '#8b5cf6', initialL
 };
 
 // ── Size Buttons Component with Show More/Less ──────────────────────────────
-const SizeButtons = ({ options, selected, onChange, initialLimit = 3 }) => {
+const SizeButtons = ({ options, selected = [], onChange, initialLimit = 3 }) => {
   const [showAll, setShowAll] = useState(false);
   const visibleOptions = showAll ? options : options.slice(0, initialLimit);
   const hasMore = options.length > initialLimit;
@@ -84,15 +85,23 @@ const SizeButtons = ({ options, selected, onChange, initialLimit = 3 }) => {
   return (
     <div className="size-wrapper">
       <div className="size-buttons">
-        {visibleOptions.map((size) => (
-          <button
-            key={size}
-            className={`size-btn ${selected === size ? 'active' : ''}`}
-            onClick={() => onChange(selected === size ? '' : size)}
-          >
-            {size}
-          </button>
-        ))}
+        {visibleOptions.map((size) => {
+          const isActive = selected.includes(size);
+          return (
+            <button
+              key={size}
+              className={`size-btn ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                const next = isActive
+                  ? selected.filter((s) => s !== size)
+                  : [...selected, size];
+                onChange(next);
+              }}
+            >
+              {size}
+            </button>
+          );
+        })}
       </div>
       {hasMore && (
         <button className="show-more-btn" onClick={() => setShowAll(!showAll)}>
@@ -103,8 +112,8 @@ const SizeButtons = ({ options, selected, onChange, initialLimit = 3 }) => {
   );
 };
 
-// ── Capacity Cards Component ────────────────────────────────────────────────
-const CapacityCards = ({ options, selected, onChange, initialLimit = 3 }) => {
+// ── Capacity Cards Component (card style with subtitle) ──────────────────────
+const CapacityCards = ({ options, selected = [], onChange, initialLimit = 3 }) => {
   const [showAll, setShowAll] = useState(false);
   const visibleOptions = showAll ? options : options.slice(0, initialLimit);
   const hasMore = options.length > initialLimit;
@@ -113,12 +122,17 @@ const CapacityCards = ({ options, selected, onChange, initialLimit = 3 }) => {
     <div className="capacity-cards-wrapper">
       <div className="capacity-cards">
         {visibleOptions.map((option) => {
-          const isActive = selected === option;
+          const isActive = selected.includes(option);
           return (
             <button
               key={option}
               className={`capacity-card ${isActive ? 'active' : ''}`}
-              onClick={() => onChange(isActive ? '' : option)}
+              onClick={() => {
+                const next = isActive
+                  ? selected.filter((c) => c !== option)
+                  : [...selected, option];
+                onChange(next);
+              }}
             >
               {isActive && (
                 <span className="capacity-check">
@@ -219,9 +233,9 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
   const bags = filters.bags ?? [];
   const brands = filters.brands ?? [];
   const material = filters.material ?? [];
-  const size = filters.size ?? '';
+  const sizes = filters.sizes ?? [];
   const priceRange = filters.priceRange ?? '';
-  const capacity = filters.capacity ?? '';
+  const capacities = filters.capacities ?? [];
 
   // Optimized update function
   const update = useCallback((key, value) => {
@@ -254,26 +268,22 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
     update('priceRange', priceRange === rangeValue ? '' : rangeValue);
   }, [priceRange, update]);
 
-  const handleCapacitySelect = useCallback((capacityValue) => {
-    update('capacity', capacity === capacityValue ? '' : capacityValue);
-  }, [capacity, update]);
-
-  const handleClearAll = useCallback(() => {
+  const handleClearAll = () => {
     if (onClearAll) {
       onClearAll();
     } else {
       onChange(DEFAULT_FILTERS);
     }
-  }, [onClearAll, onChange]);
+  };
 
-  const hasActiveFilters = useCallback(() => {
+  const hasActiveFilters = () => {
     return category !== '' || bags.length > 0 || brands.length > 0 || 
-           material.length > 0 || size !== '' || priceRange !== '' || capacity !== '';
-  }, [category, bags, brands, material, size, priceRange, capacity]);
+           material.length > 0 || sizes.length > 0 || priceRange !== '' || capacities.length > 0;
+  };
 
-  const shouldShowFilters = useCallback(() => {
+  const shouldShowFilters = () => {
     return category !== '';
-  }, [category]);
+  };
 
   return (
     <aside className="filter-sidebar-flipkart">
@@ -358,8 +368,8 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
               <FilterSection title="CAPACITY">
                 <CapacityCards
                   options={CAPACITIES}
-                  selected={capacity}
-                  onChange={handleCapacitySelect}
+                  selected={capacities}
+                  onChange={(value) => update('capacities', value)}
                   initialLimit={3}
                 />
               </FilterSection>
@@ -384,8 +394,8 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
               <FilterSection title="SIZE">
                 <SizeButtons 
                   options={BELT_SIZES}
-                  selected={size}
-                  onChange={(value) => update('size', value)}
+                  selected={sizes}
+                  onChange={(value) => update('sizes', value)}
                   initialLimit={3}
                 />
               </FilterSection>

@@ -37,7 +37,7 @@ const buildActiveTags = (filters) => {
   if (filters.category === 'bag')    tags.push({ type: 'Category', label: 'Bag' });
   (filters.brands ?? []).forEach((b) => tags.push({ type: 'Brand', label: b }));
   (filters.material ?? []).forEach((m) => tags.push({ type: 'Material', label: m }));
-  if (filters.size) tags.push({ type: 'Size', label: filters.size });
+  (filters.sizes ?? []).forEach((s) => tags.push({ type: 'Size', label: s }));
   if (filters.priceRange) {
     const map = {
       under500:    'Under ₹500',
@@ -47,7 +47,7 @@ const buildActiveTags = (filters) => {
     };
     tags.push({ type: 'Price', label: map[filters.priceRange] ?? filters.priceRange });
   }
-  if (filters.capacity) tags.push({ type: 'Capacity', label: filters.capacity });
+  (filters.capacities ?? []).forEach((c) => tags.push({ type: 'Capacity', label: c }));
   return tags;
 };
 
@@ -104,10 +104,10 @@ const AllProducts = () => {
     if (tag.type === 'Category') updated.category   = '';
     if (tag.type === 'Brand')    updated.brands     = updated.brands.filter((v) => v !== tag.label);
     if (tag.type === 'Material') updated.material   = (updated.material ?? []).filter((v) => v !== tag.label);
-    if (tag.type === 'Size')     updated.size       = '';
+    if (tag.type === 'Size')     updated.sizes      = (updated.sizes ?? []).filter((v) => v !== tag.label);
     if (tag.type === 'Pattern')  updated.pattern    = '';
     if (tag.type === 'Price')    updated.priceRange = '';
-    if (tag.type === 'Capacity') updated.capacity   = '';
+    if (tag.type === 'Capacity') updated.capacities = (updated.capacities ?? []).filter((v) => v !== tag.label);
     applyFilters(updated);
   };
 
@@ -117,6 +117,26 @@ const AllProducts = () => {
     clearSearch();
     window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   };
+
+  // If brand is requested from Home but doesn't exist, fallback to all products
+  useEffect(() => {
+    if (!loading && dbProducts.length > 0) {
+      const incoming = location.state?.filters;
+      if (incoming && incoming.brands && incoming.brands.length > 0) {
+        const brandName = incoming.brands[0];
+        const brandExists = dbProducts.some(
+          (p) =>
+            (p.brand || '').toLowerCase() === brandName.toLowerCase() ||
+            (p.name || '').toLowerCase().includes(brandName.toLowerCase())
+        );
+        if (!brandExists) {
+          applyFilters(DEFAULT_FILTERS);
+          sessionStorage.removeItem(STORAGE_KEY);
+          clearSearch();
+        }
+      }
+    }
+  }, [loading, dbProducts, location.state]);
 
   const handleBuyNowCheckout = (product) => {
     navigate("/product", { state: { product } });
@@ -147,33 +167,54 @@ const AllProducts = () => {
     }
     if (appliedFilters.bags && appliedFilters.bags.length > 0) {
       products = products.filter((p) => {
-        const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
-        return appliedFilters.bags.some((bag) => searchTerm.includes(bag.toLowerCase()));
+        const subCat = (p.subCategory || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return appliedFilters.bags.some((bag) =>
+          subCat === bag.toLowerCase() || name.includes(bag.toLowerCase())
+        );
       });
     }
     if (appliedFilters.brands && appliedFilters.brands.length > 0) {
       products = products.filter((p) => {
-        const searchTerm = `${p.name} ${p.category} ${p.description}`.toLowerCase();
-        return appliedFilters.brands.some((brand) => searchTerm.includes(brand.toLowerCase()));
+        const pBrand = (p.brand || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        return appliedFilters.brands.some((brand) =>
+          pBrand === brand.toLowerCase() || name.includes(brand.toLowerCase())
+        );
       });
     }
     if (appliedFilters.material && appliedFilters.material.length > 0) {
       products = products.filter((p) => {
-        const searchTerm = `${p.name} ${p.description}`.toLowerCase();
-        return appliedFilters.material.some((m) => searchTerm.includes(m.toLowerCase()));
+        const pMat = (p.material || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        return appliedFilters.material.some((m) => {
+          const baseMat = m.toLowerCase();
+          return pMat === baseMat || name.includes(baseMat) || desc.includes(baseMat);
+        });
       });
     }
-    if (appliedFilters.size) {
-      products = products.filter((p) =>
-        p.name?.toLowerCase().includes(appliedFilters.size.toLowerCase()) ||
-        p.size?.toLowerCase() === appliedFilters.size.toLowerCase()
-      );
+    if (appliedFilters.sizes && appliedFilters.sizes.length > 0) {
+      products = products.filter((p) => {
+        const pSize = (p.size || '').toLowerCase();
+        const name = (p.name || '').toLowerCase();
+        const sizeList = pSize.split(',').map((s) => s.trim());
+        return appliedFilters.sizes.every((size) => {
+          const lowerSize = size.toLowerCase();
+          return sizeList.includes(lowerSize) || name.includes(lowerSize);
+        });
+      });
     }
-    if (appliedFilters.capacity) {
-      products = products.filter((p) =>
-        p.capacity?.toLowerCase() === appliedFilters.capacity.toLowerCase() ||
-        p.description?.toLowerCase().includes(appliedFilters.capacity.toLowerCase())
-      );
+    if (appliedFilters.capacities && appliedFilters.capacities.length > 0) {
+      products = products.filter((p) => {
+        const pCap = (p.capacity || '').toLowerCase();
+        const desc = (p.description || '').toLowerCase();
+        const capList = pCap.split(',').map((c) => c.trim());
+        return appliedFilters.capacities.every((capacity) => {
+          const lowerCap = capacity.toLowerCase();
+          return capList.includes(lowerCap) || desc.includes(lowerCap);
+        });
+      });
     }
 
     return products;
@@ -188,8 +229,18 @@ const AllProducts = () => {
     return sorted;
   }, [sortBy, filteredProducts]);
 
-  const hasNoResults    = !loading && sortedProducts.length === 0;
-  const displayProducts = hasNoResults ? dbProducts : sortedProducts;
+  // Always push out-of-stock items to the end, preserving relative order within each group
+  const isOutOfStock = (p) =>
+    p.stocks !== undefined && p.stocks !== null && parseInt(p.stocks) <= 0;
+
+  const stockSortedProducts = useMemo(() => {
+    const inStock = sortedProducts.filter((p) => !isOutOfStock(p));
+    const outOfStock = sortedProducts.filter((p) => isOutOfStock(p));
+    return [...inStock, ...outOfStock];
+  }, [sortedProducts]);
+
+  const hasNoResults    = !loading && stockSortedProducts.length === 0;
+  const displayProducts = hasNoResults ? dbProducts : stockSortedProducts;
 
   const sidebar = (
     <FilterSideBar
@@ -213,20 +264,83 @@ const AllProducts = () => {
           <div className="all-products-main">
             <div className="all-products-sidebar desktop-only">{sidebar}</div>
             <div className="all-products-grid">
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', padding: '1rem 0' }}>
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: '15rem',
-                      height: '22rem',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
-                      backgroundSize: '200% 100%',
-                      animation: 'shimmer 1.4s infinite',
-                    }}
-                  />
-                ))}
+              <div className="ProductCard-section">
+                <div className="container">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="card"
+                      style={{
+                        background: '#fff',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        height: '100%',
+                        border: '1px solid #f0f0f0',
+                      }}
+                    >
+                      {/* Image area skeleton with brand custom border-radius shape */}
+                      <div
+                        style={{
+                          width: '100%',
+                          aspectRatio: '1 / 1',
+                          borderRadius: '0 40px 0 40px',
+                          background: 'linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)',
+                          backgroundSize: '200% 100%',
+                          animation: 'shimmer 1.5s infinite',
+                        }}
+                      />
+                      <div className="card-body" style={{ padding: '0.875rem' }}>
+                        {/* Title text skeleton */}
+                        <div
+                          style={{
+                            height: '1.2rem',
+                            width: '85%',
+                            borderRadius: '4px',
+                            background: 'linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'shimmer 1.5s infinite',
+                            marginBottom: '0.5rem',
+                          }}
+                        />
+                        {/* Rating stars skeleton */}
+                        <div
+                          style={{
+                            height: '0.9rem',
+                            width: '45%',
+                            borderRadius: '4px',
+                            background: 'linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'shimmer 1.5s infinite',
+                            marginBottom: '0.8rem',
+                          }}
+                        />
+                        {/* Prices row skeleton */}
+                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                          <div
+                            style={{
+                              height: '1.4rem',
+                              width: '35%',
+                              borderRadius: '4px',
+                              background: 'linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)',
+                              backgroundSize: '200% 100%',
+                              animation: 'shimmer 1.5s infinite',
+                            }}
+                          />
+                          <div
+                            style={{
+                              height: '1.1rem',
+                              width: '25%',
+                              borderRadius: '4px',
+                              background: 'linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%)',
+                              backgroundSize: '200% 100%',
+                              animation: 'shimmer 1.5s infinite',
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
               <style>{`
                 @keyframes shimmer {

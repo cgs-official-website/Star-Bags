@@ -4,6 +4,8 @@ import AdminSidebar from "../../components/Admin/AdminSidebar";
 import { FiUploadCloud, FiCalendar, FiEdit, FiTrash2 } from "react-icons/fi";
 import ConfirmModal from "../../components/Admin/ConfirmModal";
 import banner1 from "../../assets/images/banner1.png";
+import banner2 from "../../assets/images/banner2.png";
+import walletImg from "../../assets/images/wallet.png";
 import "../../assets/styles/BannerManagement.css";
 import AdminHeader from "../../components/Admin/AdminHeader";
 import { FormSkeleton } from "../../components/Admin/AdminSkeleton";
@@ -12,19 +14,51 @@ import { db } from "../../firebase";
 
 const ACTIVE_SLOT_COUNT = 3;
 
-const makeDefault = (slotIndex) => ({
-  id: `default-slot-${slotIndex}`,
-  slotIndex,
-  title: "Signature Duffel Launch",
-  subtitle: "Exclusive Collection",
-  ctaText: "Shop Now",
-  redirectLink: "/AllProducts",
-  startDate: "2026-01-01",
-  endDate: "2026-12-31",
-  image: banner1,
-  status: "ACTIVE",
-  isDefault: true,
-});
+const makeDefault = (slotIndex) => {
+  if (slotIndex === 0) {
+    return {
+      id: `default-slot-0`,
+      slotIndex: 0,
+      title: "Signature Duffel Launch",
+      subtitle: "Exclusive Collection",
+      ctaText: "Shop Now",
+      redirectLink: "/AllProducts",
+      startDate: "2026-01-01",
+      endDate: "2026-12-31",
+      image: banner1,
+      status: "ACTIVE",
+      isDefault: true,
+    };
+  } else if (slotIndex === 1) {
+    return {
+      id: `default-slot-1`,
+      slotIndex: 1,
+      title: "Handcrafted Luxury Bags",
+      subtitle: "Timeless Italian Design",
+      ctaText: "Explore",
+      redirectLink: "/AllProducts",
+      startDate: "2026-01-01",
+      endDate: "2026-12-31",
+      image: banner2,
+      status: "ACTIVE",
+      isDefault: true,
+    };
+  } else {
+    return {
+      id: `default-slot-2`,
+      slotIndex: 2,
+      title: "Premium Leather Wallets",
+      subtitle: "Sleek and Minimalist Essentials",
+      ctaText: "Discover",
+      redirectLink: "/AllProducts",
+      startDate: "2026-01-01",
+      endDate: "2026-12-31",
+      image: walletImg,
+      status: "ACTIVE",
+      isDefault: true,
+    };
+  }
+};
 
 const INITIAL_ACTIVE = Array.from({ length: ACTIVE_SLOT_COUNT }, (_, i) =>
   makeDefault(i),
@@ -78,12 +112,63 @@ function BannerManagement() {
           else if (data.status === 'SCHEDULED') scheduledBanners.push(data);
         });
 
-        if (activeBanners.length > 0) {
-          // Merge fetched active banners into slots
-          const merged = INITIAL_ACTIVE.map((slot, i) => activeBanners[i] ? { ...activeBanners[i], slotIndex: i } : slot);
-          setActiveSlots(merged);
+        // Sort scheduled by startDate ascending
+        scheduledBanners.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+        // Merge active banners into slots based on their slotIndex
+        const merged = [...INITIAL_ACTIVE];
+        activeBanners.forEach((banner) => {
+          const idx = banner.slotIndex !== undefined ? banner.slotIndex : 0;
+          if (idx >= 0 && idx < ACTIVE_SLOT_COUNT) {
+            merged[idx] = banner;
+          }
+        });
+
+        // Process expirations and promotions, then write back to Firestore
+        let hasChanges = false;
+        const newActiveSlots = [...merged];
+        const newScheduled = [...scheduledBanners];
+        const today = todayStr();
+
+        for (let i = 0; i < newActiveSlots.length; i++) {
+          const banner = newActiveSlots[i];
+          if (isExpired(banner)) {
+            const nextScheduledIndex = newScheduled.findIndex(
+              (b) => b.startDate <= today,
+            );
+
+            if (nextScheduledIndex !== -1) {
+              const next = newScheduled[nextScheduledIndex];
+              const promotedBanner = {
+                ...next,
+                slotIndex: banner.slotIndex,
+                status: "ACTIVE",
+                isDefault: false,
+              };
+              newActiveSlots[i] = promotedBanner;
+              newScheduled.splice(nextScheduledIndex, 1);
+              
+              // Write the promoted active banner to Firestore
+              await setDoc(doc(db, 'banners', String(next.id)), promotedBanner);
+              
+              // Delete the old expired banner from Firestore
+              if (banner.id && !banner.isDefault) {
+                await deleteDoc(doc(db, 'banners', String(banner.id)));
+              }
+              hasChanges = true;
+            } else if (!banner.isDefault) {
+              newActiveSlots[i] = makeDefault(banner.slotIndex);
+              // Delete the expired active banner from Firestore so it falls back to default
+              if (banner.id) {
+                await deleteDoc(doc(db, 'banners', String(banner.id)));
+              }
+              hasChanges = true;
+            }
+          }
         }
-        if (scheduledBanners.length > 0) setScheduled(scheduledBanners);
+
+        setActiveSlots(newActiveSlots);
+        setScheduled(newScheduled);
         if (offerTextsData) setOfferTexts(offerTextsData);
       } catch (err) {
         console.error('Error loading banners:', err);
@@ -310,43 +395,7 @@ function BannerManagement() {
     closeForm();
   };
 
-  useEffect(() => {
-    let hasChanges = false;
-    let newActiveSlots = [...activeSlots];
-    let newScheduled = [...scheduled].sort(
-      (a, b) => new Date(a.startDate) - new Date(b.startDate),
-    );
-    const today = todayStr();
-
-    for (let i = 0; i < newActiveSlots.length; i++) {
-      const banner = newActiveSlots[i];
-      if (isExpired(banner)) {
-        const nextScheduledIndex = newScheduled.findIndex(
-          (b) => b.startDate <= today,
-        );
-
-        if (nextScheduledIndex !== -1) {
-          const next = newScheduled[nextScheduledIndex];
-          newActiveSlots[i] = {
-            ...next,
-            slotIndex: banner.slotIndex,
-            status: "ACTIVE",
-            isDefault: false,
-          };
-          newScheduled.splice(nextScheduledIndex, 1);
-          hasChanges = true;
-        } else if (!banner.isDefault) {
-          newActiveSlots[i] = makeDefault(banner.slotIndex);
-          hasChanges = true;
-        }
-      }
-    }
-
-    if (hasChanges) {
-      setActiveSlots(newActiveSlots);
-      setScheduled(newScheduled);
-    }
-  }, [activeSlots, scheduled]);
+  // Expiration and scheduled promotions are processed and synced to Firestore on initialization mount.
 
   const deleteScheduled = (id) => {
     setDeleteTargetId(id);

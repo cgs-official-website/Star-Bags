@@ -5,6 +5,7 @@ import Footer from '../../components/User/Footer';
 import ProfileSideNav from '../../components/User/Profile-Side-Nav';
 import ReviewCard from '../../components/User/ReviewCard';
 import { useAuth } from '../../context/AuthContext';
+import { ReviewSkeleton } from '../../components/User/UserSkeleton';
 import { db } from '../../firebase';
 import {
   collection,
@@ -61,6 +62,8 @@ function Myreviews() {
           reviewText: d.data().text || '',
           shortReview: d.data().shortReview || '',
           date: d.data().date,
+          likes: d.data().likes || [],
+          dislikes: d.data().dislikes || [],
           likeCount: d.data().likeCount || 0,
           dislikeCount: d.data().dislikeCount || 0,
           isHidden: d.data().isHidden || false,
@@ -165,7 +168,6 @@ function Myreviews() {
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
         <div className="row justify-content-center align-items-start">
-
           {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
           <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
@@ -182,13 +184,7 @@ function Myreviews() {
               {/* Reviews List */}
               <div className="reviews-list-wrapper">
                 {loading ? (
-                  <div className="d-flex justify-content-center align-items-center py-5">
-                    <div
-                      className="spinner-border"
-                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
-                      role="status"
-                    />
-                  </div>
+                  <ReviewSkeleton />
                 ) : reviews.length > 0 ? (
                   <div className="reviews-scroll-list">
                     {reviews.map((review) => (
@@ -215,7 +211,6 @@ function Myreviews() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
       <Footer />
@@ -289,7 +284,6 @@ function Myreviews() {
 }
 
 export default Myreviews;
-
 
 
 // import React, { useState } from 'react';

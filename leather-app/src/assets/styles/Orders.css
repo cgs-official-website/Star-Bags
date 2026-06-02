@@ -17,6 +17,35 @@
   background: #fff;
 }
 
+.orders-page-app-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.orders-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  flex: 1;
+  width: 100%;
+}
+
+.orders-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.orders-header {
+  border-bottom: 1px solid #f1f5f9;
+}
+
 /* Orders purchase history text */
 .orders-purchase-history-text {
   font-size: 0.85rem;
@@ -25,7 +54,7 @@
   font-weight: 400;
 }
 
-/* Search Bar Styling */
+/* Search Bar Styling - FIXED SEARCH ICON */
 .orders-search-wrapper {
   width: 100%;
 }
@@ -43,6 +72,7 @@
   transform: translateY(-50%);
   color: #94a3b8;
   font-size: 14px;
+  pointer-events: none; /* Prevents icon from blocking input clicks */
 }
 
 .orders-search .search-input {

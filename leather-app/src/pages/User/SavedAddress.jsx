@@ -9,6 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
+import { AddressSkeleton } from "../../components/User/UserSkeleton";
 
 const emptyForm = {
   email: "",
@@ -123,6 +124,7 @@ function SavedAddress() {
     
     setFormData(emptyForm);
     setShowForm(false);
+    navigate("/BillAddress");
   };
 
   const handleCancel = () => {
@@ -186,17 +188,25 @@ function SavedAddress() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
         <div className="row justify-content-center align-items-start">
-          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
+          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-8 col-12">
-            {hasAddresses && (
-              <div className="saved-address-card mb-3">
+          <div className="col-lg-8 col-md-7 col-12">
+            {loadingAddresses ? (
+              <div className="saved-address-card">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="fw-bold mb-0">Saved Addresses</h5>
+                </div>
+                <AddressSkeleton />
+              </div>
+            ) : hasAddresses ? (
+              <div className="saved-address-card mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h4 className="fw-bold mb-0 outfit-font text-dark-theme">Saved Addresses</h4>
                   <button
-                    className="btn add-address-btn d-flex align-items-center gap-2"
+                    className="btn add-address-btn d-flex align-items-center gap-2 text-white px-3 fw-bold small"
+                    style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }}
                     onClick={handleAddNew}
                     type="button"
                   >
@@ -209,7 +219,7 @@ function SavedAddress() {
                 </div>
 
                 <div className={`address-form-collapse ${showForm ? "open" : ""}`}>
-                  <div id="address-form-section" className="address-form-box mb-4">
+                  <div id="address-form-section" className="address-form-box mb-4 p-3 border rounded-3 bg-light">
                     <h6 className="fw-bold mb-3">
                       {editingId ? "Edit Address" : "New Address"}
                     </h6>
@@ -222,21 +232,31 @@ function SavedAddress() {
                   </div>
                 </div>
 
-                <div className="address-list">
+                <div className="address-list d-flex flex-column gap-3">
                   {savedAddresses.map((addr, index) => (
-                    <div key={addr.id} className="address-item">
-                      <div className="d-flex justify-content-between align-items-start">
+                    <div key={addr.id} className="address-item p-3 border rounded-3 bg-white shadow-sm">
+                      <div className="d-flex justify-content-between align-items-start flex-wrap gap-2">
                         <div>
-                          <p className="address-label">Address {index + 1}</p>
-                          <p className="address-text">{addr.name}, {addr.address}</p>
-                          <p className="address-text">{addr.city}, {addr.state} – {addr.pin}</p>
-                          <p className="address-text">Mobile: {addr.mobile || addr.contact}</p>
+                          <p className="address-label fw-bold small m-0 mb-1" style={{ color: "#8b5cf6" }}>Address {index + 1}</p>
+                          <p className="address-text m-0 mb-1 text-dark fw-semibold" style={{ fontSize: "0.95rem" }}>{addr.name}, {addr.address}</p>
+                          <p className="address-text m-0 mb-1 text-muted small">{addr.city}, {addr.state} – {addr.pin}</p>
+                          <p className="address-text m-0 text-secondary small fw-bold">Mobile: {addr.mobile || addr.contact}</p>
                         </div>
                         <div className="d-flex gap-2">
-                          <button className="btn edit-addr-btn d-flex align-items-center gap-1" onClick={() => handleEdit(addr)} type="button">
+                          <button 
+                            className="btn btn-sm btn-light border p-1 px-2 d-flex align-items-center gap-1 small" 
+                            style={{ fontSize: "0.78rem", fontWeight: "600" }}
+                            onClick={() => handleEdit(addr)} 
+                            type="button"
+                          >
                             <MdEdit /> Edit
                           </button>
-                          <button className="btn edit-addr-btn text-danger d-flex align-items-center gap-1" style={{ borderColor: "#fee2e2" }} onClick={() => triggerDeletePrompt(addr.id)} type="button">
+                          <button 
+                            className="btn btn-sm btn-light border text-danger p-1 px-2 d-flex align-items-center gap-1 small" 
+                            style={{ fontSize: "0.78rem", fontWeight: "600", borderColor: "#fee2e2" }} 
+                            onClick={() => triggerDeletePrompt(addr.id)} 
+                            type="button"
+                          >
                             <MdDelete /> Delete
                           </button>
                         </div>
@@ -245,9 +265,8 @@ function SavedAddress() {
                   ))}
                 </div>
               </div>
-            )}
 
-            {!hasAddresses && (
+            ) : (
               <div className="saved-address-card">
                 <h5 className="fw-bold mb-3">Address</h5>
                 <AddressForm
@@ -260,17 +279,18 @@ function SavedAddress() {
               </div>
             )}
           </div>
+
         </div>
       </div>
 
       {showDeleteModal && (
-        <div className="modal-overlay-custom">
-          <div className="modal-box-custom shadow-lg">
-            <h5>Confirm Deletion</h5>
-            <p>Are you absolutely sure you want to delete this delivery address? This action cannot be reverted.</p>
-            <div className="d-flex gap-3 mt-4">
-              <button className="btn btn-modal-cancel" type="button" onClick={() => setShowDeleteModal(false)}>Cancel</button>
-              <button className="btn btn-modal-confirm" type="button" onClick={confirmDeleteAction}>Delete</button>
+        <div className="modal-overlay-custom" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 20000 }}>
+          <div className="bg-white p-4 rounded-3 text-center shadow-lg" style={{ width: "90%", maxWidth: "380px" }}>
+            <h5 className="fw-bold mb-2">Confirm Deletion</h5>
+            <p className="text-muted small">Are you absolutely sure you want to delete this delivery address? This action cannot be reverted.</p>
+            <div className="d-flex gap-3 mt-4 justify-content-end">
+              <button className="btn btn-light border px-3 small fw-bold" style={{ borderRadius: "6px" }} type="button" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+              <button className="btn btn-danger px-3 small fw-bold" style={{ borderRadius: "6px" }} type="button" onClick={confirmDeleteAction}>Delete</button>
             </div>
           </div>
         </div>

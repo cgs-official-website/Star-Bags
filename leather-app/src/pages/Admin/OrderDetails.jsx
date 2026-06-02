@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/Admin/AdminSidebar';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import '../../assets/styles/OrderManagement.css';
 import '../../assets/styles/AdminHeader.css';
 import { OrderDetailsSkeleton } from '../../components/Admin/AdminSkeleton';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
+import { generateInvoicePDF } from '../../utils/generateInvoicePDF';
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -226,61 +225,22 @@ const OrderDetails = () => {
 
   const downloadInvoice = () => {
     if (!order) return;
-    const doc = new jsPDF();
-    
-    doc.setFontSize(22);
-    doc.setTextColor(46, 16, 101); 
-    doc.text("TAX INVOICE", 105, 20, null, null, "center");
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Order ID: ${order.id}`, 20, 35);
-    doc.text(`Invoice Date: ${order.date}`, 20, 42);
-    doc.text(`Payment Mode: ${order.paymentMode}`, 20, 49);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text("From:", 20, 65);
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
-    doc.text("Star Bags Official", 20, 72);
-    doc.text("45 Industrial Estate", 20, 78);
-    doc.text("Chennai, Tamil Nadu 600001", 20, 84);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Bill To:", 120, 65);
-    doc.setFontSize(10);
-    doc.setTextColor(80, 80, 80);
-    doc.text(order.customer, 120, 72);
-    doc.text(order.mobileNumber, 120, 78);
-    const splitAddress = doc.splitTextToSize(order.address, 70);
-    doc.text(splitAddress, 120, 84);
-    
-    autoTable(doc, {
-      startY: 110,
-      headStyles: { fillColor: [46, 16, 101] },
-      head: [['S.No', 'Product Name', 'Brand', 'Category', 'Size', 'Qty', 'Unit Price', 'Total']],
-      body: [
-        ['1', order.productName, order.brand, order.category, order.size, order.quantity, `₹${originalSubtotal / order.quantity}`, `₹${originalSubtotal}`]
-      ],
+    // Build userAddress from available order data
+    const userAddress = {
+      name:    order.customer || '',
+      address: order.address  || '',
+      city:    '',
+      state:   '',
+      pin:     '',
+      mobile:  order.mobileNumber || '',
+    };
+    generateInvoicePDF({
+      order: { ...order, product: order.productName },
+      userAddress,
+      itemsPrice: originalSubtotal,
+      savings:    couponDiscount,
+      finalPrice: subtotalAfterDiscount,
     });
-    
-    const finalY = doc.lastAutoTable.finalY || 110;
-    doc.setFontSize(10);
-    doc.text(`Subtotal: ₹${originalSubtotal}`, 140, finalY + 15);
-    doc.text(`Discount: -₹${couponDiscount}`, 140, finalY + 22);
-    doc.text(`GST (18%): ₹${gstAmount}`, 140, finalY + 29);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Grand Total: ₹${grandTotal}`, 140, finalY + 39);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text("Thank you for shopping with Star Bags!", 105, 280, null, null, "center");
-    
-    doc.save(`Invoice_${order.id}.pdf`);
   };
 
   return (

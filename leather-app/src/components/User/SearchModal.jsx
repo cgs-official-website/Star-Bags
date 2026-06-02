@@ -184,7 +184,7 @@ const SearchModal = ({
             </>
           )}
 
-          {/* State 2 — typing: filtered results */}
+          {/* State 2 — typing: filtered results with image */}
           {!isEmptyQuery && filtered.length > 0 && (
             <ul className="sm-list">
               {filtered.slice(0, 6).map((product, i) => (
@@ -193,12 +193,25 @@ const SearchModal = ({
                   className="sm-item"
                   onMouseDown={() => handleSelect(product)}
                 >
-                  <span className="sm-clock-wrap">
-                    <FiClock size={16} />
-                  </span>
-                  <span className="sm-item-name">
-                    {highlight(product.name, query)}
-                  </span>
+                  <div className="sm-thumb">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        onError={(e) => (e.target.style.display = "none")}
+                      />
+                    ) : (
+                      <span className="sm-thumb-fallback">🛍</span>
+                    )}
+                  </div>
+                  <div className="sm-item-info">
+                    <span className="sm-item-name">
+                      {highlight(product.name, query)}
+                    </span>
+                    {product.category && (
+                      <span className="sm-item-category">{product.category}</span>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
