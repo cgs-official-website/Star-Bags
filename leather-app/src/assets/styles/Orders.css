@@ -2,6 +2,13 @@
    ORDERS PAGE - MATCHING PROFILE CARD STYLE
    ========================================================== */
 
+   /* Sticky sidebar — mirrors SavedAddress layout */
+.sidebar-sticky {
+  position: sticky;
+  top: 75px;
+  align-self: flex-start;
+}
+
 /* Main card container matching Profile component */
 .profile-details-card {
   border: 1px solid #e0e0e0;

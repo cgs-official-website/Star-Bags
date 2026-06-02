@@ -18,6 +18,7 @@
 
 /* ── Grid ─────────────────────────────────────── */
 .wl-grid {
+  margin-top: 1.5rem;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.2rem;
@@ -269,6 +270,7 @@
   }
   
   .wl-grid {
+    margin-top: 1rem;
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
@@ -285,6 +287,7 @@
   }
   
   .wl-grid {
+    margin-top: 0.75rem;
     grid-template-columns: repeat(2, 1fr);
     gap: 0.85rem;
   }
@@ -336,6 +339,7 @@
 /* ── Small Mobile (≤ 576px) ───────────────────── */
 @media (max-width: 576px) {
   .wl-grid {
+    margin-top: 0.5rem;
     grid-template-columns: 1fr;
     gap: 1rem;
   }

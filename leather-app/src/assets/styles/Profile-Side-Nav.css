@@ -1,3 +1,7 @@
+:root {
+    --levender: #8B5CF6;
+}
+
 /* Sidebar */
 .profile-sidebar-card {
     border: 1px solid #e0e0e0;
@@ -50,17 +54,18 @@
 }
 
 .profile-menu-link:hover {
-    border-color: var(--levender, #8B5CF6);
-    color: var(--levender, #8B5CF6);
+    border-color: var(--levender);
+    color: var(--levender);
 }
 
 .profile-menu-link.active {
-    border-color: var(--levender, #8B5CF6);
-    color: #333; 
+    background-color: var(--levender);
+    border-color: var(--levender);
+    color: white;
 }
 
 .profile-menu-link.active .menu-icon {
-    color: #555;
+    color: white;
 }
 
 .theme-toggle-item {
@@ -80,7 +85,7 @@
 }
 
 .logout-btn {
-    background-color: var(--levender, #8B5CF6);
+    background-color: var(--levender);
     color: white;
     border-radius: 5px;
     padding: 10px;
@@ -90,6 +95,7 @@
     justify-content: center;
     transition: 0.3s;
     max-width: 350px;
+    border: none;
 }
 
 .logout-btn:hover {
@@ -99,11 +105,88 @@
 
 /* For form switch */
 .form-check-input:checked {
-    background-color: var(--levender, #8B5CF6);
-    border-color: var(--levender, #8B5CF6);
+    background-color: var(--levender);
+    border-color: var(--levender);
 }
 
 .form-check-input:focus {
     box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.25);
-    border-color: var(--levender, #8B5CF6);
+    border-color: var(--levender);
+}
+
+/* ✅ Tablet Responsive Fix */
+@media (max-width: 991px) {
+    .profile-sidebar-card {
+        max-width: 100%;
+        width: 100%;
+        border-radius: 10px;
+        padding: 16px;
+    }
+
+    .logout-btn {
+        max-width: 100%;
+        width: 100%;
+        background-color: var(--levender) !important;
+        color: white !important;
+    }
+
+    .logout-btn:hover {
+        background-color: #7c4df2 !important;
+        color: white !important;
+    }
+
+    .profile-menu-link.active {
+        background-color: var(--levender) !important;
+        border-color: var(--levender) !important;
+        color: white !important;
+    }
+
+    .profile-menu-link.active .menu-icon {
+        color: white !important;
+    }
+}
+
+/* ✅ Mobile Responsive Fix */
+@media (max-width: 576px) {
+    .profile-sidebar-card {
+        max-width: 100%;
+        width: 100%;
+        padding: 14px;
+        border-radius: 8px;
+    }
+
+    .profile-menu-link {
+        padding: 10px 12px;
+        font-size: 0.875rem;
+    }
+
+    .profile-menu-link.active {
+        background-color: var(--levender) !important;
+        border-color: var(--levender) !important;
+        color: white !important;
+    }
+
+    .profile-menu-link.active .menu-icon {
+        color: white !important;
+    }
+
+    .menu-icon {
+        font-size: 1rem;
+        margin-right: 8px;
+    }
+
+    .logout-btn {
+        max-width: 100%;
+        width: 100%;
+        padding: 10px;
+        font-size: 0.875rem;
+        background-color: var(--levender) !important;
+        color: white !important;
+        border: none !important;
+    }
+
+    .logout-btn:hover {
+        background-color: #7c4df2 !important;
+        color: white !important;
+    }
 }

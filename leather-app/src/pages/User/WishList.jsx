@@ -55,7 +55,7 @@ function WishlistCard({ item, onRemove, onAddToCart }) {
   );
 }
 
-// ─── Empty Wishlist State (Fixed Image & Navigation) ──────────────────────────
+// ─── Empty Wishlist State ──────────────────────────────────────────────────────
 function EmptyWishlist() {
   const navigate = useNavigate();
 
@@ -111,53 +111,59 @@ function WishList() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
-        <div className="row justify-content-center">
-          {/* Sidebar Area Column */}
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
+        {/* Layout matching Myreviews exactly */}
+        <div className="row justify-content-center align-items-start">
+
+          {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
+          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* Main Content Area */}
-          <div className="col-lg-8 col-md-7">
+          {/* Main content — full width on mobile/tablet, 8-col on desktop */}
+          <div className="col-lg-8 col-12">
             <div className="profile-details-card">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                  <h4 className="fw-bold mb-1">My Wishlist</h4>
-                  <p className="wishlist-subtitle">Your favorite products saved here</p>
-                </div>
+              <div className="wishlist-header">
+                <h4 className="fw-bold mb-1">My Wishlist</h4>
+                <p className="wishlist-subtitle">Your favorite products saved here</p>
               </div>
 
-              {wishlistLoading ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
-                  <div className="spinner-border" style={{ color: "#8b5cf6", width: "2.5rem", height: "2.5rem" }} role="status" />
-                </div>
-              ) : liveWishlist.length === 0 ? (
-                <EmptyWishlist />
-              ) : (
-                <div className="wl-grid">
-                  {liveWishlist.map((item) => (
-                    <WishlistCard
-                      key={item.id}
-                      item={item}
-                      onRemove={removeFromWishlist}
-                      onAddToCart={addToCart}
+              {/* Wishlist Items */}
+              <div className="wishlist-list-wrapper">
+                {wishlistLoading ? (
+                  <div className="d-flex justify-content-center align-items-center py-5">
+                    <div
+                      className="spinner-border"
+                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
+                      role="status"
                     />
-                  ))}
-                </div>
-              )}
+                  </div>
+                ) : liveWishlist.length > 0 ? (
+                  <div className="wl-grid">
+                    {liveWishlist.map((item) => (
+                      <WishlistCard
+                        key={item.id}
+                        item={item}
+                        onRemove={removeFromWishlist}
+                        onAddToCart={addToCart}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyWishlist />
+                )}
+              </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <Footer /> 
+      <Footer />
     </>
   );
 }
 
 export default WishList;
-
-
 
 // import { useNavigate } from "react-router-dom"; // ← ADDED for robust routing
 // import { useWishlist } from "../../context/WishlistContext";

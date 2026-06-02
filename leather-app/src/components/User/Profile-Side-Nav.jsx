@@ -113,31 +113,56 @@ function ProfileSideNav() {
         {/* Menu Items */}
         <ul className="profile-menu-list list-unstyled mb-0">
           <li>
-            <NavLink to="/profile" className="profile-menu-link">
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+            >
               <FaRegUserCircle className="menu-icon" />
               My profile
             </NavLink>
           </li>
           <li>
-            <NavLink to="/orders" className="profile-menu-link">
+            <NavLink
+              to="/orders"
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+            >
               <FiBox className="menu-icon" />
               My orders
             </NavLink>
           </li>
           <li>
-            <NavLink to="/wishlist" className="profile-menu-link">
+            <NavLink
+              to="/wishlist"
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+            >
               <FaRegHeart className="menu-icon" />
               Wish list
             </NavLink>
           </li>
           <li>
-            <NavLink to="/address" className="profile-menu-link">
+            <NavLink
+              to="/address"
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+            >
               <GrLocation className="menu-icon" />
               Saved address
             </NavLink>
           </li>
           <li>
-            <NavLink to="/reviews" className="profile-menu-link">
+            <NavLink
+              to="/reviews"
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+            >
               <MdOutlineRateReview className="menu-icon" />
               My Reviews
             </NavLink>
@@ -157,8 +182,16 @@ function ProfileSideNav() {
       </div>
 
       {/* Logout Button */}
-      <button onClick={handleLogout} className="btn logout-btn w-100 mt-2" style={{ border: 'none' }}>
-        <FiLogOut className="me-2" style={{transform: "rotate(180deg)"}} />
+      <button
+        onClick={handleLogout}
+        className="logout-btn w-100 mt-2"
+        style={{
+          border: 'none',
+          backgroundColor: '#8B5CF6',
+          color: 'white'
+        }}
+      >
+        <FiLogOut className="me-2" style={{ transform: "rotate(180deg)" }} />
         Log out your Account
       </button>
     </>

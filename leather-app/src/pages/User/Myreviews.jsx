@@ -50,21 +50,19 @@ function Myreviews() {
       q,
       (snapshot) => {
         const fetched = snapshot.docs.map((d) => ({
-          // Map Firestore fields → ReviewCard expected props
-          id: d.id,                          // firestoreId used for edit/delete
+          id: d.id,
           firestoreId: d.id,
           productName: d.data().productName || 'Unknown Product',
           productImage: d.data().image || '',
           rating: d.data().rating || 0,
           reviewText: d.data().text || '',
-          shortReview: '',                   // not in schema, shown as empty
+          shortReview: '',
           date: d.data().date,
           likeCount: d.data().likeCount || 0,
           dislikeCount: d.data().dislikeCount || 0,
-          isHidden: d.data().isHidden || false, // admin may hide the review
+          isHidden: d.data().isHidden || false,
         }));
 
-        // Sort fetched reviews by date descending in-memory
         fetched.sort((a, b) => {
           const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
           const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
@@ -120,12 +118,11 @@ function Myreviews() {
       setDeleteModalOpen(false);
       setDeletingId(null);
     } catch (err) {
-      console.error('Error deleting review:', err);
-      alert('Failed to delete review. Please try again.');
+      console.error('Error deleting review. Please try again.');
     }
   };
 
-  // ─── Date formatter ───────────────────────────────────────────────────────
+  // ─── Date formatter ────────────────────────────────────────────────────────
   const formatDate = (ts) => {
     if (!ts) return '';
     const d = ts.toDate ? ts.toDate() : new Date(ts);
@@ -137,11 +134,17 @@ function Myreviews() {
       <Navbar />
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
-        <div className="row justify-content-center">
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
+
+        {/* ── FIXED: layout now mirrors SavedAddress exactly ── */}
+        <div className="row justify-content-center align-items-start">
+
+          {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
+          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
-          <div className="col-lg-8 col-md-7">
+
+          {/* Main content — full width on mobile/tablet, 8-col on desktop */}
+          <div className="col-lg-8 col-12">
             <div className="profile-details-card">
               <div className="reviews-header">
                 <h4 className="fw-bold mb-1">My Reviews</h4>
@@ -168,7 +171,10 @@ function Myreviews() {
                           onDelete={handleDelete}
                         />
                         {review.date && (
-                          <p className="text-muted" style={{ fontSize: '0.72rem', marginTop: '-8px', paddingLeft: '4px' }}>
+                          <p
+                            className="text-muted"
+                            style={{ fontSize: '0.72rem', marginTop: '-8px', paddingLeft: '4px' }}
+                          >
                             Reviewed on {formatDate(review.date)}
                           </p>
                         )}
@@ -186,6 +192,7 @@ function Myreviews() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
       <Footer />
@@ -200,7 +207,6 @@ function Myreviews() {
             </div>
 
             <div className="rv-modal-body">
-              {/* Star Rating Picker */}
               <label className="rv-label">Rating</label>
               <div className="rv-star-picker">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -244,7 +250,9 @@ function Myreviews() {
               <button className="rv-modal-close" onClick={() => setDeleteModalOpen(false)}>×</button>
             </div>
             <div className="rv-modal-body">
-              <p className="rv-delete-msg">Are you sure you want to delete this review? This action cannot be undone.</p>
+              <p className="rv-delete-msg">
+                Are you sure you want to delete this review? This action cannot be undone.
+              </p>
             </div>
             <div className="rv-modal-footer">
               <button className="rv-btn-cancel" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
@@ -257,9 +265,7 @@ function Myreviews() {
   );
 }
 
-
-export default Myreviews;
-
+export default Myreviews; 
 
 // import React, { useState } from 'react';
 // import Navbar from '../../components/User/Navbar';

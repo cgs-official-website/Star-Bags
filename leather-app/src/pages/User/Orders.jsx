@@ -101,7 +101,6 @@ function Orders() {
                 await updateDoc(doc(db, "reviews", docSnap.id), {
                   productId: matched.id
                 });
-                console.log(`Auto-migrated review ${docSnap.id} to correct productId: ${matched.id}`);
               } catch (migrateErr) {
                 console.error("Failed to auto-migrate review:", migrateErr);
               }
@@ -164,7 +163,6 @@ function Orders() {
     }
   };
 
-  // Fixed filter to handle undefined values
   const filteredOrders = orders.filter((o) => {
     const productMatch = o.product && o.product.toLowerCase().includes(searchTerm.toLowerCase());
     const idMatch = o.id && o.id.toLowerCase().includes(searchTerm.toLowerCase());
@@ -177,7 +175,11 @@ function Orders() {
         <img src={emptyOrders} alt="No Orders" className="orders-empty-vector" style={{ maxWidth: "200px" }} />
       </div>
       <h3 className="orders-empty-heading">No orders yet!</h3>
-      <span onClick={() => navigate("/AllProducts")} className="btn orders-empty-shop-btn text-white mt-2" style={{ cursor: "pointer", backgroundColor: "#8b5cf6", padding: "8px 24px", borderRadius: "6px" }}>
+      <span
+        onClick={() => navigate("/AllProducts")}
+        className="btn orders-empty-shop-btn text-white mt-2"
+        style={{ cursor: "pointer", backgroundColor: "#8b5cf6", padding: "8px 24px", borderRadius: "6px" }}
+      >
         Shop now
       </span>
     </div>
@@ -190,12 +192,16 @@ function Orders() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
-        <div className="row justify-content-center">
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
+        {/* ── FIXED: matches SavedAddress layout exactly ── */}
+        <div className="row justify-content-center align-items-start">
+
+          {/* Sidebar — sticky on desktop, hidden on tablet & mobile */}
+          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-8 col-md-7">
+          {/* Main content — full width on mobile/tablet, 8-col on desktop */}
+          <div className="col-lg-8 col-12">
             <div className="profile-details-card">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
@@ -228,11 +234,11 @@ function Orders() {
                 ) : filteredOrders.length > 0 ? (
                   <div className="orders-grid">
                     {filteredOrders.map((order, index) => (
-                      <OrderCard 
-                        key={`${order.id}-${index}`} 
+                      <OrderCard
+                        key={`${order.id}-${index}`}
                         order={order}
                         reviewed={reviewedOrderIds.has(order.id)}
-                        onReviewClick={() => handleOpenReviewModal(order)} 
+                        onReviewClick={() => handleOpenReviewModal(order)}
                       />
                     ))}
                   </div>
@@ -242,15 +248,16 @@ function Orders() {
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <ReviewModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        onSubmit={handleReviewSubmit} 
-        rating={modalRating} 
-        setRating={setModalRating} 
+      <ReviewModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleReviewSubmit}
+        rating={modalRating}
+        setRating={setModalRating}
       />
 
       <Footer />
@@ -259,7 +266,6 @@ function Orders() {
 }
 
 export default Orders;
-
 
 // import React, { useState, useEffect } from "react";
 // import { useNavigate, useLocation } from "react-router-dom";

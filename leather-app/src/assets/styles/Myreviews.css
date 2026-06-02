@@ -1,7 +1,11 @@
 /* ==========================================================
    MAIN CARD STYLES - Matching Profile Component
    ========================================================== */
-
+.sidebar-sticky {
+  position: sticky;
+  top: 75px;
+  align-self: flex-start;
+}
 .profile-details-card {
   border: 1px solid #e0e0e0;
   border-radius: 10px;

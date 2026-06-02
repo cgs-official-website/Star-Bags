@@ -300,7 +300,7 @@
   color: #fff !important;
 }
 
-.profile-item-icon {
+.profile-item-icon  {
   font-size: 1.05rem;
   color: var(--nav-muted);
   flex-shrink: 0;
@@ -591,4 +591,39 @@
     padding: 3px 6px;
     font-size: 0.65rem;
   }
+}
+/* ✅ FIX: Active dropdown item - purple background, white text & icons */
+.dropdown-menu .dropdown-item.active,
+.dropdown-menu .dropdown-item:active {
+  background-color: var(--nav-accent) !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+}
+
+.dropdown-menu .dropdown-item.active .profile-item-icon,
+.dropdown-menu .dropdown-item.active * {
+  color: #fff !important;
+}
+
+/* ✅ FIX: Hover - light purple, accent text & icons */
+.profile-dropdown-item:hover {
+  background: var(--nav-accent-light) !important;
+  color: var(--nav-accent) !important;
+}
+
+.profile-dropdown-item:hover .profile-item-icon,
+.profile-dropdown-item:hover * {
+  color: var(--nav-accent) !important;
+}
+
+/* ✅ FIX: Default icon color */
+.profile-item-icon {
+  font-size: 1.05rem;
+  color: var(--nav-muted) !important;
+  flex-shrink: 0;
+}
+
+/* ✅ FIX: Active item icon stays white */
+.dropdown-item.active .profile-item-icon {
+  color: #fff !important;
 }
