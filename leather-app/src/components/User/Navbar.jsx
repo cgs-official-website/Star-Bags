@@ -11,6 +11,7 @@ import { useProducts } from '../../context/ProductsContext';
 import SearchModal from '../User/SearchModal';
 import '../../assets/styles/Navbar.css';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import brandLogoLight from '../../assets/images/brand-logo-light.png';
 import brandLogoDark from '../../assets/images/brand-logo-dark.png';
 
@@ -18,6 +19,7 @@ const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
   const { cart } = useWishlist();
   const { currentUser, userData, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const { products: liveProducts } = useProducts();
   const navigate = useNavigate();
   const location = useLocation();
@@ -210,8 +212,18 @@ const Navbar = () => {
                       <div className="d-flex align-items-center gap-2">
                         <BsSun className="profile-item-icon" /> Dark Theme
                       </div>
-                      <div className="form-check form-switch dark-theme-switch m-0">
-                        <input className="form-check-input" type="checkbox" role="switch" />
+                      <div
+                        className="form-check form-switch dark-theme-switch m-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          role="switch"
+                          id="navbarThemeSwitch"
+                          checked={isDark}
+                          onChange={toggleTheme}
+                        />
                       </div>
                     </div>
                   </li>

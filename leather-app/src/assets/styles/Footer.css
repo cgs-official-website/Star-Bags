@@ -69,6 +69,33 @@ body.dark-theme footer,
     color: #ffffff;
 }
 
+body.dark-theme .footer-logo,
+[data-theme="dark"] .footer-logo,
+body.dark-theme .footer-logo *,
+[data-theme="dark"] .footer-logo * {
+    color: #ffffff !important;
+}
+
+/* Use dark-mode specific logo: hide the original img but keep its layout space,
+   and inject the dark logo via a pseudo-element so spacing remains unchanged */
+body.dark-theme .footer-logo img,
+[data-theme="dark"] .footer-logo img {
+    visibility: hidden;
+}
+
+body.dark-theme .footer-logo::before,
+[data-theme="dark"] .footer-logo::before {
+    content: "";
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background-image: url('../images/brand-logo-dark.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    vertical-align: middle;
+}
+
 body.dark-theme .footer-link a,
 [data-theme="dark"] .footer-link a {
     color: rgba(255,255,255,0.9);
@@ -81,6 +108,11 @@ body.dark-theme .social-icons a:hover,
     opacity: 1;
     color: #8b5cf6; /* lavender accent on hover */
     text-shadow: 0 1px 0 rgba(0,0,0,0.35);
+}
+
+body.dark-theme .address a:hover,
+[data-theme="dark"] .address a:hover {
+    color: #8b5cf6 !important;
 }
 
 body.dark-theme .footer-end,

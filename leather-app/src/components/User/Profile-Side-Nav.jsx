@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import "../../assets/styles/Profile-Side-Nav.css";
 import { FaRegUserCircle, FaRegHeart } from "react-icons/fa";
 import { FiBox, FiLogOut } from "react-icons/fi";
@@ -19,20 +20,7 @@ function ProfileSideNav() {
   const { userData, currentUser, logout } = useAuth();
   const fileInputRef = React.useRef(null);
 
-  // ── Dark mode state (persisted in localStorage) ──────────────────
-  const [isDark, setIsDark] = useState(
-    () => localStorage.getItem('theme') === 'dark'
-  );
-
-  useEffect(() => {
-    if (isDark) {
-      document.body.classList.add('dark-theme');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.remove('dark-theme');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDark]);
+  const { isDark, toggleTheme } = useTheme();
 
   const userName = userData?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
 
@@ -169,7 +157,7 @@ function ProfileSideNav() {
                   type="checkbox"
                   id="themeSwitch"
                   checked={isDark}
-                  onChange={() => setIsDark(prev => !prev)}
+                  onChange={toggleTheme}
                 />
               </div>
             </div>
