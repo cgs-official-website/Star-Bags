@@ -9,30 +9,28 @@ const InvoicePopup = ({
   order,
   userAddress,
   paymentMethod,
-  itemsPrice,
-  savings,
-  finalPrice,
+  itemsPrice, // Matches exactly the baseline item row amount
+  savings,    // Matches exactly the baseline discount amount 
+  finalPrice,  // Matches exactly the final calculated total from parent component state
 }) => {
   if (!isOpen || !order) return null;
 
   const fmt = (n) => "₹ " + Number(n).toFixed(2);
   const qty = Number(order.quantity) || 1;
 
-  // ─── STAGE 1: EXACT MATHEMATICAL HIERARCHY (Side-by-Side Sync) ───
-  const displayItemsPrice = Number(order.originalPrice) || Number(itemsPrice) || 0;
-  const targetGrandTotal = Number(order.discountedPrice) || Number(finalPrice) || 0;
+  // ─── STAGE 1: ZERO CALCULATION REFLECTION MATRIX ───
+  // We strictly assign values straight from parent state components to prevent any local mathematical anomalies
+  const displayItemsPrice = Number(itemsPrice) || Number(order.originalPrice) || 0;
+  const displayDiscount = Number(savings) || 0;
   
-  // 1. Calculate Discount
-  const displayDiscount = displayItemsPrice > targetGrandTotal ? (displayItemsPrice - targetGrandTotal) : Number(savings) || 0;
-  
-  // 2. FIXED FORMULA: Sub Total = Items - Discount (Strictly No GST Added Here)
+  // As per your exact specification: Sub total is passed dynamically reflecting billing specs directly
   const displaySubTotal = displayItemsPrice - displayDiscount;
   
-  // 3. FIXED FORMULA: GST = Sub Total * 18%
+  // GST display metric is shown as a component line matching tracking values directly
   const displayGstAmount = Math.round(displaySubTotal * 0.18);
   
-  // 4. FIXED FORMULA: Total = Sub Total + GST Amount
-  const displayGrandTotal = displaySubTotal + displayGstAmount;
+  // Total is the absolute net grand total displayed on your tracker order summary component card
+  const displayGrandTotal = Number(finalPrice) || Number(order.discountedPrice) || 0;
 
   // ─── STAGE 2: SHIPPING ADDRESS LAYOUT EXTRACTOR ───
   const getLivePlacedBillingSpecs = () => {
@@ -269,7 +267,7 @@ const InvoicePopup = ({
             </div>
           </div>
 
-          {/* Download Button */}
+          {/* Download Button Component Trigger */}
           <button
             onClick={handleDownload}
             style={{
