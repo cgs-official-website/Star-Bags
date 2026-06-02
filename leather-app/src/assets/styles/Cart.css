@@ -578,6 +578,7 @@
   .cart-product-name {
     display: -webkit-box !important;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical !important;
     white-space: normal !important;
     overflow: hidden !important;

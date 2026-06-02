@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/User/Navbar';
 import Footer from '../../components/User/Footer';
 import ProfileSideNav from '../../components/User/Profile-Side-Nav';
@@ -19,6 +20,7 @@ import '../../assets/styles/Myreviews.css';
 
 function Myreviews() {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,8 @@ function Myreviews() {
 
     const q = query(
       collection(db, 'reviews'),
-      where('customerId', '==', currentUser.uid)
+      where('customerId', '==', currentUser.uid),
+      orderBy('date', 'desc')
     );
 
     const unsubscribe = onSnapshot(
@@ -56,18 +59,12 @@ function Myreviews() {
           productImage: d.data().image || '',
           rating: d.data().rating || 0,
           reviewText: d.data().text || '',
-          shortReview: '',
+          shortReview: d.data().shortReview || '',
           date: d.data().date,
           likeCount: d.data().likeCount || 0,
           dislikeCount: d.data().dislikeCount || 0,
           isHidden: d.data().isHidden || false,
         }));
-
-        fetched.sort((a, b) => {
-          const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
-          const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
-          return dateB - dateA;
-        });
 
         setReviews(fetched);
         setLoading(false);
@@ -80,6 +77,11 @@ function Myreviews() {
 
     return () => unsubscribe();
   }, [currentUser]);
+
+  // ─── Helper to get empty state image ───────────────────────────────────────
+  const getEmptyStateImage = () => {
+    return new URL("../../assets/images/empty.png", import.meta.url).href;
+  };
 
   // ─── Edit handlers ─────────────────────────────────────────────────────────
   const handleEdit = (review) => {
@@ -118,7 +120,8 @@ function Myreviews() {
       setDeleteModalOpen(false);
       setDeletingId(null);
     } catch (err) {
-      console.error('Error deleting review. Please try again.');
+      console.error('Error deleting review:', err);
+      alert('Failed to delete review. Please try again.');
     }
   };
 
@@ -129,13 +132,38 @@ function Myreviews() {
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
+  // ─── Empty Reviews Component ───────────────────────────────────────────────
+  function EmptyReviews() {
+    return (
+      <div className="rv-empty-container">
+        <div className="rv-empty-image-wrapper">
+          <img 
+            src={getEmptyStateImage()} 
+            alt="No Reviews Vector" 
+            className="rv-empty-vector" 
+          />
+        </div>
+        <h3 className="rv-empty-heading">No reviews yet!</h3>
+        <p className="rv-empty-subheading">
+          Your product reviews will appear here after you review a purchased product.
+        </p>
+        <span 
+          onClick={() => navigate("/AllProducts")} 
+          className="btn rv-empty-shop-btn"
+          style={{ cursor: "pointer" }}
+        >
+          Shop now
+        </span>
+      </div>
+    );
+  }
+
   return (
     <>
       <Navbar />
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
-        {/* ── FIXED: layout now mirrors SavedAddress exactly ── */}
         <div className="row justify-content-center align-items-start">
 
           {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
@@ -182,12 +210,7 @@ function Myreviews() {
                     ))}
                   </div>
                 ) : (
-                  <div className="reviews-empty-container">
-                    <h3 className="reviews-empty-heading">No reviews yet!</h3>
-                    <p className="reviews-empty-sub">
-                      Your product reviews will appear here after you review a purchased product.
-                    </p>
-                  </div>
+                  <EmptyReviews />
                 )}
               </div>
             </div>
@@ -265,7 +288,9 @@ function Myreviews() {
   );
 }
 
-export default Myreviews; 
+export default Myreviews;
+
+
 
 // import React, { useState } from 'react';
 // import Navbar from '../../components/User/Navbar';

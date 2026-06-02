@@ -2,7 +2,7 @@
    ORDERS PAGE - MATCHING PROFILE CARD STYLE
    ========================================================== */
 
-   /* Sticky sidebar — mirrors SavedAddress layout */
+/* Sticky sidebar — mirrors SavedAddress layout */
 .sidebar-sticky {
   position: sticky;
   top: 75px;
@@ -89,7 +89,7 @@
 }
 
 /* ==========================================================
-   EMPTY ORDERS STATE
+   EMPTY ORDERS STATE - Matching Wishlist/Reviews Design
    ========================================================== */
 
 .orders-empty-container {
@@ -123,8 +123,15 @@
   font-size: 24px;
   font-weight: 600;
   color: #000000;
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 0.75rem 0;
   letter-spacing: -0.5px;
+}
+
+.orders-empty-subheading {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  max-width: 320px;
 }
 
 .orders-empty-shop-btn {
@@ -189,10 +196,16 @@
   
   .orders-empty-image-wrapper {
     max-width: 200px;
+    margin-bottom: 1rem;
   }
   
   .orders-empty-heading {
     font-size: 20px;
+  }
+  
+  .orders-empty-subheading {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
   }
   
   .orders-empty-shop-btn {
@@ -231,6 +244,10 @@
   
   .orders-empty-heading {
     font-size: 18px;
+  }
+  
+  .orders-empty-subheading {
+    font-size: 0.8rem;
     margin-bottom: 1rem;
   }
   

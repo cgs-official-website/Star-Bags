@@ -169,16 +169,24 @@ function Orders() {
     return productMatch || idMatch;
   });
 
+  // ─── Empty Orders Component - Matching Wishlist/Reviews Design ───
   const EmptyOrders = () => (
-    <div className="orders-empty-container text-center py-5">
-      <div className="orders-empty-image-wrapper mb-3">
-        <img src={emptyOrders} alt="No Orders" className="orders-empty-vector" style={{ maxWidth: "200px" }} />
+    <div className="orders-empty-container">
+      <div className="orders-empty-image-wrapper">
+        <img 
+          src={emptyOrders} 
+          alt="No Orders Vector" 
+          className="orders-empty-vector" 
+        />
       </div>
       <h3 className="orders-empty-heading">No orders yet!</h3>
-      <span
-        onClick={() => navigate("/AllProducts")}
-        className="btn orders-empty-shop-btn text-white mt-2"
-        style={{ cursor: "pointer", backgroundColor: "#8b5cf6", padding: "8px 24px", borderRadius: "6px" }}
+      <p className="orders-empty-subheading">
+        Your purchased products will appear here once you place an order.
+      </p>
+      <span 
+        onClick={() => navigate("/AllProducts")} 
+        className="btn orders-empty-shop-btn"
+        style={{ cursor: "pointer" }}
       >
         Shop now
       </span>
@@ -192,7 +200,6 @@ function Orders() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
-        {/* ── FIXED: matches SavedAddress layout exactly ── */}
         <div className="row justify-content-center align-items-start">
 
           {/* Sidebar — sticky on desktop, hidden on tablet & mobile */}
@@ -225,11 +232,12 @@ function Orders() {
 
               <div className="orders-list-wrapper">
                 {loading ? (
-                  <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="mt-2 text-muted">Loading your orders...</p>
+                  <div className="d-flex justify-content-center align-items-center py-5">
+                    <div
+                      className="spinner-border"
+                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
+                      role="status"
+                    />
                   </div>
                 ) : filteredOrders.length > 0 ? (
                   <div className="orders-grid">
@@ -266,6 +274,8 @@ function Orders() {
 }
 
 export default Orders;
+
+
 
 // import React, { useState, useEffect } from "react";
 // import { useNavigate, useLocation } from "react-router-dom";

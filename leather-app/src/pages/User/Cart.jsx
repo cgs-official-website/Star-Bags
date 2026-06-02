@@ -212,7 +212,6 @@ const CartPage = () => {
 export default CartPage;
 
 
-
 // import React, { useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { useWishlist } from "../../context/WishlistContext"; 

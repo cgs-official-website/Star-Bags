@@ -6,6 +6,7 @@
   top: 75px;
   align-self: flex-start;
 }
+
 .profile-details-card {
   border: 1px solid #e0e0e0;
   border-radius: 10px;
@@ -55,6 +56,71 @@
 /* Hide scrollbar for Chrome, Safari and Opera */
 .reviews-scroll-list::-webkit-scrollbar {
   display: none;
+}
+
+/* ==========================================================
+   EMPTY REVIEWS STATE - Matching Wishlist Design
+   ========================================================== */
+
+.rv-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.rv-empty-image-wrapper {
+  width: 100%;
+  max-width: 280px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rv-empty-vector {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.rv-empty-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.5px;
+}
+
+.rv-empty-subheading {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  max-width: 320px;
+}
+
+.rv-empty-shop-btn {
+  background-color: #8B5CF6 !important;
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-block;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.rv-empty-shop-btn:hover {
+  background-color: #7c3aed !important;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================
@@ -255,6 +321,12 @@
   transform: translateY(-1px);
 }
 
+.rv-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .rv-btn-delete {
   padding: 9px 22px;
   border-radius: 8px;
@@ -270,35 +342,6 @@
 .rv-btn-delete:hover {
   background: #dc2626;
   transform: translateY(-1px);
-}
-
-/* ==========================================================
-   EMPTY STATE
-   ========================================================== */
-
-.reviews-empty-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3.5rem 1.5rem;
-  text-align: center;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  background: #fafafa;
-}
-
-.reviews-empty-heading {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
-}
-
-.reviews-empty-sub {
-  font-size: 0.85rem;
-  color: #64748b;
-  margin: 0;
 }
 
 /* ==========================================================
@@ -332,8 +375,25 @@
     padding-right: 16px;
   }
 
-  .reviews-empty-container {
+  .rv-empty-container {
     padding: 2rem 1rem;
+  }
+  
+  .rv-empty-image-wrapper {
+    max-width: 200px;
+  }
+  
+  .rv-empty-heading {
+    font-size: 20px;
+  }
+  
+  .rv-empty-subheading {
+    font-size: 0.85rem;
+  }
+  
+  .rv-empty-shop-btn {
+    font-size: 14px;
+    padding: 8px 24px;
   }
 }
 
@@ -349,4 +409,19 @@
     text-align: center;
   }
   
+  .rv-empty-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .rv-empty-image-wrapper {
+    max-width: 160px;
+  }
+  
+  .rv-empty-heading {
+    font-size: 18px;
+  }
+  
+  .rv-empty-subheading {
+    font-size: 0.8rem;
+  }
 }
