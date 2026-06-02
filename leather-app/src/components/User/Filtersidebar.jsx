@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, memo } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../../assets/styles/FilterSideBar.css";
 
@@ -163,17 +162,47 @@ const ActiveFilterTags = ({ filters, onRemove }) => {
   );
 };
 
-// ── Price Range Component with Custom Radio (FIXED FOR MOBILE LAG) ───────────
+// ── Price Range Component with Custom Radio (OPTIMIZED FOR MOBILE) ───────────
 const PriceRangeSelector = ({ ranges, selected, onChange }) => {
+  // Local state for immediate UI feedback
+  const [localSelected, setLocalSelected] = useState(selected);
+  
+  // Sync local state with prop
+  useEffect(() => {
+    setLocalSelected(selected);
+  }, [selected]);
+  
+  // Optimized change handler with requestAnimationFrame
+  const handleChange = useCallback((value) => {
+    // Update local state immediately for UI feedback
+    setLocalSelected(value);
+    // Use requestAnimationFrame to batch the parent update
+    requestAnimationFrame(() => {
+      onChange(value);
+    });
+  }, [onChange]);
+  
   return (
     <div className="price-options">
       {ranges.map((range) => (
-        <label key={range.value} className="price-option">
+        <label 
+          key={range.value} 
+          className="price-option"
+          onTouchEnd={(e) => {
+            e.preventDefault(); // Prevent double-firing on mobile
+            handleChange(range.value);
+          }}
+          onClick={(e) => {
+            // Handle click for desktop
+            e.preventDefault();
+            handleChange(range.value);
+          }}
+        >
           <input
             type="radio"
             name="price"
-            checked={selected === range.value}
-            onChange={() => onChange(range.value)}
+            checked={localSelected === range.value}
+            onChange={() => {}} // Empty onChange, handled by label
             className="price-radio-input"
           />
           <span className="custom-radio"></span>
@@ -184,8 +213,8 @@ const PriceRangeSelector = ({ ranges, selected, onChange }) => {
   );
 };
 
-// ── Main FilterSideBar ────────────────────────────────────────────────────────
-const FilterSideBar = ({ filters = {}, onChange, activeTags = [], onRemoveTag, onClearAll }) => {
+// ── Main FilterSideBar (Memoized for performance) ────────────────────────────
+const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveTag, onClearAll }) => {
   const category = filters.category ?? '';
   const bags = filters.bags ?? [];
   const brands = filters.brands ?? [];
@@ -194,54 +223,57 @@ const FilterSideBar = ({ filters = {}, onChange, activeTags = [], onRemoveTag, o
   const priceRange = filters.priceRange ?? '';
   const capacity = filters.capacity ?? '';
 
-  const update = (key, value) => onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
+  // Optimized update function
+  const update = useCallback((key, value) => {
+    onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
+  }, [filters, onChange]);
 
-  const handleBagToggle = (type) => {
+  const handleBagToggle = useCallback((type) => {
     const next = bags.includes(type) ? bags.filter((t) => t !== type) : [...bags, type];
     update('bags', next);
-  };
+  }, [bags, update]);
 
-  const handleBrandToggle = (brand) => {
+  const handleBrandToggle = useCallback((brand) => {
     const next = brands.includes(brand) ? brands.filter((b) => b !== brand) : [...brands, brand];
     update('brands', next);
-  };
+  }, [brands, update]);
 
-  const handleMaterialToggle = (materialItem) => {
+  const handleMaterialToggle = useCallback((materialItem) => {
     const next = material.includes(materialItem) 
       ? material.filter((m) => m !== materialItem) 
       : [...material, materialItem];
     update('material', next);
-  };
+  }, [material, update]);
 
-  const handleCategoryClick = (cat) => {
+  const handleCategoryClick = useCallback((cat) => {
     const resetFilters = { ...DEFAULT_FILTERS, category: category === cat ? '' : cat };
     onChange(resetFilters);
-  };
+  }, [category, onChange]);
 
-  const handlePriceRangeSelect = (rangeValue) => {
+  const handlePriceRangeSelect = useCallback((rangeValue) => {
     update('priceRange', priceRange === rangeValue ? '' : rangeValue);
-  };
+  }, [priceRange, update]);
 
-  const handleCapacitySelect = (capacityValue) => {
+  const handleCapacitySelect = useCallback((capacityValue) => {
     update('capacity', capacity === capacityValue ? '' : capacityValue);
-  };
+  }, [capacity, update]);
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
     if (onClearAll) {
       onClearAll();
     } else {
       onChange(DEFAULT_FILTERS);
     }
-  };
+  }, [onClearAll, onChange]);
 
-  const hasActiveFilters = () => {
+  const hasActiveFilters = useCallback(() => {
     return category !== '' || bags.length > 0 || brands.length > 0 || 
            material.length > 0 || size !== '' || priceRange !== '' || capacity !== '';
-  };
+  }, [category, bags, brands, material, size, priceRange, capacity]);
 
-  const shouldShowFilters = () => {
+  const shouldShowFilters = useCallback(() => {
     return category !== '';
-  };
+  }, [category]);
 
   return (
     <aside className="filter-sidebar-flipkart">
@@ -363,10 +395,13 @@ const FilterSideBar = ({ filters = {}, onChange, activeTags = [], onRemoveTag, o
       )}
     </aside>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison to prevent unnecessary re-renders
+  return JSON.stringify(prevProps.filters) === JSON.stringify(nextProps.filters) &&
+         JSON.stringify(prevProps.activeTags) === JSON.stringify(nextProps.activeTags);
+});
 
 export default FilterSideBar;
-
 
 // import { useState } from 'react';
 // import { useNavigate } from 'react-router-dom';

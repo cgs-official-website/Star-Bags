@@ -183,7 +183,7 @@
   flex: 1;
 }
 
-/* PRICE SECTION - FIXED FOR MOBILE/TABLET LAG */
+/* PRICE SECTION - COMPLETELY OPTIMIZED FOR MOBILE/TABLET */
 .price-options {
   display: flex;
   flex-direction: column;
@@ -198,9 +198,12 @@
   font-size: 14px;
   color: #212121;
   position: relative;
+  /* Improve touch response */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Hide native radio - this eliminates the lag completely */
+/* Hide native radio completely */
 .price-radio-input {
   position: absolute;
   opacity: 0;
@@ -208,9 +211,10 @@
   height: 0;
   margin: 0;
   padding: 0;
+  pointer-events: none; /* Prevent any interaction with hidden input */
 }
 
-/* Custom radio button - instant response on mobile/tablet */
+/* Custom radio button - instant response */
 .custom-radio {
   width: 18px;
   height: 18px;
@@ -220,14 +224,19 @@
   background: white;
   display: inline-block;
   position: relative;
-  transition: all 0.15s ease;
+  transition: all 0.1s ease-out; /* Faster transition */
   cursor: pointer;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Checked state */
 .price-radio-input:checked + .custom-radio {
   border-color: #8b5cf6;
   background: #8b5cf6;
+  transform: scale(1.05); /* Subtle feedback on mobile */
 }
 
 /* Inner dot */
@@ -243,18 +252,22 @@
   background: white;
 }
 
-/* Hover effect */
-.price-option:hover .custom-radio {
-  border-color: #8b5cf6;
+/* Active state for immediate feedback */
+.price-option:active .custom-radio {
+  transform: scale(0.95);
 }
 
-/* Focus effect */
-.price-radio-input:focus + .custom-radio {
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+/* Hover effect (desktop only) */
+@media (hover: hover) {
+  .price-option:hover .custom-radio {
+    border-color: #8b5cf6;
+  }
 }
 
 .price-label {
   user-select: none;
+  /* Improve text rendering */
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Size Buttons */
@@ -387,13 +400,14 @@
 /* Mobile/Tablet specific optimizations */
 @media (max-width: 768px) {
   .price-option {
-    min-height: 44px; /* Better touch target */
+    min-height: 48px; /* Better touch target */
+    padding: 8px 0; /* Increase touch area */
   }
   
   .custom-radio {
-    width: 20px;
-    height: 20px;
-    min-width: 20px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
   }
   
   .price-radio-input:checked + .custom-radio::after {
@@ -401,9 +415,29 @@
     height: 8px;
   }
   
-  /* Force hardware acceleration on mobile */
+  /* Force hardware acceleration on all filter content */
   .filter-section-content {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  
+  /* Improve touch targets for all interactive elements */
+  .category-btn,
+  .size-btn,
+  .capacity-card,
+  .checkbox-item,
+  .price-option {
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  
+  /* Remove hover effects on mobile */
+  .category-btn:hover,
+  .size-btn:hover,
+  .capacity-card:hover,
+  .filter-section-header:hover {
+    background: inherit;
   }
 }
