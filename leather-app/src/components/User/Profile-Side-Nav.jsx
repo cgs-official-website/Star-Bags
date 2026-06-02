@@ -8,6 +8,8 @@ import { IoAddCircle } from "react-icons/io5";
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { MdOutlineRateReview } from "react-icons/md";
+import { db } from '../../firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 function ProfileSideNav() {
   const navigate = useNavigate();
@@ -63,7 +65,6 @@ function ProfileSideNav() {
   };
 
   return (
-
     <>
       <div className="profile-sidebar-card mb-2">
         {/* User Info */}
@@ -109,31 +110,61 @@ function ProfileSideNav() {
         {/* Menu Navigation Items List Hierarchy */}
         <ul className="profile-menu-list list-unstyled mb-0" style={{ width: "100%", boxSizing: "border-box" }}>
           <li style={{ width: "100%" }}>
-            <NavLink to="/profile" className="profile-menu-link" style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <NavLink 
+              to="/profile" 
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <FaRegUserCircle className="menu-icon" />
               My profile
             </NavLink>
           </li>
           <li style={{ width: "100%" }}>
-            <NavLink to="/orders" className="profile-menu-link" style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <NavLink 
+              to="/orders" 
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <FiBox className="menu-icon" />
               My orders
             </NavLink>
           </li>
           <li style={{ width: "100%" }}>
-            <NavLink to="/wishlist" className="profile-menu-link" style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <NavLink 
+              to="/wishlist" 
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <FaRegHeart className="menu-icon" />
               Wish list
             </NavLink>
           </li>
           <li style={{ width: "100%" }}>
-            <NavLink to="/address" className="profile-menu-link" style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <NavLink 
+              to="/address" 
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <GrLocation className="menu-icon" />
               Saved address
             </NavLink>
           </li>
           <li style={{ width: "100%" }}>
-            <NavLink to="/reviews" className="profile-menu-link" style={{ display: "flex", alignItems: "center", width: "100%" }}>
+            <NavLink 
+              to="/reviews" 
+              className={({ isActive }) =>
+                isActive ? "profile-menu-link active" : "profile-menu-link"
+              }
+              style={{ display: "flex", alignItems: "center", width: "100%" }}
+            >
               <MdOutlineRateReview className="menu-icon" />
               My Reviews
             </NavLink>
@@ -158,8 +189,10 @@ function ProfileSideNav() {
         className="btn logout-btn w-100 mt-2" 
         style={{ 
           border: 'none',
+          backgroundColor: '#8B5CF6',
+          color: 'white',
           width: "100%",
-          maxWidth: "100%",
+  
           boxSizing: "border-box",
           display: "flex",
           alignItems: "center",
@@ -170,7 +203,6 @@ function ProfileSideNav() {
         <FiLogOut className="me-2" style={{ transform: "rotate(180deg)" }} />
         Log out your Account
       </button>
-
     </>
   );
 }

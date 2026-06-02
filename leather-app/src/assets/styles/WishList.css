@@ -1,11 +1,26 @@
 /* ═══════════════════════════════════════════════
-   WishList.css — Wishlist page styles
+   MAIN CARD STYLES - Matching Profile Component
    ═══════════════════════════════════════════════ */
+
+.profile-details-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+  background: #fff;
+}
+
+.wishlist-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 400;
+}
 
 /* ── Grid ─────────────────────────────────────── */
 .wl-grid {
+  margin-top: 1.5rem;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.2rem;
 }
 
@@ -189,7 +204,8 @@
   background: #8B5CF6;
   color: #ffffff;
 }
-/* ── Empty Wishlist Design Rules (Matching Reference Image Layout) ── */
+
+/* ── Empty Wishlist Design Rules ── */
 .wl-empty-container {
   display: flex;
   flex-direction: column;
@@ -198,7 +214,7 @@
   padding: 3.5rem 1.5rem;
   text-align: center;
   background-color: #ffffff;
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
 
@@ -226,12 +242,12 @@
 }
 
 .wl-empty-shop-btn {
-  background-color: #8B5CF6 !important; /* Your exact Lavender theme color accent */
+  background-color: #8B5CF6 !important;
   color: #ffffff !important;
   font-size: 16px;
   font-weight: 500;
   padding: 10px 32px;
-  border-radius: 10px;
+  border-radius: 8px;
   text-decoration: none;
   display: inline-block;
   border: none;
@@ -244,31 +260,19 @@
   transform: translateY(-1px);
 }
 
-/* Mobile responsive downscaling for the empty placeholder screen */
-@media (max-width: 576px) {
-  .wl-empty-container {
-    padding: 2.5rem 1rem;
-  }
-  .wl-empty-image-wrapper {
-    max-width: 220px;
-  }
-  .wl-empty-heading {
-    font-size: 19px;
-  }
-  .wl-empty-shop-btn {
-    font-size: 15px;
-    padding: 8px 24px;
-  }
-}
-
 /* ═══════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
    ═══════════════════════════════════════════════ */
 
-/* ── Tablet (≤ 992px): 3-column grid ─────────── */
+/* ── Tablet (≤ 992px) ────────────────────────── */
 @media (max-width: 992px) {
+  .profile-details-card {
+    padding: 20px;
+  }
+  
   .wl-grid {
-    grid-template-columns: repeat(3, 1fr);
+    margin-top: 1rem;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 
@@ -277,11 +281,16 @@
   }
 }
 
-/* ── Mobile (≤ 576px): 2-column grid (min 2 cards per row) ─── */
-@media (max-width: 576px) {
+/* ── Mobile (≤ 768px) ────────────────────────── */
+@media (max-width: 768px) {
+  .profile-details-card {
+    padding: 16px;
+  }
+  
   .wl-grid {
+    margin-top: 0.75rem;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.65rem;
+    gap: 0.85rem;
   }
 
   .wl-img-wrap {
@@ -293,23 +302,19 @@
   }
 
   .wl-name {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
   }
 
   .wl-rating {
-    font-size: 0.72rem;
-  }
-
-  .wl-rating-count {
-    display: none;
+    font-size: 0.75rem;
   }
 
   .wl-price {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
   }
 
   .wl-real-price {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   .wl-offer {
@@ -326,21 +331,18 @@
     height: 32px;
     font-size: 1rem;
   }
-
-  .wl-heart-btn {
-    width: 28px;
-    height: 28px;
-  }
-
-  .wl-heart-icon {
-    font-size: 0.85rem;
+  
+  .wishlist-subtitle {
+    font-size: 0.75rem;
   }
 }
 
-/* ── Extra-small mobile (≤ 375px) ────────────── */
-@media (max-width: 375px) {
+/* ── Small Mobile (≤ 576px) ───────────────────── */
+@media (max-width: 576px) {
   .wl-grid {
-    gap: 0.5rem;
+    margin-top: 0.5rem;
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   .wl-img-wrap {
@@ -348,23 +350,63 @@
   }
 
   .wl-card-body {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 
   .wl-name {
-    font-size: 0.72rem;
+    font-size: 0.95rem;
+  }
+
+  .wl-price-row {
+    gap: 0.5rem;
+  }
+  
+  .wl-empty-container {
+    padding: 2rem 1rem;
+  }
+  
+  .wl-empty-image-wrapper {
+    max-width: 200px;
+  }
+  
+  .wl-empty-heading {
+    font-size: 20px;
+  }
+  
+  .wl-empty-shop-btn {
+    font-size: 14px;
+    padding: 8px 24px;
+  }
+}
+
+/* ── Extra Small Mobile (≤ 375px) ─────────────── */
+@media (max-width: 375px) {
+  .wl-img-wrap {
+    height: 180px;
+  }
+
+  .wl-card-body {
+    padding: 0.6rem;
+  }
+
+  .wl-name {
+    font-size: 0.85rem;
   }
 
   .wl-price-row {
     gap: 0.3rem;
     margin-bottom: 0.5rem;
   }
-}
-
-/* ── Sticky Sidebar ───────────────────────────── */
-.wl-sidebar-sticky {
-  position: sticky;
-  top: 80px;
-  z-index: 2;
-  height: fit-content;
+  
+  .wl-empty-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .wl-empty-image-wrapper {
+    max-width: 160px;
+  }
+  
+  .wl-empty-heading {
+    font-size: 18px;
+  }
 }

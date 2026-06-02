@@ -49,8 +49,17 @@
 /* ═══════════════════════════════════════════════════════
    PRODUCT MINI-CARD
    ═══════════════════════════════════════════════════════ */
+
+/* FIXED: removed position: relative — badge is now inline flex child */
 .to-product-card {
   position: relative;
+  background: #fff;
+  border: 1px solid #ececec;
+  border-radius: 10px;
+  padding: 0.9rem;
+  display: flex;
+  gap: 0.9rem;
+  
 }
 
 .to-product-info {
@@ -73,7 +82,7 @@
 }
 
 .to-product-name {
-  font-weight: 700;
+  font-weight: 500;
   font-size: 0.95rem;
   color: #1a1a1a;
   margin-bottom: 2px;
@@ -120,16 +129,19 @@
   border-radius: 20px;
 }
 
+/* FIXED: badge is absolute inside the details wrapper (position:relative), not the whole card */
 .to-product-rating-badge {
-  position: absolute;
-  top: 1.1rem;
-  right: 1.2rem;
   display: flex;
   align-items: center;
   gap: 3px;
   font-size: 0.82rem;
   font-weight: 600;
   color: #1a1a1a;
+  white-space: nowrap;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 4px 10px;
 }
 
 .to-badge-star {
@@ -769,6 +781,37 @@
     text-align: center;
   }
 
+<<<<<<< HEAD
+  /* Product card mobile fixes */
+  .to-product-img {
+    width: 72px;
+    height: 72px;
+  }
+
+  .to-product-name {
+    font-size: 0.88rem !important;
+  }
+
+  .to-product-sub {
+    font-size: 0.72rem;
+  }
+
+  .to-product-price {
+    font-size: 0.95rem !important;
+  }
+
+  .to-product-real {
+    font-size: 0.72rem;
+  }
+
+  .to-product-qty {
+    font-size: 0.7rem;
+  }
+
+  .to-product-rating-badge {
+    font-size: 0.75rem;
+    padding: 3px 7px;
+=======
   /* Summary table: smaller font */
   .to-summary-row {
     font-size: 0.78rem;
@@ -776,6 +819,7 @@
 
   .to-summary-row.total {
     font-size: 0.88rem;
+>>>>>>> 24f53c479dc30715593459e9c434040036e21294
   }
 }
 
@@ -809,8 +853,45 @@
     font-size: 0.95rem;
   }
 
+  /* Product card small mobile fixes */
   .to-product-img {
+<<<<<<< HEAD
+    width: 60px;
+    height: 60px;
+=======
     width: 70px !important;
     height: 70px !important;
+>>>>>>> 24f53c479dc30715593459e9c434040036e21294
+  }
+
+  .to-product-name {
+    font-size: 0.82rem !important;
+  }
+
+  .to-product-sub {
+    font-size: 0.68rem;
+    margin-bottom: 2px;
+  }
+
+  .to-product-price {
+    font-size: 0.88rem !important;
+  }
+
+  .to-product-real {
+    font-size: 0.68rem;
+  }
+
+  .to-product-qty {
+    font-size: 0.67rem;
+  }
+
+  .to-product-rating-badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    gap: 2px;
+  }
+
+  .to-product-details {
+    padding-right: 58px !important;
   }
 }

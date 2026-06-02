@@ -3,6 +3,7 @@ import { FaStar, FaRegStar } from "react-icons/fa";
 import { MdVerified } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import { useProducts } from "../../context/ProductsContext";
+import '../../assets/styles/OrderCard.css';
 
 const STATUS_MAP = {
   "Order Placed": { color: "#8b5cf6" },
@@ -11,6 +12,7 @@ const STATUS_MAP = {
   Delivered: { color: "#16a34a" },
   Processing: { color: "#f59e0b" },
 };
+
 const getStatusColor = (s) => (STATUS_MAP[s] || { color: "#f59e0b" }).color;
 
 const Stars = ({ rating }) => (
@@ -36,20 +38,13 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
       p.productId === order.productId,
   );
 
-  // Dynamic SBO ID Formatter for Desktop Layouts
   const getFormattedOrderId = () => {
     if (order.id && order.id.startsWith("SBO-")) return order.id;
     const category = order.category || "bag";
     let catCode = "BAG";
-    if (
-      category.toLowerCase().includes("wallet") ||
-      category.toLowerCase().includes("wlt")
-    )
+    if (category.toLowerCase().includes("wallet") || category.toLowerCase().includes("wlt"))
       catCode = "WLT";
-    if (
-      category.toLowerCase().includes("belt") ||
-      category.toLowerCase().includes("blt")
-    )
+    if (category.toLowerCase().includes("belt") || category.toLowerCase().includes("blt"))
       catCode = "BLT";
 
     const today = new Date();
@@ -67,7 +62,7 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
 
   return (
     <div className="responsive-order-card-root">
-      {/* ─── DESKTOP VIEW STRUCTURE ─── */}
+      {/* DESKTOP VIEW */}
       <div className="desktop-card-layout-view">
         <div className="responsive-col-box desktop-info-box">
           <div className="desktop-image-wrapper">
@@ -164,9 +159,8 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
         </div>
       </div>
 
-      {/* ─── 📱 MOBILE VIEW STRUCTURE (STRICT 4-ROW MATRIX) ─── */}
+      {/* MOBILE VIEW */}
       <div className="mobile-card-layout-view">
-        {/* UPPER BLOCK : Image + Right Side Rows */}
         <div className="mobile-upper-mesh-block">
           <div className="mobile-image-frame">
             {order.image ? (
@@ -211,7 +205,6 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
               )}
             </div>
 
-            {/* ROW 2 : Pricing + Right End Qty */}
             <div className="mobile-specs-row-two">
               <div className="mobile-price-inline-group">
                 <span className="mobile-curr-price-txt">
@@ -230,7 +223,6 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
           </div>
         </div>
 
-        {/* LOWER BLOCK : Image Down Side Grid (Status, Date, Button parallel) */}
         <div className="mobile-lower-actions-tray-block">
           <div className="mobile-action-status-cell">
             <span className="mobile-action-label">Status</span>
@@ -257,7 +249,6 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
           </button>
         </div>
 
-        {/* REVIEW ROW : only shown for delivered orders */}
         {isDelivered && (
           <div style={{ padding: "8px 12px 12px" }}>
             {reviewed ? (

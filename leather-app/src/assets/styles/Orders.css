@@ -1,9 +1,20 @@
 /* ==========================================================
-   ORDERS PAGE STYLING SHEET - 100% STABLE WITH ZERO HOVERS
+   ORDERS PAGE - MATCHING PROFILE CARD STYLE
    ========================================================== */
 
-* {
-  box-sizing: border-box;
+/* Sticky sidebar — mirrors SavedAddress layout */
+.sidebar-sticky {
+  position: sticky;
+  top: 75px;
+  align-self: flex-start;
+}
+
+/* Main card container matching Profile component */
+.profile-details-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 24px;
+  background: #fff;
 }
 
 .orders-page-app-wrapper {
@@ -33,9 +44,17 @@
 
 .orders-header {
   border-bottom: 1px solid #f1f5f9;
-  /* padding-bottom: 16px; */
 }
 
+/* Orders purchase history text */
+.orders-purchase-history-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Search Bar Styling - FIXED SEARCH ICON */
 .orders-search-wrapper {
   width: 100%;
 }
@@ -46,24 +65,53 @@
   max-width: 420px;
 }
 
+.orders-search .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  font-size: 14px;
+  pointer-events: none; /* Prevents icon from blocking input clicks */
+}
+
 .orders-search .search-input {
   width: 100%;
-  padding: 12px 16px 12px 42px;
-  font-size: 14px;
-  border-radius: 30px;
-  border: 1.5px solid #dcd1ff;
+  padding: 10px 16px 10px 42px;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
   background: #ffffff;
   color: #1e293b;
   outline: none;
+  transition: all 0.2s ease;
 }
 
+.orders-search .search-input:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 0.2rem rgba(139, 92, 246, 0.18);
+}
+
+.orders-search .search-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+/* Orders List Wrapper */
+.orders-list-wrapper {
+  min-height: 400px;
+}
+
+/* Orders Grid - SCROLLBAR HIDDEN BUT FUNCTIONAL */
 .orders-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-height: 550px;
   overflow-y: auto;
+  padding-right: 8px;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .orders-grid::-webkit-scrollbar {
@@ -71,437 +119,170 @@
 }
 
 /* ==========================================================
-   📦 DESKTOP CORE RENDERING GRID DESIGNS
+   EMPTY ORDERS STATE - Matching Wishlist/Reviews Design
    ========================================================== */
-.responsive-order-card-root {
-  width: 100%;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+
+.orders-empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  background-color: #ffffff;
   border-radius: 12px;
-  /* overflow: hidden; */
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-
-  /* CRITICAL STABLE HARD-LOCK: Removes all dynamic movement scales thalaiva */
-  transform: none !important;
-  transition: none !important;
+  border: 1px solid #e2e8f0;
 }
 
-.responsive-order-card-root:hover {
-  transform: none !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
-}
-
-.desktop-card-layout-view {
-  display: flex !important;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: space-between;
+.orders-empty-image-wrapper {
   width: 100%;
-}
-
-.responsive-col-box {
-  padding: 16px 20px;
+  max-width: 280px;
+  margin-bottom: 1.5rem;
   display: flex;
-  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
 }
 
-.desktop-info-box {
-  flex: 1.6;
-  gap: 16px;
-  align-items: center;
-  min-width: 0;
+.orders-empty-vector {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
-.desktop-image-wrapper {
-  width: 100px;
-  height: 100px;
+
+.orders-empty-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000000;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.5px;
+}
+
+.orders-empty-subheading {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+  max-width: 320px;
+}
+
+.orders-empty-shop-btn {
+  background-color: #8B5CF6 !important;
+  color: #ffffff !important;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 32px;
   border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 1px solid #f1f5f9;
-}
-.desktop-product-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.desktop-product-img-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  alignitems: center;
-  justifycontent: center;
-  background: #f3f4f6;
-  fontsize: 1.8rem;
-}
-.desktop-text-wrapper {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.desktop-order-id-txt {
-  margin: 0;
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.desktop-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.desktop-product-title-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 220px;
-}
-.desktop-reviews-count-lbl {
-  font-size: 12px;
-  color: #94a3b8;
-}
-.desktop-price-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.desktop-current-price {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
-}
-.desktop-original-price {
-  font-size: 13px;
-  color: #94a3b8;
-  text-decoration: line-through;
-}
-.desktop-qty-lbl {
-  margin: 0;
-  font-size: 13px;
-  color: #475569;
-  font-weight: 500;
-}
-
-.responsive-section-divider {
-  width: 1px;
-  background-color: #e5e7eb;
-  flex-shrink: 0;
-}
-
-.desktop-status-box {
-  flex: 1;
-  min-width: 140px;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  text-align: center;
-}
-.desktop-section-title {
-  margin: 0;
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.desktop-status-value-txt {
-  font-size: 16px;
-  font-weight: 700;
-}
-.desktop-track-btn {
-  background: #8b5cf6;
-  color: #ffffff;
+  text-decoration: none;
+  display: inline-block;
   border: none;
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-size: 13px;
-  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+  transition: background-color 0.2s ease, transform 0.2s ease;
   cursor: pointer;
-  width: 100%;
-}
-.desktop-track-btn:hover {
-  background: #7c3aed;
 }
 
-.desktop-time-box {
-  flex: 1;
-  min-width: 170px;
-  flex-direction: column;
-  justify-content: center;
-  gap: 8px;
-  text-align: center;
-}
-.desktop-time-val-txt {
-  font-size: 13px;
-  color: #334155;
-  font-weight: 500;
-}
-.desktop-delivery-eta-txt {
-  font-size: 13px;
-  font-weight: 600;
-}
-.desktop-review-trigger-slot {
-  margin-top: 4px;
-}
-.desktop-reviewed-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  color: #16a34a;
-  font-weight: 700;
-  font-size: 13px;
-  white-space: nowrap;
-}
-.desktop-rate-action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 13px;
-  color: #d97706;
-  white-space: nowrap;
-  padding: 0;
-}
-
-/* Hide Mobile View Sub-blocks securely on Desktop Screen boards */
-.mobile-card-layout-view {
-  display: none !important;
+.orders-empty-shop-btn:hover {
+  background-color: #7c3aed !important;
+  transform: translateY(-1px);
 }
 
 /* ==========================================================
-   📱 MOBILE RESPONSIVE IMPLEMENTATION (BELOW 768px PRECISE MATRIX)
+   RESPONSIVE LAYOUT BREAKPOINTS
    ========================================================== */
-@media (max-width: 768px) {
-  .orders-card {
-    padding: 16px 12px !important;
-  }
 
-  /* Invert block layout engines safely thalaiva */
-  .desktop-card-layout-view {
-    display: none !important;
+/* 1024px Specific Fixes */
+@media (max-width: 1024px) {
+  .profile-details-card {
+    padding: 20px;
   }
-
-  .mobile-card-layout-view {
-    display: flex !important;
-    flex-direction: column;
-    padding: 14px;
-    background-color: #ffffff;
-    width: 100%;
-    box-sizing: border-box;
+  
+  .orders-grid {
     gap: 14px;
   }
-
-  /* ─── UPPER GRID ROW : IMAGE LEFT, SPECS COLUMN ON RIGHT ─── */
-  .mobile-upper-mesh-block {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 14px !important;
-    width: 100%;
-  }
-
-  .mobile-image-frame {
-    width: 65px !important;
-    height: 65px !important;
-    border-radius: 8px;
-    overflow: hidden;
-    flex-shrink: 0;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-  }
-
-  .mobile-img-element {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .mobile-img-element-fallback {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f3f4f6;
-    font-size: 1.5rem;
-  }
-
-  .mobile-right-specs-column {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px; /* Precise uniform layout row margin */
-  }
-
-  /* ROW 1: Product Title (Ellipsis smaller fonts) + Right End Rating */
-  .mobile-specs-row-one {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    gap: 10px;
-  }
-
-  .mobile-product-title-string {
-    font-size: 13.5px !important; /* Smaller text scale representation dynamically */
-    font-weight: 700;
-    color: #1e293b;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .mobile-product-rating-badge {
-    font-size: 12.5px !important;
-    font-weight: 700;
-    color: #1e293b;
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    flex-shrink: 0;
-  }
-
-  /* ROW 2: Pricing + Right End Qty Label */
-  .mobile-specs-row-two {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-  }
-
-  .mobile-price-inline-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .mobile-curr-price-txt {
-    font-size: 14px !important;
-    font-weight: 700;
-    color: #1e293b;
-  }
-
-  .mobile-orig-price-txt {
-    font-size: 11.5px !important;
-    color: #94a3b8;
-    text-decoration: line-through;
-  }
-
-  .mobile-qty-string-txt {
-    font-size: 12.5px !important;
-    color: #475569;
-    font-weight: 600;
-    flex-shrink: 0;
-  }
-
-  /* ─── LOWER GRID ROW : IMAGE DOWN SIDE ACTIONS TRAY PANEL ─── */
-  .mobile-lower-actions-tray-block {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    width: 100% !important;
-    border-top: 1px dashed #e2e8f0;
-    padding-top: 12px !important;
-    margin-top: 2px !important;
-  }
-
-  .mobile-action-status-cell,
-  .mobile-action-time-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-  }
-
-  .mobile-action-label {
-    font-size: 10.5px !important;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .mobile-action-status-val {
-    font-size: 13.5px !important;
-    font-weight: 700;
-  }
-
-  .mobile-action-time-val {
-    font-size: 12.5px !important;
-    color: #334155;
-    font-weight: 600;
-  }
-
-  .mobile-action-track-submit-btn {
-    background: #8b5cf6;
-    color: #ffffff;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 14px !important;
-    font-size: 12px !important;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .mobile-action-track-submit-btn:active {
-    background: #7c3aed;
+  
+  .container {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 
-/* ==========================================================
-   EMPTY STATE & DARK THEME OVERRIDES MESH CONFIG
-   ========================================================== */
-body.dark-theme .responsive-order-card-root,
-[data-theme="dark"] .responsive-order-card-root {
-  background-color: #1e293b !important;
-  border-color: #334155 !important;
-}
-
-body.dark-theme .responsive-section-divider,
-[data-theme="dark"] .responsive-section-divider {
-  background-color: #334155 !important;
-}
-
-body.dark-theme .desktop-product-title-name,
-body.dark-theme .desktop-current-price,
-body.dark-theme .desktop-time-val-txt,
-body.dark-theme .mobile-product-title-string,
-body.dark-theme .mobile-product-rating-badge,
-body.dark-theme .mobile-curr-price-txt,
-body.dark-theme .mobile-action-time-val,
-[data-theme="dark"] .desktop-product-title-name,
-[data-theme="dark"] .desktop-current-price,
-[data-theme="dark"] .desktop-time-val-txt,
-[data-theme="dark"] .mobile-product-title-string,
-[data-theme="dark"] .mobile-product-rating-badge,
-[data-theme="dark"] .mobile-curr-price-txt,
-[data-theme="dark"] .mobile-action-time-val {
-  color: #f8fafc !important;
+@media (max-width: 991px) {
+  .profile-details-card {
+    padding: 20px;
+  }
 }
 
 @media (max-width: 768px) {
-  body.dark-theme .mobile-lower-actions-tray-block,
-  [data-theme="dark"] .mobile-lower-actions-tray-block {
-    border-top-color: #334155 !important;
+  .profile-details-card {
+    padding: 16px;
   }
-  body.dark-theme .mobile-image-frame,
-  [data-theme="dark"] .mobile-image-frame {
-    border-color: #334155 !important;
-    background: #0f172a !important;
+  
+  .orders-grid {
+    max-height: 450px;
+    gap: 12px;
+  }
+  
+  .orders-empty-container {
+    padding: 2rem 1rem;
+  }
+  
+  .orders-empty-image-wrapper {
+    max-width: 200px;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-heading {
+    font-size: 20px;
+  }
+  
+  .orders-empty-subheading {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-shop-btn {
+    font-size: 14px;
+    padding: 8px 24px;
+  }
+  
+  .orders-purchase-history-text {
+    font-size: 0.75rem;
+  }
+  
+  .orders-search {
+    max-width: 100%;
+  }
+  
+  .orders-search .search-input {
+    padding: 8px 16px 8px 38px;
+    font-size: 0.85rem;
+  }
+  
+  .orders-search .search-icon {
+    font-size: 12px;
+    left: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .orders-empty-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .orders-empty-image-wrapper {
+    max-width: 160px;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-heading {
+    font-size: 18px;
+  }
+  
+  .orders-empty-subheading {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .orders-empty-shop-btn {
+    font-size: 13px;
+    padding: 6px 20px;
   }
 }
