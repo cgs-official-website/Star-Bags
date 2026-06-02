@@ -57,14 +57,15 @@
 /* ── Image ────────────────────────────────────── */
 .wl-img-wrap {
   width: 100%;
-  height: 180px;
+  aspect-ratio: 1 / 1;
+  height: auto;
   overflow: hidden;
   background: #f9f9f9;
 }
 
 .wl-img {
   width: 100%;
-  height: 100%;
+  height: 85%;
   object-fit: cover;
   transition: transform 0.35s ease;
 }
@@ -272,7 +273,7 @@
   }
 
   .wl-img-wrap {
-    height: 155px;
+    height: auto;
   }
 }
 
@@ -284,7 +285,7 @@
   }
 
   .wl-img-wrap {
-    height: 130px;
+    height: auto;
   }
 
   .wl-card-body {
@@ -343,7 +344,7 @@
   }
 
   .wl-img-wrap {
-    height: 110px;
+    height: auto;
   }
 
   .wl-card-body {

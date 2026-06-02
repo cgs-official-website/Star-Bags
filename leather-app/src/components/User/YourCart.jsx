@@ -1,7 +1,10 @@
+import React, { useState, useEffect } from "react";
 import { FaStar, FaHeart, FaRegHeart, FaMinus, FaPlus } from "react-icons/fa";
 import { TbTruckDelivery } from "react-icons/tb";
 import { useWishlist } from "../../context/WishlistContext";
 import { useNavigate } from "react-router-dom";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase";
 
 const CartItem = ({
   item,
@@ -15,6 +18,40 @@ const CartItem = ({
 }) => {
   const { wishlist, cart } = useWishlist();
   const navigate = useNavigate();
+
+  const [ratingInfo, setRatingInfo] = useState({ rating: "0.0", count: 0 });
+
+  useEffect(() => {
+    const prodId = item.id || item.productId;
+    if (!prodId) return;
+
+    const q = query(
+      collection(db, "reviews"),
+      where("productId", "==", prodId)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const reviewsList = snapshot.docs
+          .map((d) => d.data())
+          .filter((r) => !r.isHidden);
+
+        if (reviewsList.length > 0) {
+          const sum = reviewsList.reduce((acc, r) => acc + (r.rating || 0), 0);
+          const avg = (sum / reviewsList.length).toFixed(1);
+          setRatingInfo({ rating: avg, count: reviewsList.length });
+        } else {
+          setRatingInfo({ rating: "0.0", count: 0 });
+        }
+      },
+      (err) => {
+        console.error("Error loading reviews for cart item:", err);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [item.id, item.productId]);
 
   const discountPercent = parseInt(item.offer) || 0;
   const oldPriceNum = Number(item.realPrice) || Number(item.price);
@@ -38,7 +75,7 @@ const CartItem = ({
     const rawTotal = (Number(item.realPrice) || Number(item.price)) * totalItemsCount;
     const subTotal = Number(item.price) * totalItemsCount;
     const discountTotal = rawTotal > subTotal ? (rawTotal - subTotal) : 0;
-    const gstTotal = Math.round(subTotal * 0.05);
+    const gstTotal = Math.round(subTotal * 0.18);
     const finalTotal = subTotal + gstTotal;
 
     navigate("/checkout", {
@@ -79,8 +116,8 @@ const CartItem = ({
             <h6 className="cart-product-name">{item.name}</h6>
             <div className="cart-rating d-flex">
               <div className="rating-box">                
-                <span><FaStar color="#facc15" /> {item.rating || "4.2"}</span>
-                <span className="rating-count">({item.ratingCount || 120})</span>
+                <span><FaStar color="#facc15" /> {ratingInfo.rating !== "0.0" ? ratingInfo.rating : "0.0"}</span>
+                <span className="rating-count">({ratingInfo.count})</span>
               </div>
               <div 
                 onClick={(e) => {

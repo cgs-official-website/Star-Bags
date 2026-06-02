@@ -7,7 +7,7 @@ import { BiMessageRoundedDetail, BiLike, BiDislike, BiSearch } from 'react-icons
 import { FiRefreshCw, FiTrash2, FiEye, FiEyeOff, FiArrowUpRight, FiArrowDownRight } from 'react-icons/fi';
 import ConfirmModal from '../../components/Admin/ConfirmModal';
 import toast, { Toaster } from 'react-hot-toast';
-import { collectionGroup, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 function ReviewManagement() {
@@ -17,23 +17,19 @@ function ReviewManagement() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const querySnapshot = await getDocs(collectionGroup(db, 'reviews'));
+        const querySnapshot = await getDocs(collection(db, 'reviews'));
         const list = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
           list.push({
             id: docSnap.id,
-            productId: docSnap.ref.parent.parent?.id || '',
-            text: data.comment || data.text || '',
-            image: data.productImage || data.image || '',
+            productId: data.productId || '',
+            text: data.text || data.comment || '',
+            image: data.image || data.productImage || '',
             productName: data.productName || '',
-            customerName: data.userName || data.customerName || '',
+            customerName: data.customerName || data.userName || '',
             rating: data.rating || 0,
-            date: data.createdAt
-              ? (data.createdAt.toDate
-                  ? data.createdAt.toDate().toISOString().split('T')[0]
-                  : String(data.createdAt).split('T')[0])
-              : '',
+            date: data.date || data.createdAt || null,
             isHidden: data.isHidden || false,
           });
         });
@@ -53,10 +49,20 @@ function ReviewManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(6);
 
-  // Stats calculation
-  const totalReviews = reviews.length;
-  const positiveReviews = reviews.filter(r => r.rating >= 4).length;
-  const negativeReviews = reviews.filter(r => r.rating <= 2).length;
+  // Stats calculation (Last 30 Days)
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const reviewsLast30Days = reviews.filter(r => {
+    if (!r.date) return false;
+    const d = r.date.toDate ? r.date.toDate() : new Date(r.date);
+    return !isNaN(d.getTime()) && d >= thirtyDaysAgo;
+  });
+
+  const totalReviewsLast30Days = reviewsLast30Days.length;
+  const positiveReviewsLast30Days = reviewsLast30Days.filter(r => r.rating >= 4).length;
+  const negativeReviewsLast30Days = reviewsLast30Days.filter(r => r.rating <= 2).length;
 
   const handleResetFilter = () => {
     setSearchQuery('');
@@ -75,10 +81,13 @@ function ReviewManagement() {
 
   const confirmDelete = async () => {
     try {
-      const reviewRef = doc(db, 'products', reviews.find(r => r.id === deleteTargetId)?.productId || '_', 'reviews', deleteTargetId);
-      await deleteDoc(reviewRef);
-      setReviews(reviews.filter(r => r.id !== deleteTargetId));
-      toast.success('Review deleted!');
+      const review = reviews.find(r => r.id === deleteTargetId);
+      if (review) {
+        const reviewRef = doc(db, 'reviews', review.id);
+        await deleteDoc(reviewRef);
+        setReviews(reviews.filter(r => r.id !== deleteTargetId));
+        toast.success('Review deleted!');
+      }
     } catch (err) {
       console.error('Error deleting review:', err);
       toast.error('Failed to delete review!');
@@ -92,9 +101,14 @@ function ReviewManagement() {
     if (!review) return;
     const newHidden = !review.isHidden;
     try {
-      const reviewRef = doc(db, 'products', review.productId || '_', 'reviews', id);
+      const reviewRef = doc(db, 'reviews', review.id);
       await updateDoc(reviewRef, { isHidden: newHidden });
       setReviews(reviews.map(r => r.id === id ? { ...r, isHidden: newHidden } : r));
+      if (newHidden) {
+        toast.success('Review hidden — only visible to the reviewer');
+      } else {
+        toast.success('Review is now visible to all users');
+      }
     } catch (err) {
       console.error('Error toggling review visibility:', err);
       toast.error('Failed to update review!');
@@ -103,7 +117,16 @@ function ReviewManagement() {
 
   const filteredReviews = reviews.filter((review) => {
     if (searchQuery && !review.productName.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    if (dateFilter && review.date !== dateFilter) return false;
+    
+    // Date filter helper matching
+    let reviewDateStr = "";
+    if (review.date) {
+      const d = review.date.toDate ? review.date.toDate() : new Date(review.date);
+      if (!isNaN(d.getTime())) {
+        reviewDateStr = d.toISOString().split('T')[0];
+      }
+    }
+    if (dateFilter && reviewDateStr !== dateFilter) return false;
     if (ratingFilter && review.rating.toString() !== ratingFilter) return false;
     return true;
   });
@@ -115,6 +138,17 @@ function ReviewManagement() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const formatDate = (dateVal) => {
+    if (!dateVal) return "N/A";
+    try {
+      const d = dateVal.toDate ? dateVal.toDate() : new Date(dateVal);
+      if (isNaN(d.getTime())) return "N/A";
+      return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/');
+    } catch (e) {
+      return "N/A";
     }
   };
 
@@ -130,7 +164,7 @@ function ReviewManagement() {
     <div className="admin-layout">
       <AdminSidebar />
       <div className="admin-main">
-        <AdminHeader title="Review management" />
+        <AdminHeader title="Review Management" subtitle="Showing feedback and review statistics for the last 30 days." />
         
         <div className="admin-content rm-content">
           {loading ? (
@@ -145,49 +179,49 @@ function ReviewManagement() {
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Total reviews</span>
-                  <span className="rm-stat-value">{totalReviews}</span>
+                  <span className="rm-stat-label">Total reviews (30 Days)</span>
+                  <span className="rm-stat-value">{totalReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon purple">
                   <BiMessageRoundedDetail />
                 </div>
               </div>
               <div className="rm-stat-bottom rm-stat-up">
-                <FiArrowUpRight style={{ fontSize: '16px' }} /> {totalReviews} total reviews
+                <FiArrowUpRight style={{ fontSize: '16px' }} /> {totalReviewsLast30Days} new reviews
               </div>
             </div>
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Positive reviews</span>
-                  <span className="rm-stat-value">{positiveReviews}</span>
+                  <span className="rm-stat-label">Positive reviews (30 Days)</span>
+                  <span className="rm-stat-value">{positiveReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon green">
                   <BiLike />
                 </div>
               </div>
-              <div className={positiveReviews > negativeReviews ? "rm-stat-bottom rm-stat-up" : "rm-stat-bottom rm-stat-down"}>
-                {positiveReviews > negativeReviews
+              <div className={positiveReviewsLast30Days > negativeReviewsLast30Days ? "rm-stat-bottom rm-stat-up" : "rm-stat-bottom rm-stat-down"}>
+                {positiveReviewsLast30Days > negativeReviewsLast30Days
                   ? <FiArrowUpRight style={{ fontSize: '16px' }} />
                   : <FiArrowDownRight style={{ fontSize: '16px' }} />}
-                {' '}{totalReviews > 0 ? Math.round((positiveReviews / totalReviews) * 100) : 0}% Positive rate
+                {' '}{totalReviewsLast30Days > 0 ? Math.round((positiveReviewsLast30Days / totalReviewsLast30Days) * 100) : 0}% Positive rate
               </div>
             </div>
             <div className="rm-stat-card">
               <div className="rm-stat-top">
                 <div className="rm-stat-info">
-                  <span className="rm-stat-label">Negative Reviews</span>
-                  <span className="rm-stat-value">{negativeReviews}</span>
+                  <span className="rm-stat-label">Negative Reviews (30 Days)</span>
+                  <span className="rm-stat-value">{negativeReviewsLast30Days}</span>
                 </div>
                 <div className="rm-stat-icon red">
                   <BiDislike />
                 </div>
               </div>
-              <div className={negativeReviews > 0 ? "rm-stat-bottom rm-stat-down" : "rm-stat-bottom rm-stat-up"}>
-                {negativeReviews > 0
+              <div className={negativeReviewsLast30Days > 0 ? "rm-stat-bottom rm-stat-down" : "rm-stat-bottom rm-stat-up"}>
+                {negativeReviewsLast30Days > 0
                   ? <FiArrowDownRight style={{ fontSize: '16px' }} />
                   : <FiArrowUpRight style={{ fontSize: '16px' }} />}
-                {' '}{totalReviews > 0 ? Math.round((negativeReviews / totalReviews) * 100) : 0}% Negative rate
+                {' '}{totalReviewsLast30Days > 0 ? Math.round((negativeReviewsLast30Days / totalReviewsLast30Days) * 100) : 0}% Negative rate
               </div>
             </div>
           </div>
@@ -272,7 +306,7 @@ function ReviewManagement() {
                       </div>
                     </td>
                     <td>
-                      {new Date(review.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/')}
+                      {formatDate(review.date)}
                     </td>
                     <td>
                       <div className="rm-action-btn-group">

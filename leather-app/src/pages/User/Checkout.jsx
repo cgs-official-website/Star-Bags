@@ -15,6 +15,7 @@ import Footer from "../../components/User/Footer";
 import { useWishlist } from "../../context/WishlistContext";
 import CouponCard, { couponsDataList } from "../../components/User/CouponCard";
 import { useAuth } from "../../context/AuthContext";
+import { AddressSkeleton } from "../../components/User/UserSkeleton";
 
 import { db } from "../../firebase";
 import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
@@ -32,8 +33,7 @@ const Checkout = () => {
 
   // ─── 2. ALL STATE INITIALIZATIONS ───
   const [savedAddresses, setSavedAddresses] = useState([]);
-
-
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,6 +81,8 @@ const Checkout = () => {
         }
       } catch (err) {
         console.error("Firebase Sync error inside checkout ledger:", err);
+      } finally {
+        setLoadingAddresses(false);
       }
     };
     fetchAddressesDirectly();
@@ -111,6 +113,8 @@ const Checkout = () => {
         }
       } catch (err) {
         console.error("Error fetching addresses:", err);
+      } finally {
+        setLoadingAddresses(false);
       }
     };
     fetchAddresses();
@@ -377,7 +381,7 @@ const Checkout = () => {
             <div className="address-box mb-3">
               <div className="address-top-row">
                 <h4 className="section-subtitle-heading">Address</h4>
-                {savedAddresses.length > 0 && (
+                {!loadingAddresses && savedAddresses.length > 0 && (
                   <button
                     className="choose-address-btn d-flex align-items-center gap-1"
                     onClick={() => setIsModalOpen(true)}
@@ -387,7 +391,9 @@ const Checkout = () => {
                 )}
               </div>
 
-              {savedAddresses.length === 0 ? (
+              {loadingAddresses ? (
+                <AddressSkeleton />
+              ) : savedAddresses.length === 0 ? (
                 <div
                   className="empty-address-viewport d-flex justify-content-center align-items-center py-3 border rounded"
                   style={{ backgroundColor: "#ffffff" }}
@@ -465,7 +471,7 @@ const Checkout = () => {
             />
 
             <div className="coupon-section">
-              <h4 className="coupon-title">Apply coupon</h4>
+              <h4 className="coupon-title" style={{paddingTop:"20px"}}>Apply coupon</h4>
               <div className="coupon-input-box">
                 <input
                   type="text"

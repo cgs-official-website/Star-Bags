@@ -12,6 +12,7 @@ import { MdOutlineRateReview } from "react-icons/md";
 function ProfileSideNav() {
   const navigate = useNavigate();
   const { userData, currentUser, logout } = useAuth();
+  const fileInputRef = React.useRef(null);
   
   const userName = userData?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
 
@@ -25,31 +26,83 @@ function ProfileSideNav() {
     }
   };
 
+  const handleAvatarClick = (e) => {
+    e.stopPropagation();
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (file && currentUser) {
+      if (file.size > 800 * 1024) {
+        alert("Please upload a photo smaller than 800KB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          await updateDoc(userDocRef, {
+            photo: reader.result
+          });
+          
+          // Sync with local storage
+          const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+          localStorage.setItem("user", JSON.stringify({
+            ...storedUser,
+            photo: reader.result
+          }));
+          console.log("Profile photo updated successfully!");
+        } catch (err) {
+          console.error("Error saving profile photo:", err);
+          alert("Failed to save profile photo.");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <div className="profile-sidenav-container-fixed-width" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
-      
-      {/* ─── FIXED WIDTH MAIN SIDEBAR CARD ─── */}
-      <div 
-        className="profile-sidebar-card mb-2" 
-        style={{ 
-          width: "100%", 
-          maxWidth: "100%", 
-          boxSizing: "border-box",
-          display: "flex",
-          flexDirection: "column"
-        }}
-      >
-        {/* User Info Block */}
-        <div className="d-flex align-items-center gap-3 mb-3" style={{ width: "100%", boxSizing: "border-box" }}>
-          <div className="profile-avatar-wrapper" style={{ flexShrink: 0 }}>
-            <div className="profile-avatar"></div>
+
+    <>
+      <div className="profile-sidebar-card mb-2">
+        {/* User Info */}
+        <div className="d-flex align-items-center gap-3 mb-3">
+          <div className="profile-avatar-wrapper" onClick={handleAvatarClick} style={{ cursor: "pointer" }}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoChange}
+              style={{ display: 'none' }}
+              accept="image/*"
+            />
+            {userData?.photo ? (
+              <img
+                src={userData.photo}
+                alt="Profile Avatar"
+                className="profile-avatar border"
+                style={{ width: "55px", height: "55px", objectFit: "cover", borderRadius: "50%" }}
+              />
+            ) : (
+              <div
+                className="profile-avatar border d-flex align-items-center justify-content-center text-white fw-bold"
+                style={{
+                  width: "55px",
+                  height: "55px",
+                  background: "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)",
+                  fontSize: "1.2rem",
+                  textTransform: "uppercase",
+                  borderRadius: "50%"
+                }}
+              >
+                {userName.charAt(0)}
+              </div>
+            )}
             <IoAddCircle className="avatar-add-icon" />
           </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <h5 className="fw-bold mb-1" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", width: "100%" }}>
-              {userName}
-            </h5>
-            {/* <p className="text-muted mb-0" style={{ fontSize: "0.8rem" }}>12 Mar ,2026</p> */}
+          <div>
+            <h5 className="fw-bold mb-1">{userName}</h5>
+            <p className="text-muted mb-0" style={{fontSize: "0.8rem"}}>Member since 2026</p>
           </div>
         </div>
 
@@ -118,7 +171,7 @@ function ProfileSideNav() {
         Log out your Account
       </button>
 
-    </div>
+    </>
   );
 }
 

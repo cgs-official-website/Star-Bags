@@ -35,26 +35,9 @@ const CartPage = () => {
   const navigate = useNavigate();
   const { cart, setCart, toggleWishlist, removeFromCart, updateCartQty, toggleCartSelect } = useWishlist();
 
-  // ─── STAGE 1: LOCALSTORAGE VERIFICATION ENGINE ───
   useEffect(() => {
-    const rawUserCart = localStorage.getItem("user_cart");
-    const rawCart = localStorage.getItem("cart");
-    const rawCartItems = localStorage.getItem("cartItems");
-    
-    // Selects the first active and valid cache scheme present in browser environment
-    const activeRawData = rawUserCart || rawCart || rawCartItems;
-    
-    if (activeRawData) {
-      const parsedData = JSON.parse(activeRawData);
-      // Synchronize context mesh instantly if memory variations occur
-      if (parsedData.length !== (cart?.length || 0) && setCart) {
-        setCart(parsedData);
-      }
-    } else if (cart && cart.length > 0 && setCart) {
-      setCart([]);
-    }
     window.scrollTo(0, 0);
-  }, [cart, setCart]);
+  }, []);
 
   // Core calculations engine matching your transaction ledger guidelines
   const selectedItems = cart ? cart.filter((item) => item.selected) : [];

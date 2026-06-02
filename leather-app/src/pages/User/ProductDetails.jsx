@@ -6,7 +6,7 @@ import RecentProduct from "../../components/User/RecentProduct";
 import ReviewModal from "../../components/User/ReviewModal";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaStar, FaRegStar, FaHeart, FaTrashAlt } from "react-icons/fa";
-import { FaCircleUser } from "react-icons/fa6";
+
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiHeart } from "react-icons/fi";
 import { IoMdCart } from "react-icons/io";
@@ -15,7 +15,7 @@ import { TiPencil } from "react-icons/ti";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, query, where, orderBy, onSnapshot, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 
 import "../../assets/styles/ProductDetails.css";
 
@@ -87,20 +87,35 @@ function ProductDetails() {
   const [isReviewsHovered, setIsReviewsHovered] = useState(false);
   const reviewsScrollRef = useRef(null);
 
-  // Fetch product matches from global review index
+  // ─── Load reviews from Firestore (real-time) ───────────────────────────────
   useEffect(() => {
-    const savedReviews = localStorage.getItem("global_product_reviews");
-    if (savedReviews) {
-      const parsed = JSON.parse(savedReviews);
-      const matchedProductReviews = parsed.filter(
-        (r) => r.productName === currentProduct.name,
-      );
-      setDynamicReviews(matchedProductReviews);
-    } else {
+    if (!currentProduct.id) {
       setDynamicReviews([]);
+      return;
     }
+    const q = query(
+      collection(db, "reviews"),
+      where("productId", "==", currentProduct.id)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const reviews = snapshot.docs
+        .map(d => ({ ...d.data(), firestoreId: d.id }))
+        .filter(r => !r.isHidden);
+      
+      // Sort reviews in-memory by date descending
+      reviews.sort((a, b) => {
+        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+        return dateB - dateA;
+      });
+
+      setDynamicReviews(reviews);
+    }, (err) => {
+      console.error("Error loading reviews:", err);
+    });
     window.scrollTo(0, 0);
-  }, [currentProduct.name, currentProduct.id]);
+    return () => unsubscribe();
+  }, [currentProduct.id]);
 
   // Mobile Auto Scroll Carousel Animation Effect for Reviews
   useEffect(() => {
@@ -147,52 +162,95 @@ function ProductDetails() {
   const sortedFilteredReviews = dynamicReviews
     .filter((review) => {
       if (activeFilter === "Positive") {
-        return review.rating >= 3 && review.rating <= 5; // Positive structural matrix sets: 3, 4, 5 stars
+        return review.rating >= 3 && review.rating <= 5;
       }
       if (activeFilter === "Negative") {
-        return review.rating === 1 || review.rating === 2; // Negative structural matrix sets: 1, 2 stars
+        return review.rating === 1 || review.rating === 2;
       }
-      return review.rating > 3; // All Filter baseline path sets: star metrics greater than 3
+      return true; // "All" should show all reviews
     })
-    // Enforces strict sorting sequence from 5 Stars down to 1 Star
-    .sort((a, b) => b.rating - a.rating);
+    .sort((a, b) => {
+      // Sort from high reviews (5 stars) to low reviews (1 star)
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating;
+      }
+      // If ratings are equal, sort by date descending (newest first)
+      const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+      const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+      return dateB - dateA;
+    });
 
-  const handleFeedback = (id, type) => {
-    setFeedbackState((prev) => ({
-      ...prev,
-      [id]: prev[id] === type ? null : type,
-    }));
+  const handleFeedback = async (review, type) => {
+    if (!currentUser) return;
+    const uid = currentUser.uid;
+    const ref = doc(db, "reviews", review.firestoreId);
+    const alreadyLiked = (review.likes || []).includes(uid);
+    const alreadyDisliked = (review.dislikes || []).includes(uid);
+
+    try {
+      if (type === "like") {
+        if (alreadyLiked) {
+          await updateDoc(ref, { likes: arrayRemove(uid), likeCount: increment(-1) });
+        } else {
+          const updates = { likes: arrayUnion(uid), likeCount: increment(1) };
+          if (alreadyDisliked) {
+            updates.dislikes = arrayRemove(uid);
+            updates.dislikeCount = increment(-1);
+          }
+          await updateDoc(ref, updates);
+        }
+      } else {
+        if (alreadyDisliked) {
+          await updateDoc(ref, { dislikes: arrayRemove(uid), dislikeCount: increment(-1) });
+        } else {
+          const updates = { dislikes: arrayUnion(uid), dislikeCount: increment(1) };
+          if (alreadyLiked) {
+            updates.likes = arrayRemove(uid);
+            updates.likeCount = increment(-1);
+          }
+          await updateDoc(ref, updates);
+        }
+      }
+    } catch (err) {
+      console.error("Error updating feedback:", err);
+    }
   };
 
-  const handleWriteReviewSubmit = (rating, text) => {
-    const freshReviewObj = {
-      id: Date.now(),
-      productName: currentProduct.name,
-      name: "Anonymous User",
-      rating: rating,
-      text: text,
-      date: new Date().toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      likes: 0,
-      dislikes: 0,
-    };
+  const handleWriteReviewSubmit = async (rating, text) => {
+    try {
+      // Resolve reviewer display name from Firestore profile, fallback to email or "Anonymous"
+      let customerName = "Anonymous User";
+      if (currentUser) {
+        try {
+          const snap = await getDoc(doc(db, "users", currentUser.uid));
+          if (snap.exists()) {
+            customerName = snap.data().name || snap.data().displayName || currentUser.email || "Anonymous User";
+          }
+        } catch (_) {}
+      }
 
-    const updatedReviewsList = [freshReviewObj, ...dynamicReviews];
-    setDynamicReviews(updatedReviewsList);
+      const reviewPayload = {
+        productId: currentProduct.id,
+        productName: currentProduct.name,
+        image: currentProduct.image || "",
+        customerId: currentUser?.uid || "guest",
+        customerName,
+        text,
+        rating,
+        likes: [],
+        dislikes: [],
+        likeCount: 0,
+        dislikeCount: 0,
+        date: new Date(),
+        isHidden: false,
+      };
 
-    const rawGlobalReviews = localStorage.getItem("global_product_reviews");
-    const parsedGlobal = rawGlobalReviews ? JSON.parse(rawGlobalReviews) : [];
-    localStorage.setItem(
-      "global_product_reviews",
-      JSON.stringify([freshReviewObj, ...parsedGlobal]),
-    );
 
-    alert(
-      "Thank you ! Your review has been updated in the dataset cleanly.",
-    );
+      await addDoc(collection(db, "reviews"), reviewPayload);
+    } catch (err) {
+      console.error("Error saving review:", err);
+      alert("Failed to submit review. Please try again.");
+    }
   };
 
   // Size Configurations — driven by DB `size` field (comma-separated, e.g. "20L, 30L" or "Small, Medium")
@@ -271,6 +329,8 @@ function ProductDetails() {
   const isCurrentlyInCartWithThisSize = cart?.some(
     (item) => item.id === currentProduct.id && item.size === selectedSize,
   );
+
+  const isOutOfStock = currentProduct.stocks !== undefined && currentProduct.stocks !== null && parseInt(currentProduct.stocks) <= 0;
 
   const handleAddToCartAction = () => {
     if (isCurrentlyInCartWithThisSize) {
@@ -362,12 +422,8 @@ function ProductDetails() {
 
           <div className="col-lg-6 ps-lg-5">
             {/* Stock from DB */}
-            <div className="stock-text mb-2">
-              {currentProduct.stocks > 0
-                ? `${currentProduct.stocks} in stock available`
-                : currentProduct.stocks == 0
-                  ? "Out of stock"
-                  : "In stock"}
+            <div className="stock-text mb-2" style={{ color: isOutOfStock ? "#ef4444" : "#10b981", fontWeight: "600" }}>
+              {isOutOfStock ? "Out of Stock" : `${currentProduct.stocks} in stock available`}
             </div>
             <h1 className="product-title">{currentProduct.name}</h1>
             <div className="price-section d-flex align-items-center mb-2">
@@ -446,36 +502,49 @@ function ProductDetails() {
             )}
 
             <div className="d-flex align-items-center gap-3 mb-4">
-              <div className="quantity-selector">
-                <button onClick={decreaseQuantity}>-</button>
-                <input type="text" value={quantity} readOnly />
-                <button onClick={increaseQuantity}>+</button>
+              <div className="quantity-selector" style={isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}}>
+                <button onClick={decreaseQuantity} disabled={isOutOfStock}>-</button>
+                <input type="text" value={isOutOfStock ? 0 : quantity} readOnly />
+                <button onClick={increaseQuantity} disabled={isOutOfStock}>+</button>
               </div>
 
               <button
                 className="btn-add-cart"
                 onClick={handleAddToCartAction}
+                disabled={isOutOfStock}
                 style={{
-                  backgroundColor: isCurrentlyInCartWithThisSize
-                    ? "#4b5563"
-                    : "#f3f4f6",
-                  color: isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
-                  border: isCurrentlyInCartWithThisSize
-                    ? "none"
-                    : "1px solid #d1d5db",
+                  backgroundColor: isOutOfStock
+                    ? "#e5e7eb"
+                    : isCurrentlyInCartWithThisSize
+                      ? "#4b5563"
+                      : "#f3f4f6",
+                  color: isOutOfStock ? "#9ca3af" : isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
+                  border: isOutOfStock
+                    ? "1px solid #e5e7eb"
+                    : isCurrentlyInCartWithThisSize
+                      ? "none"
+                      : "1px solid #d1d5db",
                   fontWeight: "600",
                   transition: "all 0.2s ease",
+                  cursor: isOutOfStock ? "not-allowed" : "pointer",
                 }}
               >
                 <IoMdCart />{" "}
-                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
+                {isOutOfStock ? "Out of Stock" : isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
               </button>
             </div>
             <button
               className="btn-buy-now"
               onClick={handleProceedToCheckoutDirectly}
+              disabled={isOutOfStock}
+              style={isOutOfStock ? {
+                backgroundColor: "#e5e7eb",
+                color: "#9ca3af",
+                cursor: "not-allowed",
+                border: "none",
+              } : {}}
             >
-              Buy Now
+              {isOutOfStock ? "Out of Stock" : "Buy Now"}
             </button>
 
             <div className="delivery-box mt-4">
@@ -600,18 +669,9 @@ function ProductDetails() {
         <div className="reviews-section">
           <div className="d-flex justify-content-between align-items-center mb-3">
             <h4>Rating And Reviews</h4>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="btn text-white fw-bold px-3 py-1.5"
-              style={{
-                backgroundColor: "#8b5cf6",
-                borderRadius: "6px",
-                fontSize: "0.8rem",
-                border: "none",
-              }}
-            >
-              Write a Review
-            </button>
+            {/* <span className="text-muted small" style={{ fontSize: "0.78rem" }}>
+              ✅ Only verified buyers can write a review
+            </span> */}
           </div>
 
           <div className="overall-rating-card shadow-sm mb-4">
@@ -721,12 +781,24 @@ function ProductDetails() {
                     <div className="review-card p-3 border rounded bg-white shadow-sm">
                       <div className="review-header d-flex justify-content-between mb-2">
                         <div className="reviewer-info d-flex align-items-center gap-2">
-                          <FaCircleUser className="fs-4 text-secondary" />
+                          <div
+                            className="d-flex align-items-center justify-content-center fw-bold text-white rounded-circle"
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              background: "linear-gradient(135deg, #7c3aed, #9061f9)",
+                              fontSize: "14px",
+                              flexShrink: 0,
+                              textShadow: "0 1px 1px rgba(0,0,0,0.1)",
+                            }}
+                          >
+                            {(review.customerName || review.name || "Anonymous").charAt(0).toUpperCase()}
+                          </div>
                           <p
                             className="reviewer-name fw-bold m-0 small"
                             style={{ color: "#111827" }}
                           >
-                            {review.name}
+                            {review.customerName || review.name || "Anonymous"}
                           </p>
                         </div>
                         <div className="rating-stars text-warning small">
@@ -755,19 +827,21 @@ function ProductDetails() {
                           className="text-muted"
                           style={{ fontSize: "0.7rem" }}
                         >
-                          {review.date}
+                          {review.date?.toDate
+                            ? review.date.toDate().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                            : review.date}
                         </span>
                         <div className="helpful-btns d-flex gap-2">
                           <button
                             style={{
-                              color: "#058aff",
+                              color: (review.likes || []).includes(currentUser?.uid) ? "#058aff" : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
                             }}
-                            onClick={() => handleFeedback(review.id, "like")}
+                            onClick={() => handleFeedback(review, "like")}
                           >
-                            {feedbackState[review.id] === "like" ? (
+                            {(review.likes || []).includes(currentUser?.uid) ? (
                               <BiSolidLike />
                             ) : (
                               <BiLike />
@@ -779,21 +853,19 @@ function ProductDetails() {
                                 color: "#6c757d",
                               }}
                             >
-                              {feedbackState[review.id] === "like"
-                                ? review.likes + 1
-                                : review.likes}
+                              {review.likeCount || 0}
                             </span>
                           </button>
                           <button
                             style={{
-                              color: "#f25858",
+                              color: (review.dislikes || []).includes(currentUser?.uid) ? "#f25858" : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
                             }}
-                            onClick={() => handleFeedback(review.id, "dislike")}
+                            onClick={() => handleFeedback(review, "dislike")}
                           >
-                            {feedbackState[review.id] === "dislike" ? (
+                            {(review.dislikes || []).includes(currentUser?.uid) ? (
                               <BiSolidDislike />
                             ) : (
                               <BiDislike />
@@ -805,9 +877,7 @@ function ProductDetails() {
                                 color: "#6c757d",
                               }}
                             >
-                              {feedbackState[review.id] === "dislike"
-                                ? review.dislikes + 1
-                                : review.dislikes}
+                              {review.dislikeCount || 0}
                             </span>
                           </button>
                         </div>

@@ -1,414 +1,189 @@
-import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../../components/User/Navbar";
-import Footer from "../../components/User/Footer";
-import ProfileSideNav from "../../components/User/Profile-Side-Nav";
-import ReviewModal from "../../components/User/ReviewModal";
-import { FaStar, FaRegStar, FaTrashAlt } from "react-icons/fa";
-import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
-import { MdModeEdit } from "react-icons/md";
-import { BsThreeDotsVertical } from "react-icons/bs"; // IMPORTED FOR 3-DOT MENU TRICK
-import "../../assets/styles/Myreviews.css";
+import React, { useState, useEffect } from 'react';
+import Navbar from '../../components/User/Navbar';
+import Footer from '../../components/User/Footer';
+import ProfileSideNav from '../../components/User/Profile-Side-Nav';
+import ReviewCard from '../../components/User/ReviewCard';
+import { useAuth } from '../../context/AuthContext';
+import { ReviewSkeleton } from '../../components/User/UserSkeleton';
+import { db } from '../../firebase';
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
+import '../../assets/styles/Myreviews.css';
 
 function Myreviews() {
-  const [reviews, setReviews] = useState(() => {
-    try {
-      const savedReviews = localStorage.getItem("global_product_reviews");
-      return savedReviews ? JSON.parse(savedReviews) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { currentUser } = useAuth();
 
-  const [feedbackState, setFeedbackState] = useState({});
-  const [activeMenuId, setActiveMenuId] = useState(null); // Tracks which 3-dot menu dropdown is currently active
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Edit/Delete triggers states
+  // Edit modal state
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [activeEditingReview, setActiveEditingReview] = useState(null);
-  const [editRating, setEditRating] = useState(5);
+  const [editingReview, setEditingReview] = useState(null);
+  const [editForm, setEditForm] = useState({ reviewText: '', rating: 5 });
+  const [saving, setSaving] = useState(false);
 
+  // Delete confirm modal state
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [targetDeleteId, setTargetDeleteId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
+  // ─── Real-time listener: load this user's reviews from Firestore ──────────
   useEffect(() => {
-    const syncReviewsLedger = () => {
-      try {
-        const savedReviews = localStorage.getItem("global_product_reviews");
-        setReviews(savedReviews ? JSON.parse(savedReviews) : []);
-      } catch (e) {
-        console.error(e);
+    if (!currentUser) {
+      setReviews([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'reviews'),
+      where('customerId', '==', currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const fetched = snapshot.docs.map((d) => ({
+          // Map Firestore fields → ReviewCard expected props
+          id: d.id,                          // firestoreId used for edit/delete
+          firestoreId: d.id,
+          productName: d.data().productName || 'Unknown Product',
+          productImage: d.data().image || '',
+          rating: d.data().rating || 0,
+          reviewText: d.data().text || '',
+          shortReview: '',                   // not in schema, shown as empty
+          date: d.data().date,
+          likes: d.data().likes || [],
+          dislikes: d.data().dislikes || [],
+          likeCount: d.data().likeCount || 0,
+          dislikeCount: d.data().dislikeCount || 0,
+          isHidden: d.data().isHidden || false, // admin may hide the review
+        }));
+
+        // Sort fetched reviews by date descending in-memory
+        fetched.sort((a, b) => {
+          const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+          const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+          return dateB - dateA;
+        });
+
+        setReviews(fetched);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error loading reviews:', err);
+        setLoading(false);
       }
-    };
-    window.addEventListener("storage", syncReviewsLedger);
-    return () => window.removeEventListener("storage", syncReviewsLedger);
-  }, []);
+    );
 
-  // FIXED TRICK: Auto-closes dropdown menu when clicking anywhere else on document window safely
-  useEffect(() => {
-    const closeAllDropdowns = () => setActiveMenuId(null);
-    window.addEventListener("click", closeAllDropdowns);
-    return () => window.removeEventListener("click", closeAllDropdowns);
-  }, []);
+    return () => unsubscribe();
+  }, [currentUser]);
 
-  const handleFeedbackToggle = (id, type) => {
-    setFeedbackState((prev) => ({
-      ...prev,
-      [id]: prev[id] === type ? null : type,
-    }));
-  };
-
-  const toggleThreeDotMenu = (e, id) => {
-    e.stopPropagation(); // Block window context click trigger to prevent immediate closing layout loops
-    setActiveMenuId(activeMenuId === id ? null : id);
-  };
-
-  /* ─── EDIT WORKFLOWS ─── */
-  const triggerEditWorkflow = (reviewItem) => {
-    setActiveEditingReview(reviewItem);
-    setEditRating(Number(reviewItem.rating) || 5);
+  // ─── Edit handlers ─────────────────────────────────────────────────────────
+  const handleEdit = (review) => {
+    setEditingReview(review);
+    setEditForm({ reviewText: review.reviewText, rating: review.rating });
     setEditModalOpen(true);
-    setActiveMenuId(null); // Close active menu context tray
   };
 
-  const handleEditSaveExecution = (finalRating, updatedText) => {
-    if (!activeEditingReview) return;
-
-    const modifiedMasterCollection = reviews.map((r) =>
-      r.id === activeEditingReview.id
-        ? {
-            ...r,
-            rating: Number(finalRating),
-            text: updatedText.trim(),
-            reviewText: updatedText.trim(),
-          }
-        : r,
-    );
-
-    setReviews(modifiedMasterCollection);
-    localStorage.setItem(
-      "global_product_reviews",
-      JSON.stringify(modifiedMasterCollection),
-    );
-    setEditModalOpen(false);
-    setActiveEditingReview(null);
+  const handleEditSave = async () => {
+    if (!editingReview) return;
+    setSaving(true);
+    try {
+      await updateDoc(doc(db, 'reviews', editingReview.firestoreId), {
+        text: editForm.reviewText.trim(),
+        rating: editForm.rating,
+      });
+      setEditModalOpen(false);
+      setEditingReview(null);
+    } catch (err) {
+      console.error('Error updating review:', err);
+      alert('Failed to update review. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  /* ─── DELETE WORKFLOWS ─── */
-  const triggerDeleteWorkflow = (id) => {
-    setTargetDeleteId(id);
+  // ─── Delete handlers ───────────────────────────────────────────────────────
+  const handleDelete = (id) => {
+    setDeletingId(id);
     setDeleteModalOpen(true);
-    setActiveMenuId(null); // Close active menu context tray
   };
 
-  const executeDeleteAction = () => {
-    const remains = reviews.filter((r) => r.id !== targetDeleteId);
-    setReviews(remains);
-    localStorage.setItem("global_product_reviews", JSON.stringify(remains));
+  const confirmDelete = async () => {
+    try {
+      await deleteDoc(doc(db, 'reviews', deletingId));
+      setDeleteModalOpen(false);
+      setDeletingId(null);
+    } catch (err) {
+      console.error('Error deleting review:', err);
+      alert('Failed to delete review. Please try again.');
+    }
+  };
 
-    setDeleteModalOpen(false);
-    setTargetDeleteId(null);
+  // ─── Date formatter ───────────────────────────────────────────────────────
+  const formatDate = (ts) => {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   return (
-    <div
-      className="reviews-page-app-wrapper"
-      style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}
-    >
+    <div className="reviews-page-app-wrapper">
       <Navbar />
 
-      <main className="reviews-container container py-3 my-2">
-        <h4 className="mb-4 fw-bold outfit-font page-section-title">
-          Settings and Profile
-        </h4>
+      <main className="container py-3 my-2">
+        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
         <div className="row justify-content-center">
-          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
+          {/* Sidebar */}
+          <div className="col-lg-4 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-9 col-md-7 list-column-view">
-            <div className="reviews-card p-4 bg-white shadow-sm border rounded-3">
-              <div className="reviews-header ">
-                <h4 className="fw-bold mb-1 outfit-font text-dark-theme">
-                  My Reviews
-                </h4>
-                <p className="reviews-subtitle text-muted small m-0">
-                  All your real-time verified purchase feedbacks
-                </p>
+          {/* Main Reviews Panel */}
+          <div className="col-lg-8 col-md-7 list-column-view">
+            <div className="reviews-card">
+
+              {/* Header */}
+              <div className="reviews-header">
+                <h4 className="fw-bold mb-1 outfit-font text-dark-theme">My Reviews</h4>
+                <p className="reviews-subtitle">All your product reviews in one place</p>
               </div>
 
-              <div
-                className="reviews-list-wrapper"
-                style={{ minHeight: "300px" }}
-              >
-                {reviews.length > 0 ? (
-                  <div className="reviews-scroll-list d-flex flex-column gap-3">
-                    {reviews.map((review) => {
-                      const hasLiked = feedbackState[review.id] === "like";
-                      const hasDisliked =
-                        feedbackState[review.id] === "dislike";
-                      const currentLikesCount = hasLiked
-                        ? (review.likes || 0) + 1
-                        : review.likes || 0;
-                      const currentDislikesCount = hasDisliked
-                        ? (review.dislikes || 0) + 1
-                        : review.dislikes || 0;
-                      const isMenuDropdownOpen = activeMenuId === review.id;
-
-                      return (
-                        <div
-                          key={review.id}
-                          className="custom-review-card-item p-3 border rounded-3 bg-white mb-2 shadow-sm position-relative"
-                          style={{ fontFamily: "system-ui" }}
-                        >
-                          {/* Top Row Block Layout Panels */}
-                          <div className="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                            <div className="d-flex align-items-center gap-2">
-                              <img
-                                src={
-                                  review.image ||
-                                  review.productImage ||
-                                  "../src/assets/images/leather1.png"
-                                }
-                                alt={review.productName || review.product}
-                                style={{
-                                  width: "45px",
-                                  height: "45px",
-                                  objectFit: "cover",
-                                  borderRadius: "6px",
-                                  border: "1px solid #e5e7eb",
-                                }}
-                              />
-                              <span
-                                className="fw-bold text-dark"
-                                style={{ fontSize: "0.95rem" }}
-                              >
-                                {review.productName ||
-                                  review.product ||
-                                  "Leather Premium Item"}
-                              </span>
-                            </div>
-
-                            {/* Stars Alignment Corner Block Layout Inline Matrix */}
-                            <div
-                              className="d-flex align-items-center gap-3 position-relative"
-                              style={{ zIndex: "10" }}
-                            >
-                              <div className="d-flex align-items-center gap-0.5 text-warning">
-                                {[...Array(5)].map((_, i) =>
-                                  i < Math.round(review.rating) ? (
-                                    <FaStar key={i} size={14} />
-                                  ) : (
-                                    <FaRegStar
-                                      key={i}
-                                      size={14}
-                                      style={{ color: "#d1d5db" }}
-                                    />
-                                  ),
-                                )}
-                              </div>
-
-                              {/* ─── FIXED TRICK: THREE DOT BUTTON OVER TRIGGER CONSOLE ─── */}
-                              <div
-                                className="three-dot-menu-anchor-wrapper"
-                                style={{ position: "relative" }}
-                              >
-                                <button
-                                  onClick={(e) =>
-                                    toggleThreeDotMenu(e, review.id)
-                                  }
-                                  style={{
-                                    background: "none",
-                                    border: "none",
-                                    color: "#64748b",
-                                    padding: "6px",
-                                    cursor: "pointer",
-                                    fontSize: "1.15rem",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    borderRadius: "50%",
-                                  }}
-                                  className="three-dot-interactive-trigger-btn"
-                                  type="button"
-                                >
-                                  <BsThreeDotsVertical />
-                                </button>
-
-                                {/* FLOATING DROP-DOWN MENU TRAY CONTAINER PANELS */}
-                                {isMenuDropdownOpen && (
-                                  <div
-                                    className="floating-three-dot-dropdown-tray shadow-lg border rounded-2"
-                                    style={{
-                                      position: "absolute",
-                                      right: "0",
-                                      top: "34px",
-                                      background: "#ffffff",
-                                      minWidth: "120px",
-                                      zIndex: "100",
-                                      overflow: "hidden",
-                                      padding: "4px 0",
-                                    }}
-                                    onClick={(e) => e.stopPropagation()} // Stop propagation layer locks
-                                  >
-                                    <button
-                                      onClick={() =>
-                                        triggerEditWorkflow(review)
-                                      }
-                                      style={{
-                                        width: "100%",
-                                        border: "none",
-                                        background: "none",
-                                        padding: "8px 14px",
-                                        textAlign: "left",
-                                        fontSize: "0.85rem",
-                                        fontWeight: "600",
-                                        color: "#334155",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        cursor: "pointer",
-                                      }}
-                                      className="dropdown-menu-item-action"
-                                    >
-                                      <MdModeEdit
-                                        style={{ color: "#8b5cf6" }}
-                                      />{" "}
-                                      Edit
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        triggerDeleteWorkflow(review.id)
-                                      }
-                                      style={{
-                                        width: "100%",
-                                        border: "none",
-                                        background: "none",
-                                        padding: "8px 14px",
-                                        textAlign: "left",
-                                        fontSize: "0.85rem",
-                                        fontWeight: "600",
-                                        color: "#ef4444",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        gap: "8px",
-                                        cursor: "pointer",
-                                        borderTop: "1px solid #f1f5f9",
-                                      }}
-                                      className="dropdown-menu-item-action text-danger"
-                                    >
-                                      <FaTrashAlt /> Delete
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Central Commentary Review Text Labels */}
-                          {/* <p
-                            className="m-0 mt-2 text-dark fw-semibold"
-                            style={{ fontSize: "0.85rem", opacity: "0.65" }}
-                          >
-                            Comment Review Statement:
-                          </p> */}
-                          <p
-                            className="text-secondary small m-0 mb-3 mt-1"
-                            style={{
-                              lineHeight: "1.45",
-                              wordBreak: "break-word",
-                            }}
-                          >
-                            {review.text ||
-                              review.reviewText ||
-                              "No feedback summary its entered."}
-                          </p>
-
-                          {/* Lower Action Row Panel Blocks Container - STYLING SYNC WITH PRODUCT DETAILS PAGE */}
-                          <div className="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
-                            <span
-                              className="text-muted font-monospace"
-                              style={{ fontSize: "0.75rem" }}
-                            >
-                              {review.date || "29 May 2026"}
-                            </span>
-
-                            {/* Like & Dislike Engine Injected Directly Matching Product Details View Panels */}
-                            <div className="d-flex align-items-center gap-3">
-                              <button
-                                onClick={() =>
-                                  handleFeedbackToggle(review.id, "like")
-                                }
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#2563eb",
-                                  fontSize: "1.1rem",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "4px",
-                                  padding: 0,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                {hasLiked ? <BiSolidLike /> : <BiLike />}
-                                <span
-                                  style={{ fontSize: "12px", color: "#64748b" }}
-                                >
-                                  {currentLikesCount}
-                                </span>
-                              </button>
-
-                              <button
-                                onClick={() =>
-                                  handleFeedbackToggle(review.id, "dislike")
-                                }
-                                style={{
-                                  background: "none",
-                                  border: "none",
-                                  color: "#ef4444",
-                                  fontSize: "1.1rem",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: "4px",
-                                  padding: 0,
-                                  cursor: "pointer",
-                                }}
-                              >
-                                {hasDisliked ? (
-                                  <BiSolidDislike />
-                                ) : (
-                                  <BiDislike />
-                                )}
-                                <span
-                                  style={{ fontSize: "12px", color: "#64748b" }}
-                                >
-                                  {currentDislikesCount}
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
+              {/* Reviews List */}
+              <div className="reviews-list-wrapper">
+                {loading ? (
+                  <ReviewSkeleton />
+                ) : reviews.length > 0 ? (
+                  <div className="reviews-scroll-list">
+                    {reviews.map((review) => (
+                      <div key={review.id}>
+                        <ReviewCard
+                          review={review}
+                          onEdit={handleEdit}
+                          onDelete={handleDelete}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <div className="reviews-empty-container text-center py-5 border dashed rounded-3 bg-light">
-                    <div style={{ fontSize: "2.8rem" }} className="mb-2">
-                      ✍️
-                    </div>
-                    <h3
-                      className="reviews-empty-heading fw-bold"
-                      style={{ fontSize: "1.2rem", color: "#374151" }}
-                    >
-                      No reviews submitted yet!
-                    </h3>
-                    <p className="reviews-empty-sub text-muted small">
-                      Feedback forms you submit from your orders dashboard will
-                      print here directly.
+                  <div className="reviews-empty-container">
+                    <h3 className="reviews-empty-heading">No reviews yet!</h3>
+                    <p className="reviews-empty-sub">
+                      Your product reviews will appear here after you review a purchased product.
                     </p>
                   </div>
                 )}
               </div>
+
             </div>
           </div>
         </div>
@@ -416,77 +191,65 @@ function Myreviews() {
 
       <Footer />
 
-      {/* ─── DUAL-PURPOSE POPUP WINDOW INJECTION SLOT ─── */}
-      <ReviewModal
-        isOpen={editModalOpen}
-        isEditMode={true}
-        defaultText={
-          activeEditingReview
-            ? activeEditingReview.text || activeEditingReview.reviewText
-            : ""
-        }
-        rating={editRating}
-        setRating={setEditRating}
-        onClose={() => {
-          setEditModalOpen(false);
-          setActiveEditingReview(null);
-        }}
-        onSubmit={handleEditSaveExecution}
-      />
+      {/* ── Edit Modal ── */}
+      {editModalOpen && (
+        <div className="rv-modal-backdrop" onClick={() => setEditModalOpen(false)}>
+          <div className="rv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal-header">
+              <h5 className="rv-modal-title">Edit Review</h5>
+              <button className="rv-modal-close" onClick={() => setEditModalOpen(false)}>×</button>
+            </div>
 
-      {/* ─── STRICT VERIFIED DELETE MODAL CONFIRMATION TRAY ─── */}
-      {deleteModalOpen && (
-        <div
-          className="rv-modal-backdrop"
-          onClick={() => setDeleteModalOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.4)",
-            zIndex: 20000,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            className="bg-white p-4 rounded-3 text-center shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-            style={{ width: "90%", maxWidth: "380px" }}
-          >
-            <div className="pb-2 border-bottom d-flex justify-content-between align-items-center mb-3">
-              <h5
-                className="fw-bold m-0 text-dark"
-                style={{ fontSize: "1.1rem" }}
-              >
-                Confirm Deletion
-              </h5>
-              <button
-                className="btn border-0 p-0 fs-4"
-                onClick={() => setDeleteModalOpen(false)}
-              >
-                ×
+            <div className="rv-modal-body">
+              {/* Star Rating Picker */}
+              <label className="rv-label">Rating</label>
+              <div className="rv-star-picker">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    className={`rv-star-btn ${star <= editForm.rating ? 'filled' : ''}`}
+                    onClick={() => setEditForm((f) => ({ ...f, rating: star }))}
+                    aria-label={`${star} star`}
+                  >
+                    ★
+                  </button>
+                ))}
+              </div>
+
+              <label className="rv-label mt-3">Review</label>
+              <textarea
+                className="rv-textarea"
+                rows={4}
+                value={editForm.reviewText}
+                onChange={(e) => setEditForm((f) => ({ ...f, reviewText: e.target.value }))}
+                placeholder="Write your review..."
+              />
+            </div>
+
+            <div className="rv-modal-footer">
+              <button className="rv-btn-cancel" onClick={() => setEditModalOpen(false)}>Cancel</button>
+              <button className="rv-btn-save" onClick={handleEditSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save Changes'}
               </button>
             </div>
-            <p className="text-muted small my-3">
-              Are you absolutely sure you want to delete this verified review
-              history track item? This change cannot be reverted.
-            </p>
-            <div className="d-flex gap-3 mt-3 pt-2 border-top justify-content-end">
-              <button
-                className="btn btn-light border px-3 small fw-bold"
-                style={{ borderRadius: "6px" }}
-                onClick={() => setDeleteModalOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-danger px-3 small fw-bold"
-                style={{ borderRadius: "6px" }}
-                onClick={executeDeleteAction}
-              >
-                Delete Review
-              </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Delete Confirm Modal ── */}
+      {deleteModalOpen && (
+        <div className="rv-modal-backdrop" onClick={() => setDeleteModalOpen(false)}>
+          <div className="rv-modal rv-modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="rv-modal-header">
+              <h5 className="rv-modal-title">Delete Review</h5>
+              <button className="rv-modal-close" onClick={() => setDeleteModalOpen(false)}>×</button>
+            </div>
+            <div className="rv-modal-body">
+              <p className="rv-delete-msg">Are you sure you want to delete this review? This action cannot be undone.</p>
+            </div>
+            <div className="rv-modal-footer">
+              <button className="rv-btn-cancel" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
+              <button className="rv-btn-delete" onClick={confirmDelete}>Yes, Delete</button>
             </div>
           </div>
         </div>

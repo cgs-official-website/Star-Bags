@@ -9,6 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useNavigate } from "react-router-dom";
+import { AddressSkeleton } from "../../components/User/UserSkeleton";
 
 const emptyForm = {
   email: "",
@@ -123,6 +124,7 @@ function SavedAddress() {
     
     setFormData(emptyForm);
     setShowForm(false);
+    navigate("/BillAddress");
   };
 
   const handleCancel = () => {
@@ -183,21 +185,23 @@ function SavedAddress() {
   return (
     <>
       <Navbar />
-      <div className="orders-container container py-3 my-2">
-        <h4 className="mb-4 fw-bold">Settings and Profile</h4>
-        
-        {/* ─── FIXED TRICK: UNIFIED GRID WRAPPER CONTEXT MESH ─── */}
-        <div className="row justify-content-center">
-          
-          {/* SIDEBAR: Enforced strictly to col-lg-3 for persistent desktop framework bounds matching master blueprints */}
-          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
+      <div className="container py-3 my-2">
+        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
+        <div className="row justify-content-center align-items-start">
+          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* MAIN CONTAINER CONTENT CARD: Enforced strictly to col-lg-9 across dashboard panels */}
-          <div className="col-lg-9 col-md-7 list-column-view">
-            {hasAddresses && (
-              <div className="saved-address-card p-4 bg-white shadow-sm border rounded-3" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+          <div className="col-lg-8 col-md-7 col-12">
+            {loadingAddresses ? (
+              <div className="saved-address-card">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="fw-bold mb-0">Saved Addresses</h5>
+                </div>
+                <AddressSkeleton />
+              </div>
+            ) : hasAddresses ? (
+              <div className="saved-address-card mb-3">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h4 className="fw-bold mb-0 outfit-font text-dark-theme">Saved Addresses</h4>
                   <button
@@ -261,11 +265,10 @@ function SavedAddress() {
                   ))}
                 </div>
               </div>
-            )}
 
-            {!hasAddresses && (
-              <div className="saved-address-card p-4 bg-white shadow-sm border rounded-3">
-                <h4 className="fw-bold mb-3 outfit-font text-dark-theme">Address</h4>
+            ) : (
+              <div className="saved-address-card">
+                <h5 className="fw-bold mb-3">Address</h5>
                 <AddressForm
                   formData={formData}
                   onChange={handleChange}

@@ -13,7 +13,7 @@ import PaymentPopup from "../../components/User/PaymentPopup";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { doc, getDoc, updateDoc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
 import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
@@ -110,188 +110,270 @@ const BillAddress = () => {
     );
   };
 
-  // ─── STAGE 4: MASTER ACTION TRYS AND REAL-TIME CART PURGE LAYER ───
+  // ─── STAGE 4: RAZORPAY SCRIPT LOADER ───
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+      if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
 
-  const handlePlaceOrderSubmit = async () => {
-
-    if (!selectedAddress) {
-      alert(
-        "Please ensure a valid shipping destination address profile is active.",
-      );
-      return;
-    }
-
+  // ─── STAGE 5: BUILD ORDER PAYLOADS (shared between COD & Online) ───
+  const buildOrderPayloads = () => {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
     const dateString = `${year}${month}${day}`;
-    const displayDate = today.toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-    const displayTime = today.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const displayDate = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const displayTime = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-    const paymentLabel = paymentMethod === "cod" ? "Cash on delivery" : "Prepaid (Online/Card Payment)";
-
-    const newOrderPayloads = cartItems.map((item, idx) => {
-      const productCategory = item.category?.toLowerCase() || "bag";
-
-      let catToken = "BAG";
-      if (productCategory === "wallet") catToken = "WLT";
-      if (productCategory === "belt") catToken = "BLT";
-
-      const randomCount = String(
-        Math.floor(Math.random() * 900) + (idx + 1),
-      ).padStart(3, "0");
+    const payloads = cartItems.map((item, idx) => {
+      const productCategory = item.category?.toLowerCase() || 'bag';
+      let catToken = 'BAG';
+      if (productCategory === 'wallet') catToken = 'WLT';
+      if (productCategory === 'belt') catToken = 'BLT';
+      const categoryName = productCategory === 'wallet' ? 'Wallet' : (productCategory === 'belt' ? 'Belt' : 'Bag');
+      
+      const randomCount = String(Math.floor(Math.random() * 900) + (idx + 1)).padStart(3, '0');
       const uniqueOrderId = `SBO-${catToken}-${dateString}-${randomCount}`;
 
       return {
         id: uniqueOrderId,
+        productId: item.productId || item.id,
         product: item.name,
         category: catToken,
-        status: "Order Placed",
+        categoryName,
+        status: 'Order Placed',
         time: displayDate,
+        displayTime,
         rating: item.rating || 4.2,
         reviews: item.reviews || 120,
-
-        deliveryDate: "Expected in 5 Days",
+        deliveryDate: 'Expected in 5 Days',
         discountedPrice: Number(item.price) * (item.qty || 1),
-        originalPrice:
-          (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
-        quantity: item.qty || 1,
-        image: item.image || "../src/assets/images/leather1.png",
+        originalPrice: (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
+        quantity: item.qty,
+        image: item.image,
+        brand: item.brand,
+        material: item.material,
+        size: item.size,
+        subCategory: item.subCategory,
       };
     });
 
-    // const paymentLabel = 
-    //   paymentMethod === "cod" ? "Cash On Delivery" : "Online Payment";
-    // setPopupDetails({
-    //   amount: `₹${activeFinalTotal.toFixed(2)}`,
-    //   transactionId: newOrderPayloads[0]?.id,
-    //   paymentMethod: paymentLabel,
-    //   date: displayDate,
-    //   time: displayTime,
-    //   merchant: "Star Bags Premium Factory",
-    //   selectedAddress: selectedAddress
+    return payloads;
+  };
 
-    // });
-
-    // Update coupon usedCount in Firestore if a coupon was successfully applied
-    if (appliedCouponCode) {
-      const updateCouponUsage = async () => {
-        try {
-          let couponDocRef = null;
-          let couponSnap = null;
-
-          if (appliedCouponId) {
-            couponDocRef = doc(db, "coupons", appliedCouponId);
-            couponSnap = await getDoc(couponDocRef);
-          }
-
-          if (!couponSnap || !couponSnap.exists()) {
-            // Fallback: query collection for code field matching appliedCouponCode
-            const q = query(
-              collection(db, "coupons"),
-              where("code", "==", appliedCouponCode)
-            );
-            const querySnap = await getDocs(q);
-            if (!querySnap.empty) {
-              const matchedDoc = querySnap.docs[0];
-              couponDocRef = doc(db, "coupons", matchedDoc.id);
-              couponSnap = matchedDoc;
-            }
-          }
-
-          if (couponSnap && couponSnap.exists() && couponDocRef) {
-            const currentUsedCount = Number(couponSnap.data().usedCount) || 0;
-            const newUsedCount = currentUsedCount + 1;
-            
-            // Increment global count on the coupon itself (does not expire globally)
-            await updateDoc(couponDocRef, {
-              usedCount: newUsedCount
-            });
-            console.log(
-              `Successfully incremented global coupon ${couponSnap.data().code} usedCount to ${newUsedCount}`
-            );
-
-            // Update user's personal coupon usage count in users/{uid}
-            if (currentUser) {
-              try {
-                const userDocRef = doc(db, "users", currentUser.uid);
-                const userSnap = await getDoc(userDocRef);
-                if (userSnap.exists()) {
-                  const userData = userSnap.data();
-                  const usedCoupons = userData.usedCoupons || {};
-                  
-                  const couponKey = couponDocRef.id;
-                  const currentUsage = Number(usedCoupons[couponKey]) || 0;
-                  
-                  const updatedUsedCoupons = {
-                    ...usedCoupons,
-                    [couponKey]: currentUsage + 1
-                  };
-                  
-                  await updateDoc(userDocRef, {
-                    usedCoupons: updatedUsedCoupons
-                  });
-                  console.log(`Successfully updated user's personal coupon usage for ${couponKey} to ${currentUsage + 1}`);
-                }
-              } catch (userErr) {
-                console.error("Error updating user's usedCoupons map:", userErr);
-              }
-            }
-          } else {
-            console.warn(`Coupon not found in DB for code: ${appliedCouponCode} / ID: ${appliedCouponId}`);
-          }
-        } catch (err) {
-          console.error("Error updating coupon usedCount:", err);
-        }
+  // ─── STAGE 6: SAVE ORDERS TO FIRESTORE ───
+  const saveOrdersToFirestore = async (orderPayloads, paymentModeStr, razorpayPaymentId = null) => {
+    for (const orderPayload of orderPayloads) {
+      const dbOrderPayload = {
+        id: orderPayload.id,
+        userId: currentUser ? currentUser.uid : 'guest',
+        productId: orderPayload.productId,
+        product: orderPayload.product,
+        status: 'Order Placed',
+        time: orderPayload.time,
+        rating: orderPayload.rating,
+        reviews: orderPayload.reviews,
+        deliveryDate: orderPayload.deliveryDate,
+        discountedPrice: orderPayload.discountedPrice,
+        originalPrice: orderPayload.originalPrice,
+        quantity: orderPayload.quantity,
+        image: orderPayload.image,
+        brand: orderPayload.brand,
+        material: orderPayload.material,
+        size: orderPayload.size,
+        subCategory: orderPayload.subCategory,
+        items: [
+          {
+            productId: orderPayload.productId,
+            productName: orderPayload.product,
+            img: orderPayload.image,
+            price: orderPayload.discountedPrice / orderPayload.quantity,
+            qty: orderPayload.quantity,
+            category: orderPayload.categoryName,
+            brand: orderPayload.brand,
+            material: orderPayload.material,
+            size: orderPayload.size,
+            subCategory: orderPayload.subCategory,
+          },
+        ],
+        customerDetails: {
+          name: selectedAddress?.name || 'Customer',
+          shippingAddress: selectedAddress
+            ? `${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pin}`
+            : 'No shipping address details',
+          email: currentUser ? currentUser.email : 'guest@starbags.com',
+          mobile: selectedAddress?.mobile || '',
+        },
+        orderDate: new Date().toISOString(),
+        paymentMode: paymentModeStr,
+        paymentStatus: paymentModeStr === 'COD' ? 'Pending' : 'Success',
+        paymentDetails: {
+          itemsCount: orderPayload.quantity,
+          itemsTotal: orderPayload.originalPrice,
+          discount: Math.max(0, orderPayload.originalPrice - orderPayload.discountedPrice),
+          subTotal: orderPayload.discountedPrice,
+          gst: Math.round(orderPayload.discountedPrice * 0.18),
+          shippingFee: 0,
+          total: orderPayload.discountedPrice + Math.round(orderPayload.discountedPrice * 0.18),
+          ...(razorpayPaymentId ? { razorpayPaymentId } : {}),
+        },
+        orderType: 'Direct',
       };
-      await updateCouponUsage();
+      await setDoc(doc(db, 'orders', orderPayload.id), dbOrderPayload);
     }
+  };
 
-    // Purge cart item dependencies out of global hooks directly
+  // ─── STAGE 7: PURGE CART AFTER ORDER ───
+  const purgeOrderedItemsFromCart = () => {
     if (setCart) {
       setCart((prevCart) => {
-        const currentItems = prevCart || [];
-        const updatedCartMesh = currentItems.filter(
-          (item) =>
-            !cartItems.some(
-              (selected) =>
-                selected.id === item.id || selected.name === item.name,
-            ),
+        const updated = (prevCart || []).filter(
+          (item) => !cartItems.some((sel) => sel.id === item.id || sel.name === item.name)
         );
-
-        localStorage.setItem("user_cart", JSON.stringify(updatedCartMesh));
-        localStorage.setItem("cart", JSON.stringify(updatedCartMesh));
-        localStorage.setItem("cartItems", JSON.stringify(updatedCartMesh));
-        return updatedCartMesh;
+        localStorage.setItem('user_cart', JSON.stringify(updated));
+        localStorage.setItem('cart', JSON.stringify(updated));
+        localStorage.setItem('cartItems', JSON.stringify(updated));
+        return updated;
       });
     }
+  };
 
-    // Loader transitions and popup controls
-    if (paymentMethod === "online") {
-      setIsOrderingLoader(true);
-      setTimeout(() => {
-        setIsOrderingLoader(false);
-        setIsPopupOpen(true);
-        setTimeout(() => {
-          setIsPopupOpen(false);
-          navigate("/orders", { state: { newOrderPayloads } });
-        }, 3000);
-      }, 4000); // Optimized transition load times cleanly
-    } else {
+  // ─── STAGE 8: UPDATE COUPON USAGE ───
+  const updateCouponUsageIfApplied = async () => {
+    if (!appliedCouponCode) return;
+    try {
+      let couponDocRef = null;
+      let couponSnap = null;
+      if (appliedCouponId) {
+        couponDocRef = doc(db, 'coupons', appliedCouponId);
+        couponSnap = await getDoc(couponDocRef);
+      }
+      if (!couponSnap || !couponSnap.exists()) {
+        const q = query(collection(db, 'coupons'), where('code', '==', appliedCouponCode));
+        const querySnap = await getDocs(q);
+        if (!querySnap.empty) {
+          couponDocRef = doc(db, 'coupons', querySnap.docs[0].id);
+          couponSnap = querySnap.docs[0];
+        }
+      }
+      if (couponSnap && couponSnap.exists() && couponDocRef) {
+        const newUsedCount = (Number(couponSnap.data().usedCount) || 0) + 1;
+        await updateDoc(couponDocRef, { usedCount: newUsedCount });
+        if (currentUser) {
+          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userSnap = await getDoc(userDocRef);
+          if (userSnap.exists()) {
+            const usedCoupons = userSnap.data().usedCoupons || {};
+            const couponKey = couponDocRef.id;
+            await updateDoc(userDocRef, {
+              usedCoupons: { ...usedCoupons, [couponKey]: (Number(usedCoupons[couponKey]) || 0) + 1 },
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error updating coupon usedCount:', err);
+    }
+  };
+
+  // ─── STAGE 9: MASTER ORDER SUBMIT HANDLER ───
+  const handlePlaceOrderSubmit = async () => {
+
+    if (!selectedAddress) {
+      alert('Please ensure a valid shipping destination address profile is active.');
+      return;
+    }
+
+    const newOrderPayloads = buildOrderPayloads();
+
+    // ── COD: save immediately then show popup ──────────────────────────
+    if (paymentMethod === 'cod') {
+      try {
+        await saveOrdersToFirestore(newOrderPayloads, 'COD');
+        await updateCouponUsageIfApplied();
+        purgeOrderedItemsFromCart();
+      } catch (err) {
+        console.error('Error placing COD order:', err);
+      }
       setIsPopupOpen(true);
       setTimeout(() => {
         setIsPopupOpen(false);
-        navigate("/orders", { state: { newOrderPayloads } });
+        navigate('/orders', { state: { newOrderPayloads } });
       }, 3000);
+      return;
     }
+
+    // ── ONLINE: open Razorpay checkout ────────────────────────────────
+    setIsOrderingLoader(true);
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      setIsOrderingLoader(false);
+      alert('Failed to load payment gateway. Please check your internet connection and try again.');
+      return;
+    }
+    setIsOrderingLoader(false);
+
+    const amountInPaise = Math.round(activeFinalTotal * 100); // Razorpay expects paise
+    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+
+    const options = {
+      key: razorpayKey,
+      amount: amountInPaise,
+      currency: 'INR',
+      name: 'Star Bags',
+      description: `Order for ${cartItems.length} item(s)`,
+      image: '/src/assets/images/brand-logo-dark.png',
+      prefill: {
+        name: selectedAddress?.name || '',
+        email: currentUser?.email || '',
+        contact: selectedAddress?.mobile || '',
+      },
+      notes: {
+        address: selectedAddress
+          ? `${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pin}`
+          : '',
+        orderId: newOrderPayloads[0]?.id || '',
+      },
+      theme: { color: '#8b5cf6' },
+      modal: {
+        ondismiss: () => {
+          // User closed the modal without paying — do nothing
+          console.log('Razorpay modal dismissed by user.');
+        },
+      },
+      handler: async (response) => {
+        // Payment successful — save orders then navigate
+        const { razorpay_payment_id } = response;
+        try {
+          await saveOrdersToFirestore(newOrderPayloads, 'Online', razorpay_payment_id);
+          await updateCouponUsageIfApplied();
+          purgeOrderedItemsFromCart();
+        } catch (err) {
+          console.error('Error saving online order:', err);
+        }
+        setIsPopupOpen(true);
+        setTimeout(() => {
+          setIsPopupOpen(false);
+          navigate('/orders', { state: { newOrderPayloads } });
+        }, 3000);
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.on('payment.failed', (response) => {
+      console.error('Razorpay payment failed:', response.error);
+      alert(`Payment failed: ${response.error.description}. Please try again.`);
+    });
+    rzp.open();
   };
 
   const handleBackToCheckout = () => {
@@ -318,30 +400,24 @@ const BillAddress = () => {
       {isOrderingLoader && (
         <div
           style={{
-            position: "fixed",
+            position: 'fixed',
             inset: 0,
-            backgroundColor: "rgba(255, 255, 255, 0.96)",
-            backdropFilter: "blur(5px)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
+            backgroundColor: 'rgba(255, 255, 255, 0.96)',
+            backdropFilter: 'blur(5px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
             zIndex: 20000,
           }}
         >
           <div
             className="spinner-border"
-            style={{
-              width: "3.8rem",
-              height: "3.8rem",
-              color: "#8b5cf6",
-              borderWidth: "4px",
-            }}
+            style={{ width: '3.8rem', height: '3.8rem', color: '#8b5cf6', borderWidth: '4px' }}
             role="status"
           />
-          <h4 className="fw-bold text-dark mt-4 mb-2">
-            Processing Secure Online Payment...
-          </h4>
+          <h4 className="fw-bold text-dark mt-4 mb-2">Loading Payment Gateway...</h4>
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>Please wait while we connect to Razorpay securely.</p>
         </div>
       )}
 

@@ -12,14 +12,10 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 const renderMethodIcon = (method) => {
-  switch (method) {
-    case 'visa': return <FaCcVisa size={22} color="#1a1f71" />;
-    case 'mastercard': return <FaCcMastercard size={22} color="#eb001b" />;
-    case 'paypal': return <FaPaypal size={22} color="#003087" />;
-    case 'cash': return <FaMoneyBillWave size={22} color="#8B5CF6" />;
-    case 'card':
-    default: return <FaCreditCard size={22} color="#0072bc" />;
+  if (method === 'cash' || method === 'cod') {
+    return <FaMoneyBillWave size={22} color="#8b5cf6" />;
   }
+  return <FaCreditCard size={22} color="#0072bc" />;
 };
 
 const PaymentDetails = () => {
@@ -41,13 +37,16 @@ const PaymentDetails = () => {
             amount: amountRaw ? `₹${Number(amountRaw).toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00',
             amountRaw: Number(amountRaw),
             currency: 'INR',
-            mode: isCOD ? 'Cash on delivery' : 'Online Payment',
-            method: isCOD ? 'cash' : (data.paymentDetails?.method || 'card'),
+            mode: isCOD ? 'COD' : 'Razorpay',
+            method: isCOD ? 'cash' : 'razorpay',
             date: orderDate ? orderDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/') : '-',
             time: orderDate ? orderDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '-',
             status: data.paymentStatus || (data.status === 'Delivered' ? 'Success' : 'Pending'),
+            orderDateRaw: orderDate || new Date(0),
           });
         });
+        // Sort payments by date descending (latest first)
+        list.sort((a, b) => b.orderDateRaw - a.orderDateRaw);
         setAllData(list);
       } catch (err) {
         console.error('Error fetching payments:', err);
@@ -59,10 +58,15 @@ const PaymentDetails = () => {
     fetchPayments();
   }, []);
 
-  // Live stats
-  const totalPayment = allData.reduce((sum, r) => sum + r.amountRaw, 0);
-  const codPayment = allData.filter(r => r.mode === 'Cash on delivery').reduce((sum, r) => sum + r.amountRaw, 0);
-  const onlinePayment = allData.filter(r => r.mode === 'Online Payment').reduce((sum, r) => sum + r.amountRaw, 0);
+  // Live stats (Last 30 Days)
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30);
+
+  const paymentsLast30Days = allData.filter(r => r.orderDateRaw && r.orderDateRaw >= thirtyDaysAgo);
+  const totalPaymentLast30Days = paymentsLast30Days.reduce((sum, r) => sum + r.amountRaw, 0);
+  const codPaymentLast30Days = paymentsLast30Days.filter(r => r.mode === 'COD').reduce((sum, r) => sum + r.amountRaw, 0);
+  const onlinePaymentLast30Days = paymentsLast30Days.filter(r => r.mode === 'Razorpay').reduce((sum, r) => sum + r.amountRaw, 0);
 
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,12 +80,9 @@ const PaymentDetails = () => {
     amount: selectedPayment.amount,
     transactionId: selectedPayment.id,
     paymentMethod: {
-      visa: "Visa",
-      mastercard: "Mastercard",
-      paypal: "PayPal",
       cash: "Cash on delivery",
-      card: "Credit card"
-    }[selectedPayment.method] || "Credit card",
+      razorpay: "Razorpay"
+    }[selectedPayment.method] || "Razorpay",
     date: selectedPayment.date,
     time: selectedPayment.time || "12:00 PM",
     merchant: "Star Bags"
@@ -121,7 +122,7 @@ const PaymentDetails = () => {
       <AdminSidebar />
       <div className="admin-main payment-details-wrapper">
        
-       <AdminHeader title="Payment Management" subtitle="Manage your payments."  />
+       <AdminHeader title="Payment Management" subtitle="Showing payment summary statistics for the last 30 days."  />
 
         <div className="admin-content">
           {loading ? (
@@ -135,8 +136,8 @@ const PaymentDetails = () => {
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
-                  <p className="payment-stat-label">Total payment</p>
-                  <p className="payment-stat-value">₹ {totalPayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
+                  <p className="payment-stat-label">Total payment (30 Days)</p>
+                  <p className="payment-stat-value">₹ {totalPaymentLast30Days.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#ede9fe', color: '#7c3aed' }}>
                   <i className="bi bi-wallet2" style={{ fontSize: '20px' }}></i>
@@ -144,15 +145,15 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>{allData.filter(r => r.status === 'Success').length} Successful</span>
+                <span>{paymentsLast30Days.filter(r => r.status === 'Success').length} Successful</span>
               </div>
             </div>
 
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
-                  <p className="payment-stat-label">Cash on delivery</p>
-                  <p className="payment-stat-value">₹ {codPayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
+                  <p className="payment-stat-label">Cash on delivery (30 Days)</p>
+                  <p className="payment-stat-value">₹ {codPaymentLast30Days.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#dcfce7', color: '#16a34a' }}>
                   <i className="bi bi-cash-coin" style={{ fontSize: '20px' }}></i>
@@ -160,15 +161,15 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>{allData.filter(r => r.mode === 'Cash on delivery').length} orders</span>
+                <span>{paymentsLast30Days.filter(r => r.mode === 'COD').length} orders</span>
               </div>
             </div>
 
             <div className="payment-stat-card">
               <div className="payment-stat-top">
                 <div className="payment-stat-info">
-                  <p className="payment-stat-label">Online payment</p>
-                  <p className="payment-stat-value">₹ {onlinePayment.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
+                  <p className="payment-stat-label">Online payment (30 Days)</p>
+                  <p className="payment-stat-value">₹ {onlinePaymentLast30Days.toLocaleString('en-IN', { minimumFractionDigits: 0 })}</p>
                 </div>
                 <div className="payment-stat-icon-wrap" style={{ background: '#e0e7ff', color: '#4f46e5' }}>
                   <i className="bi bi-credit-card" style={{ fontSize: '20px' }}></i>
@@ -176,7 +177,7 @@ const PaymentDetails = () => {
               </div>
               <div className="payment-stat-trend">
                 <FiArrowUpRight style={{ fontSize: '16px' }} />
-                <span>{allData.filter(r => r.mode === 'Online Payment').length} orders</span>
+                <span>{paymentsLast30Days.filter(r => r.mode === 'Razorpay').length} orders</span>
               </div>
             </div>
           </div>
@@ -198,8 +199,8 @@ const PaymentDetails = () => {
               <label>PAYMENT MODE</label>
               <select className="payment-select" value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
                 <option value="All">All</option>
-                <option value="Online Payment">Online Payment</option>
-                <option value="Cash on delivery">Cash on delivery</option>
+                <option value="Razorpay">Razorpay</option>
+                <option value="COD">COD</option>
               </select>
             </div>
             <div className="payment-filter-group">

@@ -4,7 +4,8 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import "../../assets/styles/Profile.css";
-import { MdEdit, MdSave, MdCancel } from "react-icons/md";
+import "../../assets/styles/Skeleton.css";
+import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
 import { useAuth } from "../../context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
@@ -20,6 +21,7 @@ function Profile() {
     gender: "Male",
     mobile: "",
     email: "",
+    photo: "",
   });
 
   const [tempData, setTempData] = useState({ ...formData });
@@ -33,6 +35,7 @@ function Profile() {
         gender: userData.gender || "Male",
         mobile: userData.mobile || "",
         email: userData.email || currentUser?.email || "",
+        photo: userData.photo || "",
       };
       setFormData(data);
       setTempData(data);
@@ -60,6 +63,7 @@ function Profile() {
           gender: tempData.gender,
           mobile: tempData.mobile,
           email: tempData.email,
+          photo: tempData.photo || "",
           updatedAt: new Date().toISOString()
         });
         
@@ -69,7 +73,8 @@ function Profile() {
           name: tempData.name,
           gender: tempData.gender,
           mobile: tempData.mobile,
-          email: tempData.email
+          email: tempData.email,
+          photo: tempData.photo || ""
         }));
       }
     } catch (error) {
@@ -80,6 +85,22 @@ function Profile() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setTempData({ ...tempData, [name]: value });
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Limit base64 photo size to 800KB to fit easily in Firestore document limits (1MB max document limit is strict, but 800KB is safe)
+      if (file.size > 800 * 1024) {
+        alert("Please upload a photo smaller than 800KB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempData((prev) => ({ ...prev, photo: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -96,11 +117,26 @@ function Profile() {
             <ProfileSideNav />
           </div>
 
-          {/* Main Panel Content Card Frame */}
-          <div className="col-lg-9 col-md-7 list-column-view">
-            <div className="orders-card p-4 bg-white shadow-sm border rounded-3">
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold mb-0 outfit-font text-dark-theme">Profile Details</h4>
+          <div className="col-lg-8 col-md-7">
+            {loading ? (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '120px', height: '24px' }} />
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '100px', height: '36px', borderRadius: '6px' }} />
+                </div>
+                <div className="d-flex flex-column gap-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="d-flex flex-column gap-2">
+                      <div className="skeleton-shimmer skeleton-block" style={{ width: '80px', height: '14px' }} />
+                      <div className="skeleton-shimmer skeleton-block" style={{ height: '42px', borderRadius: '6px' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                <h4 className="fw-bold mb-0">Profile</h4>
 
                 {!isEditing ? (
                   <button className="btn edit-profile-btn border px-3 fw-bold small text-white" style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleEdit}>
@@ -118,11 +154,9 @@ function Profile() {
                 )}
               </div>
 
-              <hr className="my-3" style={{ borderColor: "#e5e7eb" }} />
-
-              <form style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                <div>
-                  <label className="form-label fw-semibold text-secondary small mb-1">Name</label>
+              <form>
+                <div className="mb-2">
+                  <label className="form-label">Name</label>
                   <input
                     type="text"
                     className="form-control"
@@ -177,7 +211,8 @@ function Profile() {
                   />
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </main>
