@@ -4,8 +4,8 @@ import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import "../../assets/styles/CreateAccount.css";
 
@@ -15,6 +15,8 @@ import { NavLink } from "react-router-dom";
 const CreateAccount = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError, setGoogleError] = useState("");
 
   // Redirect if already logged in
   useEffect(() => {
@@ -58,18 +60,17 @@ const CreateAccount = () => {
     let isValid = true;
     const newErrors = { email: "", password: "" };
 
-    // Email validation - supports both email and mobile number
+    // Email validation - strictly email only
     const isEmail = /\S+@\S+\.\S+/.test(formData.email);
-    const isMobile = /^[0-9]{10}$/.test(formData.email);
     
     if (!formData.email.trim()) {
-      newErrors.email = "Please enter your email address or mobile number.";
+      newErrors.email = "Please enter your email address.";
       isValid = false;
     } else if (formData.email.trim() === "admin@starbags.com") {
       newErrors.email = "This email is reserved for Admin use.";
       isValid = false;
-    } else if (!isEmail && !isMobile) {
-      newErrors.email = "Please enter a valid email address or mobile number";
+    } else if (!isEmail) {
+      newErrors.email = "Please enter a valid email address.";
       isValid = false;
     }
 
@@ -92,8 +93,7 @@ const CreateAccount = () => {
       setLoading(true);
       console.log("Form submitted:", formData);
       
-      const email = formData.email.includes("@") ? formData.email.trim() : `${formData.email.trim()}@starbags.com`;
-      const isMobile = !formData.email.includes("@");
+      const email = formData.email.trim();
       
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, formData.password);
@@ -106,7 +106,7 @@ const CreateAccount = () => {
           email: user.email,
           role: "user",
           name: email.split("@")[0],
-          mobile: isMobile ? formData.email.trim() : "",
+          mobile: "",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
@@ -117,7 +117,7 @@ const CreateAccount = () => {
           email: user.email,
           role: "user",
           name: email.split("@")[0],
-          mobile: isMobile ? formData.email.trim() : "",
+          mobile: "",
           gender: "Male"
         }));
 
@@ -126,7 +126,7 @@ const CreateAccount = () => {
         console.error("Firebase Registration Error:", err);
         let errorMsg = "Failed to register account.";
         if (err.code === "auth/email-already-in-use") {
-          errorMsg = "This email/mobile number is already registered.";
+          errorMsg = "This email address is already registered.";
         } else if (err.code === "auth/invalid-email") {
           errorMsg = "Please enter a valid email format.";
         } else if (err.code === "auth/weak-password") {
@@ -139,6 +139,66 @@ const CreateAccount = () => {
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  // ─── GOOGLE SIGN-UP / SIGN-IN ───
+  const handleGoogleSignIn = async () => {
+    setGoogleError("");
+    setGoogleLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      let role = "user";
+      let userData = {};
+
+      if (userDocSnap.exists()) {
+        userData = userDocSnap.data();
+        role = userData.role === "admin" ? "admin" : "user";
+      } else {
+        userData = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || user.email?.split("@")[0] || "User",
+          photo: user.photoURL || "",
+          mobile: "",
+          role: "user",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        await setDoc(userDocRef, userData);
+      }
+
+      localStorage.setItem("user", JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        role,
+        name: userData.name || user.displayName || user.email?.split("@")[0],
+        photo: userData.photo || user.photoURL || "",
+        mobile: userData.mobile || "",
+        gender: userData.gender || "",
+      }));
+
+      navigate("/");
+    } catch (err) {
+      console.error("Google Sign-Up Error:", err);
+      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+        // silent
+      } else if (err.code === "auth/popup-blocked") {
+        setGoogleError("Popup was blocked by your browser. Please allow popups for this site.");
+      } else if (err.code === "auth/network-request-failed") {
+        setGoogleError("Network error. Please check your connection and try again.");
+      } else {
+        setGoogleError("Google sign-up failed. Please try again.");
+      }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -182,19 +242,19 @@ const CreateAccount = () => {
               {/* EMAIL */}
               <div className="mb-1">
                 <label className="form-label">
-                  Email or Mobile Number
+                  Email Address
                   <sup>
                     <CgAsterisk />
                   </sup>
                 </label>
 
                 <input
-                  type="text"
+                  type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                  placeholder="Enter your email or mobile number"
+                  placeholder="Enter your email address"
                   disabled={loading}
                 />
                 {errors.email && (
@@ -261,15 +321,24 @@ const CreateAccount = () => {
 
             {/* SOCIAL BUTTONS */}
             <div className="social-buttons">
-              <button className="social-btn">
-                <FcGoogle className="social-icon" />
-                Sign in with Google
-              </button>  
-
-              {/* <button className="social-btn">
-                <FaApple className="social-icon" />
-                Sign in with Apple
-              </button> */}
+              <button
+                className="social-btn"
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={googleLoading || loading}
+              >
+                {googleLoading ? (
+                  <span className="spinner-border spinner-border-sm me-2" role="status" />
+                ) : (
+                  <FcGoogle className="social-icon" />
+                )}
+                {googleLoading ? "Connecting..." : "Sign up with Google"}
+              </button>
+              {googleError && (
+                <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '6px', textAlign: 'center' }}>
+                  {googleError}
+                </p>
+              )}
             </div>
             {/* FOOTER */}
             <div className="signin-footer">

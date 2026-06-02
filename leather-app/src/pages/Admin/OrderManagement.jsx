@@ -13,6 +13,25 @@ function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getNormalizedCategory = (data, docId) => {
+    const orderId = (data.id || docId || '').toUpperCase();
+    if (orderId.includes('-WLT-')) return 'Wallet';
+    if (orderId.includes('-BLT-')) return 'Belt';
+    if (orderId.includes('-BAG-')) return 'Bag';
+
+    const prodName = (data.items?.[0]?.productName || data.product || '').toLowerCase();
+    if (prodName.includes('wallet') || prodName.includes('card holder')) return 'Wallet';
+    if (prodName.includes('belt')) return 'Belt';
+    if (prodName.includes('bag') || prodName.includes('backpack')) return 'Bag';
+
+    const cat = (data.items?.[0]?.category || data.category || '').toLowerCase();
+    if (cat === 'wlt' || cat === 'wallet') return 'Wallet';
+    if (cat === 'blt' || cat === 'belt') return 'Belt';
+    if (cat === 'bag' || cat === 'bags') return 'Bag';
+
+    return 'Bag';
+  };
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -20,12 +39,23 @@ function OrderManagement() {
         const list = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
+          const orderDateRaw = data.orderDate
+            ? (data.orderDate.toDate ? data.orderDate.toDate() : new Date(data.orderDate))
+            : new Date(0);
+          
+          const year = orderDateRaw.getFullYear();
+          const month = String(orderDateRaw.getMonth() + 1).padStart(2, '0');
+          const day = String(orderDateRaw.getDate()).padStart(2, '0');
+          const orderDateYMD = `${year}-${month}-${day}`;
+
           list.push({
             id: data.id || docSnap.id,
             img: data.items?.[0]?.img || '',
             productName: data.items?.[0]?.productName || '',
             customer: data.customerDetails?.name || '',
             address: data.customerDetails?.shippingAddress || '',
+            orderDateRaw,
+            orderDateYMD,
             date: data.orderDate
               ? (data.orderDate.toDate
                   ? data.orderDate.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '/')
@@ -34,10 +64,12 @@ function OrderManagement() {
             paymentMode: data.paymentMode || '',
             amount: data.paymentDetails?.total ? `₹${data.paymentDetails.total}` : '',
             status: data.status || '',
-            category: data.items?.[0]?.category || '',
+            category: getNormalizedCategory(data, docSnap.id),
             orderType: data.orderType || '',
           });
         });
+        // Sort orders by date descending (latest first)
+        list.sort((a, b) => b.orderDateRaw - a.orderDateRaw);
         setOrders(list);
       } catch (err) {
         console.error('Error fetching orders:', err);
@@ -62,12 +94,10 @@ function OrderManagement() {
     setCurrentPage(1);
   };
 
-  const formattedDateFilter = dateFilter ? dateFilter.split('-').reverse().join('/') : '';
-
   const filteredOrders = orders.filter((order) => {
-    if (formattedDateFilter && order.date !== formattedDateFilter) return false;
-    if (categoryFilter && order.category !== categoryFilter) return false;
-    if (statusFilter && order.status !== statusFilter) return false;
+    if (dateFilter && order.orderDateYMD !== dateFilter) return false;
+    if (categoryFilter && order.category.toLowerCase() !== categoryFilter.toLowerCase()) return false;
+    if (statusFilter && order.status.toLowerCase() !== statusFilter.toLowerCase()) return false;
     return true;
   });
 

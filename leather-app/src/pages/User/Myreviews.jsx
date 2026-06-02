@@ -4,6 +4,7 @@ import Footer from '../../components/User/Footer';
 import ProfileSideNav from '../../components/User/Profile-Side-Nav';
 import ReviewCard from '../../components/User/ReviewCard';
 import { useAuth } from '../../context/AuthContext';
+import { ReviewSkeleton } from '../../components/User/UserSkeleton';
 import { db } from '../../firebase';
 import {
   collection,
@@ -59,6 +60,8 @@ function Myreviews() {
           reviewText: d.data().text || '',
           shortReview: '',                   // not in schema, shown as empty
           date: d.data().date,
+          likes: d.data().likes || [],
+          dislikes: d.data().dislikes || [],
           likeCount: d.data().likeCount || 0,
           dislikeCount: d.data().dislikeCount || 0,
           isHidden: d.data().isHidden || false, // admin may hide the review
@@ -141,12 +144,12 @@ function Myreviews() {
 
         <div className="row justify-content-center">
           {/* Sidebar */}
-          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
+          <div className="col-lg-4 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
           {/* Main Reviews Panel */}
-          <div className="col-lg-9 col-md-7 list-column-view">
+          <div className="col-lg-8 col-md-7 list-column-view">
             <div className="reviews-card">
 
               {/* Header */}
@@ -158,13 +161,7 @@ function Myreviews() {
               {/* Reviews List */}
               <div className="reviews-list-wrapper">
                 {loading ? (
-                  <div className="d-flex justify-content-center align-items-center py-5">
-                    <div
-                      className="spinner-border"
-                      style={{ color: '#8b5cf6', width: '2.2rem', height: '2.2rem' }}
-                      role="status"
-                    />
-                  </div>
+                  <ReviewSkeleton />
                 ) : reviews.length > 0 ? (
                   <div className="reviews-scroll-list">
                     {reviews.map((review) => (
@@ -174,11 +171,6 @@ function Myreviews() {
                           onEdit={handleEdit}
                           onDelete={handleDelete}
                         />
-                        {review.date && (
-                          <p className="text-muted" style={{ fontSize: '0.72rem', marginTop: '-8px', paddingLeft: '4px' }}>
-                            Reviewed on {formatDate(review.date)}
-                          </p>
-                        )}
                       </div>
                     ))}
                   </div>

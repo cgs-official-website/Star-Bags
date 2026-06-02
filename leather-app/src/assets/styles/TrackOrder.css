@@ -12,6 +12,8 @@
   font-size: 1.5rem;
   color: #1a1a1a;
   margin-bottom: 1.4rem;
+  word-break: break-word;
+  min-width: 0;
 }
 
 /* ─── Two-column main grid ───────────────────────────── */
@@ -669,8 +671,79 @@
 
 /* ── Mobile (≤ 768px) ── */
 @media (max-width: 768px) {
+  /* Container padding and card padding */
+  .to-page {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .to-card {
+    padding: 1rem !important;
+  }
+
+  /* Header row: stack vertically on small mobile viewports */
+  .to-header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    margin-bottom: 1.2rem !important;
+  }
+
   .to-page-title {
-    font-size: 1.25rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .to-back-btn {
+    align-self: flex-start;
+    width: auto;
+    font-size: 0.72rem !important;
+    padding: 5px 12px !important;
+    order: -1;
+  }
+
+  /* Product card info styling */
+  .to-product-info {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px !important;
+  }
+
+  .to-product-img {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .to-product-details {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .to-product-title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+
+  .to-product-name {
+    font-size: 0.95rem;
+    line-height: 1.35;
+    margin: 0;
+    word-break: break-word;
+  }
+
+  /* Rating badge inside details flow */
+  .to-product-rating-badge {
+    position: static !important;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.75rem !important;
+    padding: 3px 8px !important;
+    margin: 0 !important;
   }
 
   .to-sug-grid {
@@ -694,6 +767,15 @@
 
   .to-otp-btn {
     text-align: center;
+  }
+
+  /* Summary table: smaller font */
+  .to-summary-row {
+    font-size: 0.78rem;
+  }
+
+  .to-summary-row.total {
+    font-size: 0.88rem;
   }
 }
 
@@ -728,8 +810,8 @@
   }
 
   .to-product-img {
-    width: 65px;
-    height: 65px;
+    width: 70px !important;
+    height: 70px !important;
   }
 }
 

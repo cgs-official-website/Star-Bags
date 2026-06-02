@@ -35,8 +35,19 @@ const Brand = () => {
     },
   ];
 
-  const handleBrandClick = (brandId) => {
-    navigate('/AllProducts', { state: { selectedBrand: brandId } });
+  const handleBrandClick = (brand) => {
+    let filterBrandName = brand.name;
+    if (brand.name === 'Skybags') {
+      filterBrandName = 'Sky bags';
+    }
+    navigate('/AllProducts', {
+      state: {
+        filters: {
+          category: 'bag',
+          brands: [filterBrandName]
+        }
+      }
+    });
   };
 
   return (
@@ -46,7 +57,7 @@ const Brand = () => {
         {brands.map((brand) => (
           <div
             key={brand.id}
-            onClick={() => handleBrandClick(brand.id)}
+            onClick={() => handleBrandClick(brand)}
             className="brand-card"
           >
             <img 

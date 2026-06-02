@@ -69,7 +69,14 @@ const ProductCard = ({ products = [] }) => {
                   style={{ width: "15rem", flex: "0 0 auto", cursor: "pointer" }}
                   onClick={() => handleProductDetailsRedirect(pro)} // Clicking the card takes the user to Product Details page
                 >
-                  <img src={pro.image} className="card-img-top" alt={pro.name} />
+                  <div className="position-relative" style={{ overflow: "hidden" }}>
+                    <img src={pro.image} className="card-img-top" alt={pro.name} style={{ opacity: parseInt(pro.stocks) <= 0 ? 0.6 : 1 }} />
+                    {parseInt(pro.stocks) <= 0 && (
+                      <span className="badge bg-danger position-absolute" style={{ top: 12, left: 12, zIndex: 5, padding: "5px 10px", fontSize: "11px", fontWeight: "bold", borderRadius: "4px" }}>
+                        Out of Stock
+                      </span>
+                    )}
+                  </div>
                   <WishlistHeart product={pro} />
                   
                   <div className="card-body">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import{ useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
@@ -8,6 +8,7 @@ import ReviewModal from "../../components/User/ReviewModal";
 import { FaSearch } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useProducts } from "../../context/ProductsContext";
+import { OrderSkeleton } from "../../components/User/UserSkeleton";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs, addDoc, doc, getDoc, updateDoc } from "firebase/firestore";
 import "../../assets/styles/Orders.css";
@@ -136,6 +137,7 @@ function Orders() {
         }
       } catch (_) {}
 
+
       const matchedProduct = products.find(
         (p) => p.name === activeOrderForReview.product || p.id === activeOrderForReview.productId || p.productId === activeOrderForReview.productId
       );
@@ -185,20 +187,20 @@ function Orders() {
   );
 
   return (
-    <div className="orders-page-app-wrapper">
+    <>
       <Navbar />
 
-      <main className="orders-container container py-3 my-2">
-        <h4 className="mb-4 fw-bold">Settings and Profile</h4>
+      <main className="container py-3 my-2">
+        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
 
-        <div className="row justify-content-center">
-          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
+        <div className=" row justify-content-center align-items-start">
+          <div className="col-lg-4 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-9 col-md-7 list-column-view">
-            <div className="orders-card p-4 bg-white shadow-sm border rounded-3">
-              <div className="orders-header ">
+          <div className="col-lg-8 col-md-7 list-column-view">
+            <div className="orders-card">
+              <div className="orders-header">
                 <div>
                   <h4 className="fw-bold mb-1 outfit-font text-dark-theme">My Orders</h4>
                   <p className="orders-subtitle text-muted small">View your purchase history and tracking details</p>
@@ -221,12 +223,7 @@ function Orders() {
 
               <div className="orders-list-wrapper">
                 {loading ? (
-                  <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status">
-                      <span className="visually-hidden">Loading...</span>
-                    </div>
-                    <p className="mt-2 text-muted">Loading your orders...</p>
-                  </div>
+                  <OrderSkeleton />
                 ) : filteredOrders.length > 0 ? (
                   <div className="orders-grid d-flex flex-column gap-3">
                     {filteredOrders.map((order, index) => (
@@ -256,7 +253,7 @@ function Orders() {
       />
 
       <Footer />
-    </div>
+    </>
   );
 }
 

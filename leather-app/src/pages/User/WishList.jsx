@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"; // ← ADDED for robust routing
+import { useNavigate } from "react-router-dom";
 import { useWishlist } from "../../context/WishlistContext";
 import { useProducts } from "../../context/ProductsContext";
 import "../../assets/styles/WishList.css";
@@ -6,15 +6,20 @@ import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import { FaHeart, FaStar } from "react-icons/fa";
-import { MdOutlineShoppingCart } from "react-icons/md";
+import { WishlistSkeleton } from "../../components/User/UserSkeleton";
 
 // ─── Single Wishlist Card ─────────────────────────────────────────────────────
-function WishlistCard({ item, onRemove, onAddToCart }) {
+function WishlistCard({ item, onRemove, onNavigate }) {
   return (
-    <div className="wl-card">
+    <div
+      className="wl-card"
+      onClick={() => onNavigate(item)}
+      style={{ cursor: "pointer" }}
+    >
+      {/* Heart remove button — stopPropagation so it doesn't trigger card navigation */}
       <button
         className="wl-heart-btn"
-        onClick={() => onRemove(item.id)}
+        onClick={(e) => { e.stopPropagation(); onRemove(item.id); }}
         aria-label="Remove from wishlist"
       >
         <FaHeart className="wl-heart-icon" />
@@ -40,46 +45,32 @@ function WishlistCard({ item, onRemove, onAddToCart }) {
           <span className="wl-offer">{item.offer} off</span>
         </div>
 
-        <div className="wl-actions">
-          <button className="wl-buy-btn">Buy now</button>
-          <button 
-            className="wl-cart-btn" 
-            aria-label="Add to cart"
-            onClick={() => onAddToCart(item)}
-          >
-            <MdOutlineShoppingCart />
-          </button>
-        </div>
+        {/* FIXED: Buy Now and Cart action button block layer completely removed from here */}
       </div>
     </div>
   );
 }
 
-// ─── Empty Wishlist State (Fixed Image & Navigation) ──────────────────────────
+// ─── Empty Wishlist State ─────────────────────────────────────────────────────
 function EmptyWishlist() {
   const navigate = useNavigate();
 
-  // Dynamic asset resolver to handle relative folder paths safely across routes
-  const getEmptyStateImage = () => {
-    return new URL("../../assets/images/empty.png", import.meta.url).href;
-  };
+  const getEmptyStateImage = () =>
+    new URL("../../assets/images/empty.png", import.meta.url).href;
 
   return (
     <div className="wl-empty-container">
       <div className="wl-empty-image-wrapper">
-        {/* FIX: Handled asset resolution cleanly via baseline meta URL compiler syntax */}
-        <img 
-          src={getEmptyStateImage()} 
-          alt="Empty Bag Vector" 
-          className="wl-empty-vector" 
-          style={{width:"100%",height:"100%"}}
+        <img
+          src={getEmptyStateImage()}
+          alt="Empty Bag Vector"
+          className="wl-empty-vector"
+          style={{ width: "100%", height: "100%" }}
         />
       </div>
       <h3 className="wl-empty-heading">Your wishlist is empty!</h3>
-      
-      {/* FIX: Switched from an <a> tag anchor to a robust navigate call path trigger */}
-      <span 
-        onClick={() => navigate("/AllProducts")} 
+      <span
+        onClick={() => navigate("/AllProducts")}
         className="btn wl-empty-shop-btn"
         style={{ cursor: "pointer" }}
       >
@@ -91,22 +82,29 @@ function EmptyWishlist() {
 
 // ─── Main WishList Page ───────────────────────────────────────────────────────
 function WishList() {
-  const { wishlist, wishlistLoading, removeFromWishlist, addToCart } = useWishlist();
+  const navigate = useNavigate();
+  const { wishlist, wishlistLoading, removeFromWishlist } = useWishlist();
   const { products } = useProducts();
 
+  // Merge live product data for accurate rating + pass full product to ProductDetails
   const liveWishlist = wishlist.map((item) => {
     const liveProduct = products.find(
       (p) => p.id === item.id || p.productId === item.productId || p.name === item.name
     );
     if (liveProduct) {
       return {
-        ...item,
+        ...liveProduct,  // full product fields for ProductDetails
+        ...item,         // wishlist overrides (id, image, offer, etc.)
         rating: liveProduct.rating,
         ratingCount: liveProduct.reviewCount || 0,
       };
     }
     return item;
   });
+
+  const handleNavigateToProduct = (item) => {
+    navigate("/product", { state: { product: item } });
+  };
 
   return (
     <>
@@ -115,18 +113,16 @@ function WishList() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Wishlist</h4>
 
-        <div className="row align-items-start">
+        <div className="row justify-content-center align-items-start">
           {/* Sidebar Area Column */}
-          <div className="col-lg-3 mb-3 d-none d-lg-block wl-sidebar-sticky">
+          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          {/* Main Context Dynamic Grid Column Area */}
-          <div className="col-lg-9 col-12">
+          {/* Main Grid Area Column */}
+          <div className="col-lg-8 col-md-7 col-12">
             {wishlistLoading ? (
-              <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
-                <div className="spinner-border" style={{ color: "#8b5cf6", width: "2.5rem", height: "2.5rem" }} role="status" />
-              </div>
+              <WishlistSkeleton />
             ) : liveWishlist.length === 0 ? (
               <EmptyWishlist />
             ) : (
@@ -136,7 +132,7 @@ function WishList() {
                     key={item.id}
                     item={item}
                     onRemove={removeFromWishlist}
-                    onAddToCart={addToCart}
+                    onNavigate={handleNavigateToProduct}
                   />
                 ))}
               </div>

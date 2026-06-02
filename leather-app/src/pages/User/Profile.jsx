@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import "../../assets/styles/Profile.css";
+import "../../assets/styles/Skeleton.css";
 import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
 import { useAuth } from "../../context/AuthContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
-import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const { currentUser, userData, loading } = useAuth();
@@ -66,7 +67,6 @@ function Profile() {
           updatedAt: new Date().toISOString()
         });
         
-        // Update local storage to keep it synced for immediate fallback
         const storedUser = JSON.parse(localStorage.getItem("user")) || {};
         localStorage.setItem("user", JSON.stringify({
           ...storedUser,
@@ -104,43 +104,56 @@ function Profile() {
   };
 
   return (
-    <>
+    <div className="profile-page-app-wrapper" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
       <Navbar />
-      <div className="container py-3 my-2">
-        <h4 className="mb-3 fw-bold">Settings and Profile</h4>
+      
+      {/* FIXED BOOTSTRAP GRID MESH LAYOUT TO MATCH UNIFORM COLUMN WIDTH */}
+      <main className="orders-container container py-3 my-2">
+        <h4 className="mb-4 fw-bold">Settings and Profile</h4>
+        
         <div className="row justify-content-center">
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block">
+          {/* Sidebar - Consistent width configuration matching other dashboard modules */}
+          <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
             <ProfileSideNav />
           </div>
+
           <div className="col-lg-8 col-md-7">
-            <div className="profile-details-card">
-              <div className="d-flex justify-content-between align-items-center mb-2">
+            {loading ? (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '120px', height: '24px' }} />
+                  <div className="skeleton-shimmer skeleton-block" style={{ width: '100px', height: '36px', borderRadius: '6px' }} />
+                </div>
+                <div className="d-flex flex-column gap-3">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className="d-flex flex-column gap-2">
+                      <div className="skeleton-shimmer skeleton-block" style={{ width: '80px', height: '14px' }} />
+                      <div className="skeleton-shimmer skeleton-block" style={{ height: '42px', borderRadius: '6px' }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="profile-details-card">
+                <div className="d-flex justify-content-between align-items-center mb-2">
                 <h4 className="fw-bold mb-0">Profile</h4>
 
                 {!isEditing ? (
-                  <button className="btn edit-profile-btn" onClick={handleEdit}>
-                    <MdEdit className="me-2" />
-                    Edit Profile
+                  <button className="btn edit-profile-btn border px-3 fw-bold small text-white" style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleEdit}>
+                    <MdEdit className="me-1" /> Edit Profile
                   </button>
                 ) : (
                   <div className="d-flex gap-2">
-                    <button
-                      className="btn cancel-profile-btn"
-                      onClick={handleCancel}
-                    >
-                      <MdCancel className="me-1" />
-                      Cancel
+                    <button className="btn btn-light border px-3 fw-bold small" style={{ borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleCancel}>
+                      <MdCancel className="me-1" /> Cancel
                     </button>
-                    <button
-                      className="btn edit-profile-btn"
-                      onClick={handleSave}
-                    >
-                      <MdSave className="me-2" />
-                      Save
+                    <button className="btn text-white px-3 fw-bold small" style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleSave}>
+                      <MdSave className="me-1" /> Save
                     </button>
                   </div>
                 )}
               </div>
+
               <form>
                 <div className="mb-2">
                   <label className="form-label">Name</label>
@@ -151,19 +164,19 @@ function Profile() {
                     value={tempData.name}
                     onChange={handleChange}
                     readOnly={!isEditing}
-                    style={{ backgroundColor: !isEditing ? "#f8f9fa" : "#fff" }}
+                    style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
                   />
                 </div>
 
-                <div className="mb-2">
-                  <label className="form-label">Gender</label>
+                <div>
+                  <label className="form-label fw-semibold text-secondary small mb-1">Gender</label>
                   <select
                     className="form-select custom-form-select"
                     name="gender"
                     value={tempData.gender}
                     onChange={handleChange}
                     disabled={!isEditing}
-                    style={{ backgroundColor: !isEditing ? "#f8f9fa" : "#fff" }}
+                    style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
                   >
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -171,8 +184,8 @@ function Profile() {
                   </select>
                 </div>
 
-                <div className="mb-2">
-                  <label className="form-label">Mobile Number</label>
+                <div>
+                  <label className="form-label fw-semibold text-secondary small mb-1">Mobile Number</label>
                   <input
                     type="tel"
                     className="form-control"
@@ -181,12 +194,12 @@ function Profile() {
                     value={tempData.mobile}
                     onChange={handleChange}
                     readOnly={!isEditing}
-                    style={{ backgroundColor: !isEditing ? "#f8f9fa" : "#fff" }}
+                    style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
                   />
                 </div>
 
-                <div className="mb-2">
-                  <label className="form-label">Email Address</label>
+                <div>
+                  <label className="form-label fw-semibold text-secondary small mb-1">Email Address</label>
                   <input
                     type="email"
                     className="form-control"
@@ -194,16 +207,17 @@ function Profile() {
                     value={tempData.email}
                     onChange={handleChange}
                     readOnly={!isEditing}
-                    style={{ backgroundColor: !isEditing ? "#f8f9fa" : "#fff" }}
+                    style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
                   />
                 </div>
               </form>
-            </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </main>
       <Footer />
-    </>
+    </div>
   );
 }
 

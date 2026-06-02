@@ -6,7 +6,7 @@ import RecentProduct from "../../components/User/RecentProduct";
 import ReviewModal from "../../components/User/ReviewModal";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaStar, FaRegStar, FaHeart, FaTrashAlt } from "react-icons/fa";
-import { FaCircleUser } from "react-icons/fa6";
+
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from "react-icons/bi";
 import { FiHeart } from "react-icons/fi";
 import { IoMdCart } from "react-icons/io";
@@ -162,15 +162,23 @@ function ProductDetails() {
   const sortedFilteredReviews = dynamicReviews
     .filter((review) => {
       if (activeFilter === "Positive") {
-        return review.rating >= 3 && review.rating <= 5; // Positive structural matrix sets: 3, 4, 5 stars
+        return review.rating >= 3 && review.rating <= 5;
       }
       if (activeFilter === "Negative") {
-        return review.rating === 1 || review.rating === 2; // Negative structural matrix sets: 1, 2 stars
+        return review.rating === 1 || review.rating === 2;
       }
-      return review.rating > 3; // All Filter baseline path sets: star metrics greater than 3
+      return true; // "All" should show all reviews
     })
-    // Enforces strict sorting sequence from 5 Stars down to 1 Star
-    .sort((a, b) => b.rating - a.rating);
+    .sort((a, b) => {
+      // Sort from high reviews (5 stars) to low reviews (1 star)
+      if (b.rating !== a.rating) {
+        return b.rating - a.rating;
+      }
+      // If ratings are equal, sort by date descending (newest first)
+      const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
+      const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
+      return dateB - dateA;
+    });
 
   const handleFeedback = async (review, type) => {
     if (!currentUser) return;
@@ -236,6 +244,7 @@ function ProductDetails() {
         date: new Date(),
         isHidden: false,
       };
+
 
       await addDoc(collection(db, "reviews"), reviewPayload);
     } catch (err) {
@@ -320,6 +329,8 @@ function ProductDetails() {
   const isCurrentlyInCartWithThisSize = cart?.some(
     (item) => item.id === currentProduct.id && item.size === selectedSize,
   );
+
+  const isOutOfStock = currentProduct.stocks !== undefined && currentProduct.stocks !== null && parseInt(currentProduct.stocks) <= 0;
 
   const handleAddToCartAction = () => {
     if (isCurrentlyInCartWithThisSize) {
@@ -411,12 +422,8 @@ function ProductDetails() {
 
           <div className="col-lg-6 ps-lg-5">
             {/* Stock from DB */}
-            <div className="stock-text mb-2">
-              {currentProduct.stocks > 0
-                ? `${currentProduct.stocks} in stock available`
-                : currentProduct.stocks == 0
-                  ? "Out of stock"
-                  : "In stock"}
+            <div className="stock-text mb-2" style={{ color: isOutOfStock ? "#ef4444" : "#10b981", fontWeight: "600" }}>
+              {isOutOfStock ? "Out of Stock" : `${currentProduct.stocks} in stock available`}
             </div>
             <h1 className="product-title">{currentProduct.name}</h1>
             <div className="price-section d-flex align-items-center mb-2">
@@ -495,36 +502,49 @@ function ProductDetails() {
             )}
 
             <div className="d-flex align-items-center gap-3 mb-4">
-              <div className="quantity-selector">
-                <button onClick={decreaseQuantity}>-</button>
-                <input type="text" value={quantity} readOnly />
-                <button onClick={increaseQuantity}>+</button>
+              <div className="quantity-selector" style={isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}}>
+                <button onClick={decreaseQuantity} disabled={isOutOfStock}>-</button>
+                <input type="text" value={isOutOfStock ? 0 : quantity} readOnly />
+                <button onClick={increaseQuantity} disabled={isOutOfStock}>+</button>
               </div>
 
               <button
                 className="btn-add-cart"
                 onClick={handleAddToCartAction}
+                disabled={isOutOfStock}
                 style={{
-                  backgroundColor: isCurrentlyInCartWithThisSize
-                    ? "#4b5563"
-                    : "#f3f4f6",
-                  color: isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
-                  border: isCurrentlyInCartWithThisSize
-                    ? "none"
-                    : "1px solid #d1d5db",
+                  backgroundColor: isOutOfStock
+                    ? "#e5e7eb"
+                    : isCurrentlyInCartWithThisSize
+                      ? "#4b5563"
+                      : "#f3f4f6",
+                  color: isOutOfStock ? "#9ca3af" : isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
+                  border: isOutOfStock
+                    ? "1px solid #e5e7eb"
+                    : isCurrentlyInCartWithThisSize
+                      ? "none"
+                      : "1px solid #d1d5db",
                   fontWeight: "600",
                   transition: "all 0.2s ease",
+                  cursor: isOutOfStock ? "not-allowed" : "pointer",
                 }}
               >
                 <IoMdCart />{" "}
-                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
+                {isOutOfStock ? "Out of Stock" : isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
               </button>
             </div>
             <button
               className="btn-buy-now"
               onClick={handleProceedToCheckoutDirectly}
+              disabled={isOutOfStock}
+              style={isOutOfStock ? {
+                backgroundColor: "#e5e7eb",
+                color: "#9ca3af",
+                cursor: "not-allowed",
+                border: "none",
+              } : {}}
             >
-              Buy Now
+              {isOutOfStock ? "Out of Stock" : "Buy Now"}
             </button>
 
             <div className="delivery-box mt-4">
@@ -537,6 +557,7 @@ function ProductDetails() {
                       color: "#8b5cf6",
                       fontSize: "13px",
                       fontWeight: "600",
+                      cursor: "pointer",
                     }}
                     onClick={() => setIsModalOpen(true)}
                   >
@@ -760,7 +781,19 @@ function ProductDetails() {
                     <div className="review-card p-3 border rounded bg-white shadow-sm">
                       <div className="review-header d-flex justify-content-between mb-2">
                         <div className="reviewer-info d-flex align-items-center gap-2">
-                          <FaCircleUser className="fs-4 text-secondary" />
+                          <div
+                            className="d-flex align-items-center justify-content-center fw-bold text-white rounded-circle"
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              background: "linear-gradient(135deg, #7c3aed, #9061f9)",
+                              fontSize: "14px",
+                              flexShrink: 0,
+                              textShadow: "0 1px 1px rgba(0,0,0,0.1)",
+                            }}
+                          >
+                            {(review.customerName || review.name || "Anonymous").charAt(0).toUpperCase()}
+                          </div>
                           <p
                             className="reviewer-name fw-bold m-0 small"
                             style={{ color: "#111827" }}

@@ -30,7 +30,10 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
   const { products } = useProducts();
 
   const matchedProduct = products.find(
-    (p) => p.name === order.product || p.id === order.productId || p.productId === order.productId
+    (p) =>
+      p.name === order.product ||
+      p.id === order.productId ||
+      p.productId === order.productId,
   );
 
   // Dynamic SBO ID Formatter for Desktop Layouts
@@ -141,8 +144,8 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
             {order.deliveryDate || "Expected in 5 Days"}
           </span>
           <div className="desktop-review-trigger-slot">
-            {isDelivered && (
-              reviewed ? (
+            {isDelivered &&
+              (reviewed ? (
                 <div className="desktop-reviewed-badge">
                   <MdVerified size={14} /> Review Submitted
                 </div>
@@ -156,8 +159,7 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
                 >
                   ★ Rate Your Product
                 </button>
-              )
-            )}
+              ))}
           </div>
         </div>
       </div>
@@ -180,8 +182,19 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
 
           <div className="mobile-right-specs-column">
             {/* ROW 1 : Product Name (Ellipsis) */}
-            <div className="mobile-specs-row-one d-flex justify-content-between align-items-center" style={{ width: "100%" }}>
-              <span className="mobile-product-title-string" style={{ maxWidth: matchedProduct && matchedProduct.reviewCount > 0 ? "70%" : "100%" }}>
+            <div
+              className="mobile-specs-row-one d-flex justify-content-between align-items-center"
+              style={{ width: "100%" }}
+            >
+              <span
+                className="mobile-product-title-string"
+                style={{
+                  maxWidth:
+                    matchedProduct && matchedProduct.reviewCount > 0
+                      ? "70%"
+                      : "100%",
+                }}
+              >
                 {order.product}
               </span>
               {matchedProduct && matchedProduct.reviewCount > 0 && (
@@ -248,7 +261,10 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
         {isDelivered && (
           <div style={{ padding: "8px 12px 12px" }}>
             {reviewed ? (
-              <div className="desktop-reviewed-badge" style={{ justifyContent: "center" }}>
+              <div
+                className="desktop-reviewed-badge"
+                style={{ justifyContent: "center" }}
+              >
                 <MdVerified size={14} /> Review Submitted
               </div>
             ) : (

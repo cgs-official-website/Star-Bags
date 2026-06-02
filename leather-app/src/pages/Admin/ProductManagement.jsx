@@ -43,6 +43,8 @@ function ProductManagement() {
         querySnapshot.forEach((docSnap) => {
           prodsList.push({ ...docSnap.data() });
         });
+        // Sort products by newest first
+        prodsList.sort((a, b) => new Date(b.createdAt || b.updatedAt || 0) - new Date(a.createdAt || a.updatedAt || 0));
         setProducts(prodsList);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -63,6 +65,7 @@ function ProductManagement() {
   const [category, setCategory] = useState("Category");
   const [subCategory, setSubCategory] = useState("Sub Category");
   const [brandFilter, setBrandFilter] = useState("Brand");
+  const [materialFilter, setMaterialFilter] = useState("Material");
   const [showAddPage, setShowAddPage] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
@@ -124,7 +127,12 @@ function ProductManagement() {
       matchBrand = p.brand === brandFilter;
     }
 
-    return matchStock && matchCategory && matchSubCategory && matchBrand;
+    let matchMaterial = true;
+    if (materialFilter !== "Material") {
+      matchMaterial = p.material === materialFilter;
+    }
+
+    return matchStock && matchCategory && matchSubCategory && matchBrand && matchMaterial;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -198,6 +206,7 @@ function ProductManagement() {
     setCategory("Category");
     setSubCategory("Sub Category");
     setBrandFilter("Brand");
+    setMaterialFilter("Material");
     setCurrentPage(1);
   };
 
@@ -707,6 +716,7 @@ function ProductManagement() {
                           <option>VIP</option>
                           <option>Safari</option>
                           <option>Rubee bags</option>
+                          <option>Wildcraft</option>
                         </select>
                       </div>
                     )}
@@ -735,7 +745,7 @@ function ProductManagement() {
                         type="text"
                         className="pm-add-input"
                         placeholder="0.00"
-                        value={newProduct.price}
+                        value= {newProduct.price}
                         required
                         onChange={(e) =>
                           setNewProduct({
@@ -1031,6 +1041,22 @@ function ProductManagement() {
                     <i className="bi bi-chevron-down pm-select-arrow"></i>
                   </div>
 
+                  <div className="pm-select-wrap">
+                    <select
+                      className="pm-select"
+                      value={materialFilter}
+                      onChange={(e) => {
+                        setMaterialFilter(e.target.value);
+                        setCurrentPage(1);
+                      }}
+                    >
+                      <option>Material</option>
+                      <option>Leather</option>
+                      <option>Canvas</option>
+                    </select>
+                    <i className="bi bi-chevron-down pm-select-arrow"></i>
+                  </div>
+
                   {category === "Bag" && (
                     <>
                       <div className="pm-select-wrap">
@@ -1064,6 +1090,7 @@ function ProductManagement() {
                           <option>VIP</option>
                           <option>Safari</option>
                           <option>Rubee bags</option>
+                          <option>Wildcraft</option>
                         </select>
                         <i className="bi bi-chevron-down pm-select-arrow"></i>
                       </div>
@@ -1119,9 +1146,9 @@ function ProductManagement() {
                         <td>{p.brand}</td>
                         <td>{p.size}</td>
                         <td style={{ fontWeight: 500, color: "#4b5563" }}>
-                          {p.price}
+                          ₹{p.price}
                         </td>
-                        <td className="pm-discount-green">{p.discount}</td>
+                        <td className="pm-discount-green">{p.discount}%</td>
                         <td>{p.stocks}</td>
                         <td>
                           <div className="pm-action-btns">
