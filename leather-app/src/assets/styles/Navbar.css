@@ -469,6 +469,13 @@ body.dark-theme .nav-login-btn,
   transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Dark mode mobile drawer */
+body.dark-theme .nav-drawer,
+[data-theme="dark"] .nav-drawer {
+  background: #0f172a !important;
+  border-top-color: #334155 !important;
+}
+
 .nav-drawer.open {
   max-height: 260px;
 }
@@ -498,16 +505,28 @@ body.dark-theme .nav-login-btn,
     color 0.15s;
 }
 
-.drawer-nav-btn:hover,
-.drawer-nav-btn.active {
-  background: var(--nav-accent-light);
-  color: var(--nav-accent);
+/* Dark mode menu items */
+body.dark-theme .drawer-nav-btn,
+[data-theme="dark"] .drawer-nav-btn {
+  color: #e2e8f0 !important;
+  border-bottom-color: rgba(148, 163, 184, 0.15) !important;
 }
 
+.drawer-nav-btn:hover,
+.drawer-nav-btn.active {
+  background: #6d15b0 !important;
+  color: #ffffff !important;
+}
+body.dark-theme .drawer-nav-btn:hover,
+body.dark-theme .drawer-nav-btn.active,
+[data-theme="dark"] .drawer-nav-btn:hover,
+[data-theme="dark"] .drawer-nav-btn.active {
+  background: #2f0b4b !important;
+  color: #ffffff !important;
+}
 .drawer-nav-item:last-child .drawer-nav-btn {
   border-bottom: none;
 }
-
 /* ════════════════════════════════════════════════════════════════════
    DESKTOP  ≥ 992px
    Layout: [Logo] [Bags · Wallets · Belts — centered] [Search][👤][🛒]
