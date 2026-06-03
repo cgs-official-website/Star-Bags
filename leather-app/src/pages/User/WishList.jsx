@@ -173,39 +173,4 @@ function WishList() {
   );
 }
 
-// //                   />
-// //                 ))}
-
-// //               </div>
-
-// //               {/* Wishlist Content */}
-// //               {wishlist.length === 0 ? (
-// //                 <EmptyWishlist />
-// //               ) : (
-// //                 <div className="wl-grid">
-// //                   {wishlist.map((item) => (
-// //                     <WishlistCard
-// //                       key={item.id}
-// //                       item={item}
-// //                       onRemove={removeFromWishlist}
-// //                       onAddToCart={addToCart}
-// //                     />
-// //                   ))}
-// //                 </div>
-// //               )}
-// //             </div>
-// //           </div>
-// //         </div>
-// //       </div>
-// //   </
-// //       <Footer />
-// //     </>
-// //   );
-// // }
-
-// // export default WishList;
-
-
-=======
 export default WishList;
->>>>>>> origin/selva
