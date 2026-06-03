@@ -96,13 +96,11 @@
     overflow-y: auto;
 }
 
-/* FORM CARD */
+/* FORM CARD - Desktop view (no background, full width) */
 .login-form {
     width: 100%;
-    max-width: 440px;
-    backdrop-filter: blur(12px);
+    max-width: 480px;
     padding: 20px 34px;
-    border-radius: 16px;
     position: relative;
     overflow: hidden;
 }
@@ -134,15 +132,8 @@
     margin-bottom: 8px;
     display: inline-flex;
     align-items: center;
-    /* color: #a5a5a5; */
     gap: 2px;
 }
-
-/* .form-label sup {
-    color: #ff4d4d;
-    font-size: 10px;
-    top: -2px;
-} */
 
 /* INPUTS */
 .form-control {
@@ -305,9 +296,13 @@
     .login-content h3 {
         font-size: 3.2rem;
     }
+    
+    .login-form {
+        max-width: 460px;
+    }
 }
 
-/* TABLET */
+/* TABLET - Add card background only in tablet/mobile */
 @media(max-width: 992px) {
     .login {
         flex-direction: column;
@@ -320,14 +315,16 @@
     .form-section {
         width: 100%;
         padding: 35px 18px;
-        
     }
 
-    .login-form{
+    .login-form {
         max-width: 500px;
         margin: auto;
-        box-shadow:0 0px 20px var(--hover-color);
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(12px);
         border-radius: 30px;
+        box-shadow: 0 0px 4px var(--hover-color);
+        padding: 28px 34px;
     }
 }
 
@@ -358,5 +355,103 @@
 
     .social-icon {
         font-size: 20px;
+    }
+}
+
+/* DARK MODE STYLES */
+body.dark-theme .login,
+[data-theme="dark"] .login {
+    background-color: var(--surface);
+    color: var(--text);
+    --gray: var(--text-secondary);
+    --text-gray: var(--text-secondary);
+}
+
+body.dark-theme .login-content,
+[data-theme="dark"] .login-content {
+    color: var(--text);
+}
+
+body.dark-theme .login-form h6,
+[data-theme="dark"] .login-form h6,
+body.dark-theme .login-form p,
+[data-theme="dark"] .login-form p,
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label {
+    color: var(--text);
+}
+
+body.dark-theme .form-control,
+[data-theme="dark"] .form-control {
+    background: var(--input-bg);
+    color: var(--text);
+    border-color: var(--input-border);
+}
+
+body.dark-theme .form-control:focus,
+[data-theme="dark"] .form-control:focus {
+    background: var(--input-bg);
+    border-color: var(--button-bg);
+    box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.18);
+}
+
+body.dark-theme .form-control::placeholder,
+[data-theme="dark"] .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+body.dark-theme .forgot-password .navigate,
+[data-theme="dark"] .forgot-password .navigate,
+body.dark-theme .navigate,
+[data-theme="dark"] .navigate {
+    color: var(--button-bg);
+}
+
+body.dark-theme .login-btn,
+[data-theme="dark"] .login-btn {
+    background-color: var(--button-bg);
+}
+
+body.dark-theme .divider span,
+[data-theme="dark"] .divider span,
+body.dark-theme .form-check-label,
+[data-theme="dark"] .form-check-label {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-theme .login-content h3,
+[data-theme="dark"] .login-content h3,
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label,
+body.dark-theme .signup-footer p,
+[data-theme="dark"] .signup-footer p {
+    color: var(--text) !important;
+}
+
+/* Keep Create Account link lavender in dark mode */
+body.dark-theme .signup-footer a,
+[data-theme="dark"] .signup-footer a {
+    color: var(--levender) !important;
+}
+
+body.dark-theme .social-btn,
+[data-theme="dark"] .social-btn {
+    background: var(--surface-alt) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+body.dark-theme .social-btn:hover,
+[data-theme="dark"] .social-btn:hover {
+    background: var(--hover-soft) !important;
+    color: var(--text) !important;
+}
+
+/* Tablet dark mode - add background for card */
+@media(max-width: 992px) {
+    body.dark-theme .login-form,
+    [data-theme="dark"] .login-form {
+        background: var(--surface-alt) !important;
+        border: 1px solid var(--border) !important;
     }
 }

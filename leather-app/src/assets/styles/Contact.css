@@ -52,7 +52,7 @@
 .contact-form-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: #fff;
     margin-bottom: 25px;
 }
 
@@ -191,6 +191,7 @@ textarea.form-control{
     .contact-form-title {
         font-size: 2rem;
         text-align: center;
+
     }
 
     .get-touch h1{
@@ -231,4 +232,61 @@ textarea.form-control{
         align-items: center;
         text-align: center;
     }
+}
+
+body.dark-theme .contact-form-box,
+[data-theme="dark"] .contact-form-box,
+body.dark-theme .contact-info-box,
+[data-theme="dark"] .contact-info-box {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .form-control,
+[data-theme="dark"] .form-control,
+body.dark-theme .form-select,
+[data-theme="dark"] .form-select {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--input-border) !important;
+}
+
+body.dark-theme .contact-form-box h3,
+[data-theme="dark"] .contact-form-box h3,
+body.dark-theme .get-touch h1,
+[data-theme="dark"] .get-touch h1,
+body.dark-theme .contact-info-box h5,
+[data-theme="dark"] .contact-info-box h5,
+body.dark-theme .contact-info-box p,
+[data-theme="dark"] .contact-info-box p {
+  color: var(--text) !important;
+}
+
+body.dark-theme .btn-dark,
+[data-theme="dark"] .btn-dark {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+}
+
+body.dark-theme .contact-content p,
+[data-theme="dark"] .contact-content p {
+  color: rgba(255,255,255,0.9) !important;
+}
+
+body.dark-theme .contact-content h1,
+[data-theme="dark"] .contact-content h1 {
+  color: #ffffff !important;
+}
+
+body.dark-theme .form-label,
+[data-theme="dark"] .form-label {
+  color: var(--text) !important;
+}
+
+body.dark-theme .form-control::placeholder,
+[data-theme="dark"] .form-control::placeholder,
+body.dark-theme .form-select::placeholder,
+[data-theme="dark"] .form-select::placeholder {
+  color: var(--text-secondary) !important;
 }

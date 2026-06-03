@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { WishlistProvider } from './context/WishlistContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ProductsProvider } from './context/ProductsContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 import './index.css'
 import App from './App.jsx'
 
@@ -11,7 +12,9 @@ createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <ProductsProvider>
         <WishlistProvider>
-          <App />
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
         </WishlistProvider>
       </ProductsProvider>
     </AuthProvider>

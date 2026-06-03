@@ -750,3 +750,128 @@
     text-align: center;
   }
 }
+
+body.dark-theme .order-card-desktop,
+[data-theme="dark"] .order-card-desktop,
+body.dark-theme .order-card-mobile,
+[data-theme="dark"] .order-card-mobile,
+body.dark-theme .product-image-wrapper,
+[data-theme="dark"] .product-image-wrapper,
+body.dark-theme .status-section,
+[data-theme="dark"] .status-section,
+body.dark-theme .time-section,
+[data-theme="dark"] .time-section {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .product-image-wrapper,
+[data-theme="dark"] .product-image-wrapper {
+  background: var(--surface) !important;
+}
+
+body.dark-theme .product-name,
+[data-theme="dark"] .product-name,
+body.dark-theme .rating-number,
+[data-theme="dark"] .rating-number,
+body.dark-theme .current-price,
+[data-theme="dark"] .current-price,
+body.dark-theme .original-price,
+[data-theme="dark"] .original-price,
+body.dark-theme .quantity,
+[data-theme="dark"] .quantity,
+body.dark-theme .delivery-text,
+[data-theme="dark"] .delivery-text,
+body.dark-theme .rate-text,
+[data-theme="dark"] .rate-text {
+  color: var(--text) !important;
+}
+
+body.dark-theme .track-button,
+[data-theme="dark"] .track-button,
+body.dark-theme .mobile-action-btn.rate-btn,
+[data-theme="dark"] .mobile-action-btn.rate-btn {
+  background: var(--button-bg) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+body.dark-theme .order-card-desktop:hover,
+[data-theme="dark"] .order-card-desktop:hover {
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.18) !important;
+}
+
+body.dark-theme .original-price,
+[data-theme="dark"] .original-price,
+body.dark-theme .section-label,
+[data-theme="dark"] .section-label,
+body.dark-theme .order-id,
+[data-theme="dark"] .order-id,
+body.dark-theme .rating-count,
+[data-theme="dark"] .rating-count,
+body.dark-theme .mobile-original-price,
+[data-theme="dark"] .mobile-original-price,
+body.dark-theme .mobile-order-id,
+[data-theme="dark"] .mobile-order-id,
+body.dark-theme .mobile-rating-count,
+[data-theme="dark"] .mobile-rating-count {
+  color: var(--text-muted) !important;
+}
+/* DARK MODE FIX - ORDER CARD */
+
+body.dark-theme .desktop-card-layout-view,
+[data-theme="dark"] .desktop-card-layout-view,
+body.dark-theme .mobile-card-layout-view,
+[data-theme="dark"] .mobile-card-layout-view {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+body.dark-theme .desktop-product-title-name,
+[data-theme="dark"] .desktop-product-title-name,
+body.dark-theme .mobile-product-title-string,
+[data-theme="dark"] .mobile-product-title-string,
+body.dark-theme .desktop-current-price,
+[data-theme="dark"] .desktop-current-price,
+body.dark-theme .mobile-curr-price-txt,
+[data-theme="dark"] .mobile-curr-price-txt,
+body.dark-theme .desktop-time-val-txt,
+[data-theme="dark"] .desktop-time-val-txt,
+body.dark-theme .mobile-action-time-val,
+[data-theme="dark"] .mobile-action-time-val {
+  color: #ffffff !important;
+}
+
+body.dark-theme .desktop-order-id-txt,
+[data-theme="dark"] .desktop-order-id-txt,
+body.dark-theme .desktop-qty-lbl,
+[data-theme="dark"] .desktop-qty-lbl,
+body.dark-theme .mobile-qty-string-txt,
+[data-theme="dark"] .mobile-qty-string-txt,
+body.dark-theme .desktop-original-price,
+[data-theme="dark"] .desktop-original-price,
+body.dark-theme .mobile-orig-price-txt,
+[data-theme="dark"] .mobile-orig-price-txt {
+  color: #94a3b8 !important;
+}
+
+body.dark-theme .desktop-status-box,
+[data-theme="dark"] .desktop-status-box {
+  border-left-color: #334155 !important;
+  border-right-color: #334155 !important;
+}
+
+body.dark-theme .mobile-lower-actions-tray-block,
+[data-theme="dark"] .mobile-lower-actions-tray-block {
+  background: #0f172a !important;
+  border-top-color: #334155 !important;
+}
+body.dark-theme .desktop-delivery-eta-txt,
+[data-theme="dark"] .desktop-delivery-eta-txt,
+body.dark-theme .mobile-action-label,
+[data-theme="dark"] .mobile-action-label,
+body.dark-theme .mobile-action-status-val,
+[data-theme="dark"] .mobile-action-status-val {
+  color: #ffffff !important;
+}

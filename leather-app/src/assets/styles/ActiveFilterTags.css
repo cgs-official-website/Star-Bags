@@ -47,6 +47,24 @@
   color: #e74c3c;
 }
 
+/* Dark theme adjustments for active filter tags */
+body.dark-theme .filter-tag,
+[data-theme="dark"] .filter-tag {
+  background: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .filter-tag button,
+[data-theme="dark"] .filter-tag button {
+  color: var(--text-muted) !important;
+}
+
+body.dark-theme .filter-tag button:hover,
+[data-theme="dark"] .filter-tag button:hover {
+  color: #ef4444 !important;
+}
+
 /* 📱 Mobile styles */
 @media (max-width: 600px) {
   .active-filter-tags {
@@ -87,4 +105,9 @@
     font-size: 0.85rem;
     padding: 0.3rem 0.7rem;
   }
+}
+
+body.dark-theme .filter-tag-type,
+[data-theme="dark"] .filter-tag-type {
+  color: var(--text-secondary) !important;
 }

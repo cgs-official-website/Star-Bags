@@ -204,10 +204,86 @@
   }
 }
 
+
 @media (max-width: 991px) {
   .profile-details-card {
     padding: 20px;
   }
+}
+/* ==========================================================
+   EMPTY STATE & DARK THEME OVERRIDES MESH CONFIG
+   ========================================================== */
+
+body.dark-theme .orders-page-app-wrapper,
+[data-theme="dark"] .orders-page-app-wrapper,
+body.dark-theme .orders-card,
+[data-theme="dark"] .orders-card,
+body.dark-theme .orders-search .search-input,
+[data-theme="dark"] .orders-search .search-input,
+body.dark-theme .desktop-image-wrapper,
+[data-theme="dark"] .desktop-image-wrapper,
+body.dark-theme .desktop-product-img-fallback,
+[data-theme="dark"] .desktop-product-img-fallback,
+body.dark-theme .mobile-card-layout-view,
+[data-theme="dark"] .mobile-card-layout-view,
+body.dark-theme .mobile-image-frame,
+[data-theme="dark"] .mobile-image-frame {
+  background: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .orders-search .search-input,
+[data-theme="dark"] .orders-search .search-input {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--input-border) !important;
+}
+
+body.dark-theme .desktop-product-title-name,
+[data-theme="dark"] .desktop-product-title-name,
+body.dark-theme .desktop-current-price,
+[data-theme="dark"] .desktop-current-price,
+body.dark-theme .desktop-time-val-txt,
+[data-theme="dark"] .desktop-time-val-txt,
+body.dark-theme .mobile-product-title-string,
+[data-theme="dark"] .mobile-product-title-string,
+body.dark-theme .mobile-product-rating-badge,
+[data-theme="dark"] .mobile-product-rating-badge,
+body.dark-theme .mobile-curr-price-txt,
+[data-theme="dark"] .mobile-curr-price-txt,
+body.dark-theme .mobile-action-time-val,
+[data-theme="dark"] .mobile-action-time-val {
+  color: var(--text) !important;
+}
+
+body.dark-theme .responsive-order-card-root,
+[data-theme="dark"] .responsive-order-card-root {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+body.dark-theme .responsive-section-divider,
+[data-theme="dark"] .responsive-section-divider {
+  background-color: #334155 !important;
+}
+
+body.dark-theme .desktop-product-title-name,
+body.dark-theme .desktop-current-price,
+body.dark-theme .desktop-time-val-txt,
+body.dark-theme .mobile-product-title-string,
+body.dark-theme .mobile-product-rating-badge,
+body.dark-theme .mobile-curr-price-txt,
+body.dark-theme .mobile-action-time-val,
+[data-theme="dark"] .desktop-product-title-name,
+[data-theme="dark"] .desktop-current-price,
+[data-theme="dark"] .desktop-time-val-txt,
+[data-theme="dark"] .mobile-product-title-string,
+[data-theme="dark"] .mobile-product-rating-badge,
+[data-theme="dark"] .mobile-curr-price-txt,
+[data-theme="dark"] .mobile-action-time-val {
+  color: #f8fafc !important;
+
 }
 
 @media (max-width: 768px) {
@@ -262,27 +338,40 @@
   }
 }
 
-@media (max-width: 576px) {
-  .orders-empty-container {
-    padding: 1.5rem 1rem;
-  }
-  
-  .orders-empty-image-wrapper {
-    max-width: 160px;
-    margin-bottom: 1rem;
-  }
-  
-  .orders-empty-heading {
-    font-size: 18px;
-  }
-  
-  .orders-empty-subheading {
-    font-size: 0.8rem;
-    margin-bottom: 1rem;
-  }
-  
-  .orders-empty-shop-btn {
-    font-size: 13px;
-    padding: 6px 20px;
-  }
+
+body.dark-theme .orders-search .search-input::placeholder,
+[data-theme="dark"] .orders-search .search-input::placeholder,
+body.dark-theme .desktop-order-id-txt,
+[data-theme="dark"] .desktop-order-id-txt,
+body.dark-theme .desktop-reviews-count-lbl,
+[data-theme="dark"] .desktop-reviews-count-lbl,
+body.dark-theme .desktop-original-price,
+[data-theme="dark"] .desktop-original-price,
+body.dark-theme .desktop-qty-lbl,
+[data-theme="dark"] .desktop-qty-lbl,
+body.dark-theme .desktop-section-title,
+[data-theme="dark"] .desktop-section-title,
+body.dark-theme .mobile-orig-price-txt,
+[data-theme="dark"] .mobile-orig-price-txt,
+body.dark-theme .mobile-qty-string-txt,
+[data-theme="dark"] .mobile-qty-string-txt,
+body.dark-theme .mobile-action-label,
+[data-theme="dark"] .mobile-action-label {
+  color: var(--text-secondary) !important;
 }
+body.dark-theme .orders-empty-container,
+[data-theme="dark"] .orders-empty-container {
+  background-color: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .orders-empty-heading,
+[data-theme="dark"] .orders-empty-heading {
+  color: var(--text) !important;
+}
+
+body.dark-theme .orders-empty-subheading,
+[data-theme="dark"] .orders-empty-subheading {
+  color: var(--text-secondary) !important;
+}
+
