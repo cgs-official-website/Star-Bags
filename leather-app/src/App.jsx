@@ -38,7 +38,7 @@ import BannerManagement from './pages/Admin/BannerManagement';
 import OrderDetails from './pages/Admin/OrderDetails';
 import ReviewManagement from './pages/Admin/ReviewManagement';
 // import BillAddress from './pages/User/BillAddress';
-// import SignUpVerification from './pages/User/SignUpVerification';
+import SignUpVerification from './pages/User/SignUpVerification';
 import Checkout from './pages/User/Checkout';
 
 // Protected Route for Admin users
@@ -78,6 +78,7 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/forgotPassword" element={<ForgotPassword/>} />
           <Route path="/resetPassword" element={<ResetPassword/>} />
+          <Route path="/signup-verification" element={<SignUpVerification />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />

@@ -2,22 +2,26 @@ import { useState, useEffect } from "react";
 import { CgAsterisk } from "react-icons/cg";
 import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useNavigate, NavLink } from "react-router-dom";
 import { auth, db } from "../../firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import "../../assets/styles/Login.css";
 
 import LoginImage from "../../assets/images/login-image.png";
-import { NavLink } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
-
+  const [showPassword, setShowPassword] = useState(false);
   // Redirect if already logged in
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -29,28 +33,28 @@ const Login = () => {
       }
     }
   }, [navigate]);
-  
+
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const [errors, setErrors] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors({
         ...errors,
-        [name]: ""
+        [name]: "",
       });
     }
   };
@@ -61,7 +65,7 @@ const Login = () => {
 
     // Email validation - strictly email only
     const isEmail = /\S+@\S+\.\S+/.test(formData.email);
-    
+
     if (!formData.email.trim()) {
       newErrors.email = "Please enter your email address.";
       isValid = false;
@@ -88,12 +92,16 @@ const Login = () => {
     if (validateForm()) {
       setLoading(true);
       console.log("Login submitted:", formData.email);
-      
+
       const email = formData.email.trim();
-      
+
       try {
         let userCredential;
-        userCredential = await signInWithEmailAndPassword(auth, email, formData.password);
+        userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          formData.password,
+        );
 
         const user = userCredential.user;
 
@@ -103,18 +111,24 @@ const Login = () => {
         const userData = userDocSnap.exists() ? userDocSnap.data() : {};
 
         // Check role strictly from Firestore document
-        const role = userData.role === 'admin' ? 'admin' : 'user';
+        const role = userData.role === "admin" ? "admin" : "user";
 
-        localStorage.setItem("user", JSON.stringify({
-          uid: user.uid,
-          email: user.email,
-          role: role,
-          name: userData.name || user.displayName || (role === 'admin' ? 'Starbags Admin' : user.email.split("@")[0]),
-          mobile: userData.mobile || "",
-          gender: userData.gender || "Male"
-        }));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            uid: user.uid,
+            email: user.email,
+            role: role,
+            name:
+              userData.name ||
+              user.displayName ||
+              (role === "admin" ? "Starbags Admin" : user.email.split("@")[0]),
+            mobile: userData.mobile || "",
+            gender: userData.gender || "Male",
+          }),
+        );
 
-        if (role === 'admin') {
+        if (role === "admin") {
           navigate("/admin/dashboard");
         } else {
           navigate("/");
@@ -123,8 +137,8 @@ const Login = () => {
         console.error("Firebase Auth Error:", err);
         let errorMsg = "Invalid email or password.";
         if (
-          err.code === "auth/invalid-credential" || 
-          err.code === "auth/wrong-password" || 
+          err.code === "auth/invalid-credential" ||
+          err.code === "auth/wrong-password" ||
           err.code === "auth/user-not-found"
         ) {
           errorMsg = "Incorrect email or password.";
@@ -135,7 +149,7 @@ const Login = () => {
         }
         setErrors({
           email: errorMsg,
-          password: errorMsg
+          password: errorMsg,
         });
       } finally {
         setLoading(false);
@@ -149,7 +163,7 @@ const Login = () => {
     setGoogleLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
+      provider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
@@ -178,15 +192,18 @@ const Login = () => {
         await setDoc(userDocRef, userData);
       }
 
-      localStorage.setItem("user", JSON.stringify({
-        uid: user.uid,
-        email: user.email,
-        role,
-        name: userData.name || user.displayName || user.email?.split("@")[0],
-        photo: userData.photo || user.photoURL || "",
-        mobile: userData.mobile || "",
-        gender: userData.gender || "",
-      }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email,
+          role,
+          name: userData.name || user.displayName || user.email?.split("@")[0],
+          photo: userData.photo || user.photoURL || "",
+          mobile: userData.mobile || "",
+          gender: userData.gender || "",
+        }),
+      );
 
       if (role === "admin") {
         navigate("/admin/dashboard");
@@ -195,12 +212,19 @@ const Login = () => {
       }
     } catch (err) {
       console.error("Google Sign-In Error:", err);
-      if (err.code === "auth/popup-closed-by-user" || err.code === "auth/cancelled-popup-request") {
+      if (
+        err.code === "auth/popup-closed-by-user" ||
+        err.code === "auth/cancelled-popup-request"
+      ) {
         // User just closed the popup — silent
       } else if (err.code === "auth/popup-blocked") {
-        setGoogleError("Popup was blocked by your browser. Please allow popups for this site.");
+        setGoogleError(
+          "Popup was blocked by your browser. Please allow popups for this site.",
+        );
       } else if (err.code === "auth/network-request-failed") {
-        setGoogleError("Network error. Please check your connection and try again.");
+        setGoogleError(
+          "Network error. Please check your connection and try again.",
+        );
       } else {
         setGoogleError("Google sign-in failed. Please try again.");
       }
@@ -246,9 +270,9 @@ const Login = () => {
             <form onSubmit={handleSubmit}>
               {/* EMAIL */}
               <div className="mb-1">
-                <label className="form-label" >
+                <label className="form-label">
                   Email Address
-                  <sup style={{color:'red', fontSize:'10px',top:'-2px'}}>
+                  <sup style={{ color: "red", fontSize: "10px", top: "-2px" }}>
                     <CgAsterisk />
                   </sup>
                 </label>
@@ -268,7 +292,7 @@ const Login = () => {
               </div>
 
               {/* PASSWORD */}
-              <div className="mb-2">
+              <div className="mb-2" style={{ position: "relative" }}>
                 <label className="form-label">
                   Password
                   <sup>
@@ -277,14 +301,32 @@ const Login = () => {
                 </label>
 
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   className={`form-control ${errors.password ? "is-invalid" : ""}`}
                   placeholder="Enter your Password"
                   disabled={loading}
+                  style={{ paddingRight: "40px" }}
                 />
+
+                {/* Icon Toggle with FiEye / FiEyeOff */}
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "15px",
+                    top: "46px",
+                    cursor: "pointer",
+                    color: "#6c757d",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  {showPassword ? <FiEyeOff /> : <FiEye />}
+                </span>
+
                 {errors.password && (
                   <div className="invalid-feedback">{errors.password}</div>
                 )}
@@ -292,12 +334,18 @@ const Login = () => {
 
               {/* FORGOT PASSWORD */}
               <div className="forgot-password my-2 text-end">
-                <NavLink to={"/forgotPassword"} className="navigate">Forgot password?</NavLink>
+                <NavLink to={"/forgotPassword"} className="navigate">
+                  Forgot password?
+                </NavLink>
               </div>
-              
+
               {/* BUTTON */}
               <div className="d-grid">
-                <button className="btn login-btn" type="submit" disabled={loading}>
+                <button
+                  className="btn login-btn"
+                  type="submit"
+                  disabled={loading}
+                >
                   {loading ? "Logging in..." : "Log in"}
                 </button>
               </div>
@@ -321,14 +369,24 @@ const Login = () => {
                 disabled={googleLoading || loading}
               >
                 {googleLoading ? (
-                  <span className="spinner-border spinner-border-sm me-2" role="status" />
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                  />
                 ) : (
                   <FcGoogle className="social-icon" />
                 )}
                 {googleLoading ? "Connecting..." : "Sign in with Google"}
               </button>
               {googleError && (
-                <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '6px', textAlign: 'center' }}>
+                <p
+                  style={{
+                    color: "red",
+                    fontSize: "0.8rem",
+                    marginTop: "6px",
+                    textAlign: "center",
+                  }}
+                >
                   {googleError}
                 </p>
               )}
@@ -349,18 +407,6 @@ const Login = () => {
 };
 
 export default Login;
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import { CgAsterisk } from "react-icons/cg";
 // import { FaApple } from "react-icons/fa";
@@ -407,7 +453,7 @@ export default Login;
 //             <h6>Welcome Back</h6>
 //             <p>Login to your account and continue.</p>
 //             <form>
-             
+
 //               {/* EMAIL */}
 //               <div className="mb-1">
 //                 <label className="form-label required" >
@@ -444,7 +490,7 @@ export default Login;
 //               <div className="forgot-password my-2 text-end">
 //                 <NavLink to={"/forgotPassword"} className="navigate">Forgot password?</NavLink>
 //               </div>
-              
+
 //               {/* BUTTON */}
 //               <div className="d-grid">
 //                 <NavLink   to={ "/"} className="btn login-btn" type="submit">
@@ -464,7 +510,7 @@ export default Login;
 
 //             {/* SOCIAL BUTTONS */}
 //             <div className="social-buttons">
-              
+
 //               <button className="social-btn">
 //                 <FcGoogle className="social-icon" />
 //                 Sign in with Google
