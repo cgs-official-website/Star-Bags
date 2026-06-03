@@ -30,7 +30,7 @@
 /* For mobile (≤ 480px) */
 @media (max-width: 480px) {
   .sortby-select {
-    width: 100%;
+    width: 50%;
     height: 40px;
     font-size: 0.85rem;
     padding: 0.4rem 1.8rem 0.4rem 0.7rem;

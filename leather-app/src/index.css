@@ -552,3 +552,110 @@ body.dark-theme .btn-add-cart:hover,
 [data-theme="dark"] .btn-add-cart:hover {
   background: var(--hover-soft) !important;
 }
+
+body.dark-theme .custom-toast-popup,
+[data-theme="dark"] .custom-toast-popup {
+  background: var(--surface-alt) !important;
+  color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  border-left: 4px solid #8B5CF6 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-theme .custom-toast-popup.success,
+[data-theme="dark"] .custom-toast-popup.success {
+  border-left-color: #22c55e !important;
+}
+
+body.dark-theme .custom-toast-popup.info,
+[data-theme="dark"] .custom-toast-popup.info {
+  border-left-color: #3b82f6 !important;
+}
+
+body.dark-theme .custom-toast-popup .toast-body-wrapper span,
+[data-theme="dark"] .custom-toast-popup .toast-body-wrapper span {
+  color: #d1d5db !important;
+}
+
+/* Dark Mode Popup & Modal Text Colors Fixes */
+body.dark-theme .modal-box-custom .text-dark,
+[data-theme="dark"] .modal-box-custom .text-dark,
+body.dark-theme .address-popup-modal-box .text-dark,
+[data-theme="dark"] .address-popup-modal-box .text-dark,
+body.dark-theme .popup-address-item-card .text-dark,
+[data-theme="dark"] .popup-address-item-card .text-dark {
+  color: var(--text) !important;
+}
+
+body.dark-theme .modal-box-custom .text-muted,
+[data-theme="dark"] .modal-box-custom .text-muted,
+body.dark-theme .address-popup-modal-box .text-muted,
+[data-theme="dark"] .address-popup-modal-box .text-muted,
+body.dark-theme .popup-address-item-card .text-muted,
+[data-theme="dark"] .popup-address-item-card .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .modal-box-custom h5[style*="171744"],
+[data-theme="dark"] .modal-box-custom h5[style*="171744"],
+body.dark-theme .modal-box-custom h5[style*="rgb(23, 23, 68)"],
+[data-theme="dark"] .modal-box-custom h5[style*="rgb(23, 23, 68)"] {
+  color: var(--text) !important;
+}
+
+/* Fix Inline Backgrounds on Popup Address Cards */
+body.dark-theme .popup-address-item-card,
+[data-theme="dark"] .popup-address-item-card {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .popup-address-item-card.selected-card,
+[data-theme="dark"] .popup-address-item-card.selected-card {
+  background-color: rgba(139, 92, 246, 0.15) !important;
+  border-color: #8b5cf6 !important;
+}
+
+body.dark-theme .popup-address-item-card:hover,
+[data-theme="dark"] .popup-address-item-card:hover {
+  background-color: var(--surface) !important;
+}
+
+/* Global Dark Mode Overrides for Bootstrap Utilities */
+body.dark-theme .bg-white,
+[data-theme="dark"] .bg-white {
+  background-color: var(--surface-alt) !important;
+}
+
+body.dark-theme .bg-light,
+[data-theme="dark"] .bg-light {
+  background-color: var(--surface) !important;
+}
+
+body.dark-theme .text-dark,
+[data-theme="dark"] .text-dark {
+  color: var(--text) !important;
+}
+
+body.dark-theme .text-muted,
+[data-theme="dark"] .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+body.dark-theme .text-danger,
+[data-theme="dark"] .text-danger {
+  color: #ef4444 !important;
+}
+
+body.dark-theme .btn-light,
+[data-theme="dark"] .btn-light {
+  background-color: var(--surface-soft) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+body.dark-theme .btn-light:hover,
+[data-theme="dark"] .btn-light:hover {
+  background-color: var(--border) !important;
+  color: var(--text) !important;
+}
