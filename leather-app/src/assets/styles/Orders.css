@@ -359,4 +359,19 @@ body.dark-theme .mobile-action-label,
 [data-theme="dark"] .mobile-action-label {
   color: var(--text-secondary) !important;
 }
+body.dark-theme .orders-empty-container,
+[data-theme="dark"] .orders-empty-container {
+  background-color: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .orders-empty-heading,
+[data-theme="dark"] .orders-empty-heading {
+  color: var(--text) !important;
+}
+
+body.dark-theme .orders-empty-subheading,
+[data-theme="dark"] .orders-empty-subheading {
+  color: var(--text-secondary) !important;
+}
 

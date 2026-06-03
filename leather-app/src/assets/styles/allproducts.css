@@ -85,7 +85,7 @@
   max-width: 100% !important;
   min-width: 0;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  border-radius: 12px;
+  border-radius: 0 40px 0 0px !important;
   overflow: hidden;
   border: 1px solid #f0f0f0;
 }
@@ -738,7 +738,7 @@ body.dark-theme .sort-by-select select,
 
 body.dark-theme .all-products-sidebar,
 [data-theme="dark"] .all-products-sidebar {
-  background: #1e293b;
+ 
   border-color: #334155;
 }
 
@@ -751,4 +751,6 @@ body.dark-theme .filter-drawer-close:hover,
 [data-theme="dark"] .filter-drawer-close:hover {
   background: var(--hover-soft) !important;
 }
+
+
 
