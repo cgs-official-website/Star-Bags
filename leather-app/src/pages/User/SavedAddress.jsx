@@ -252,8 +252,8 @@ function SavedAddress() {
                             <MdEdit /> Edit
                           </button>
                           <button 
-                            className="btn btn-sm btn-light border text-danger p-1 px-2 d-flex align-items-center gap-1 small" 
-                            style={{ fontSize: "0.78rem", fontWeight: "600", borderColor: "#fee2e2" }} 
+                            className="btn btn-sm btn-danger border-0 p-1 px-2 d-flex align-items-center gap-1 small" 
+                            style={{ fontSize: "0.78rem", fontWeight: "600" }} 
                             onClick={() => triggerDeletePrompt(addr.id)} 
                             type="button"
                           >
@@ -285,7 +285,7 @@ function SavedAddress() {
 
       {showDeleteModal && (
         <div className="modal-overlay-custom" style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 20000 }}>
-          <div className="bg-white p-4 rounded-3 text-center shadow-lg" style={{ width: "90%", maxWidth: "380px" }}>
+          <div className="modal-box-custom p-4 rounded-3 text-center shadow-lg" style={{ width: "90%", maxWidth: "380px" }}>
             <h5 className="fw-bold mb-2">Confirm Deletion</h5>
             <p className="text-muted small">Are you absolutely sure you want to delete this delivery address? This action cannot be reverted.</p>
             <div className="d-flex gap-3 mt-4 justify-content-end">
