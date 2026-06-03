@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
 import { CgAsterisk } from "react-icons/cg";
-import { FaApple } from "react-icons/fa";
+// import { FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import { auth, db } from "../../firebase";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import "../../assets/styles/CreateAccount.css";
 
+
 import LoginImage from "../../assets/images/login-image.png";
 import { NavLink } from "react-router-dom";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
@@ -76,10 +79,10 @@ const CreateAccount = () => {
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = "Password must be 6 characters or more.";
+      newErrors.password = "Password must be 8 characters or more.";
       isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be 6 characters or more.";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be 8 characters or more.";
       isValid = false;
     }
 
@@ -263,27 +266,44 @@ const CreateAccount = () => {
               </div>
 
               {/* PASSWORD */}
-              <div className="mb-1">
-                <label className="form-label">
-                  Create password
-                  <sup>
-                    <CgAsterisk />
-                  </sup>
-                </label>
+             <div className="mb-1" style={{ position: "relative" }}>
+  <label className="form-label">
+    Create password
+    <sup>
+      <CgAsterisk />
+    </sup>
+  </label>
 
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`form-control ${errors.password ? "is-invalid" : ""}`}
-                  placeholder="Create your Password"
-                  disabled={loading}
-                />
-                {errors.password && (
-                  <div className="invalid-feedback">{errors.password}</div>
-                )}
-              </div>
+  <input
+    type={showPassword ? "text" : "password"}
+    name="password"
+    value={formData.password}
+    onChange={handleChange}
+    className={`form-control ${errors.password ? "is-invalid" : ""}`}
+    placeholder="Create your Password"
+    disabled={loading}
+    style={{ paddingRight: "40px" }}
+  />
+
+  <span
+    onClick={() => setShowPassword(!showPassword)}
+    style={{
+      position: "absolute",
+      right: "15px",
+      top: "46px", // Adjusted slightly based on your label margin
+      cursor: "pointer",
+      color: "#6c757d",
+      display: "flex",
+      alignItems: "center"
+    }}
+  >
+    {showPassword ? <FiEyeOff /> : <FiEye />}
+  </span>
+
+  {errors.password && (
+    <div className="invalid-feedback">{errors.password}</div>
+  )}
+</div>
 
               {/* CHECKBOX */}
               <div className="form-check mb-3">
@@ -295,6 +315,7 @@ const CreateAccount = () => {
                   checked={formData.termsAccepted}
                   onChange={handleChange}
                   disabled={loading}
+                  required
                 />
 
                 <label className="form-check-label" htmlFor="remember">

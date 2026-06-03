@@ -173,13 +173,13 @@ function SavedAddress() {
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
         <div className="row justify-content-center align-items-start">
-          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
+          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-8 col-12">
-            {hasAddresses && (
-              <div className="saved-address-card mb-3">
+          <div className="col-lg-8 col-md-7 col-12">
+            {loadingAddresses ? (
+              <div className="saved-address-card">
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="fw-bold mb-0">Saved Addresses</h5>
                   <button

@@ -113,12 +113,12 @@ function Profile() {
         <div className="row justify-content-center align-items-start">
 
           {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
-          <div className="col-lg-4 mb-3 d-none d-lg-block sidebar-sticky">
+          <div className="col-lg-3 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
           {/* Main content — full width on mobile/tablet, 8-col on desktop */}
-          <div className="col-lg-8 col-12">
+          <div className="col-lg-9 col-12">
             <div className="profile-details-card">
               
               {loading ? (
