@@ -612,8 +612,6 @@ body.dark-theme .breadcrumb-text span.active,
   color: var(--text) !important;
 }
 
-body.dark-theme .main-image-container,
-[data-theme="dark"] .main-image-container,
 body.dark-theme .thumbnail-box,
 [data-theme="dark"] .thumbnail-box,
 body.dark-theme .delivery-box,
@@ -926,4 +924,15 @@ body.dark-theme .helpful-btns button[style*="color: #f25858"],
 body.dark-theme .modal-close-icon,
 [data-theme="dark"] .modal-close-icon {
   color: #ffffff !important;
+}
+body.dark-theme .main-image-container,
+[data-theme="dark"] .main-image-container {
+  background: transparent !important;
+}
+body.dark-theme .arrow-btn,
+[data-theme="dark"] .arrow-btn {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
