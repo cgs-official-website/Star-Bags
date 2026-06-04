@@ -286,22 +286,10 @@ export const WishlistProvider = ({ children }) => {
         {toasts.map((toast) => (
           <div
             key={toast.id}
+            className={`custom-toast-popup ${toast.type === "success" ? "success" : "info"}`}
             style={{
-              pointerEvents: "auto",
-              background: "#ffffff",
-              boxShadow: "0 10px 30px rgba(15, 23, 42, 0.15)",
-              padding: "14px 24px",
-              borderRadius: "10px",
-              borderLeft:
-                toast.type === "success"
-                  ? "4px solid #16a34a"
-                  : "4px solid #258beb",
               animation:
                 "toastSlideInInstantAnimation 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-              display: "flex",
-              alignItems: "center",
-              minWidth: "300px",
-              maxWidth: "420px",
             }}
           >
             <div
@@ -309,7 +297,6 @@ export const WishlistProvider = ({ children }) => {
               style={{
                 fontSize: "0.88rem",
                 fontWeight: "700",
-                color: "#0f172a",
               }}
             >
               <i

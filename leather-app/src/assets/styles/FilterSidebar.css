@@ -1,6 +1,6 @@
 /* Flipkart Style Filter Sidebar */
 .filter-sidebar-flipkart {
-  width: 250px;
+  /* width: 250px; */
   background: #fff;
   border-radius: 8px;
   padding: 16px 0;
@@ -13,7 +13,7 @@
   align-items: center;
   padding: 0 16px 16px 16px;
   border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 8px;
+  /* margin-bottom: 8px; */
 }
 
 .filter-title {
@@ -45,7 +45,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 0 16px 16px 16px;
+  padding: 16px !important;
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 8px;
 }

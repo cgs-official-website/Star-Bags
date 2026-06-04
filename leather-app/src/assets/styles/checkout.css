@@ -190,3 +190,24 @@ body.dark-theme .add-delivery-trigger-btn:hover,
 [data-theme="dark"] .add-delivery-trigger-btn:hover {
   background-color: var(--button-bg-hover) !important;
 }
+
+body.dark-theme .address-popup-modal-box,
+[data-theme="dark"] .address-popup-modal-box {
+  background: var(--surface-alt) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-theme .address-popup-modal-box h5,
+body.dark-theme .address-popup-modal-box .title,
+[data-theme="dark"] .address-popup-modal-box h5,
+[data-theme="dark"] .address-popup-modal-box .title {
+  color: #ffffff !important;
+}
+
+body.dark-theme .address-popup-modal-box p,
+body.dark-theme .address-popup-modal-box .subtitle,
+[data-theme="dark"] .address-popup-modal-box p,
+[data-theme="dark"] .address-popup-modal-box .subtitle {
+  color: #d1d5db !important;
+}

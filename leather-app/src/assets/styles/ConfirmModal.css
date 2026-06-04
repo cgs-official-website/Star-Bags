@@ -126,3 +126,26 @@
     border-radius: 6px !important;
   }
 }
+
+body.dark-theme .confirm-modal-content,
+[data-theme="dark"] .confirm-modal-content {
+  background: var(--surface-alt) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-theme .confirm-modal-title,
+[data-theme="dark"] .confirm-modal-title {
+  color: #ffffff !important;
+}
+
+body.dark-theme .confirm-modal-message,
+[data-theme="dark"] .confirm-modal-message {
+  color: #d1d5db !important;
+}
+
+body.dark-theme .confirm-modal-btn.cancel,
+[data-theme="dark"] .confirm-modal-btn.cancel {
+  color: #e5e7eb !important;
+  border-color: var(--border) !important;
+}

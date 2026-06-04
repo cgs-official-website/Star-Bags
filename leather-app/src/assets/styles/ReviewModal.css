@@ -366,20 +366,23 @@ body.dark-theme .rm-modal,
 [data-theme="dark"] .rm-modal {
   background: var(--surface-alt) !important;
   border: 1px solid var(--border) !important;
-  color: var(--text) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
 }
 
 body.dark-theme .rm-title,
-[data-theme="dark"] .rm-title,
-body.dark-theme .rm-rating-label,
-[data-theme="dark"] .rm-rating-label,
-body.dark-theme .rm-review-label,
-[data-theme="dark"] .rm-review-label {
-  color: var(--text) !important;
+[data-theme="dark"] .rm-title {
+  color: #ffffff !important;
 }
 
 body.dark-theme .rm-review-sub,
 [data-theme="dark"] .rm-review-sub,
+body.dark-theme .rm-rating-label,
+[data-theme="dark"] .rm-rating-label,
+body.dark-theme .rm-review-label,
+[data-theme="dark"] .rm-review-label {
+  color: #d1d5db !important;
+}
+
 body.dark-theme .rm-close,
 [data-theme="dark"] .rm-close,
 body.dark-theme .rm-textarea::placeholder,

@@ -266,7 +266,7 @@ function TrackOrder() {
   return (
     <div
       className="track-order-application-scope-wrapper"
-      style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}
+      style={{  minHeight: "100vh" }}
     >
       <Navbar />
 
@@ -354,7 +354,7 @@ function TrackOrder() {
                       <div
                         className="to-step-dot"
                         style={{
-                          color: step.done ? "#16a34a" : "#d1d5db",
+                          color: step.done ? "#8b5cf6" : "#9ca3af",
                           fontSize: "1.2rem",
                         }}
                       >
@@ -365,12 +365,11 @@ function TrackOrder() {
                             className="dot-circle"
                             style={{
                               display: "block",
-                              width: "12px",
-                              height: "12px",
+                              width: "16px",
+                              height: "16px",
                               borderRadius: "50%",
-                              border: "2px solid #d1d5db",
-                              backgroundColor: "#fff",
-                              marginTop: "4px",
+                              backgroundColor: "#9ca3af",
+                              marginTop: "3px",
                             }}
                           />
                         )}
@@ -383,8 +382,8 @@ function TrackOrder() {
                             flexGrow: 1,
                             backgroundColor:
                               step.done && activeOrderSteps[idx + 1].done
-                                ? "#16a34a"
-                                : "#e5e7eb",
+                                ? "#8b5cf6"
+                                : "#9ca3af",
                             minHeight: "40px",
                             margin: "4px 0",
                           }}
@@ -482,19 +481,19 @@ function TrackOrder() {
 
                 <p
                   className="to-addr-name fw-bold text-dark m-0"
-                  style={{ fontSize: "1.05rem", color: "#0f172a" }}
+                  style={{ fontSize: "1.05rem" }}
                 >
                   {billingSpecs?.name || ""}
                 </p>
                 <p
                   className="to-addr-line text-muted small mt-1 mb-0"
-                  style={{ fontSize: "0.88rem", color: "#475569" }}
+                  style={{ fontSize: "0.88rem" }}
                 >
                   {billingSpecs?.address || ""}
                 </p>
                 <p
                   className="to-addr-line text-muted small m-0"
-                  style={{ fontSize: "0.88rem", color: "#475569" }}
+                  style={{ fontSize: "0.88rem" }}
                 >
                   {billingSpecs?.cityAndPin || ""}
                 </p>
@@ -503,7 +502,7 @@ function TrackOrder() {
                     className="to-addr-line small m-0 mt-1 fw-semibold"
                     style={{
                       fontSize: "0.88rem",
-                      color: "#1e293b",
+                     // color: "#1e293b",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",

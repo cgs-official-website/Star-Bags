@@ -581,7 +581,7 @@ const Checkout = () => {
           }}
         >
           <div
-            className="address-popup-modal-box shadow-lg bg-white p-4 rounded"
+            className="address-popup-modal-box shadow-lg p-4 rounded"
             style={{
               width: "92%",
               maxWidth: "625px",
@@ -640,7 +640,7 @@ const Checkout = () => {
               {savedAddresses.map((addr, index) => (
                 <div
                   key={addr.id}
-                  className="popup-address-item-card p-3 mb-3 border rounded position-relative"
+                  className={`popup-address-item-card p-3 mb-3 border rounded position-relative ${selectedAddressId === addr.id ? "selected-card" : ""}`}
                   onClick={() => {
                     setSelectedAddressId(addr.id);
                     setIsModalOpen(false);
@@ -750,7 +750,7 @@ const Checkout = () => {
           }}
         >
           <div
-            className="modal-box-custom shadow-lg bg-white p-4 rounded text-center"
+            className="modal-box-custom shadow-lg p-4 rounded text-center"
             style={{ width: "90%", maxWidth: "400px" }}
           >
             <h5 className="fw-bold mb-2">Confirm Deletion</h5>
@@ -792,7 +792,7 @@ const Checkout = () => {
           }}
         >
           <div
-            className="modal-box-custom shadow-lg bg-white p-4 rounded text-center"
+            className="modal-box-custom shadow-lg p-4 rounded text-center"
             style={{
               width: "90%",
               maxWidth: "420px",

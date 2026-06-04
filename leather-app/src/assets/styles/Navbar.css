@@ -403,8 +403,8 @@ body.dark-theme .nav-search-form button,
 [data-theme="dark"] .nav-search-form button {
   color: #ffffff;
   background: #050506;
-  width: 36px;
-  height: 36px;
+  /* width: 36px;
+  height: 36px; */
   border-radius: 50%;
   right: 10px;
   justify-content: center;

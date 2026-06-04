@@ -490,3 +490,18 @@ body.dark-theme .reviews-empty-heading,
   color: var(--text) !important;
 }
 
+body.dark-theme .rv-empty-container,
+[data-theme="dark"] .rv-empty-container {
+  background-color: var(--surface-alt) !important;
+  border-color: var(--border) !important;
+}
+
+body.dark-theme .rv-empty-heading,
+[data-theme="dark"] .rv-empty-heading {
+  color: var(--text) !important;
+}
+
+body.dark-theme .rv-empty-subheading,
+[data-theme="dark"] .rv-empty-subheading {
+  color: var(--text-secondary) !important;
+}
