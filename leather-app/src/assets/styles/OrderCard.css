@@ -875,3 +875,20 @@ body.dark-theme .mobile-action-status-val,
 [data-theme="dark"] .mobile-action-status-val {
   color: #ffffff !important;
 }
+/* Additional Dark Mode Fix */
+
+body.dark-theme .desktop-image-wrapper,
+[data-theme="dark"] .desktop-image-wrapper,
+body.dark-theme .mobile-image-frame,
+[data-theme="dark"] .mobile-image-frame {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+body.dark-theme .desktop-product-img-fallback,
+[data-theme="dark"] .desktop-product-img-fallback,
+body.dark-theme .mobile-img-element-fallback,
+[data-theme="dark"] .mobile-img-element-fallback {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}

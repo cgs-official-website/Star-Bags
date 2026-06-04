@@ -368,3 +368,15 @@
   z-index: 2;
   height: fit-content;
 }
+/* Dark Mode - Empty Wishlist */
+
+body.dark-theme .wl-empty-container,
+[data-theme="dark"] .wl-empty-container {
+  background-color: #111827;
+  border-color: #374151;
+}
+
+body.dark-theme .wl-empty-heading,
+[data-theme="dark"] .wl-empty-heading {
+  color: #ffffff;
+}

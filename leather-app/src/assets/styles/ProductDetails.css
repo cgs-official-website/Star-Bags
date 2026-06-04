@@ -239,6 +239,19 @@
   white-space: normal;       /* Ensures text wraps to next line */
   max-width: 100%;
 }
+/* Ensure the address text wraps instead of overflowing */
+.delivery-box .text-muted p {
+  word-wrap: break-word;       /* Break long words */
+  overflow-wrap: break-word;   /* Standard way to wrap */
+  white-space: normal;         /* Allow multi-line text */
+  margin-bottom: 0.5rem;
+}
+
+/* Ensure the modal address items also wrap */
+.popup-address-item-card p {
+  word-wrap: break-word;
+  white-space: normal;
+}
 
 .change-location-btn {
   font-size: 0.8rem;

@@ -213,3 +213,84 @@
     grid-template-columns: 1fr;
   }
 }
+/* Light Mode */
+.skeleton-block {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 25%,
+    #e5e7eb 50%,
+    #f3f4f6 75%
+  );
+  background-size: 200% 100%;
+}
+
+.skeleton-shimmer {
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Dark Mode */
+body.dark-theme .skeleton-block,
+[data-theme="dark"] .skeleton-block {
+  background: linear-gradient(
+    90deg,
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%
+  ) !important;
+  background-size: 200% 100%;
+}
+/* ==========================================
+   DARK MODE SKELETON SUPPORT
+   ========================================== */
+
+body.dark-theme .skeleton-shimmer,
+[data-theme="dark"] .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #1e293b 25%,
+    #334155 50%,
+    #1e293b 75%
+  ) !important;
+  background-size: 200% 100%;
+}
+
+/* Skeleton Cards */
+
+body.dark-theme .skeleton-stat-card,
+[data-theme="dark"] .skeleton-stat-card,
+body.dark-theme .skeleton-toolbar,
+[data-theme="dark"] .skeleton-toolbar,
+body.dark-theme .skeleton-table-wrapper,
+[data-theme="dark"] .skeleton-table-wrapper,
+body.dark-theme .skeleton-form-panel,
+[data-theme="dark"] .skeleton-form-panel,
+body.dark-theme .skeleton-chart-container,
+[data-theme="dark"] .skeleton-chart-container {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+/* Bootstrap white cards used in Order/Review/Wishlist skeletons */
+
+body.dark-theme .bg-white,
+[data-theme="dark"] .bg-white {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+}
+
+/* Dark mode HR lines */
+
+body.dark-theme hr,
+[data-theme="dark"] hr {
+  border-color: #374151 !important;
+  color: #374151 !important;
+}
