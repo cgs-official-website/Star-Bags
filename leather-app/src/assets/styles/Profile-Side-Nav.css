@@ -1,3 +1,5 @@
+/* ===== Profile-Side-Nav.css ===== */
+
 :root {
     --levender: #8B5CF6;
 }
@@ -9,19 +11,24 @@
     max-width: 350px;
     padding: 18px;
     background: #fff;
+    overflow: visible;          /* ← fix: was clipping avatar */
 }
 
 .profile-avatar-wrapper {
     position: relative;
     width: 55px;
     height: 55px;
+    flex-shrink: 0;             /* ← fix: stops avatar shrinking on mobile */
+    overflow: visible;          /* ← fix: allows popup + add icon to show */
 }
 
 .profile-avatar {
-    width: 100%;
-    height: 100%;
+    width: 55px;
+    height: 55px;
     background-color: #d9d9d9;
     border-radius: 50%;
+    display: block;             /* ← fix: removes inline gap that shifts avatar */
+    object-fit: cover;          /* ← fix: img doesn't stretch */
 }
 
 .avatar-add-icon {
@@ -33,6 +40,7 @@
     border-radius: 50%;
     font-size: 1rem;
     border: 2px solid white;
+    z-index: 2;
 }
 
 .profile-menu-list {
@@ -51,6 +59,7 @@
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .profile-menu-link:hover {
@@ -82,8 +91,9 @@
     font-size: 1.1rem;
     margin-right: 10px;
     color: #555;
+    flex-shrink: 0;             /* ← fix: icon never squishes */
 }
-    
+
 .logout-btn {
     background-color: var(--levender);
     color: white;
@@ -96,6 +106,7 @@
     transition: 0.3s;
     max-width: 350px;
     border: none;
+    white-space: nowrap;
 }
 
 .logout-btn:hover {
@@ -103,7 +114,7 @@
     color: white;
 }
 
-/* For form switch */
+/* Form switch */
 .form-check-input:checked {
     background-color: var(--levender);
     border-color: var(--levender);
@@ -114,14 +125,14 @@
     border-color: var(--levender);
 }
 
-
-/* ✅ Tablet Responsive Fix */
+/* ── Tablet ── */
 @media (max-width: 991px) {
     .profile-sidebar-card {
         max-width: 100%;
         width: 100%;
         border-radius: 10px;
         padding: 16px;
+        overflow: visible;      /* ← keep visible on tablet too */
     }
 
     .logout-btn {
@@ -147,13 +158,28 @@
     }
 }
 
-/* ✅ Mobile Responsive Fix */
+/* ── Mobile ── */
 @media (max-width: 576px) {
     .profile-sidebar-card {
         max-width: 100%;
         width: 100%;
         padding: 14px;
         border-radius: 8px;
+        overflow: visible;      /* ← critical fix for mobile */
+    }
+
+    .profile-avatar-wrapper {
+        width: 55px !important;
+        height: 55px !important;
+        min-width: 55px;        /* ← fix: flex row won't shrink avatar */
+        overflow: visible !important;
+    }
+
+    .profile-avatar {
+        width: 55px !important;
+        height: 55px !important;
+        border-radius: 50% !important;
+        display: block !important;
     }
 
     .profile-menu-link {
@@ -192,6 +218,7 @@
     }
 }
 
+/* ── Dark theme ── */
 body.dark-theme .profile-sidebar-card,
 [data-theme="dark"] .profile-sidebar-card,
 body.dark-theme .profile-menu-link,
@@ -202,71 +229,69 @@ body.dark-theme .theme-toggle-item,
 [data-theme="dark"] .theme-toggle-item,
 body.dark-theme .logout-btn,
 [data-theme="dark"] .logout-btn {
-  background: var(--surface-alt) !important;
-  border-color: var(--border) !important;
-  color: var(--text) !important;
+    background: var(--surface-alt) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
 }
 
 body.dark-theme .profile-menu-link,
 [data-theme="dark"] .profile-menu-link {
-  border-color: var(--border) !important;
+    border-color: var(--border) !important;
 }
 
 body.dark-theme .profile-menu-link:hover,
 [data-theme="dark"] .profile-menu-link:hover {
-  border-color: var(--button-bg) !important;
-  color: var(--button-bg) !important;
+    border-color: var(--button-bg) !important;
+    color: var(--button-bg) !important;
 }
 
 body.dark-theme .menu-icon,
 [data-theme="dark"] .menu-icon {
-  color: var(--text-secondary) !important;
+    color: var(--text-secondary) !important;
 }
 
 body.dark-theme .avatar-add-icon,
 [data-theme="dark"] .avatar-add-icon {
-  color: var(--text) !important;
-  background: var(--surface) !important;
-  border-color: var(--border) !important;
+    color: var(--text) !important;
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
 }
 
 body.dark-theme .form-check-input:checked,
 [data-theme="dark"] .form-check-input:checked {
-  background-color: var(--button-bg) !important;
-  border-color: var(--button-bg) !important;
+    background-color: var(--button-bg) !important;
+    border-color: var(--button-bg) !important;
 }
 
 .dark-theme-switch .form-check-input {
-  width: 44px;
-  height: 24px;
-  margin-top: 0;
-  cursor: pointer;
+    width: 44px;
+    height: 24px;
+    margin-top: 0;
+    cursor: pointer;
 }
 
 body.dark-theme .dark-theme-switch .form-check-input,
 [data-theme="dark"] .dark-theme-switch .form-check-input {
-  background-color: #182033 !important;
-  border: 1px solid rgba(148, 163, 184, 0.6) !important;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbd5e1'/%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat !important;
-  background-position: left center !important;
-  box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.65);
+    background-color: #182033 !important;
+    border: 1px solid rgba(148, 163, 184, 0.6) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23cbd5e1'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: left center !important;
+    box-shadow: inset 0 1px 2px rgba(2, 6, 23, 0.65);
 }
 
 body.dark-theme .dark-theme-switch .form-check-input:checked,
 [data-theme="dark"] .dark-theme-switch .form-check-input:checked {
-  background-color: #8b5cf6 !important;
-  border-color: #a78bfa !important;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
-  background-repeat: no-repeat !important;
-  background-position: right center !important;
-  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.24), inset 0 1px 2px rgba(2, 6, 23, 0.45);
+    background-color: #8b5cf6 !important;
+    border-color: #a78bfa !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right center !important;
+    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.24), inset 0 1px 2px rgba(2, 6, 23, 0.45);
 }
 
 body.dark-theme .dark-theme-switch .form-check-input:focus,
 [data-theme="dark"] .dark-theme-switch .form-check-input:focus {
-  border-color: #c4b5fd !important;
-  box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.28) !important;
+    border-color: #c4b5fd !important;
+    box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.28) !important;
 }
-
-
