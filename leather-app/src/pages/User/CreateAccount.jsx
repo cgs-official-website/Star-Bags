@@ -7,6 +7,8 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { auth, db } from "../../firebase";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { sendOtp } from "../../utils/sendOtp";
+import { useAuth } from "../../context/AuthContext";
 
 import "../../assets/styles/CreateAccount.css";
 
@@ -16,6 +18,7 @@ import { NavLink } from "react-router-dom";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
+  const { currentUser, userData } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -23,15 +26,16 @@ const CreateAccount = () => {
 
   // Redirect if already logged in
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      if (user.role === "admin") {
+    if (currentUser) {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const role = userData?.role || user?.role || "user";
+      if (role === "admin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");
       }
     }
-  }, [navigate]);
+  }, [currentUser, userData, navigate]);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -124,7 +128,11 @@ const CreateAccount = () => {
           gender: "Male"
         }));
 
-        navigate("/");
+        // ─── Generate OTP, store in sessionStorage, send to email ───
+        await sendOtp(user.email, "signup");
+
+        // Redirect to OTP verification page
+        navigate("/signup-verification");
       } catch (err) {
         console.error("Firebase Registration Error:", err);
         let errorMsg = "Failed to register account.";
@@ -134,6 +142,11 @@ const CreateAccount = () => {
           errorMsg = "Please enter a valid email format.";
         } else if (err.code === "auth/weak-password") {
           errorMsg = "Password is too weak.";
+        } else if (err.message?.includes("EmailJS") || err.status) {
+          // OTP email failed but account was created — still go to verify page
+          // The user can resend from the verify page
+          navigate("/signup-verification");
+          return;
         }
         setErrors({
           email: errorMsg,

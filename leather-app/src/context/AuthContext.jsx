@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setCurrentUser(null);
         setUserData(null);
+        localStorage.removeItem("user");
         setLoading(false);
       }
     });
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = async () => {
+    localStorage.removeItem("user");
     return firebaseSignOut(auth);
   };
 
