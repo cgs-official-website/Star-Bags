@@ -3,7 +3,7 @@
 /* Sticky sidebar */
 .sidebar-sticky {
     position: sticky;
-    top: 75px; /* height of the sticky navbar */
+    top: 75px;
     align-self: flex-start;
 }
 
@@ -12,6 +12,7 @@
     border-radius: 14px;
     padding: 24px 28px;
     border: 1px solid #ececec;
+    overflow: visible;        /* ← fix: was clipping form buttons */
 }
 
 /* "Add a New Address" button */
@@ -37,7 +38,8 @@
     transition: max-height 0.4s ease;
 }
 .address-form-collapse.open {
-    max-height: 900px; /* tall enough to accommodate the full form */
+    max-height: 2000px;       /* ← fix: was 900px, too small for form + errors */
+    overflow: visible;        /* ← fix: allows buttons to show fully */
 }
 
 /* Form box inside the collapse */
@@ -46,6 +48,7 @@
     border-radius: 10px;
     padding: 20px;
     background: #faf8ff;
+    overflow: visible;        /* ← fix: no clipping inside form box */
 }
 
 /* Form labels */
@@ -65,6 +68,7 @@
     font-size: 0.88rem;
     padding: 9px 14px;
     transition: border-color 0.2s;
+    width: 100%;
 }
 .addr-input:focus {
     border-color: var(--levender);
@@ -75,6 +79,16 @@
 textarea.addr-input {
     resize: vertical;
     min-height: 80px;
+}
+
+/* Red border for invalid fields */
+.is-invalid-custom {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 0.15rem rgba(239, 68, 68, 0.15) !important;
+}
+.is-invalid-custom:focus {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.2) !important;
 }
 
 /* Buttons */
@@ -101,7 +115,7 @@ textarea.addr-input {
     transition: 0.2s;
 }
 .btn-addr-save:hover {
-    background: var(--dark-lavender);
+    background: #7c4df2;
     color: #fff;
 }
 
@@ -153,11 +167,12 @@ textarea.addr-input {
     .saved-address-card {
         padding: 18px 16px;
     }
+    .address-form-collapse.open {
+        max-height: 2500px;   /* ← extra room on mobile for stacked errors */
+    }
 }
 
-/* ==========================================================================
-   CUSTOM COMPACT POPUP MODAL (SURE TO DELETE) STYLES
-   ========================================================================== */
+/* ── Modal ── */
 .modal-overlay-custom {
     position: fixed;
     inset: 0;
@@ -227,5 +242,5 @@ textarea.addr-input {
 
 @keyframes fadeInModal {
     from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
+    to   { opacity: 1; transform: scale(1); }
 }

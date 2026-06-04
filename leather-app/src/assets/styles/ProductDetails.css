@@ -81,7 +81,7 @@
 .thumbnail-gallery {
   display: flex;
   gap: 10px;
-  justify-content: start;
+  justify-content:center;
 }
 
 .thumbnail-box {
@@ -222,6 +222,7 @@
   border-radius: 8px;
   padding: 15px;
   margin-top: 20px;
+  
 }
 
 .delivery-box h6 {
@@ -233,6 +234,10 @@
   margin: 0;
   font-size: 0.9rem;
   color: #555;
+  word-wrap: break-word;     /* Long words will wrap */
+  overflow-wrap: break-word; /* Modern standard */
+  white-space: normal;       /* Ensures text wraps to next line */
+  max-width: 100%;
 }
 
 .change-location-btn {
