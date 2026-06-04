@@ -1,189 +1,350 @@
-import React from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import React, { useState, useEffect, useRef } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import "../../assets/styles/Profile-Side-Nav.css";
 import { FaRegUserCircle, FaRegHeart } from "react-icons/fa";
-import { FiBox, FiLogOut } from "react-icons/fi";
+import { FiBox, FiLogOut, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { BsSun } from "react-icons/bs";
 import { IoAddCircle } from "react-icons/io5";
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { MdOutlineRateReview } from "react-icons/md";
-import { db } from '../../firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { db } from "../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 
 function ProfileSideNav() {
   const navigate = useNavigate();
   const { userData, currentUser, logout } = useAuth();
-  const fileInputRef = React.useRef(null);
+  const fileInputRef = useRef(null);
+  const mobileFileInputRef = useRef(null);
+  const avatarRef = useRef(null);
+  const mobileAvatarRef = useRef(null);
+  const popupRef = useRef(null);
+  const mobilePopupRef = useRef(null);
+  const [showPopup, setShowPopup] = useState(false);
+  const [showMobilePopup, setShowMobilePopup] = useState(false);
 
   const { isDark, toggleTheme } = useTheme();
 
-  const userName = userData?.name || currentUser?.displayName || currentUser?.email?.split('@')[0] || "User";
+  const userName =
+    userData?.name ||
+    currentUser?.displayName ||
+    currentUser?.email?.split("@")[0] ||
+    "User";
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(e.target) &&
+        avatarRef.current &&
+        !avatarRef.current.contains(e.target)
+      ) {
+        setShowPopup(false);
+      }
+      if (
+        mobilePopupRef.current &&
+        !mobilePopupRef.current.contains(e.target) &&
+        mobileAvatarRef.current &&
+        !mobileAvatarRef.current.contains(e.target)
+      ) {
+        setShowMobilePopup(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
-      localStorage.removeItem('user');
-      navigate('/login');
+      localStorage.removeItem("user");
+      navigate("/login");
     } catch (err) {
       console.error("Failed to log out", err);
     }
   };
 
-  const handleAvatarClick = (e) => {
-    e.stopPropagation();
+  const handleAvatarClick = () => {
+    if (userData?.photo) {
+      setShowPopup((prev) => !prev);
+    } else {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleMobileAvatarClick = () => {
+    if (userData?.photo) {
+      setShowMobilePopup((prev) => !prev);
+    } else {
+      mobileFileInputRef.current?.click();
+    }
+  };
+
+  const handleEditPhoto = () => {
+    setShowPopup(false);
     fileInputRef.current?.click();
+  };
+
+  const handleMobileEditPhoto = () => {
+    setShowMobilePopup(false);
+    mobileFileInputRef.current?.click();
   };
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (file && currentUser) {
-      if (file.size > 800 * 1024) {
-        alert("Please upload a photo smaller than 800KB.");
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Please upload a photo smaller than 2MB.");
         return;
       }
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
           const userDocRef = doc(db, "users", currentUser.uid);
-          await updateDoc(userDocRef, {
-            photo: reader.result
-          });
-          
-          // Sync with local storage
+          await updateDoc(userDocRef, { photo: reader.result });
           const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-          localStorage.setItem("user", JSON.stringify({
-            ...storedUser,
-            photo: reader.result
-          }));
-          console.log("Profile photo updated successfully!");
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ ...storedUser, photo: reader.result })
+          );
         } catch (err) {
           console.error("Error saving profile photo:", err);
-          alert("Failed to save profile photo.");
         }
       };
       reader.readAsDataURL(file);
     }
+    e.target.value = "";
+  };
+
+  const handleRemovePhoto = async (e) => {
+    e.stopPropagation();
+    setShowPopup(false);
+    setShowMobilePopup(false);
+    if (!currentUser) return;
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, { photo: null });
+      const storedUser = JSON.parse(localStorage.getItem("user")) || {};
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...storedUser, photo: null })
+      );
+    } catch (err) {
+      console.error("Error removing profile photo:", err);
+    }
+  };
+
+  const popupBtnBase = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    width: "100%",
+    padding: "9px 14px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "0.82rem",
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+    transition: "background 0.15s",
+  };
+
+  // Reusable avatar UI
+  const AvatarBlock = ({ isMobile }) => {
+    const ref = isMobile ? mobileAvatarRef : avatarRef;
+    const pRef = isMobile ? mobilePopupRef : popupRef;
+    const fRef = isMobile ? mobileFileInputRef : fileInputRef;
+    const show = isMobile ? showMobilePopup : showPopup;
+    const onClick = isMobile ? handleMobileAvatarClick : handleAvatarClick;
+    const onEdit = isMobile ? handleMobileEditPhoto : handleEditPhoto;
+    const size = isMobile ? "70px" : "55px";
+
+    return (
+      <div style={{ position: "relative", flexShrink: 0, width: size, height: size }}>
+        <input
+          type="file"
+          ref={fRef}
+          onChange={handlePhotoChange}
+          style={{ display: "none" }}
+          accept="image/*"
+        />
+
+        <div
+          ref={ref}
+          onClick={onClick}
+          style={{
+            cursor: "pointer",
+            width: size,
+            height: size,
+            position: "relative",
+            borderRadius: "50%",
+            overflow: "visible",
+          }}
+        >
+          {userData?.photo ? (
+            <img
+              src={userData.photo}
+              alt="Avatar"
+              style={{
+                width: size,
+                height: size,
+                objectFit: "cover",
+                borderRadius: "50%",
+                display: "block",
+                border: "2px solid #8b5cf6",
+              }}
+            />
+          ) : (
+            <div
+              className="d-flex align-items-center justify-content-center text-white fw-bold"
+              style={{
+                width: size,
+                height: size,
+                background: "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)",
+                borderRadius: "50%",
+                fontSize: isMobile ? "1.6rem" : "1.2rem",
+                textTransform: "uppercase",
+                userSelect: "none",
+              }}
+            >
+              {userName.charAt(0)}
+            </div>
+          )}
+
+          {!userData?.photo && (
+            <IoAddCircle
+              style={{
+                position: "absolute",
+                bottom: "0px",
+                right: "-2px",
+                fontSize: isMobile ? "22px" : "18px",
+                color: "#8b5cf6",
+                background: "white",
+                borderRadius: "50%",
+              }}
+            />
+          )}
+        </div>
+
+        {show && userData?.photo && (
+          <div
+            ref={pRef}
+            style={{
+              position: "absolute",
+              top: isMobile ? "78px" : "62px",
+              left: "0",
+              background: isDark ? "#1e1e2e" : "#ffffff",
+              border: `1px solid ${isDark ? "#3f3f5a" : "#e5e7eb"}`,
+              borderRadius: "10px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+              zIndex: 9999,
+              overflow: "hidden",
+              minWidth: "145px",
+            }}
+          >
+            <button
+              onClick={onEdit}
+              style={{ ...popupBtnBase, color: isDark ? "#e2e8f0" : "#374151" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = isDark ? "#2d2d44" : "#f3f4f6")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            >
+              <FiEdit2 size={14} style={{ flexShrink: 0 }} />
+              Edit Photo
+            </button>
+            <div style={{ height: "1px", background: isDark ? "#3f3f5a" : "#e5e7eb" }} />
+            <button
+              onClick={handleRemovePhoto}
+              style={{ ...popupBtnBase, color: "#ef4444" }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = isDark ? "#2d2d44" : "#fef2f2")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+            >
+              <FiTrash2 size={14} style={{ flexShrink: 0 }} />
+              Delete Photo
+            </button>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
     <>
-      <div className="profile-sidebar-card mb-2">
-        {/* User Info */}
-        <div className="d-flex align-items-center gap-3 mb-3">
-          <div className="profile-avatar-wrapper" onClick={handleAvatarClick} style={{ cursor: "pointer" }}>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handlePhotoChange}
-              style={{ display: 'none' }}
-              accept="image/*"
-            />
-            {userData?.photo ? (
-              <img
-                src={userData.photo}
-                alt="Profile Avatar"
-                className="profile-avatar border"
-                style={{ width: "55px", height: "55px", objectFit: "cover", borderRadius: "50%" }}
-              />
-            ) : (
-              <div
-                className="profile-avatar border d-flex align-items-center justify-content-center text-white fw-bold"
-                style={{
-                  width: "55px",
-                  height: "55px",
-                  background: "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)",
-                  fontSize: "1.2rem",
-                  textTransform: "uppercase",
-                  borderRadius: "50%"
-                }}
-              >
-                {userName.charAt(0)}
-              </div>
-            )}
-            <IoAddCircle className="avatar-add-icon" />
-          </div>
-          <div>
-            <h5 className="fw-bold mb-1">{userName}</h5>
-            <p className="text-muted mb-0" style={{fontSize: "0.8rem"}}>Member since 2026</p>
+      {/* ── MOBILE ONLY avatar bar (hidden on lg+) ── */}
+      <div
+        className="d-flex d-lg-none align-items-center gap-3 mb-3 p-3"
+        style={{
+          background: isDark ? "#1e1e2e" : "#ffffff",
+          border: `1px solid ${isDark ? "#3f3f5a" : "#e0e0e0"}`,
+          borderRadius: "10px",
+          overflow: "visible",
+        }}
+      >
+        <AvatarBlock isMobile={true} />
+        <div style={{ minWidth: 0 }}>
+          <h5 className="fw-bold mb-1 text-truncate" style={{ color: isDark ? "#e2e8f0" : "#111" }}>
+            {userName}
+          </h5>
+          <p className="text-muted mb-0" style={{ fontSize: "0.8rem" }}>
+            Member since 2026
+          </p>
+        </div>
+      </div>
+
+      {/* ── DESKTOP sidebar card (hidden on mobile) ── */}
+      <div
+        className="profile-sidebar-card mb-2 d-none d-lg-block"
+        style={{ overflow: "visible" }}
+      >
+        <div
+          className="d-flex align-items-center gap-3 mb-3"
+          style={{ overflow: "visible", flexWrap: "nowrap" }}
+        >
+          <AvatarBlock isMobile={false} />
+          <div style={{ minWidth: 0, flexGrow: 1 }}>
+            <h5 className="fw-bold mb-1 text-truncate">{userName}</h5>
+            <p className="text-muted mb-0 text-truncate" style={{ fontSize: "0.8rem" }}>
+              Member since 2026
+            </p>
           </div>
         </div>
 
-        {/* Menu Navigation Items List Hierarchy */}
-        <ul className="profile-menu-list list-unstyled mb-0" style={{ width: "100%", boxSizing: "border-box" }}>
-          <li style={{ width: "100%" }}>
-            <NavLink 
-              to="/profile" 
-              className={({ isActive }) =>
-                isActive ? "profile-menu-link active" : "profile-menu-link"
-              }
-              style={{ display: "flex", alignItems: "center", width: "100%" }}
+        {/* Menu Navigation */}
+        <ul className="profile-menu-list list-unstyled mb-0">
+          {[
+            { to: "/profile", icon: FaRegUserCircle, label: "My profile" },
+            { to: "/orders", icon: FiBox, label: "My orders" },
+            { to: "/wishlist", icon: FaRegHeart, label: "Wish list" },
+            { to: "/address", icon: GrLocation, label: "Saved address" },
+            { to: "/reviews", icon: MdOutlineRateReview, label: "My Reviews" },
+          ].map((item, i) => (
+            <li key={i}>
+              <NavLink
+                to={item.to}
+                className={({ isActive }) =>
+                  isActive ? "profile-menu-link active" : "profile-menu-link"
+                }
+                style={{ display: "flex", alignItems: "center", whiteSpace: "nowrap" }}
+              >
+                <item.icon className="menu-icon" />
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+
+          <li>
+            <div
+              className="profile-menu-link theme-toggle-item"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", whiteSpace: "nowrap" }}
             >
-              <FaRegUserCircle className="menu-icon" />
-              My profile
-            </NavLink>
-          </li>
-          <li style={{ width: "100%" }}>
-            <NavLink 
-              to="/orders" 
-              className={({ isActive }) =>
-                isActive ? "profile-menu-link active" : "profile-menu-link"
-              }
-              style={{ display: "flex", alignItems: "center", width: "100%" }}
-            >
-              <FiBox className="menu-icon" />
-              My orders
-            </NavLink>
-          </li>
-          <li style={{ width: "100%" }}>
-            <NavLink 
-              to="/wishlist" 
-              className={({ isActive }) =>
-                isActive ? "profile-menu-link active" : "profile-menu-link"
-              }
-              style={{ display: "flex", alignItems: "center", width: "100%" }}
-            >
-              <FaRegHeart className="menu-icon" />
-              Wish list
-            </NavLink>
-          </li>
-          <li style={{ width: "100%" }}>
-            <NavLink 
-              to="/address" 
-              className={({ isActive }) =>
-                isActive ? "profile-menu-link active" : "profile-menu-link"
-              }
-              style={{ display: "flex", alignItems: "center", width: "100%" }}
-            >
-              <GrLocation className="menu-icon" />
-              Saved address
-            </NavLink>
-          </li>
-          <li style={{ width: "100%" }}>
-            <NavLink 
-              to="/reviews" 
-              className={({ isActive }) =>
-                isActive ? "profile-menu-link active" : "profile-menu-link"
-              }
-              style={{ display: "flex", alignItems: "center", width: "100%" }}
-            >
-              <MdOutlineRateReview className="menu-icon" />
-              My Reviews
-            </NavLink>
-          </li>
-          <li style={{ width: "100%" }}>
-            <div className="profile-menu-link theme-toggle-item" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
               <div className="d-flex align-items-center">
                 <BsSun className="menu-icon" />
                 Dark Theme
               </div>
-
-              <div className="form-check form-switch dark-theme-switch m-0">
+              <div className="form-check form-switch m-0">
                 <input
                   className="form-check-input"
                   type="checkbox"
-                  id="themeSwitch"
                   checked={isDark}
                   onChange={toggleTheme}
                   style={{ cursor: "pointer" }}
@@ -194,21 +355,18 @@ function ProfileSideNav() {
         </ul>
       </div>
 
-      {/* ─── FIXED WIDTH LOGOUT BUTTON LAYER ─── */}
-      <button 
-        onClick={handleLogout} 
-        className="btn logout-btn w-100 mt-2" 
-        style={{ 
-          border: 'none',
-          backgroundColor: '#8B5CF6',
-          color: 'white',
-          width: "100%",
-  
-          boxSizing: "border-box",
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="btn logout-btn w-100 mt-2"
+        style={{
+          border: "none",
+          backgroundColor: "#8B5CF6",
+          color: "white",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
         }}
       >
         <FiLogOut className="me-2" style={{ transform: "rotate(180deg)" }} />
@@ -218,90 +376,4 @@ function ProfileSideNav() {
   );
 }
 
-
 export default ProfileSideNav;
-
-
-// import React from 'react';
-// import "../../assets/styles/Profile-Side-Nav.css";
-// import { FaRegUserCircle, FaRegHeart } from "react-icons/fa";
-// import { FiBox, FiLogOut } from "react-icons/fi";
-// import { GrLocation } from "react-icons/gr";
-// import { BsSun } from "react-icons/bs";
-// import { IoAddCircle } from "react-icons/io5";
-// import { MdOutlineRateReview } from "react-icons/md";
-// import { NavLink } from 'react-router-dom';
-
-// function ProfileSideNav() {
-//   return (
-//     <>
-//       <div className="profile-sidebar-card mb-2">
-//         {/* User Info */}
-//         <div className="d-flex align-items-center gap-3 mb-3">
-//           <div className="profile-avatar-wrapper">
-//             <div className="profile-avatar"></div>
-//             <IoAddCircle className="avatar-add-icon"  />
-//           </div>
-//           <div>
-//             <h5 className="fw-bold mb-1">User name</h5>
-//             <p className="text-muted mb-0" style={{fontSize: "0.8rem"}}>12 Mar ,2026</p>
-//           </div>
-//         </div>
-
-//         {/* Menu Items */}
-//         <ul className="profile-menu-list list-unstyled mb-0">
-//           <li>
-//             <NavLink to="/profile" className="profile-menu-link">
-//               <FaRegUserCircle className="menu-icon" />
-//               My profile
-//             </NavLink>
-//           </li>
-//           <li>
-//             <NavLink to="/orders" className="profile-menu-link">
-//               <FiBox className="menu-icon" />
-//               My orders
-//             </NavLink>
-//           </li>
-//           <li>
-//             <NavLink to="/wishlist" className="profile-menu-link">
-//               <FaRegHeart className="menu-icon" />
-//               Wish list
-//             </NavLink>
-//           </li>
-//           <li>
-//             <NavLink to="/address" className="profile-menu-link">
-//               <GrLocation className="menu-icon" />
-//               Saved address
-//             </NavLink>
-//           </li>
-//            <li>
-//             <NavLink to="/reviews" className="profile-menu-link">
-//               <MdOutlineRateReview className="menu-icon" />
-//               My Reviews
-//             </NavLink>
-//           </li>
-//           <li>
-//             <div className="profile-menu-link theme-toggle-item">
-//               <div className="d-flex align-items-center">
-//                 <BsSun className="menu-icon" />
-//                 Dark Theme
-//               </div>
-//               <div className="form-check form-switch m-0">
-//                 <input className="form-check-input" type="checkbox" id="themeSwitch" />
-//               </div>
-//             </div>
-//           </li>
-//         </ul>
-//       </div>
-
-//       {/* Logout Button */}
-//       <NavLink to="/login" className="btn logout-btn w-100 mt-2">
-//         <FiLogOut className="me-2" style={{transform: "rotate(180deg)"}} />
-//         Log out your Account
-//       </NavLink>
-//     </>
-//   );
-// }
-
-// export default ProfileSideNav;
-

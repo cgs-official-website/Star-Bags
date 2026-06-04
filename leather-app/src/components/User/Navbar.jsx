@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MdOutlineShoppingCart, MdOutlineRateReview } from "react-icons/md";
-import { FaRegHeart } from "react-icons/fa";
+
+import { FaUserCircle, FaRegUserCircle, FaRegHeart, FaStar } from "react-icons/fa";
 import { FiBox, FiLogOut, FiUser, FiSearch } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { BsSun } from "react-icons/bs";
@@ -8,11 +9,13 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useSearch } from '../../context/SearchContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useProducts } from '../../context/ProductsContext';
+import brandLogoLight from '../../assets/images/brand-logo-light.png';
+import brandLogoDark from '../../assets/images/brand-logo-dark.png';
 import '../../assets/styles/Navbar.css';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import brandLogoLight from '../../assets/images/brand-logo-light.png';
-import brandLogoDark from '../../assets/images/brand-logo-dark.png';
+// import brandLogoLight from '../../assets/images/brand-logo-light.png';
+// import brandLogoDark from '../../assets/images/brand-logo-dark.png';
 
 const Navbar = () => {
   const { performSearch, clearSearch } = useSearch();
