@@ -90,7 +90,7 @@ const SearchModal = ({
     return (
       <span>
         {text.slice(0, idx)}
-        <strong>{text.slice(idx, idx + q.length)}</strong>
+        <span>{text.slice(idx, idx + q.length)}</span>
         {text.slice(idx + q.length)}
       </span>
     );

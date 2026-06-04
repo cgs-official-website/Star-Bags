@@ -917,3 +917,13 @@ body.dark-theme .helpful-btns button[style*="color: #f25858"],
 [data-theme="dark"] .helpful-btns button[style*="color: #f25858"] {
   color: #fca5a5 !important; /* Brighter red/pink for disliked active state in dark mode */
 }
+/* Only for modal close icon - light mode */
+.modal-close-icon {
+  color: #000000 !important;
+}
+
+/* Only for modal close icon - dark mode */
+body.dark-theme .modal-close-icon,
+[data-theme="dark"] .modal-close-icon {
+  color: #ffffff !important;
+}

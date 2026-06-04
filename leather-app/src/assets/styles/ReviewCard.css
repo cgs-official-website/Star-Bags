@@ -17,11 +17,11 @@
 }
 
 /* Hidden by admin state */
-.review-card--hidden {
+/* .review-card--hidden {
   border-color: #f59e0b;
   background: #fffbeb;
   opacity: 0.9;
-}
+} */
 
 .review-card--hidden:hover {
   box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15);
@@ -56,7 +56,7 @@
 .review-product-name {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #1a1a1a !important;
   word-break: break-word;
   line-height: 1.3;
 }
@@ -450,4 +450,15 @@ img {
   .review-dropdown-item:hover {
     background: none;
   }
+}
+body.dark-theme .review-body-text , .review-short-text  {
+  color: #ddd;
+}
+body.dark-theme .review-product-name {
+  color: #fff !important;
+}
+body.dark-theme .review-menu-wrapper .review-menu-btn , .review-dropdown , .review-dropdown-item ,  .review-dropdown-item.edit {
+  background: var(--surface-alt);
+  border-color: #333;
+  color: #ddd;
 }

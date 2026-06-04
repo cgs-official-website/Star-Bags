@@ -20,7 +20,7 @@ const RecentProduct = () => {
   return (
     <section className="recent-products-section my-5 w-100">
       <div className="container text-center mb-4">
-        <h2 className="fw-bold text-uppercase" style={{ letterSpacing: "1px", color: "#111827" }}>
+        <h2 className="fw-bold text-uppercase" style={{ letterSpacing: "1px", color: "#fff" }}>
           YOU MAY ALSO LIKE PRODUCTS
         </h2>
         <p className="text-muted mx-auto" style={{ maxWidth: "600px", fontSize: "0.95rem" }}>
