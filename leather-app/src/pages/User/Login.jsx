@@ -11,6 +11,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { useAuth } from "../../context/AuthContext";
 
 import "../../assets/styles/Login.css";
 
@@ -18,21 +19,23 @@ import LoginImage from "../../assets/images/login-image.png";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { currentUser, userData } = useAuth();
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [googleError, setGoogleError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   // Redirect if already logged in
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      if (user.role === "admin") {
+    if (currentUser) {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const role = userData?.role || user?.role || "user";
+      if (role === "admin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");
       }
     }
-  }, [navigate]);
+  }, [currentUser, userData, navigate]);
 
   const [formData, setFormData] = useState({
     email: "",

@@ -23,7 +23,7 @@ export async function sendOtp(email, flow = "signup") {
   await emailjs.send(
     SERVICE_ID,
     TEMPLATE_ID,
-    { email, otp },   // must match your EmailJS template variables
+    { email, passcode: otp, otp },   // must match your EmailJS template variables
     PUBLIC_KEY
   );
 

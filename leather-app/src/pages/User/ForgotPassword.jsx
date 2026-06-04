@@ -1,13 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { BiArrowBack } from "react-icons/bi";
 import { CgAsterisk } from "react-icons/cg";
-import { sendOtp, verifyOtp } from "../../utils/sendOtp";
 import loginImage from "../../assets/images/login-image.png";
 import "../../assets/styles/Login.css";
+import { auth } from "../../firebase";
+import { signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 
 // ─── Step 1: Enter Email ──────────────────────────────────────────────────────
-function EmailStep({ onOtpSent }) {
+function EmailStep({ onLinkSent }) {
   const [email, setEmail]     = useState("");
   const [error, setError]     = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,11 +22,41 @@ function EmailStep({ onOtpSent }) {
     setLoading(true);
     setError("");
     try {
-      await sendOtp(trimmed, "forgot"); // generates OTP, stores it, emails it
-      onOtpSent(trimmed);
+      // Check if user exists using signup-then-delete check
+      let exists = false;
+      try {
+        console.log("Checking email existence via signup-then-delete...");
+        const checkCred = await createUserWithEmailAndPassword(auth, trimmed, "check-exists-dummy-password-12345");
+        // If it succeeded, the email did not exist! We must delete this dummy account immediately.
+        console.log("Email does not exist. Deleting dummy account...");
+        await deleteUser(checkCred.user);
+        exists = false;
+      } catch (signUpErr) {
+        console.log("SignUp check error code:", signUpErr.code);
+        if (signUpErr.code === "auth/email-already-in-use") {
+          exists = true;
+        } else {
+          console.error("SignUp check failed with other error:", signUpErr);
+          // If signup failed because of something else, fallback to true so we don't block legitimate users
+          exists = true;
+        }
+      }
+
+      if (!exists) {
+        setError("This email is not registered. Please create an account.");
+        return;
+      }
+
+      // 2. Trigger Firebase's standard password reset email with action settings to redirect back to our resetPassword page
+      const actionCodeSettings = {
+        url: `${window.location.origin}/resetPassword`,
+        handleCodeInApp: true,
+      };
+      await sendPasswordResetEmail(auth, trimmed, actionCodeSettings);
+      onLinkSent(trimmed);
     } catch (err) {
-      console.error("OTP send error:", err);
-      setError("Failed to send code. Please check the email and try again.");
+      console.error("Password reset error:", err);
+      setError("Failed to send reset link. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -39,7 +70,7 @@ function EmailStep({ onOtpSent }) {
         </Link>
       </div>
       <h6>Forgot Password?</h6>
-      <p>Enter your registered email and we'll send you a 4-digit verification code.</p>
+      <p>Enter your registered email and we'll send you a secure password reset link.</p>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">
@@ -61,8 +92,8 @@ function EmailStep({ onOtpSent }) {
         <div className="d-grid mt-4">
           <button className="btn login-btn" type="submit" disabled={loading}>
             {loading ? (
-              <><span className="spinner-border spinner-border-sm me-2" role="status" />Sending code...</>
-            ) : "Send verification code"}
+              <><span className="spinner-border spinner-border-sm me-2" role="status" />Sending link...</>
+            ) : "Send reset link"}
           </button>
         </div>
       </form>
@@ -70,112 +101,30 @@ function EmailStep({ onOtpSent }) {
   );
 }
 
-// ─── Step 2: Enter OTP ───────────────────────────────────────────────────────
-function OtpStep({ email, onVerified, onBack }) {
-  const [otp, setOtp]                   = useState(["", "", "", ""]);
-  const [timer, setTimer]               = useState(119);
-  const [timerActive, setTimerActive]   = useState(true);
-  const [error, setError]               = useState("");
-  const [resending, setResending]       = useState(false);
-  const inputRefs                       = useRef([]);
-
-  useEffect(() => { inputRefs.current[0]?.focus(); }, []);
-
-  useEffect(() => {
-    if (!timerActive || timer <= 0) return;
-    const id = setInterval(() => {
-      setTimer((t) => { if (t <= 1) { setTimerActive(false); return 0; } return t - 1; });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [timerActive, timer]);
-
-  const formatTime = (s) =>
-    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
-
-  const handleOtpChange = (index, value) => {
-    if (!/^\d?$/.test(value)) return;
-    const next = [...otp]; next[index] = value; setOtp(next); setError("");
-    if (value && index < 3) inputRefs.current[index + 1]?.focus();
-  };
-
-  const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0)
-      inputRefs.current[index - 1]?.focus();
-  };
-
-  const handleResend = async () => {
-    setResending(true);
-    try {
-      await sendOtp(email, "forgot");
-      setTimer(119); setTimerActive(true);
-      setOtp(["", "", "", ""]); setError("");
-      inputRefs.current[0]?.focus();
-    } catch {
-      setError("Failed to resend code. Please try again.");
-    } finally {
-      setResending(false);
-    }
-  };
-
-  const handleVerify = (e) => {
-    e.preventDefault();
-    const entered = otp.join("");
-    if (entered.length < 4) return setError("Please enter the complete 4-digit code.");
-    const result = verifyOtp(entered, "forgot");
-    if (!result.valid) return setError(result.error);
-    sessionStorage.setItem("fp_verified", JSON.stringify({ email, verified: true }));
-    onVerified();
-  };
-
+// ─── Step 2: Success Step ────────────────────────────────────────────────────
+function SuccessStep({ email }) {
   return (
     <div className="login-form">
-      <div className="mb-4">
-        <button onClick={onBack} className="navigate d-inline-flex align-items-center gap-2"
-          style={{ border: "none", background: "transparent", padding: 0, cursor: "pointer" }}>
-          <BiArrowBack /> Back
-        </button>
+      <div className="mb-4 text-center">
+        <span style={{ fontSize: "3.5rem" }}>✉️</span>
       </div>
-      <h6>Enter your code</h6>
-      <p>We sent a 4-digit code to <b>{email}</b>. It expires in 2 minutes.</p>
-      <form onSubmit={handleVerify}>
-        <div className="d-flex gap-3 mb-2 justify-content-between">
-          {otp.map((digit, i) => (
-            <input key={i} ref={(el) => (inputRefs.current[i] = el)}
-              type="text" inputMode="numeric" maxLength={1} value={digit}
-              onChange={(e) => handleOtpChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              className={`form-control text-center ${error ? "is-invalid" : ""}`}
-              style={{ width: "65px", height: "65px", fontSize: "1.5rem", fontWeight: "600" }} />
-          ))}
-        </div>
-        <div className="mb-3" style={{ minHeight: "20px" }}>
-          {error && <span style={{ fontSize: "13px", color: "#ff4d4d", fontWeight: "600" }}>{error}</span>}
-        </div>
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <span style={{ fontSize: "13px", color: "var(--gray)" }}>
-            Didn't receive it?{" "}
-            <button type="button" onClick={handleResend} disabled={timerActive || resending}
-              style={{ border: "none", background: "transparent", padding: 0, fontWeight: "700",
-                color: timerActive || resending ? "var(--gray)" : "var(--levender)",
-                cursor: timerActive || resending ? "default" : "pointer" }}>
-              {resending ? "Sending..." : "Resend code"}
-            </button>
-          </span>
-          <span style={{ fontSize: "13px", color: "var(--gray)", fontWeight: "700" }}>{formatTime(timer)}</span>
-        </div>
-        <div className="d-grid">
-          <button type="submit" className="btn login-btn">Verify code</button>
-        </div>
-      </form>
+      <h6 className="text-center">Check your inbox</h6>
+      <p className="text-center" style={{ fontSize: "14px", color: "#4b5563", lineHeight: "1.6" }}>
+        We have sent a secure password reset link to <b>{email}</b>. Please check your email and click the link to reset your password.
+      </p>
+      <div className="d-grid mt-4">
+        <Link to="/login" className="btn login-btn">
+          Back to login
+        </Link>
+      </div>
     </div>
   );
 }
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 function ForgotPassword() {
-  const navigate                      = useNavigate();
-  const [step, setStep]               = useState("email");
-  const [sentEmail, setSentEmail]     = useState("");
+  const [step, setStep]           = useState("email"); // "email" | "success"
+  const [sentEmail, setSentEmail] = useState("");
 
   return (
     <div className="login">
@@ -190,9 +139,9 @@ function ForgotPassword() {
       </div>
       <div className="col-12 col-lg-5 form-section">
         {step === "email" ? (
-          <EmailStep onOtpSent={(email) => { setSentEmail(email); setStep("otp"); }} />
+          <EmailStep onLinkSent={(email) => { setSentEmail(email); setStep("success"); }} />
         ) : (
-          <OtpStep email={sentEmail} onVerified={() => navigate("/resetpassword")} onBack={() => setStep("email")} />
+          <SuccessStep email={sentEmail} />
         )}
       </div>
     </div>

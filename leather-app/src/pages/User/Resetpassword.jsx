@@ -27,10 +27,12 @@ const ResetPassword = () => {
     general: "",
   });
 
-  // Guard: redirect if verification was not done
+  // Guard: redirect if verification was not done and oobCode is not in URL
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oobCode = params.get("oobCode");
     const verified = JSON.parse(sessionStorage.getItem("fp_verified") || "{}");
-    if (!verified?.verified) {
+    if (!oobCode && !verified?.verified) {
       navigate("/forgotPassword");
     }
   }, [navigate]);
