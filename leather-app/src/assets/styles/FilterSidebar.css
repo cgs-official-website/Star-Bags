@@ -183,7 +183,7 @@
   flex: 1;
 }
 
-/* PRICE SECTION - NO WHITE FLASH/BLINK */
+/* PRICE SECTION — pure div-based, no native radio */
 .price-options {
   display: flex;
   flex-direction: column;
@@ -199,40 +199,31 @@
   color: #212121;
   padding: 10px 4px;
   border-radius: 4px;
-  background: transparent !important;
-  background-color: transparent !important;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: none !important;
+  touch-action: manipulation;
+  transition: background 0.1s;
 }
 
-/* REMOVE WHITE FLASH ON CLICK */
-.price-option:active,
-.price-option:focus,
-.price-option:focus-visible,
-.price-option:active:focus,
-.price-option:hover {
-  background: transparent !important;
-  background-color: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
-  opacity: 1 !important;
-  transform: none !important;
+.price-option:active {
+  background: #f5f3ff;
 }
 
-/* Prevent any pseudo-elements */
-.price-option::before,
-.price-option::after,
-.price-option:active::before,
-.price-option:active::after {
-  display: none !important;
-  content: none !important;
-}
-
-/* Custom Radio */
+/* Custom radio circle — state driven by inline styles from JS */
 .custom-radio {
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  border: 2px solid #9e9e9e;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background-color 0.15s;
+  box-sizing: border-box;
+  position: relative;
+  flex-shrink: 0;
 }
 
 .price-label {
@@ -253,7 +244,7 @@
 .size-btn {
   padding: 6px 12px;
   border: 1px solid #e0e0e0;
-  background: transparent;
+  background: white;
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
@@ -359,7 +350,9 @@
   font-weight: 400;
 }
 
-/* Dark Mode Styles */
+
+/* REMOVED: Apply Button Styles - No longer needed */
+
 body.dark-theme .filter-sidebar-flipkart,
 [data-theme="dark"] .filter-sidebar-flipkart {
   background: var(--surface-alt) !important;
@@ -380,6 +373,8 @@ body.dark-theme .price-option,
 [data-theme="dark"] .price-option,
 body.dark-theme .checkbox-item,
 [data-theme="dark"] .checkbox-item,
+body.dark-theme .radio-item,
+[data-theme="dark"] .radio-item,
 body.dark-theme .capacity-value,
 [data-theme="dark"] .capacity-value {
   color: var(--text) !important;
@@ -420,11 +415,31 @@ body.dark-theme .active-filter-tag,
   color: var(--text) !important;
 }
 
+body.dark-theme .active-filter-tag:hover,
+[data-theme="dark"] .active-filter-tag:hover {
+  background: rgba(255,255,255,0.05) !important;
+}
+
+body.dark-theme .filter-section-header,
+[data-theme="dark"] .filter-section-header {
+  background: transparent !important;
+}
+
+body.dark-theme .filter-section-header:hover,
+[data-theme="dark"] .filter-section-header:hover {
+  background: rgba(255,255,255,0.04) !important;
+}
+
 body.dark-theme .category-btn,
 [data-theme="dark"] .category-btn {
   background: var(--surface) !important;
   color: var(--text) !important;
   border-color: var(--border) !important;
+}
+
+body.dark-theme .category-btn:hover,
+[data-theme="dark"] .category-btn:hover {
+  background: rgba(139,92,246,0.08) !important;
 }
 
 body.dark-theme .category-btn.active,
@@ -434,11 +449,26 @@ body.dark-theme .category-btn.active,
   border-color: transparent !important;
 }
 
+body.dark-theme .price-option input[type="radio"],
+[data-theme="dark"] .price-option input[type="radio"],
+body.dark-theme .checkbox-item input[type="checkbox"],
+[data-theme="dark"] .checkbox-item input[type="checkbox"],
+body.dark-theme .radio-item input[type="radio"],
+[data-theme="dark"] .radio-item input[type="radio"] {
+  accent-color: var(--button-bg) !important;
+}
+
 body.dark-theme .size-btn,
 [data-theme="dark"] .size-btn {
   background: var(--surface) !important;
   color: var(--text) !important;
   border-color: var(--border) !important;
+}
+
+body.dark-theme .size-btn:hover,
+[data-theme="dark"] .size-btn:hover {
+  border-color: var(--button-bg) !important;
+  color: var(--button-bg) !important;
 }
 
 body.dark-theme .size-btn.active,
@@ -453,25 +483,18 @@ body.dark-theme .filter-section,
   border-bottom-color: var(--border) !important;
 }
 
-/* Global fixes for no white flash */
-* {
-  -webkit-tap-highlight-color: transparent !important;
-  -webkit-touch-callout: none !important;
+body.dark-theme .remove-filter-btn,
+[data-theme="dark"] .remove-filter-btn,
+body.dark-theme .show-more-btn,
+[data-theme="dark"] .show-more-btn {
+  color: var(--text-secondary) !important;
 }
 
-*:active,
-*:focus,
-*:focus-visible {
-  outline: none !important;
+body.dark-theme .show-more-btn:hover,
+[data-theme="dark"] .show-more-btn:hover {
+  color: var(--button-bg) !important;
 }
 
-button:active,
-button:focus,
-div:active,
-div:focus {
-  background: transparent !important;
-  outline: none !important;
-}
 
 /* Responsive */
 @media (max-width: 992px) {
@@ -480,7 +503,11 @@ div:focus {
   }
 }
 
+
+
+
 /* Mobile/Tablet specific optimizations */
+
 @media (max-width: 768px) {
   .price-option {
     padding: 12px 4px;
@@ -499,6 +526,9 @@ div:focus {
   .checkbox-item {
     touch-action: manipulation;
   }
+
+}
+
   
   /* Remove hover effects on mobile */
   .category-btn:hover,
@@ -507,4 +537,4 @@ div:focus {
   .filter-section-header:hover {
     background: inherit;
   }
-}
+  
