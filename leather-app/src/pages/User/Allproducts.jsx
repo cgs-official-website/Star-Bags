@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useSearch } from '../../context/SearchContext';
 import { useProducts } from '../../context/ProductsContext';
 import SortBySelect from '../../components/User/SortBySelect';
-import FilterSideBar, { DEFAULT_FILTERS } from '../../components/User/FilterSideBar';
+import FilterSideBar, { DEFAULT_FILTERS } from '../../components/User/Filtersidebar';
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProductCard from "../../components/User/ProductCard";
