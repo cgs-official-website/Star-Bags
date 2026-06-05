@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
 import { TbCreditCardPay } from "react-icons/tb";
@@ -13,7 +12,16 @@ import PaymentPopup from "../../components/User/PaymentPopup";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  setDoc,
+} from "firebase/firestore";
 import "../../assets/styles/Cart.css";
 
 const BillAddress = () => {
@@ -22,12 +30,16 @@ const BillAddress = () => {
   const { cart, setCart } = useWishlist();
   const { currentUser } = useAuth();
 
-  // ─── STAGE 1: UNPACK DYNAMIC STATE ROUTING MATRIX ───
+  // ─── STAGE 1: UNPACK STATE ───
   const {
     allCartItems = [],
     cartItems: initialSelected = [],
     rawTotal: passedRawTotal = 0,
     couponPercentageLabel = "",
+    // product-level discount (MRP - selling price) passed from Checkout
+    productDiscountTotal: passedProductDiscountTotal = 0,
+    // coupon discount passed from Checkout (category-aware, already calculated)
+    couponDiscount: passedCouponDiscount = 0,
     appliedCouponCode = "",
     appliedCouponId = "",
     selectedAddress = null,
@@ -42,6 +54,9 @@ const BillAddress = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [popupDetails, setPopupDetails] = useState({});
 
+  // ─── SINGLE-SUBMIT GUARD: prevents double order on rapid clicks ───
+  const isSubmittingRef = useRef(false);
+
   useEffect(() => {
     if (initialSelected.length === 0) {
       navigate("/cart");
@@ -49,7 +64,16 @@ const BillAddress = () => {
     window.scrollTo(0, 0);
   }, [initialSelected, navigate]);
 
-  // ─── STAGE 3: CALCULATIONS AND METRIC LEDGER PARSING ───
+  // ─── STAGE 3: CALCULATIONS ───
+  //
+  //  rawTotal            = MRP total of items
+  //  productDiscount     = MRP - selling price   (product-level markdown)
+  //  baseSubTotal        = selling price total    (after product discount)
+  //  couponDiscount      = coupon savings         (category-specific, from Checkout)
+  //  subTotalAfterCoupon = baseSubTotal - couponDiscount  ← GST base
+  //  gstTotal            = subTotalAfterCoupon × 18%
+  //  finalTotal          = subTotalAfterCoupon + gstTotal
+  //
   const totalItemsCount = cartItems.reduce(
     (acc, item) => acc + (item.qty || 1),
     0,
@@ -68,17 +92,24 @@ const BillAddress = () => {
     (acc, item) => acc + Number(item.price) * (item.qty || 1),
     0,
   );
-  const activeDiscountTotal =
+
+  // Product-level discount: MRP - selling price
+  const activeProductDiscount =
     activeRawTotal > activeBaseSubTotal
       ? activeRawTotal - activeBaseSubTotal
+      : Number(passedProductDiscountTotal) || 0;
+
+  // Coupon discount: use what Checkout calculated (category-aware)
+  const activeCouponDiscount = Number(passedCouponDiscount) || 0;
+
+  // SubTotal after coupon is the GST base
+  const activeSubTotalAfterCoupon =
+    activeBaseSubTotal - activeCouponDiscount > 0
+      ? activeBaseSubTotal - activeCouponDiscount
       : 0;
 
-  const couponPercentValue = parseFloat(couponPercentageLabel) || 0;
-  const activeCouponDiscount = (activeBaseSubTotal * couponPercentValue) / 100;
-
-  const activeCalculatedSubTotal = activeBaseSubTotal - activeCouponDiscount;
-  const activeGstTotal = Math.round(activeCalculatedSubTotal * 0.18);
-  const activeFinalTotal = activeCalculatedSubTotal + activeGstTotal;
+  const activeGstTotal = Math.round(activeSubTotalAfterCoupon * 0.18);
+  const activeFinalTotal = activeSubTotalAfterCoupon + activeGstTotal;
 
   const increaseQty = (id) => {
     setCartItems((prev) =>
@@ -113,35 +144,53 @@ const BillAddress = () => {
   // ─── STAGE 4: RAZORPAY SCRIPT LOADER ───
   const loadRazorpayScript = () =>
     new Promise((resolve) => {
-      if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+      if (
+        document.querySelector(
+          'script[src="https://checkout.razorpay.com/v1/checkout.js"]',
+        )
+      ) {
         resolve(true);
         return;
       }
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
       script.onload = () => resolve(true);
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
 
-  // ─── STAGE 5: BUILD ORDER PAYLOADS (shared between COD & Online) ───
+  // ─── STAGE 5: BUILD ORDER PAYLOADS ───
   const buildOrderPayloads = () => {
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
     const dateString = `${year}${month}${day}`;
-    const displayDate = today.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    const displayTime = today.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const displayDate = today.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const displayTime = today.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
     const payloads = cartItems.map((item, idx) => {
-      const productCategory = item.category?.toLowerCase() || 'bag';
-      let catToken = 'BAG';
-      if (productCategory === 'wallet') catToken = 'WLT';
-      if (productCategory === 'belt') catToken = 'BLT';
-      const categoryName = productCategory === 'wallet' ? 'Wallet' : (productCategory === 'belt' ? 'Belt' : 'Bag');
-      
-      const randomCount = String(Math.floor(Math.random() * 900) + (idx + 1)).padStart(3, '0');
+      const productCategory = item.category?.toLowerCase() || "bag";
+      let catToken = "BAG";
+      if (productCategory === "wallet") catToken = "WLT";
+      if (productCategory === "belt") catToken = "BLT";
+      const categoryName =
+        productCategory === "wallet"
+          ? "Wallet"
+          : productCategory === "belt"
+            ? "Belt"
+            : "Bag";
+
+      const randomCount = String(
+        Math.floor(Math.random() * 900) + (idx + 1),
+      ).padStart(3, "0");
       const uniqueOrderId = `SBO-${catToken}-${dateString}-${randomCount}`;
 
       return {
@@ -150,14 +199,15 @@ const BillAddress = () => {
         product: item.name,
         category: catToken,
         categoryName,
-        status: 'Order Placed',
+        status: "Order Placed",
         time: displayDate,
         displayTime,
         rating: item.rating || 4.2,
         reviews: item.reviews || 120,
-        deliveryDate: 'Expected in 5 Days',
+        deliveryDate: "Expected in 5 Days",
         discountedPrice: Number(item.price) * (item.qty || 1),
-        originalPrice: (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
+        originalPrice:
+          (Number(item.realPrice) || Number(item.price)) * (item.qty || 1),
         quantity: item.qty,
         image: item.image,
         brand: item.brand,
@@ -171,14 +221,23 @@ const BillAddress = () => {
   };
 
   // ─── STAGE 6: SAVE ORDERS TO FIRESTORE ───
-  const saveOrdersToFirestore = async (orderPayloads, paymentModeStr, razorpayPaymentId = null) => {
+  const saveOrdersToFirestore = async (
+    orderPayloads,
+    paymentModeStr,
+    razorpayPaymentId = null,
+  ) => {
     for (const orderPayload of orderPayloads) {
+      const itemProductDiscount = Math.max(
+        0,
+        orderPayload.originalPrice - orderPayload.discountedPrice,
+      );
+
       const dbOrderPayload = {
         id: orderPayload.id,
-        userId: currentUser ? currentUser.uid : 'guest',
+        userId: currentUser ? currentUser.uid : "guest",
         productId: orderPayload.productId,
         product: orderPayload.product,
-        status: 'Order Placed',
+        status: "Order Placed",
         time: orderPayload.time,
         rating: orderPayload.rating,
         reviews: orderPayload.reviews,
@@ -206,29 +265,35 @@ const BillAddress = () => {
           },
         ],
         customerDetails: {
-          name: selectedAddress?.name || 'Customer',
+          name: selectedAddress?.name || "Customer",
           shippingAddress: selectedAddress
             ? `${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pin}`
-            : 'No shipping address details',
-          email: currentUser ? currentUser.email : 'guest@starbags.com',
-          mobile: selectedAddress?.mobile || '',
+            : "No shipping address details",
+          email: currentUser ? currentUser.email : "guest@starbags.com",
+          mobile: selectedAddress?.mobile || "",
         },
         orderDate: new Date().toISOString(),
         paymentMode: paymentModeStr,
-        paymentStatus: paymentModeStr === 'COD' ? 'Pending' : 'Success',
+        paymentStatus: paymentModeStr === "COD" ? "Pending" : "Success",
         paymentDetails: {
           itemsCount: orderPayload.quantity,
           itemsTotal: orderPayload.originalPrice,
-          discount: Math.max(0, orderPayload.originalPrice - orderPayload.discountedPrice),
+          // product-level discount stored separately
+          discount: itemProductDiscount,
+          // coupon discount stored separately — TrackOrder & Invoice read from here
+          couponDiscount: activeCouponDiscount,
+          appliedCouponCode: appliedCouponCode || "",
           subTotal: orderPayload.discountedPrice,
           gst: Math.round(orderPayload.discountedPrice * 0.18),
           shippingFee: 0,
-          total: orderPayload.discountedPrice + Math.round(orderPayload.discountedPrice * 0.18),
+          total:
+            orderPayload.discountedPrice +
+            Math.round(orderPayload.discountedPrice * 0.18),
           ...(razorpayPaymentId ? { razorpayPaymentId } : {}),
         },
-        orderType: 'Direct',
+        orderType: "Direct",
       };
-      await setDoc(doc(db, 'orders', orderPayload.id), dbOrderPayload);
+      await setDoc(doc(db, "orders", orderPayload.id), dbOrderPayload);
     }
   };
 
@@ -237,11 +302,14 @@ const BillAddress = () => {
     if (setCart) {
       setCart((prevCart) => {
         const updated = (prevCart || []).filter(
-          (item) => !cartItems.some((sel) => sel.id === item.id || sel.name === item.name)
+          (item) =>
+            !cartItems.some(
+              (sel) => sel.id === item.id || sel.name === item.name,
+            ),
         );
-        localStorage.setItem('user_cart', JSON.stringify(updated));
-        localStorage.setItem('cart', JSON.stringify(updated));
-        localStorage.setItem('cartItems', JSON.stringify(updated));
+        localStorage.setItem("user_cart", JSON.stringify(updated));
+        localStorage.setItem("cart", JSON.stringify(updated));
+        localStorage.setItem("cartItems", JSON.stringify(updated));
         return updated;
       });
     }
@@ -254,14 +322,17 @@ const BillAddress = () => {
       let couponDocRef = null;
       let couponSnap = null;
       if (appliedCouponId) {
-        couponDocRef = doc(db, 'coupons', appliedCouponId);
+        couponDocRef = doc(db, "coupons", appliedCouponId);
         couponSnap = await getDoc(couponDocRef);
       }
       if (!couponSnap || !couponSnap.exists()) {
-        const q = query(collection(db, 'coupons'), where('code', '==', appliedCouponCode));
+        const q = query(
+          collection(db, "coupons"),
+          where("code", "==", appliedCouponCode),
+        );
         const querySnap = await getDocs(q);
         if (!querySnap.empty) {
-          couponDocRef = doc(db, 'coupons', querySnap.docs[0].id);
+          couponDocRef = doc(db, "coupons", querySnap.docs[0].id);
           couponSnap = querySnap.docs[0];
         }
       }
@@ -269,109 +340,134 @@ const BillAddress = () => {
         const newUsedCount = (Number(couponSnap.data().usedCount) || 0) + 1;
         await updateDoc(couponDocRef, { usedCount: newUsedCount });
         if (currentUser) {
-          const userDocRef = doc(db, 'users', currentUser.uid);
+          const userDocRef = doc(db, "users", currentUser.uid);
           const userSnap = await getDoc(userDocRef);
           if (userSnap.exists()) {
             const usedCoupons = userSnap.data().usedCoupons || {};
             const couponKey = couponDocRef.id;
             await updateDoc(userDocRef, {
-              usedCoupons: { ...usedCoupons, [couponKey]: (Number(usedCoupons[couponKey]) || 0) + 1 },
+              usedCoupons: {
+                ...usedCoupons,
+                [couponKey]: (Number(usedCoupons[couponKey]) || 0) + 1,
+              },
             });
           }
         }
       }
     } catch (err) {
-      console.error('Error updating coupon usedCount:', err);
+      console.error("Error updating coupon usedCount:", err);
     }
   };
 
   // ─── STAGE 9: MASTER ORDER SUBMIT HANDLER ───
+  // Uses a ref-based guard so rapid double-clicks only fire ONE order.
   const handlePlaceOrderSubmit = async () => {
+    // ─── DOUBLE-SUBMIT GUARD ───
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
 
     if (!selectedAddress) {
-      alert('Please ensure a valid shipping destination address profile is active.');
+      alert(
+        "Please ensure a valid shipping destination address profile is active.",
+      );
+      isSubmittingRef.current = false;
       return;
     }
 
     const newOrderPayloads = buildOrderPayloads();
 
-    // ── COD: save immediately then show popup ──────────────────────────
-    if (paymentMethod === 'cod') {
+    // ── COD ────────────────────────────────────────────────────────────────
+    if (paymentMethod === "cod") {
       try {
-        await saveOrdersToFirestore(newOrderPayloads, 'COD');
+        await saveOrdersToFirestore(newOrderPayloads, "COD");
         await updateCouponUsageIfApplied();
         purgeOrderedItemsFromCart();
       } catch (err) {
-        console.error('Error placing COD order:', err);
+        console.error("Error placing COD order:", err);
+        isSubmittingRef.current = false;
+        return;
       }
       setIsPopupOpen(true);
       setTimeout(() => {
         setIsPopupOpen(false);
-        navigate('/orders', { state: { newOrderPayloads } });
+        isSubmittingRef.current = false;
+        navigate("/orders", { state: { newOrderPayloads } });
       }, 3000);
       return;
     }
 
-    // ── ONLINE: open Razorpay checkout ────────────────────────────────
+    // ── ONLINE: Razorpay ───────────────────────────────────────────────────
     setIsOrderingLoader(true);
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {
       setIsOrderingLoader(false);
-      alert('Failed to load payment gateway. Please check your internet connection and try again.');
+      isSubmittingRef.current = false;
+      alert(
+        "Failed to load payment gateway. Please check your internet connection and try again.",
+      );
       return;
     }
     setIsOrderingLoader(false);
 
-    const amountInPaise = Math.round(activeFinalTotal * 100); // Razorpay expects paise
+    const amountInPaise = Math.round(activeFinalTotal * 100);
     const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
     const options = {
       key: razorpayKey,
       amount: amountInPaise,
-      currency: 'INR',
-      name: 'Star Bags',
+      currency: "INR",
+      name: "Star Bags",
       description: `Order for ${cartItems.length} item(s)`,
-      image: '/src/assets/images/brand-logo-dark.png',
+      image: "/src/assets/images/brand-logo-dark.png",
       prefill: {
-        name: selectedAddress?.name || '',
-        email: currentUser?.email || '',
-        contact: selectedAddress?.mobile || '',
+        name: selectedAddress?.name || "",
+        email: currentUser?.email || "",
+        contact: selectedAddress?.mobile || "",
       },
       notes: {
         address: selectedAddress
           ? `${selectedAddress.address}, ${selectedAddress.city}, ${selectedAddress.state} - ${selectedAddress.pin}`
-          : '',
-        orderId: newOrderPayloads[0]?.id || '',
+          : "",
+        orderId: newOrderPayloads[0]?.id || "",
       },
-      theme: { color: '#8b5cf6' },
+      theme: { color: "#8b5cf6" },
       modal: {
         ondismiss: () => {
-          // User closed the modal without paying — do nothing
-          console.log('Razorpay modal dismissed by user.');
+          // User closed Razorpay without paying — release the guard
+          isSubmittingRef.current = false;
         },
       },
       handler: async (response) => {
-        // Payment successful — save orders then navigate
         const { razorpay_payment_id } = response;
         try {
-          await saveOrdersToFirestore(newOrderPayloads, 'Online', razorpay_payment_id);
+          await saveOrdersToFirestore(
+            newOrderPayloads,
+            "Online",
+            razorpay_payment_id,
+          );
           await updateCouponUsageIfApplied();
           purgeOrderedItemsFromCart();
         } catch (err) {
-          console.error('Error saving online order:', err);
+          console.error("Error saving online order:", err);
+          isSubmittingRef.current = false;
+          return;
         }
         setIsPopupOpen(true);
         setTimeout(() => {
           setIsPopupOpen(false);
-          navigate('/orders', { state: { newOrderPayloads } });
+          isSubmittingRef.current = false;
+          navigate("/orders", { state: { newOrderPayloads } });
         }, 3000);
       },
     };
 
     const rzp = new window.Razorpay(options);
-    rzp.on('payment.failed', (response) => {
-      console.error('Razorpay payment failed:', response.error);
-      alert(`Payment failed: ${response.error.description}. Please try again.`);
+    rzp.on("payment.failed", (response) => {
+      console.error("Razorpay payment failed:", response.error);
+      isSubmittingRef.current = false;
+      alert(
+        `Payment failed: ${response.error.description}. Please try again.`,
+      );
     });
     rzp.open();
   };
@@ -395,32 +491,38 @@ const BillAddress = () => {
     >
       <Navbar />
 
-
-
       {isOrderingLoader && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             inset: 0,
-            backgroundColor: 'rgba(255, 255, 255, 0.96)',
-            backdropFilter: 'blur(5px)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
+            backgroundColor: "rgba(255, 255, 255, 0.96)",
+            backdropFilter: "blur(5px)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
             zIndex: 20000,
           }}
         >
           <div
             className="spinner-border"
-            style={{ width: '3.8rem', height: '3.8rem', color: '#8b5cf6', borderWidth: '4px' }}
+            style={{
+              width: "3.8rem",
+              height: "3.8rem",
+              color: "#8b5cf6",
+              borderWidth: "4px",
+            }}
             role="status"
           />
-          <h4 className="fw-bold text-dark mt-4 mb-2">Loading Payment Gateway...</h4>
-          <p className="text-muted" style={{ fontSize: '0.9rem' }}>Please wait while we connect to Razorpay securely.</p>
+          <h4 className="fw-bold text-dark mt-4 mb-2">
+            Loading Payment Gateway...
+          </h4>
+          <p className="text-muted" style={{ fontSize: "0.9rem" }}>
+            Please wait while we connect to Razorpay securely.
+          </p>
         </div>
       )}
-
 
       <PaymentPopup
         isOpen={isPopupOpen}
@@ -443,7 +545,6 @@ const BillAddress = () => {
           <div className="cart-left">
             <div className="cart-items">
               {cartItems.map((item, index) => (
-
                 <CartItem
                   key={item.id || index}
                   item={item}
@@ -452,17 +553,25 @@ const BillAddress = () => {
                   showActions={false}
                   showCheckbox={false}
                 />
-
               ))}
             </div>
           </div>
 
           <div className="cart-right">
+            {/*
+              ─── ORDER SUMMARY: same breakdown as Checkout ───
+              rawTotal          = MRP total
+              discountTotal     = product discount only  (MRP - selling price)
+              couponDiscount    = coupon savings          (separate line)
+              subTotal          = selling price - couponDiscount
+              gstTotal          = subTotal × 18%
+              finalTotal        = subTotal + gstTotal
+            */}
             <OrderSummary
               totalItemsCount={totalItemsCount}
               rawTotal={activeRawTotal}
-              discountTotal={activeDiscountTotal + activeCouponDiscount}
-              subTotal={activeCalculatedSubTotal}
+              discountTotal={activeProductDiscount}
+              subTotal={activeSubTotalAfterCoupon}
               couponDiscount={activeCouponDiscount}
               couponPercentageLabel={couponPercentageLabel}
               gstTotal={activeGstTotal}
@@ -478,7 +587,6 @@ const BillAddress = () => {
               </div>
               <div className="address-content">
                 {selectedAddress ? (
-
                   <p>
                     <strong>{selectedAddress.name}</strong>
                     <br />
@@ -488,7 +596,6 @@ const BillAddress = () => {
                     {selectedAddress.pin}
                     <br />
                     Mobile: {selectedAddress.mobile}
-
                   </p>
                 ) : (
                   <p className="text-muted">
@@ -502,7 +609,6 @@ const BillAddress = () => {
               <h6 className="payment-title">Payment method</h6>
               <p className="payment-subtitle">Choose a payment method</p>
 
-
               <div
                 className={`payment-card ${paymentMethod === "cod" ? "active-payment" : ""}`}
                 onClick={() => setPaymentMethod("cod")}
@@ -513,18 +619,15 @@ const BillAddress = () => {
                     checked={paymentMethod === "cod"}
                     onChange={() => setPaymentMethod("cod")}
                   />
-
                   <div className="payment-icon">
                     <GiMoneyStack />
                   </div>
-
                   <div>
                     <p className="fw-bold m-0">Cash on delivery</p>
                     <p className="m-0">you pay when your order is delivered</p>
                   </div>
                 </div>
               </div>
-
 
               <div
                 className={`payment-card ${paymentMethod === "online" ? "active-payment" : ""}`}
@@ -536,11 +639,9 @@ const BillAddress = () => {
                     checked={paymentMethod === "online"}
                     onChange={() => setPaymentMethod("online")}
                   />
-
                   <div className="payment-icon">
                     <TbCreditCardPay />
                   </div>
-
                   <div>
                     <p className="fw-bold m-0">Online payment</p>
                     <p className="m-0">
@@ -553,12 +654,10 @@ const BillAddress = () => {
                 </div>
               </div>
 
-
               <button
                 className="continue-payment-btn"
                 onClick={handlePlaceOrderSubmit}
               >
-
                 {paymentMethod === "cod" ? "Place Order" : "Continue Payment"}
               </button>
             </div>

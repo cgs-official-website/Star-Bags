@@ -1,19 +1,34 @@
 import html2pdf from "html2pdf.js";
 import brandLogoUrl from "../assets/images/brand-logo-light.png";
 
+// ─── INVOICE CALCULATION LOGIC (mirrors TrackOrder & OrderSummary) ───
+//
+//  itemsPrice   = MRP total (originalPrice)
+//  savings      = product-level markdown  (MRP - selling price)
+//  couponDiscount = coupon/promo savings  (category-specific, from Checkout)
+//  subTotal     = itemsPrice - savings - couponDiscount  ← GST base
+//  gst          = subTotal × 18%
+//  total        = subTotal + gst
+//
 export async function generateInvoicePDF({
   order,
   userAddress,
   itemsPrice,
   savings,
-  finalPrice,
+  couponDiscount = 0,
+  finalPrice,      // this param is kept for backward-compat but not used for total calc
 }) {
   if (!order) return;
 
   const qty = Number(order.quantity) || 1;
   const origTotal = Number(itemsPrice) || 0;
   const disc = Number(savings) || 0;
-  const subTotal = origTotal - disc;
+  const cpnDisc = Number(couponDiscount) || 0;
+
+  // subTotal is the GST base — after BOTH product discount AND coupon discount
+  const subTotal = origTotal - disc - cpnDisc > 0
+    ? origTotal - disc - cpnDisc
+    : 0;
   const gst = Math.round(subTotal * 0.18 * 100) / 100;
   const total = Math.round(subTotal + gst);
 
@@ -37,7 +52,6 @@ export async function generateInvoicePDF({
   const addrState = addr.state || "";
   const addrPin = addr.pin || "";
   const addrMobile = addr.mobile || addr.contact || order.mobileNumber || "";
-  // ── city/state/pin on its own line ──────────────────────────────────────────
   const cityLine =
     [addrCity, addrState].filter(Boolean).join(", ") +
     (addrPin ? ` - ${addrPin}` : "");
@@ -52,6 +66,10 @@ export async function generateInvoicePDF({
 
   const productImg = order.image || order.img || "";
   const payMode = order.paymentMode || order.paymentMethod || "Online";
+
+  // Coupon code badge for invoice
+  const appliedCouponCode =
+    order.paymentDetails?.appliedCouponCode || "";
 
   const html = `
     <div id="star-invoice" style="
@@ -212,31 +230,66 @@ export async function generateInvoicePDF({
 
       <!-- PRICE SUMMARY -->
       <div style="display:flex; justify-content:flex-end; margin-bottom:32px;">
-        <div style="width:265px;">
+        <div style="width:295px;">
+
+          <!-- Items total (MRP) -->
           <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
-            <span style="color:#374151;">Items(${qty})</span>
+            <span style="color:#374151;">Items (${qty})</span>
             <span style="color:#374151; font-weight:500; white-space:nowrap;">${fmt(origTotal)}</span>
           </div>
+
+          <!-- Product discount row (only when present) -->
+          ${disc > 0 ? `
           <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
-            <span style="color:#374151;">Discount</span>
+            <span style="color:#374151;">Product discount</span>
             <span style="color:#22c55e; font-weight:500; white-space:nowrap;">-${fmt(disc)}</span>
-          </div>
+          </div>` : ""}
+
+          <!-- Coupon discount row (only when present) -->
+          ${cpnDisc > 0 ? `
+          <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
+            <span style="color:#374151; display:flex; align-items:center; gap:6px;">
+              Coupon discount
+              ${appliedCouponCode ? `<span style="background:#f0fdf4; display:none; color:#15803d; border:1px solid #bbf7d0; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:700;">${appliedCouponCode}</span>` : ""}
+            </span>
+            <span style="color:#22c55e; font-weight:500; white-space:nowrap;">-${fmt(cpnDisc)}</span>
+          </div>` : ""}
+
+          <!-- Sub total = MRP - product discount - coupon discount -->
           <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
             <span style="color:#374151;">Sub total</span>
             <span style="color:#374151; font-weight:500; white-space:nowrap;">${fmt(subTotal)}</span>
           </div>
+
+          <!-- GST on sub total -->
           <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px solid #f3f4f6;">
             <span style="color:#374151;">GST Include (18%)</span>
             <span style="color:#374151; font-weight:500; white-space:nowrap;">${fmt(gst)}</span>
           </div>
+
+          <!-- Shipping -->
           <div style="display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-bottom:1px dashed #e5e7eb;">
             <span style="color:#374151;">Shipping Fee</span>
             <span style="color:#374151; font-weight:500;">Free</span>
           </div>
+
+          <!-- Grand Total -->
           <div style="display:flex; justify-content:space-between; font-size:14px; padding:10px 0 4px 0;">
             <span style="font-weight:700; color:#1a1a2e;">Total</span>
             <span style="font-weight:800; color:#7c3aed; font-size:15px; white-space:nowrap;">${fmt(total)}</span>
           </div>
+
+          <!-- Savings callout (only when something was saved) -->
+          ${(disc > 0 || cpnDisc > 0) ? `
+          <div style="
+            display:none; align-items:center; justify-content:center; gap:6px;
+            background:#f0fdf4; border:1px solid #bbf7d0;
+            border-radius:6px; padding:6px 12px; margin-top:6px;
+            font-size:11px; color:#15803d; font-weight:600;
+          ">
+            🎉 You saved ${fmt(disc + cpnDisc)} on this order!
+          </div>` : ""}
+
         </div>
       </div>
 
