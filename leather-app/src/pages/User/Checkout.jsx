@@ -32,27 +32,7 @@ import "../../assets/styles/checkout.css";
 // ─── HELPER: normalize subCategory string for comparison ───
 const normSub = (str = "") => str.toLowerCase().trim();
 
-// ─── HELPER: get subtotal for a coupon based on category/subCategory ───
-const getCouponSubtotal = (coupon, subtotals) => {
-  const cat = (coupon.category || "").toLowerCase().trim();
-  const sub = normSub(coupon.subCategory);
-
-  if (cat === "all products") return subtotals.base;
-  if (cat === "wallet") return subtotals.wallet;
-  if (cat === "belt") return subtotals.belt;
-  if (cat === "bag") {
-    if (sub === "hand bag") return subtotals.handBag;
-    if (sub === "sling bag") return subtotals.slingBag;
-    if (sub === "tolly bag" || sub === "trolley bag") return subtotals.tollyBag;
-    if (sub === "travel bag") return subtotals.travelBag;
-    if (sub === "school bag") return subtotals.schoolBag;
-    if (sub === "office bag") return subtotals.officeBag;
-    if (sub === "lunch bag") return subtotals.lunchBag;
-    if (sub === "laptop bag") return subtotals.laptopBag;
-    return subtotals.totalBag;
-  }
-  return 0;
-};
+// Removed hardcoded getCouponSubtotal
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -223,19 +203,19 @@ const Checkout = () => {
   // productDiscountTotal = MRP - selling price (product-level savings only)
   const productDiscountTotal = Math.round(rawTotal - baseSubTotal);
 
-  const subtotals = {
-    base: baseSubTotal,
-    wallet: getSubtotalByCategory("wallet"),
-    belt: getSubtotalByCategory("belt"),
-    handBag: getSubtotalByCategory("bag", "hand bag"),
-    slingBag: getSubtotalByCategory("bag", "sling bag"),
-    tollyBag: getSubtotalByCategory("bag", "tolly bag"),
-    travelBag: getSubtotalByCategory("bag", "travel bag"),
-    schoolBag: getSubtotalByCategory("bag", "school bag"),
-    officeBag: getSubtotalByCategory("bag", "office bag"),
-    lunchBag: getSubtotalByCategory("bag", "lunch bag"),
-    laptopBag: getSubtotalByCategory("bag", "laptop bag"),
-    totalBag: getSubtotalByCategory("bag"),
+  // ─── DYNAMIC COUPON SUBTOTAL CALCULATION ───
+  const getCouponSubtotal = (coupon) => {
+    const cat = (coupon.category || "").toLowerCase().trim();
+    const sub = normSub(coupon.subCategory);
+
+    if (cat === "all products" || cat === "all") return baseSubTotal;
+    
+    // If coupon is for "All Bags" or similar
+    if (sub === "all bags" || sub === "all" || sub === "") {
+      return getSubtotalByCategory(cat, "all");
+    }
+    
+    return getSubtotalByCategory(cat, sub);
   };
 
   // ─── COUPON DISCOUNT CALCULATION ───
@@ -246,7 +226,7 @@ const Checkout = () => {
       (c) => (c.code || "").toUpperCase() === couponInput.trim().toUpperCase(),
     );
     if (matched) {
-      const activeSubtotal = getCouponSubtotal(matched, subtotals);
+      const activeSubtotal = getCouponSubtotal(matched);
       if (activeSubtotal >= matched.minThreshold) {
         calculatedCouponDiscount = Math.round((activeSubtotal * matched.percentage) / 100);
       }
@@ -269,7 +249,7 @@ const Checkout = () => {
 
   // ─── VISIBLE COUPONS FILTER ───
   const visibleCoupons = dbCoupons.filter((c) => {
-    const activeSubtotal = getCouponSubtotal(c, subtotals);
+    const activeSubtotal = getCouponSubtotal(c);
     return activeSubtotal > 0;
   });
 
@@ -285,7 +265,7 @@ const Checkout = () => {
       return;
     }
 
-    const activeSubtotal = getCouponSubtotal(matched, subtotals);
+    const activeSubtotal = getCouponSubtotal(matched);
 
     if (activeSubtotal >= matched.minThreshold) {
       setCouponPercentLabel(matched.offer);
@@ -530,10 +510,7 @@ const Checkout = () => {
                   </p>
                 ) : (
                   visibleCoupons.map((couponItem) => {
-                    const subTotalFeedValue = getCouponSubtotal(
-                      couponItem,
-                      subtotals,
-                    );
+                      const subTotalFeedValue = getCouponSubtotal(couponItem);
                     return (
                       <CouponCard
                         key={couponItem.code}

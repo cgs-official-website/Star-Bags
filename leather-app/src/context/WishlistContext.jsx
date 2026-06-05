@@ -274,7 +274,7 @@ export const WishlistProvider = ({ children }) => {
         className="global-toast-container"
         style={{
           position: "fixed",
-          top: "24px",
+          top: "80px",
           right: "24px",
           zIndex: 999999,
           display: "flex",

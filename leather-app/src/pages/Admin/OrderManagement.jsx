@@ -5,7 +5,7 @@ import AdminHeader from '../../components/Admin/AdminHeader';
 import '../../assets/styles/OrderManagement.css';
 import { TableSkeleton } from '../../components/Admin/AdminSkeleton';
 import toast from 'react-hot-toast';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 
 function OrderManagement() {
@@ -50,6 +50,7 @@ function OrderManagement() {
 
           list.push({
             id: data.id || docSnap.id,
+            docId: docSnap.id,
             img: data.items?.[0]?.img || '',
             productName: data.items?.[0]?.productName || '',
             customer: data.customerDetails?.name || '',
@@ -111,6 +112,35 @@ function OrderManagement() {
     }
   };
 
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, { status: newStatus });
+      return true;
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      return false;
+    }
+  };
+
+  const handleStatusChange = async (e, orderId, docId, newStatus) => {
+    e.stopPropagation(); // Prevent row click navigation
+    
+    // Attempt Firebase update
+    const success = await updateOrderStatus(docId, newStatus);
+    
+    if (success) {
+      // Update local state
+      setOrders(prevOrders => 
+        prevOrders.map(o => 
+          o.id === orderId ? { ...o, status: newStatus } : o
+        )
+      );
+      toast.success("Order status updated successfully");
+    } else {
+      toast.error("Failed to update order status");
+    }
+  };
   const getStatusClass = (status) => {
     switch (status) {
       case 'Delivered': return 'delivered';
@@ -202,7 +232,7 @@ function OrderManagement() {
                       <td style={{ fontWeight: 500 }}>{order.productName}</td>
                       <td>{order.customer}</td>
                       <td>
-                        <div style={{ maxWidth: 200, fontSize: 12, lineHeight: 1.4 }}>
+                        <div style={{ minWidth: 150, maxWidth: 250, fontSize: 12, lineHeight: 1.4, wordBreak: 'break-all', whiteSpace: 'normal' }}>
                           {order.address}
                         </div>
                       </td>
@@ -217,9 +247,18 @@ function OrderManagement() {
                       </td> */}
                       <td style={{ fontWeight: 500 }}>{order.amount}</td>
                       <td>
-                        <span className={`status-badge ${getStatusClass(order.status)}`}>
-                          {order.status}
-                        </span>
+                        <select 
+                          className={`status-badge ${getStatusClass(order.status)}`}
+                          value={order.status}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => handleStatusChange(e, order.id, order.docId, e.target.value)}
+                          style={{ cursor: 'pointer', border: 'none', outline: 'none' }}
+                        >
+                          <option value="Order Placed" style={{ background: '#fff', color: '#374151' }}>Order Placed</option>
+                          <option value="Shipped" style={{ background: '#fff', color: '#374151' }}>Shipped</option>
+                          <option value="Out for Delivery" style={{ background: '#fff', color: '#374151' }}>Out for Delivery</option>
+                          <option value="Delivered" style={{ background: '#fff', color: '#374151' }}>Delivered</option>
+                        </select>
                       </td>
                     </tr>
                   ))
