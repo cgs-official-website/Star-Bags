@@ -16,13 +16,6 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Hidden by admin state */
-/* .review-card--hidden {
-  border-color: #f59e0b;
-  background: #fffbeb;
-  opacity: 0.9;
-} */
-
 .review-card--hidden:hover {
   box-shadow: 0 2px 12px rgba(245, 158, 11, 0.15);
 }
@@ -52,7 +45,7 @@
   flex-shrink: 0;
 }
 
-/* Product Name - Full name, no truncation */
+/* Product Name */
 .review-product-name {
   font-size: 15px;
   font-weight: 600;
@@ -76,6 +69,25 @@
   color: #444;
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+/* ============================================
+   Star Rating
+   ============================================ */
+
+.star-rating-row {
+  display: flex;
+  align-items: center;
+}
+
+.star-rating-row .star-filled {
+  color: #FFC107 !important;
+  font-size: 1rem;
+}
+
+.star-rating-row .star-empty {
+  color: #9ca3af !important;
+  font-size: 1rem;
 }
 
 /* ============================================
@@ -138,6 +150,7 @@
   cursor: pointer;
   text-align: left;
   transition: background 0.12s;
+  color: #334155;
 }
 
 .review-dropdown-item.edit {
@@ -145,7 +158,7 @@
 }
 
 .review-dropdown-item.edit:hover {
-  background: #f1f5f9;
+  background: #ede9fe;
   color: #6d28d9;
 }
 
@@ -154,7 +167,8 @@
 }
 
 .review-dropdown-item.delete:hover {
-  background: #fff1f2;
+  background: #fee2e2;
+  color: #dc2626;
 }
 
 .dropdown-icon {
@@ -210,7 +224,6 @@
 
 /* ============================================
    Responsive Styles - Mobile
-   Full product name with reduced font size
    ============================================ */
 
 @media (max-width: 768px) {
@@ -218,59 +231,50 @@
     padding: 0.875rem 1rem;
   }
 
-  /* Product image */
   .review-product-img {
     width: 40px;
     height: 40px;
   }
 
-  /* Product name - reduced font size, full text visible */
   .review-product-name {
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.8125rem;
     line-height: 1.3;
   }
 
-  /* Review text */
   .review-body-text {
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.8125rem;
     line-height: 1.45;
   }
 
   .review-short-text {
-    font-size: 0.75rem; /* 12px */
+    font-size: 0.75rem;
   }
 
-  /* Star icons */
-  .d-flex.gap-1 svg,
-  .d-flex.gap-1 .fa-star {
+  .star-rating-row .star-filled,
+  .star-rating-row .star-empty {
     font-size: 0.875rem !important;
     width: 14px !important;
     height: 14px !important;
   }
 
-  /* Star rating container gap */
-  .d-flex.gap-1 {
+  .star-rating-row {
     gap: 2px !important;
   }
 
-  /* Header adjustments */
   .review-card > .d-flex:first-child {
     gap: 8px;
   }
 
-  /* Ensure the product name container can flex */
   .review-card > .d-flex:first-child > .d-flex:first-child {
     flex: 1;
     min-width: 0;
   }
 
-  /* Three dot menu */
   .review-menu-btn {
     padding: 6px 8px;
     font-size: 1rem;
   }
 
-  /* Dropdown */
   .review-dropdown-item {
     padding: 8px 14px;
     font-size: 0.8125rem;
@@ -280,13 +284,11 @@
     font-size: 0.875rem;
   }
 
-  /* Like/Dislike buttons */
   .review-action-btn {
     font-size: 1rem;
     padding: 6px 8px;
   }
 
-  /* Hidden badge */
   .review-hidden-badge {
     font-size: 0.625rem;
     padding: 2px 8px;
@@ -298,7 +300,6 @@
   }
 }
 
-/* Small devices (phones under 576px) */
 @media (max-width: 576px) {
   .review-card {
     padding: 0.75rem 0.875rem;
@@ -309,23 +310,21 @@
     height: 36px;
   }
 
-  /* Further reduce product name font size */
   .review-product-name {
-    font-size: 0.75rem; /* 12px */
+    font-size: 0.75rem;
     line-height: 1.3;
   }
 
   .review-body-text {
-    font-size: 0.75rem; /* 12px */
+    font-size: 0.75rem;
   }
 
   .review-short-text {
-    font-size: 0.6875rem; /* 11px */
+    font-size: 0.6875rem;
   }
 
-  /* Even smaller star icons */
-  .d-flex.gap-1 svg,
-  .d-flex.gap-1 .fa-star {
+  .star-rating-row .star-filled,
+  .star-rating-row .star-empty {
     font-size: 0.75rem !important;
     width: 12px !important;
     height: 12px !important;
@@ -351,13 +350,11 @@
     padding: 5px 7px;
   }
 
-  /* Reduce gaps */
   .gap-2 {
     gap: 0.375rem !important;
   }
 }
 
-/* Extra small devices (under 450px) */
 @media (max-width: 450px) {
   .review-card {
     padding: 0.6875rem 0.75rem;
@@ -368,22 +365,20 @@
     height: 32px;
   }
 
-  /* Minimum font size for product name */
   .review-product-name {
-    font-size: 0.6875rem; /* 11px */
+    font-size: 0.6875rem;
   }
 
   .review-body-text {
-    font-size: 0.6875rem; /* 11px */
+    font-size: 0.6875rem;
   }
 
   .review-short-text {
-    font-size: 0.625rem; /* 10px */
+    font-size: 0.625rem;
   }
 
-  /* Smallest star size */
-  .d-flex.gap-1 svg,
-  .d-flex.gap-1 .fa-star {
+  .star-rating-row .star-filled,
+  .star-rating-row .star-empty {
     font-size: 0.6875rem !important;
     width: 11px !important;
     height: 11px !important;
@@ -395,10 +390,9 @@
   }
 }
 
-/* For devices under 375px - even smaller font */
 @media (max-width: 375px) {
   .review-product-name {
-    font-size: 0.625rem; /* 10px */
+    font-size: 0.625rem;
   }
 
   .review-body-text {
@@ -406,11 +400,11 @@
   }
 
   .review-short-text {
-    font-size: 0.5625rem; /* 9px */
+    font-size: 0.5625rem;
   }
 
-  .d-flex.gap-1 svg,
-  .d-flex.gap-1 .fa-star {
+  .star-rating-row .star-filled,
+  .star-rating-row .star-empty {
     font-size: 0.625rem !important;
     width: 10px !important;
     height: 10px !important;
@@ -423,20 +417,17 @@ body {
   max-width: 100%;
 }
 
-/* Responsive images */
 img {
   max-width: 100%;
   height: auto;
 }
 
-/* Hover states for devices that support it */
 @media (hover: hover) {
   .review-card:hover {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   }
 }
 
-/* Touch device optimizations */
 @media (max-width: 768px) and (hover: none) {
   .review-action-btn:hover {
     transform: none;
@@ -451,14 +442,70 @@ img {
     background: none;
   }
 }
-body.dark-theme .review-body-text , .review-short-text  {
+
+/* ============================================
+   Dark Theme
+   ============================================ */
+
+body.dark-theme .review-card {
+  background: var(--surface-alt);
+  border-color: #333;
+}
+
+body.dark-theme .review-body-text,
+body.dark-theme .review-short-text {
   color: #ddd;
 }
+
 body.dark-theme .review-product-name {
   color: #fff !important;
 }
-body.dark-theme .review-menu-wrapper .review-menu-btn , .review-dropdown , .review-dropdown-item ,  .review-dropdown-item.edit {
+
+body.dark-theme .review-menu-btn {
+  background: none;
+  color: #aaa;
+}
+
+body.dark-theme .review-menu-btn:hover,
+body.dark-theme .review-menu-btn.active {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+body.dark-theme .review-dropdown {
   background: var(--surface-alt);
   border-color: #333;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-theme .review-dropdown-item {
+  background: none;
   color: #ddd;
+}
+
+body.dark-theme .review-dropdown-item.edit {
+  color: #c4b5fd;
+}
+
+body.dark-theme .review-dropdown-item.edit:hover {
+  background: #2e1f5e;
+  color: #ddd6fe;
+}
+
+body.dark-theme .review-dropdown-item.delete {
+  color: #f87171;
+}
+
+body.dark-theme .review-dropdown-item.delete:hover {
+  background: #3b1212;
+  color: #fca5a5;
+}
+
+/* Dark theme star colors — explicit overrides */
+body.dark-theme .star-rating-row .star-filled {
+  color: #FFC107 !important;
+}
+
+body.dark-theme .star-rating-row .star-empty {
+  color: #6b7280 !important;
 }
