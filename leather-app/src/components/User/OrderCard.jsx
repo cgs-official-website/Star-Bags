@@ -38,6 +38,18 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
       p.productId === order.productId,
   );
 
+  // ✅ Fixed: inside component, uses navigate hook, has access to matchedProduct & order
+  const handleProductClick = () => {
+    const productToNavigate = matchedProduct || {
+      ...order,
+      name: order.product,
+      id: order.productId,
+    };
+    navigate("/product", {
+      state: { product: productToNavigate },
+    });
+  };
+
   const getFormattedOrderId = () => {
     if (order.id && order.id.startsWith("SBO-")) return order.id;
     const category = order.category || "bag";
@@ -65,7 +77,7 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
       {/* DESKTOP VIEW */}
       <div className="desktop-card-layout-view">
         <div className="responsive-col-box desktop-info-box">
-          <div className="desktop-image-wrapper">
+          <div className="desktop-image-wrapper" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
             {order.image ? (
               <img
                 src={order.image}
@@ -79,7 +91,11 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
           <div className="desktop-text-wrapper">
             <p className="desktop-order-id-txt">{finalOrderId}</p>
             <div className="desktop-title-row">
-              <span className="desktop-product-title-name">
+              <span
+                className="desktop-product-title-name"
+                onClick={handleProductClick}
+                style={{ cursor: 'pointer' }}
+              >
                 {order.product}
               </span>
               {matchedProduct && matchedProduct.reviewCount > 0 && (
@@ -162,7 +178,7 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
       {/* MOBILE VIEW */}
       <div className="mobile-card-layout-view">
         <div className="mobile-upper-mesh-block">
-          <div className="mobile-image-frame">
+          <div className="mobile-image-frame" onClick={handleProductClick} style={{ cursor: 'pointer' }}>
             {order.image ? (
               <img
                 src={order.image}
@@ -182,7 +198,9 @@ const OrderCard = ({ order, onReviewClick, reviewed = false }) => {
             >
               <span
                 className="mobile-product-title-string"
+                onClick={handleProductClick}
                 style={{
+                  cursor: 'pointer',
                   maxWidth:
                     matchedProduct && matchedProduct.reviewCount > 0
                       ? "70%"

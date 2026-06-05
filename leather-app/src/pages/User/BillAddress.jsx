@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaArrowLeft as ArrowIcon } from "react-icons/fa";
 import { TbCreditCardPay } from "react-icons/tb";
 import { GiMoneyStack } from "react-icons/gi";
-import PaymentImage from "../../assets/images/Payment-icon.png";
+import PaymentImage from "../../assets/images/payment-icon.png";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import CartItem from "../../components/User/YourCart";
@@ -392,7 +392,7 @@ const BillAddress = () => {
         setIsPopupOpen(false);
         isSubmittingRef.current = false;
         navigate("/orders", { state: { newOrderPayloads } });
-      }, 3000);
+      }, 1000);
       return;
     }
 

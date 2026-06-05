@@ -55,7 +55,7 @@ const CartItem = ({
 
   const discountPercent = parseInt(item.offer) || 0;
   const oldPriceNum = Number(item.realPrice) || Number(item.price);
-  const currentPrice = oldPriceNum - (oldPriceNum * discountPercent) / 100;
+  const currentPrice = Math.round(oldPriceNum - (oldPriceNum * discountPercent) / 100);
 
   const isItemInWishlist = wishlist ? wishlist.some(
     (wItem) => wItem.name === item.name && Number(wItem.price) === Number(item.price)

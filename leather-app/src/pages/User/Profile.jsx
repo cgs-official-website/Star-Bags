@@ -126,8 +126,8 @@ function Profile() {
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 800 * 1024) {
-        alert("Photo too large (max 800KB).");
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Please upload a photo smaller than 2MB.");
         return;
       }
       const reader = new FileReader();
