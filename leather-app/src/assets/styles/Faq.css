@@ -4,9 +4,10 @@
 
 
 .faq-container{
-   box-shadow: 0 10px 22px var(--hover-color);
+   /* box-shadow: 0 7px 10px black; */
+   /* opacity: 0.7; */
     border-radius: 20px;
-    /* border: 1px solid; */
+    border: 2px solid var(--hover-color);
 
 }
 /* TITLE */

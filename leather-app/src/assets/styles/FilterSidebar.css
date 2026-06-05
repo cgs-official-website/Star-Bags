@@ -1,6 +1,6 @@
 /* Flipkart Style Filter Sidebar */
 .filter-sidebar-flipkart {
-  width: 250px;
+  /* width: 250px; */
   background: #fff;
   border-radius: 8px;
   padding: 16px 0;
@@ -11,9 +11,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 16px 16px 16px;
+  padding: 16PX 16px 16px 16px;
   border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 8px;
+  /* margin-bottom: 8px; */
 }
 
 .filter-title {
@@ -45,7 +45,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 0 16px 16px 16px;
+  padding: 16px !important;
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 8px;
 }
@@ -356,6 +356,7 @@ body.dark-theme .filter-sidebar-flipkart,
   background: var(--surface-alt) !important;
   border-color: var(--border) !important;
   color: var(--text) !important;
+  min-height: 70vh !important;
 }
 
 body.dark-theme .filter-header,
@@ -535,7 +536,19 @@ body.dark-theme .show-more-btn:hover,
   .filter-section-header:hover {
     background: inherit;
   }
-  body.dark-theme .price-option:active,
+
+  
+
+  body.dark-theme .price-option,
+[data-theme="dark"] .price-option {
+  color: var(--text) !important;
+  /* Add this to ensure it stays dark even when active/pressed */
+  background: transparent !important; 
+}
+
+body.dark-theme .price-option:active,
 [data-theme="dark"] .price-option:active {
-  background: transparent !important;
+  /* Define a subtle dark-grey highlight instead of a white flash */
+  background: rgba(255, 255, 255, 0.05) !important;
+/* >>>>>>> b3419069926362b87388fcf907f840568f30ac6a */
 }

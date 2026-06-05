@@ -1,20 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import ProfileSideNav from "../../components/User/Profile-Side-Nav";
 import "../../assets/styles/Profile.css";
 import "../../assets/styles/Skeleton.css";
-import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
+import { MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { IoAddCircle } from "react-icons/io5";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 function Profile() {
   const { currentUser, userData, loading } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showPhotoPopup, setShowPhotoPopup] = useState(false);
+
+  const mobAvatarRef = useRef(null);
+  const mobPopupRef = useRef(null);
+  const mobFileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,6 +34,22 @@ function Profile() {
   });
 
   const [tempData, setTempData] = useState({ ...formData });
+
+  // Close popup on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (
+        mobPopupRef.current &&
+        !mobPopupRef.current.contains(e.target) &&
+        mobAvatarRef.current &&
+        !mobAvatarRef.current.contains(e.target)
+      ) {
+        setShowPhotoPopup(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
     if (!loading && !currentUser) {
@@ -62,23 +87,13 @@ function Profile() {
           name: tempData.name,
           gender: tempData.gender,
           mobile: tempData.mobile,
-          email: tempData.email,
+          // email intentionally excluded — change via Firebase Auth separately
           photo: tempData.photo || "",
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         });
-        
-        const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-        localStorage.setItem("user", JSON.stringify({
-          ...storedUser,
-          name: tempData.name,
-          gender: tempData.gender,
-          mobile: tempData.mobile,
-          email: tempData.email,
-          photo: tempData.photo || ""
-        }));
       }
     } catch (error) {
-      console.error("Error updating profile in DB:", error);
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -87,88 +102,233 @@ function Profile() {
     setTempData({ ...tempData, [name]: value });
   };
 
-  const handlePhotoChange = (e) => {
+  const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 800 * 1024) {
-        alert("Please upload a photo smaller than 800KB.");
+        alert("Photo too large (max 800KB).");
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempData((prev) => ({ ...prev, photo: reader.result }));
+      reader.onloadend = async () => {
+        const base64 = reader.result;
+        setTempData((prev) => ({ ...prev, photo: base64 }));
+        setFormData((prev) => ({ ...prev, photo: base64 }));
+        try {
+          if (currentUser) {
+            const userDocRef = doc(db, "users", currentUser.uid);
+            await updateDoc(userDocRef, { photo: base64 });
+          }
+        } catch (error) {
+          console.error("Error saving photo:", error);
+        }
       };
       reader.readAsDataURL(file);
     }
+    e.target.value = "";
   };
+
+  const handleDeletePhoto = async (e) => {
+    e.stopPropagation();
+    setShowPhotoPopup(false);
+    setTempData((prev) => ({ ...prev, photo: "" }));
+    setFormData((prev) => ({ ...prev, photo: "" }));
+    try {
+      if (currentUser) {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        await updateDoc(userDocRef, { photo: null });
+      }
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+    }
+  };
+
+  const popupBtnBase = {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    width: "100%",
+    padding: "9px 14px",
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "0.82rem",
+    fontWeight: 500,
+    whiteSpace: "nowrap",
+    transition: "background 0.15s",
+  };
+
+  const userName = tempData.name || "User";
 
   return (
     <>
       <Navbar />
-      
       <div className="container py-3 my-2">
         <h4 className="mb-3 fw-bold">Settings and Profile</h4>
-
-        {/* Layout matching SavedAddress and Myreviews */}
         <div className="row justify-content-center align-items-start">
-
-          {/* Sidebar — hidden on tablet & mobile, sticky on desktop */}
           <div className="col-lg-3 mb-3 d-none d-lg-block sidebar-sticky">
-            <ProfileSideNav />
+            {/* hideMobileBar prevents duplicate avatar on mobile — Profile.jsx renders its own */}
+            <ProfileSideNav hideMobileBar />
           </div>
 
-          {/* Main content — full width on mobile/tablet, 8-col on desktop */}
           <div className="col-lg-9 col-12">
             <div className="profile-details-card">
-              
               {loading ? (
-                <>
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <div className="skeleton-shimmer skeleton-block" style={{ width: '120px', height: '24px' }} />
-                    <div className="skeleton-shimmer skeleton-block" style={{ width: '100px', height: '36px', borderRadius: '6px' }} />
-                  </div>
-                  <div className="d-flex flex-column gap-3">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="d-flex flex-column gap-2">
-                        <div className="skeleton-shimmer skeleton-block" style={{ width: '80px', height: '14px' }} />
-                        <div className="skeleton-shimmer skeleton-block" style={{ height: '42px', borderRadius: '6px' }} />
-                      </div>
-                    ))}
-                  </div>
-                </>
+                <div className="skeleton-shimmer" style={{ height: "200px" }} />
               ) : (
                 <>
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <h4 className="fw-bold mb-0">Profile</h4>
-
                     {!isEditing ? (
-                      <button 
-                        className="btn edit-profile-btn d-flex align-items-center gap-2 text-white px-3 fw-bold small"
-                        style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} 
-                        onClick={handleEdit}
-                      >
+                      <button className="btn edit-profile-btn" onClick={handleEdit}>
                         <MdEdit /> Edit Profile
                       </button>
                     ) : (
                       <div className="d-flex gap-2">
-                        <button 
-                          className="btn cancel-profile-btn d-flex align-items-center gap-2 px-3 fw-bold small"
-                          style={{ borderRadius: "6px", fontSize: "0.82rem" }} 
-                          onClick={handleCancel}
-                        >
+                        <button className="btn cancel-profile-btn" onClick={handleCancel}>
                           <MdCancel /> Cancel
                         </button>
-                        <button 
-                          className="btn text-white d-flex align-items-center gap-2 px-3 fw-bold small"
-                          style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} 
-                          onClick={handleSave}
-                        >
+                        <button className="btn btn-primary" onClick={handleSave}>
                           <MdSave /> Save
                         </button>
                       </div>
                     )}
                   </div>
 
+                  {/* ── Mobile-only User Header (hidden on lg+) ── */}
+                  <div
+                    className="mobile-profile-header d-lg-none d-flex align-items-center p-3 mb-4 border rounded"
+                    style={{
+                      background: isDark ? "var(--surface-alt)" : "#ffffff",
+                      borderColor: isDark ? "var(--border)" : "#e5e7eb",
+                      overflow: "visible",
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "relative",
+                        flexShrink: 0,
+                        width: "70px",
+                        height: "70px",
+                        overflow: "visible",
+                      }}
+                    >
+                      <input
+                        type="file"
+                        ref={mobFileInputRef}
+                        onChange={handlePhotoChange}
+                        accept="image/*"
+                        style={{ display: "none" }}
+                      />
+
+                      <div
+                        ref={mobAvatarRef}
+                        onClick={() => {
+                          if (tempData.photo) {
+                            setShowPhotoPopup((prev) => !prev);
+                          } else {
+                            mobFileInputRef.current?.click();
+                          }
+                        }}
+                        style={{ cursor: "pointer", width: "70px", height: "70px", position: "relative" }}
+                      >
+                        {tempData.photo ? (
+                          <img
+                            src={tempData.photo}
+                            alt="Profile"
+                            style={{
+                              width: "70px",
+                              height: "70px",
+                              objectFit: "cover",
+                              borderRadius: "50%",
+                              display: "block",
+                              border: "2px solid #8b5cf6",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            className="d-flex align-items-center justify-content-center text-white fw-bold"
+                            style={{
+                              width: "70px",
+                              height: "70px",
+                              background: "linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%)",
+                              borderRadius: "50%",
+                              fontSize: "1.6rem",
+                              textTransform: "uppercase",
+                              userSelect: "none",
+                            }}
+                          >
+                            {userName.charAt(0)}
+                          </div>
+                        )}
+
+                        {!tempData.photo && (
+                          <IoAddCircle
+                            style={{
+                              position: "absolute",
+                              bottom: "0px",
+                              right: "-2px",
+                              fontSize: "22px",
+                              color: "#8b5cf6",
+                              background: "white",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        )}
+                      </div>
+
+                      {showPhotoPopup && tempData.photo && (
+                        <div
+                          ref={mobPopupRef}
+                          style={{
+                            position: "absolute",
+                            top: "78px",
+                            left: "0",
+                            background: isDark ? "#1e1e2e" : "#ffffff",
+                            border: `1px solid ${isDark ? "#3f3f5a" : "#e5e7eb"}`,
+                            borderRadius: "10px",
+                            boxShadow: "0 4px 20px rgba(0,0,0,0.18)",
+                            zIndex: 9999,
+                            overflow: "hidden",
+                            minWidth: "145px",
+                          }}
+                        >
+                          <button
+                            onClick={() => {
+                              setShowPhotoPopup(false);
+                              mobFileInputRef.current?.click();
+                            }}
+                            style={{ ...popupBtnBase, color: isDark ? "#e2e8f0" : "#374151" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = isDark ? "#2d2d44" : "#f3f4f6")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                          >
+                            <FiEdit2 size={14} style={{ flexShrink: 0 }} />
+                            Edit Photo
+                          </button>
+                          <div style={{ height: "1px", background: isDark ? "#3f3f5a" : "#e5e7eb" }} />
+                          <button
+                            onClick={handleDeletePhoto}
+                            style={{ ...popupBtnBase, color: "#ef4444" }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = isDark ? "#2d2d44" : "#fef2f2")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "none")}
+                          >
+                            <FiTrash2 size={14} style={{ flexShrink: 0 }} />
+                            Delete Photo
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <h5
+                      className="ms-3 fw-bold mb-0"
+                      style={{ color: isDark ? "#e2e8f0" : "#111" }}
+                    >
+                      {userName}
+                    </h5>
+                  </div>
+
+                  {/* Form */}
                   <form>
                     <div className="mb-3">
                       <label className="form-label">Name</label>
@@ -179,11 +339,11 @@ function Profile() {
                         value={tempData.name}
                         onChange={handleChange}
                         readOnly={!isEditing}
-                        style={{ 
-                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", 
-                          borderRadius: "8px", 
-                          height: "42px", 
-                          borderColor: "#e5e7eb" 
+                        style={{
+                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff",
+                          borderRadius: "8px",
+                          height: "42px",
+                          borderColor: "#e5e7eb",
                         }}
                       />
                     </div>
@@ -196,11 +356,11 @@ function Profile() {
                         value={tempData.gender}
                         onChange={handleChange}
                         disabled={!isEditing}
-                        style={{ 
-                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", 
-                          borderRadius: "8px", 
-                          height: "42px", 
-                          borderColor: "#e5e7eb" 
+                        style={{
+                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff",
+                          borderRadius: "8px",
+                          height: "42px",
+                          borderColor: "#e5e7eb",
                         }}
                       >
                         <option value="Male">Male</option>
@@ -219,29 +379,41 @@ function Profile() {
                         value={tempData.mobile}
                         onChange={handleChange}
                         readOnly={!isEditing}
-                        style={{ 
-                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", 
-                          borderRadius: "8px", 
-                          height: "42px", 
-                          borderColor: "#e5e7eb" 
+                        style={{
+                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff",
+                          borderRadius: "8px",
+                          height: "42px",
+                          borderColor: "#e5e7eb",
                         }}
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label className="form-label">Email Address</label>
+                      <label className="form-label">
+                        Email Address
+                        <span
+                          style={{
+                            fontSize: "0.75rem",
+                            color: "#9ca3af",
+                            fontWeight: 400,
+                            marginLeft: "8px",
+                          }}
+                        >
+                          (cannot be changed here)
+                        </span>
+                      </label>
                       <input
                         type="email"
                         className="form-control"
                         name="email"
                         value={tempData.email}
-                        onChange={handleChange}
-                        readOnly={!isEditing}
-                        style={{ 
-                          backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", 
-                          borderRadius: "8px", 
-                          height: "42px", 
-                          borderColor: "#e5e7eb" 
+                        readOnly
+                        style={{
+                          backgroundColor: "#f9fafb",
+                          borderRadius: "8px",
+                          height: "42px",
+                          borderColor: "#e5e7eb",
+                          cursor: "not-allowed",
                         }}
                       />
                     </div>
@@ -252,234 +424,9 @@ function Profile() {
           </div>
         </div>
       </div>
-
       <Footer />
     </>
   );
 }
 
 export default Profile;
-// import React, { useState, useEffect } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
-// import Navbar from "../../components/User/Navbar";
-// import Footer from "../../components/User/Footer";
-// import ProfileSideNav from "../../components/User/Profile-Side-Nav";
-// import "../../assets/styles/Profile.css";
-// import "../../assets/styles/Skeleton.css";
-// import { MdEdit, MdSave, MdCancel, MdPhotoCamera } from "react-icons/md";
-// import { useAuth } from "../../context/AuthContext";
-// import { doc, updateDoc } from "firebase/firestore";
-// import { db } from "../../firebase";
-
-// function Profile() {
-//   const { currentUser, userData, loading } = useAuth();
-//   const navigate = useNavigate();
-
-//   const [isEditing, setIsEditing] = useState(false);
-
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     gender: "Male",
-//     mobile: "",
-//     email: "",
-//     photo: "",
-//   });
-
-//   const [tempData, setTempData] = useState({ ...formData });
-
-//   useEffect(() => {
-//     if (!loading && !currentUser) {
-//       navigate("/login");
-//     } else if (userData) {
-//       const data = {
-//         name: userData.name || "",
-//         gender: userData.gender || "Male",
-//         mobile: userData.mobile || "",
-//         email: userData.email || currentUser?.email || "",
-//         photo: userData.photo || "",
-//       };
-//       setFormData(data);
-//       setTempData(data);
-//     }
-//   }, [userData, currentUser, loading, navigate]);
-
-//   const handleEdit = () => {
-//     setIsEditing(true);
-//     setTempData({ ...formData });
-//   };
-
-//   const handleCancel = () => {
-//     setIsEditing(false);
-//     setTempData({ ...formData });
-//   };
-
-//   const handleSave = async () => {
-//     setIsEditing(false);
-//     setFormData({ ...tempData });
-//     try {
-//       if (currentUser) {
-//         const userDocRef = doc(db, "users", currentUser.uid);
-//         await updateDoc(userDocRef, {
-//           name: tempData.name,
-//           gender: tempData.gender,
-//           mobile: tempData.mobile,
-//           email: tempData.email,
-//           photo: tempData.photo || "",
-//           updatedAt: new Date().toISOString()
-//         });
-        
-//         const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-//         localStorage.setItem("user", JSON.stringify({
-//           ...storedUser,
-//           name: tempData.name,
-//           gender: tempData.gender,
-//           mobile: tempData.mobile,
-//           email: tempData.email,
-//           photo: tempData.photo || ""
-//         }));
-//       }
-//     } catch (error) {
-//       console.error("Error updating profile in DB:", error);
-//     }
-//   };
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setTempData({ ...tempData, [name]: value });
-//   };
-
-//   const handlePhotoChange = (e) => {
-//     const file = e.target.files[0];
-//     if (file) {
-//       // Limit base64 photo size to 800KB to fit easily in Firestore document limits (1MB max document limit is strict, but 800KB is safe)
-//       if (file.size > 800 * 1024) {
-//         alert("Please upload a photo smaller than 800KB.");
-//         return;
-//       }
-//       const reader = new FileReader();
-//       reader.onloadend = () => {
-//         setTempData((prev) => ({ ...prev, photo: reader.result }));
-//       };
-//       reader.readAsDataURL(file);
-//     }
-//   };
-
-//   return (
-//     <div className="profile-page-app-wrapper" style={{ backgroundColor: "#f8fafc", minHeight: "100vh" }}>
-//       <Navbar />
-      
-//       {/* FIXED BOOTSTRAP GRID MESH LAYOUT TO MATCH UNIFORM COLUMN WIDTH */}
-//       <main className="orders-container container py-3 my-2">
-//         <h4 className="mb-4 fw-bold">Settings and Profile</h4>
-        
-//         <div className="row justify-content-center">
-//           {/* Sidebar - Consistent width configuration matching other dashboard modules */}
-//           <div className="col-lg-3 col-md-5 mb-4 sidebar-column-view wl-sidebar-sticky">
-//             <ProfileSideNav />
-//           </div>
-
-//           <div className="col-lg-8 col-md-7">
-//             {loading ? (
-//               <div className="profile-details-card">
-//                 <div className="d-flex justify-content-between align-items-center mb-3">
-//                   <div className="skeleton-shimmer skeleton-block" style={{ width: '120px', height: '24px' }} />
-//                   <div className="skeleton-shimmer skeleton-block" style={{ width: '100px', height: '36px', borderRadius: '6px' }} />
-//                 </div>
-//                 <div className="d-flex flex-column gap-3">
-//                   {[1, 2, 3, 4].map((i) => (
-//                     <div key={i} className="d-flex flex-column gap-2">
-//                       <div className="skeleton-shimmer skeleton-block" style={{ width: '80px', height: '14px' }} />
-//                       <div className="skeleton-shimmer skeleton-block" style={{ height: '42px', borderRadius: '6px' }} />
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             ) : (
-//               <div className="profile-details-card">
-//                 <div className="d-flex justify-content-between align-items-center mb-2">
-//                 <h4 className="fw-bold mb-0">Profile</h4>
-
-//                 {!isEditing ? (
-//                   <button className="btn edit-profile-btn border px-3 fw-bold small text-white" style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleEdit}>
-//                     <MdEdit className="me-1" /> Edit Profile
-//                   </button>
-//                 ) : (
-//                   <div className="d-flex gap-2">
-//                     <button className="btn btn-light border px-3 fw-bold small" style={{ borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleCancel}>
-//                       <MdCancel className="me-1" /> Cancel
-//                     </button>
-//                     <button className="btn text-white px-3 fw-bold small" style={{ backgroundColor: "#8b5cf6", borderRadius: "6px", fontSize: "0.82rem" }} onClick={handleSave}>
-//                       <MdSave className="me-1" /> Save
-//                     </button>
-//                   </div>
-//                 )}
-//               </div>
-
-//               <form>
-//                 <div className="mb-2">
-//                   <label className="form-label">Name</label>
-//                   <input
-//                     type="text"
-//                     className="form-control"
-//                     name="name"
-//                     value={tempData.name}
-//                     onChange={handleChange}
-//                     readOnly={!isEditing}
-//                     style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
-//                   />
-//                 </div>
-
-//                 <div>
-//                   <label className="form-label fw-semibold text-secondary small mb-1">Gender</label>
-//                   <select
-//                     className="form-select custom-form-select"
-//                     name="gender"
-//                     value={tempData.gender}
-//                     onChange={handleChange}
-//                     disabled={!isEditing}
-//                     style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
-//                   >
-//                     <option value="Male">Male</option>
-//                     <option value="Female">Female</option>
-//                     <option value="Other">Other</option>
-//                   </select>
-//                 </div>
-
-//                 <div>
-//                   <label className="form-label fw-semibold text-secondary small mb-1">Mobile Number</label>
-//                   <input
-//                     type="tel"
-//                     className="form-control"
-//                     name="mobile"
-//                     maxLength={10}
-//                     value={tempData.mobile}
-//                     onChange={handleChange}
-//                     readOnly={!isEditing}
-//                     style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
-//                   />
-//                 </div>
-
-//                 <div>
-//                   <label className="form-label fw-semibold text-secondary small mb-1">Email Address</label>
-//                   <input
-//                     type="email"
-//                     className="form-control"
-//                     name="email"
-//                     value={tempData.email}
-//                     onChange={handleChange}
-//                     readOnly={!isEditing}
-//                     style={{ backgroundColor: !isEditing ? "#f9fafb" : "#ffffff", borderRadius: "8px", height: "42px", borderColor: "#e5e7eb" }}
-//                   />
-//                 </div>
-//               </form>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       </main>
-//       <Footer />
-//     </div>
-//   );
-// }
-
-// export default Profile;

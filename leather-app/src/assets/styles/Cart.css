@@ -36,7 +36,9 @@
   align-items: center;
   gap: 6px; /* Perfect space between arrow icon and text */
   padding: 6px 0;
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 @media (min-width: 993px) {
   .cart-layout-grid {
@@ -406,6 +408,11 @@
   color: #4b5563;
   margin-bottom: 2px;
   font-weight: 400;
+  word-wrap: break-word; /* Legacy support for older browsers */
+  overflow-wrap: break-word; /* Modern standard: breaks long strings at any point */
+  word-break: break-word; /* Ensures browser forces a break */
+  hyphens: auto; /* Optional: adds hyphens if text is too long */
+  max-width: 100%;
 }
 
 .payment-subtitle {

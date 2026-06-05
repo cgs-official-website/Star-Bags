@@ -29,7 +29,6 @@
   padding: 12px 28px;
   gap: 16px;
   min-height: 72px;
-  /* NEVER flex-wrap on desktop — keeps everything on one row */
   flex-wrap: nowrap;
 }
 
@@ -46,7 +45,7 @@
 }
 
 .logo {
-  height: 80px !important; /* Bigger logo as requested */
+  height: 80px !important;
   display: block;
   object-fit: contain;
 }
@@ -55,12 +54,12 @@
   display: none;
 }
 
-/* ─── DESKTOP NAV LINKS — centered between logo and search ──────── */
+/* ─── DESKTOP NAV LINKS ──────────────────────────────────────────── */
 .nav-links-desktop {
   display: flex;
   align-items: center;
   list-style: none;
-  margin: 0 auto; /* auto margins = true center between logo and right group */
+  margin: 0 auto;
   padding: 0;
   gap: 40px;
 }
@@ -84,7 +83,6 @@
   background: transparent !important;
 }
 
-/* Underline animation — no background pill */
 .custom-nav-btn::after {
   content: "";
   position: absolute;
@@ -102,7 +100,7 @@
   width: calc(100% - 36px);
 }
 
-/* ─── RIGHT GROUP: search + icons ────────────────────────────────── */
+/* ─── RIGHT GROUP ────────────────────────────────────────────────── */
 .nav-actions {
   display: flex;
   align-items: center;
@@ -110,28 +108,20 @@
   flex-shrink: 0;
 }
 
-/* Desktop search — elastic expand on focus */
 .nav-search-desktop {
-  width:340px;
+  width: 340px;
   transition: width 0.25s ease;
 }
 
-/* .nav-search-desktop:focus-within {
-  width: 320px;
-} */
-
-/* ─── MOBILE SEARCH — inline, flex:1, same row ───────────────────── */
 .nav-search-mobile {
   display: none;
   position: relative;
-  /* Takes up remaining space between logo and icons */
   flex: 1;
   min-width: 0;
-  /* Hard cap so it doesn't crowd tiny screens */
   max-width: 240px;
 }
 
-/* ─── SEARCH FORM SHARED ─────────────────────────────────────────── */
+/* ─── SEARCH FORM ────────────────────────────────────────────────── */
 .nav-search-form {
   position: relative;
   width: 100%;
@@ -148,10 +138,7 @@
   background: #f9fafb;
   color: var(--nav-text);
   outline: none;
-  transition:
-    border-color 0.2s,
-    background 0.2s,
-    box-shadow 0.2s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .nav-search-form input:focus {
@@ -184,7 +171,7 @@
   color: var(--nav-accent);
 }
 
-/* ─── ICON BUTTONS — round, filled ──────────────────────────────── */
+/* ─── ICON BUTTONS ───────────────────────────────────────────────── */
 .icon-btn {
   width: var(--nav-icon-size);
   height: var(--nav-icon-size);
@@ -197,9 +184,7 @@
   font-size: 1.2rem;
   color: var(--nav-text);
   flex-shrink: 0;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  transition: background 0.2s, color 0.2s;
   cursor: pointer;
   text-decoration: none;
   position: relative;
@@ -215,7 +200,7 @@
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  border: 1.5px solid var(--nav-border);
+  border: 1.5px solid var(--levender);
   transition: border-color 0.2s ease;
 }
 
@@ -290,12 +275,19 @@
 
 /* ─── USER DROPDOWN ──────────────────────────────────────────────── */
 .user-dropdown-menu {
-  min-width: 200px;
+  min-width: 220px;
   border-radius: var(--nav-radius);
-  border: none;
+  border: 1px solid var(--nav-border);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
   margin-top: 10px;
   padding: 8px;
+  background: #ffffff;
+}
+
+/* Dropdown header (name + avatar row) */
+.dropdown-user-header {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 4px;
 }
 
 .profile-dropdown-item {
@@ -320,21 +312,33 @@
 .dropdown-menu .dropdown-item:active {
   background: var(--nav-accent) !important;
   color: #fff !important;
+  border-radius: 8px !important;
 }
 
-.profile-item-icon  {
+.dropdown-menu .dropdown-item.active .profile-item-icon,
+.dropdown-menu .dropdown-item.active * {
+  color: #fff !important;
+}
+
+.profile-item-icon {
   font-size: 1.05rem;
-  color: var(--nav-muted);
+  color: var(--nav-muted) !important;
   flex-shrink: 0;
+}
+
+.dropdown-item.active .profile-item-icon {
+  color: #fff !important;
 }
 
 .logout-link {
   font-size: 0.92rem;
 }
+
 .logout-icon {
   transform: rotate(180deg);
 }
 
+/* ─── THEME SWITCH ───────────────────────────────────────────────── */
 .dark-theme-switch .form-check-input:checked {
   background-color: var(--nav-accent);
   border-color: var(--nav-accent);
@@ -373,6 +377,10 @@ body.dark-theme .dark-theme-switch .form-check-input:focus,
   box-shadow: 0 0 0 0.18rem rgba(139, 92, 246, 0.28) !important;
 }
 
+/* ═══════════════════════════════════════════════
+   DARK MODE — complete navbar coverage
+   ═══════════════════════════════════════════════ */
+
 body.dark-theme .navbar,
 [data-theme="dark"] .navbar {
   background: #0f172a;
@@ -384,6 +392,7 @@ body.dark-theme .nav-links-desktop .custom-nav-btn,
   color: #e2e8f0;
 }
 
+/* Search input */
 body.dark-theme .nav-search-form input,
 [data-theme="dark"] .nav-search-form input {
   background: #090b14;
@@ -403,8 +412,6 @@ body.dark-theme .nav-search-form button,
 [data-theme="dark"] .nav-search-form button {
   color: #ffffff;
   background: #050506;
-  /* width: 36px;
-  height: 36px; */
   border-radius: 50%;
   right: 10px;
   justify-content: center;
@@ -416,6 +423,7 @@ body.dark-theme .nav-search-form button:hover,
   background: #111111;
 }
 
+/* Logo */
 body.dark-theme .logo,
 [data-theme="dark"] .logo {
   opacity: 1;
@@ -432,43 +440,101 @@ body.dark-theme .logo-dark,
   display: block;
 }
 
+/* Icon buttons */
 body.dark-theme .icon-btn,
 [data-theme="dark"] .icon-btn,
 body.dark-theme .nav-toggler,
 [data-theme="dark"] .nav-toggler {
-  background: rgba(255,255,255,0.06);
-  color: rgba(226,232,240,0.72);
-  border-color: rgba(148,163,184,0.18);
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(226, 232, 240, 0.72);
+  border-color: rgba(148, 163, 184, 0.18);
 }
 
 body.dark-theme .icon-btn:hover,
 [data-theme="dark"] .icon-btn:hover,
 body.dark-theme .nav-toggler:hover,
 [data-theme="dark"] .nav-toggler:hover {
-  background: rgba(139,92,246,0.18);
+  background: rgba(139, 92, 246, 0.18) !important;
   color: #f8fafc;
-  box-shadow: 0 6px 18px rgba(2,6,23,0.55);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.55);
 }
 
+/* Cart badge */
 body.dark-theme .cart-badge,
 [data-theme="dark"] .cart-badge {
-  border-color: rgba(15,23,42,0.95);
-  background: rgba(139,92,246,0.92);
+  border-color: rgba(15, 23, 42, 0.95);
+  background: rgba(139, 92, 246, 0.92);
 }
 
-body.dark-theme .cart-badge,
-[data-theme="dark"] .cart-badge {
-  border-color: rgba(15,23,42,0.95);
-}
-body.dark-theme .profile-dropdown-item:hover,
-[data-theme="dark"] .profile-dropdown-item:hover {
-  background: rgba(139, 92, 246, 0.14) !important;
-}
-
+/* Login button */
 body.dark-theme .nav-login-btn,
 [data-theme="dark"] .nav-login-btn {
-  background-color: var(--nav-accent);
+  background-color: var(--nav-accent) !important;
   color: #ffffff !important;
+}
+
+/* ── Dropdown menu dark mode ─────────────────── */
+body.dark-theme .user-dropdown-menu,
+[data-theme="dark"] .user-dropdown-menu {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+}
+
+/* Dropdown header divider */
+body.dark-theme .dropdown-user-header,
+[data-theme="dark"] .dropdown-user-header {
+  border-bottom-color: #334155 !important;
+}
+
+/* Dropdown user name text */
+body.dark-theme .dropdown-user-header p,
+[data-theme="dark"] .dropdown-user-header p {
+  color: #f1f5f9 !important;
+}
+
+/* Dropdown divider lines */
+body.dark-theme .dropdown-divider,
+[data-theme="dark"] .dropdown-divider {
+  border-color: #334155 !important;
+}
+
+/* Dropdown items */
+body.dark-theme .profile-dropdown-item,
+[data-theme="dark"] .profile-dropdown-item {
+  color: #e2e8f0 !important;
+}
+
+body.dark-theme .profile-dropdown-item:hover,
+[data-theme="dark"] .profile-dropdown-item:hover {
+  background: rgba(139, 92, 246, 0.18) !important;
+  color: #a78bfa !important;
+}
+
+body.dark-theme .profile-dropdown-item:hover *,
+[data-theme="dark"] .profile-dropdown-item:hover * {
+  color: #a78bfa !important;
+}
+
+/* Dropdown icons */
+body.dark-theme .profile-item-icon,
+[data-theme="dark"] .profile-item-icon {
+  color: #94a3b8 !important;
+}
+
+/* Active dropdown item */
+body.dark-theme .dropdown-menu .dropdown-item.active,
+[data-theme="dark"] .dropdown-menu .dropdown-item.active {
+  background: #7f46e7 !important;
+  color: #fff !important;
+}
+
+/* Dark Theme label text */
+body.dark-theme .profile-dropdown-item span,
+body.dark-theme .profile-dropdown-item div,
+[data-theme="dark"] .profile-dropdown-item span,
+[data-theme="dark"] .profile-dropdown-item div {
+  color: #e2e8f0;
 }
 
 /* ─── MOBILE DRAWER ──────────────────────────────────────────────── */
@@ -482,7 +548,6 @@ body.dark-theme .nav-login-btn,
   transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark mode mobile drawer */
 body.dark-theme .nav-drawer,
 [data-theme="dark"] .nav-drawer {
   background: #0f172a !important;
@@ -513,12 +578,9 @@ body.dark-theme .nav-drawer,
   padding: 14px;
   cursor: pointer;
   border-bottom: 1px solid #f3f4f6;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
-/* Dark mode menu items */
 body.dark-theme .drawer-nav-btn,
 [data-theme="dark"] .drawer-nav-btn {
   color: #e2e8f0 !important;
@@ -530,6 +592,7 @@ body.dark-theme .drawer-nav-btn,
   background: #6d15b0 !important;
   color: #ffffff !important;
 }
+
 body.dark-theme .drawer-nav-btn:hover,
 body.dark-theme .drawer-nav-btn.active,
 [data-theme="dark"] .drawer-nav-btn:hover,
@@ -537,21 +600,21 @@ body.dark-theme .drawer-nav-btn.active,
   background: #2f0b4b !important;
   color: #ffffff !important;
 }
+
 .drawer-nav-item:last-child .drawer-nav-btn {
   border-bottom: none;
 }
+
 /* ════════════════════════════════════════════════════════════════════
-   DESKTOP  ≥ 992px
-   Layout: [Logo] [Bags · Wallets · Belts — centered] [Search][👤][🛒]
-═══════════════════════════════════════════════════════════════════ */
+   DESKTOP ≥ 992px
+════════════════════════════════════════════════════════════════════ */
 @media (min-width: 992px) {
   .navbar-container {
     padding: 12px 32px;
     gap: 16px;
   }
-
   .logo {
-    height: 70px ;
+    height: 70px;
   }
   .nav-search-desktop {
     display: block;
@@ -571,19 +634,15 @@ body.dark-theme .drawer-nav-btn.active,
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   TABLET + MOBILE  < 992px
-   ONE ROW: [Logo] [Search──flex] [👤][🛒][☰]
-   Drawer below for Bags / Wallets / Belts
-═══════════════════════════════════════════════════════════════════ */
+   TABLET + MOBILE < 992px
+════════════════════════════════════════════════════════════════════ */
 @media (max-width: 991px) {
   .navbar-container {
     padding: 10px 16px;
     gap: 10px;
-    flex-wrap: wrap; /* only the drawer wraps to row 2 */
+    flex-wrap: wrap;
     min-height: 64px;
   }
-
-  /* ── Explicit ordering so everything stays on row 1 ── */
   .nav-logo-wrap {
     order: 1;
     flex-shrink: 0;
@@ -591,10 +650,10 @@ body.dark-theme .drawer-nav-btn.active,
   .nav-search-mobile {
     order: 2;
     display: flex;
-    flex: 1; /* grow into all free space */
+    flex: 1;
     min-width: 0;
     max-width: 260px;
-  } /* cap so icons aren't squeezed */
+  }
   .nav-actions {
     order: 3;
     margin-left: 0;
@@ -604,30 +663,24 @@ body.dark-theme .drawer-nav-btn.active,
     order: 4;
     display: flex;
   }
-  /* drawer fills full width below row 1 */
   .nav-drawer {
     order: 5;
     display: block;
     flex-basis: 100%;
   }
-
-  /* hide desktop-only elements */
   .nav-search-desktop {
     display: none !important;
   }
   .nav-links-desktop {
     display: none !important;
   }
-
   .logo {
     height: 75px !important;
   }
-
   .nav-search-form input {
     height: 40px;
     font-size: 13px;
   }
-
   .nav-login-btn {
     padding: 6px 12px;
     font-size: 0.85rem;
@@ -635,41 +688,35 @@ body.dark-theme .drawer-nav-btn.active,
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   SMALL MOBILE  < 576px
-═══════════════════════════════════════════════════════════════════ */
+   SMALL MOBILE < 576px
+════════════════════════════════════════════════════════════════════ */
 @media (max-width: 575px) {
   .navbar-container {
     padding: 8px 12px;
     gap: 8px;
     min-height: 58px;
   }
-
   .logo {
     height: 65px !important;
   }
-
   .nav-search-mobile {
     max-width: 210px;
   }
-
   .nav-search-form input {
     height: 38px;
     font-size: 12.5px;
     padding: 0 38px 0 14px;
   }
-
   .nav-search-form button {
     right: 12px;
     font-size: 0.9rem;
   }
-
   .icon-btn,
   .nav-toggler {
     width: 38px;
     height: 38px;
     font-size: 1.05rem;
   }
-
   .nav-login-btn {
     padding: 5px 10px;
     font-size: 0.78rem;
@@ -677,46 +724,39 @@ body.dark-theme .drawer-nav-btn.active,
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   XS MOBILE  < 400px
-═══════════════════════════════════════════════════════════════════ */
+   XS MOBILE < 400px
+════════════════════════════════════════════════════════════════════ */
 @media (max-width: 399px) {
   .navbar-container {
     padding: 7px 10px;
     gap: 6px;
     min-height: 54px;
   }
-
   .logo {
     height: 50px;
   }
-
   .nav-search-mobile {
     max-width: 160px;
     min-width: 80px;
   }
-
   .nav-search-form input {
     height: 35px;
     font-size: 12px;
     padding: 0 34px 0 11px;
   }
-
   .nav-search-form button {
     right: 10px;
     font-size: 0.82rem;
   }
-
   .icon-btn,
   .nav-toggler {
     width: 35px;
     height: 35px;
     font-size: 1rem;
   }
-
   .nav-actions {
     gap: 5px;
   }
-
   .nav-login-btn {
     padding: 4px 8px;
     font-size: 0.72rem;
@@ -724,79 +764,37 @@ body.dark-theme .drawer-nav-btn.active,
 }
 
 /* ════════════════════════════════════════════════════════════════════
-   TINY  320px – 349px
-═══════════════════════════════════════════════════════════════════ */
+   TINY 320px–349px
+════════════════════════════════════════════════════════════════════ */
 @media (max-width: 349px) {
   .navbar-container {
     padding: 6px 8px;
     gap: 4px;
     min-height: 50px;
   }
-
   .logo {
     height: 40px;
   }
-
   .nav-search-mobile {
     max-width: 120px;
     min-width: 70px;
   }
-
   .nav-search-form input {
     height: 32px;
     font-size: 11px;
     padding: 0 30px 0 10px;
   }
-
   .icon-btn,
   .nav-toggler {
     width: 32px;
     height: 32px;
     font-size: 0.9rem;
   }
-
   .nav-actions {
     gap: 3px;
   }
-
   .nav-login-btn {
     padding: 3px 6px;
     font-size: 0.65rem;
   }
 }
-/* ✅ FIX: Active dropdown item - purple background, white text & icons */
-.dropdown-menu .dropdown-item.active,
-.dropdown-menu .dropdown-item:active {
-  background-color: var(--nav-accent) !important;
-  color: #fff !important;
-  border-radius: 8px !important;
-}
-
-.dropdown-menu .dropdown-item.active .profile-item-icon,
-.dropdown-menu .dropdown-item.active * {
-  color: #fff !important;
-}
-
-/* ✅ FIX: Hover - light purple, accent text & icons */
-.profile-dropdown-item:hover {
-  background: var(--nav-accent-light) !important;
-  color: var(--nav-accent) !important;
-}
-
-.profile-dropdown-item:hover .profile-item-icon,
-.profile-dropdown-item:hover * {
-  color: var(--nav-accent) !important;
-}
-
-/* ✅ FIX: Default icon color */
-.profile-item-icon {
-  font-size: 1.05rem;
-  color: var(--nav-muted) !important;
-  flex-shrink: 0;
-}
-
-/* ✅ FIX: Active item icon stays white */
-.dropdown-item.active .profile-item-icon {
-  color: #fff !important;
-}
-

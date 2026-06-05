@@ -239,12 +239,12 @@ function Orders() {
         <div className="row justify-content-center align-items-start">
 
           {/* Sidebar — sticky on desktop, hidden on tablet & mobile */}
-          <div className="col-lg-4 col-md-5 mb-3 d-none d-lg-block sidebar-sticky">
+          <div className="col-lg-3 col-md-5 mb-3 d-none d-lg-block sidebar-sticky">
             <ProfileSideNav />
           </div>
 
           {/* Main content — full width on mobile/tablet, 8-col on desktop */}
-          <div className="col-lg-8 col-md-7 col-12">
+          <div className="col-lg-9 col-12">
             <div className="profile-details-card">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>

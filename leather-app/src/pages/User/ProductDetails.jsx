@@ -15,7 +15,20 @@ import { TiPencil } from "react-icons/ti";
 import { useWishlist } from "../../context/WishlistContext";
 import { useAuth } from "../../context/AuthContext";
 import { db } from "../../firebase";
-import { doc, getDoc, addDoc, collection, query, where, orderBy, onSnapshot, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  addDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  increment,
+} from "firebase/firestore";
 
 import "../../assets/styles/ProductDetails.css";
 
@@ -71,7 +84,9 @@ function ProductDetails() {
         : "Bag";
 
   // Pre-select the first available DB size, otherwise fall back to a default
+  // Find this inside your ProductDetails function
   const [selectedSize, setSelectedSize] = useState(() => {
+    if (parseInt(currentProduct.stocks) <= 0) return null; // Add this check
     const raw = currentProduct.size ?? "";
     const first = raw.split(",")[0]?.trim();
     if (first) return first;
@@ -95,24 +110,32 @@ function ProductDetails() {
     }
     const q = query(
       collection(db, "reviews"),
-      where("productId", "==", currentProduct.id)
+      where("productId", "==", currentProduct.id),
     );
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const reviews = snapshot.docs
-        .map(d => ({ ...d.data(), firestoreId: d.id }))
-        .filter(r => !r.isHidden);
-      
-      // Sort reviews in-memory by date descending
-      reviews.sort((a, b) => {
-        const dateA = a.date?.toDate ? a.date.toDate() : new Date(a.date || 0);
-        const dateB = b.date?.toDate ? b.date.toDate() : new Date(b.date || 0);
-        return dateB - dateA;
-      });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const reviews = snapshot.docs
+          .map((d) => ({ ...d.data(), firestoreId: d.id }))
+          .filter((r) => !r.isHidden);
 
-      setDynamicReviews(reviews);
-    }, (err) => {
-      console.error("Error loading reviews:", err);
-    });
+        // Sort reviews in-memory by date descending
+        reviews.sort((a, b) => {
+          const dateA = a.date?.toDate
+            ? a.date.toDate()
+            : new Date(a.date || 0);
+          const dateB = b.date?.toDate
+            ? b.date.toDate()
+            : new Date(b.date || 0);
+          return dateB - dateA;
+        });
+
+        setDynamicReviews(reviews);
+      },
+      (err) => {
+        console.error("Error loading reviews:", err);
+      },
+    );
     window.scrollTo(0, 0);
     return () => unsubscribe();
   }, [currentProduct.id]);
@@ -190,7 +213,10 @@ function ProductDetails() {
     try {
       if (type === "like") {
         if (alreadyLiked) {
-          await updateDoc(ref, { likes: arrayRemove(uid), likeCount: increment(-1) });
+          await updateDoc(ref, {
+            likes: arrayRemove(uid),
+            likeCount: increment(-1),
+          });
         } else {
           const updates = { likes: arrayUnion(uid), likeCount: increment(1) };
           if (alreadyDisliked) {
@@ -201,9 +227,15 @@ function ProductDetails() {
         }
       } else {
         if (alreadyDisliked) {
-          await updateDoc(ref, { dislikes: arrayRemove(uid), dislikeCount: increment(-1) });
+          await updateDoc(ref, {
+            dislikes: arrayRemove(uid),
+            dislikeCount: increment(-1),
+          });
         } else {
-          const updates = { dislikes: arrayUnion(uid), dislikeCount: increment(1) };
+          const updates = {
+            dislikes: arrayUnion(uid),
+            dislikeCount: increment(1),
+          };
           if (alreadyLiked) {
             updates.likes = arrayRemove(uid);
             updates.likeCount = increment(-1);
@@ -224,7 +256,11 @@ function ProductDetails() {
         try {
           const snap = await getDoc(doc(db, "users", currentUser.uid));
           if (snap.exists()) {
-            customerName = snap.data().name || snap.data().displayName || currentUser.email || "Anonymous User";
+            customerName =
+              snap.data().name ||
+              snap.data().displayName ||
+              currentUser.email ||
+              "Anonymous User";
           }
         } catch (_) {}
       }
@@ -244,7 +280,6 @@ function ProductDetails() {
         date: new Date(),
         isHidden: false,
       };
-
 
       await addDoc(collection(db, "reviews"), reviewPayload);
     } catch (err) {
@@ -315,22 +350,45 @@ function ProductDetails() {
     setShowDeleteModal(true);
   };
 
-  const executeDeleteAddress = () => {
-    const updated = savedAddresses.filter((addr) => addr.id !== targetDeleteId);
-    setSavedAddresses(updated);
-    localStorage.setItem("savedAddresses", JSON.stringify(updated));
-    if (selectedAddressId === targetDeleteId) {
-      setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
+  // ─────────────────────────────────────────────────────────────────────────────
+// FIX 2: Replace the executeDeleteAddress function in ProductDetails.jsx
+// Also add "updateDoc" to your firebase imports if not already present:
+//   import { doc, getDoc, addDoc, collection, query, where, orderBy,
+//            onSnapshot, updateDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
+// ─────────────────────────────────────────────────────────────────────────────
+
+const executeDeleteAddress = async () => {
+  const updated = savedAddresses.filter((addr) => addr.id !== targetDeleteId);
+  setSavedAddresses(updated);
+
+  // ✅ Persist deletion to Firestore (was missing — only localStorage was updated before)
+  if (currentUser) {
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userDocRef, { addresses: updated });
+    } catch (err) {
+      console.error("Error deleting address from DB:", err);
     }
-    setShowDeleteModal(false);
-    setTargetDeleteId(null);
-  };
+  }
+
+  // Keep localStorage in sync too
+  localStorage.setItem("savedAddresses", JSON.stringify(updated));
+
+  if (selectedAddressId === targetDeleteId) {
+    setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
+  }
+  setShowDeleteModal(false);
+  setTargetDeleteId(null);
+};
 
   const isCurrentlyInCartWithThisSize = cart?.some(
     (item) => item.id === currentProduct.id && item.size === selectedSize,
   );
 
-  const isOutOfStock = currentProduct.stocks !== undefined && currentProduct.stocks !== null && parseInt(currentProduct.stocks) <= 0;
+  const isOutOfStock =
+    currentProduct.stocks !== undefined &&
+    currentProduct.stocks !== null &&
+    parseInt(currentProduct.stocks) <= 0;
 
   const handleAddToCartAction = () => {
     if (isCurrentlyInCartWithThisSize) {
@@ -422,8 +480,16 @@ function ProductDetails() {
 
           <div className="col-lg-6 ps-lg-5">
             {/* Stock from DB */}
-            <div className="stock-text mb-2" style={{ color: isOutOfStock ? "#ef4444" : "#10b981", fontWeight: "600" }}>
-              {isOutOfStock ? "Out of Stock" : `${currentProduct.stocks} in stock available`}
+            <div
+              className="stock-text mb-2"
+              style={{
+                color: isOutOfStock ? "#ef4444" : "#10b981",
+                fontWeight: "600",
+              }}
+            >
+              {isOutOfStock
+                ? "Out of Stock"
+                : `${currentProduct.stocks} in stock available`}
             </div>
             <h1 className="product-title">{currentProduct.name}</h1>
             <div className="price-section d-flex align-items-center mb-2">
@@ -468,44 +534,67 @@ function ProductDetails() {
                   Select Size {productCategory === "Bag" && "(Capacity)"}
                 </h6>
                 <div className="d-flex gap-3 flex-wrap">
-                  {sizeOptions.map((opt, idx) => (
-                    <div
-                      key={idx}
-                      className={`size-option-box ${selectedSize === opt.value ? "selected" : ""} ${opt.disabled ? "disabled" : ""}`}
-                      onClick={() =>
-                        !opt.disabled && setSelectedSize(opt.value)
-                      }
-                      style={
-                        opt.disabled
-                          ? {
-                              opacity: 0.35,
-                              cursor: "not-allowed",
-                              pointerEvents: "none",
-                            }
-                          : {}
-                      }
-                      title={
-                        opt.disabled ? "Not available for this product" : ""
-                      }
-                    >
-                      <div className="size-value">{opt.value}</div>
-                      <div className="size-label">{opt.label}</div>
-                      {selectedSize === opt.value && (
-                        <div className="size-check-icon">
-                          <i className="bi bi-check-circle-fill"></i>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {sizeOptions.map((opt, idx) => {
+                    // Define if the option is disabled (either by DB logic or stock status)
+                    const isDisabled = opt.disabled || isOutOfStock;
+
+                    return (
+                      <div
+                        key={idx}
+                        className={`size-option-box ${selectedSize === opt.value ? "selected" : ""} ${isDisabled ? "disabled" : ""}`}
+                        onClick={() =>
+                          !isDisabled && setSelectedSize(opt.value)
+                        }
+                        style={
+                          isDisabled
+                            ? {
+                                opacity: 0.35,
+                                cursor: "not-allowed",
+                                pointerEvents: "none",
+                              }
+                            : {}
+                        }
+                        title={
+                          isDisabled
+                            ? isOutOfStock
+                              ? "Product is out of stock"
+                              : "Not available"
+                            : ""
+                        }
+                      >
+                        <div className="size-value">{opt.value}</div>
+                        <div className="size-label">{opt.label}</div>
+                        {/* Only show check icon if selected AND in stock */}
+                        {selectedSize === opt.value && !isOutOfStock && (
+                          <div className="size-check-icon">
+                            <i className="bi bi-check-circle-fill"></i>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
             <div className="d-flex align-items-center gap-3 mb-4">
-              <div className="quantity-selector" style={isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}}>
-                <button onClick={decreaseQuantity} disabled={isOutOfStock}>-</button>
-                <input type="text" value={isOutOfStock ? 0 : quantity} readOnly />
-                <button onClick={increaseQuantity} disabled={isOutOfStock}>+</button>
+              <div
+                className="quantity-selector"
+                style={
+                  isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}
+                }
+              >
+                <button onClick={decreaseQuantity} disabled={isOutOfStock}>
+                  -
+                </button>
+                <input
+                  type="text"
+                  value={isOutOfStock ? 0 : quantity}
+                  readOnly
+                />
+                <button onClick={increaseQuantity} disabled={isOutOfStock}>
+                  +
+                </button>
               </div>
 
               <button
@@ -518,7 +607,11 @@ function ProductDetails() {
                     : isCurrentlyInCartWithThisSize
                       ? "#4b5563"
                       : "#f3f4f6",
-                  color: isOutOfStock ? "#9ca3af" : isCurrentlyInCartWithThisSize ? "#ffffff" : "#1f2937",
+                  color: isOutOfStock
+                    ? "#9ca3af"
+                    : isCurrentlyInCartWithThisSize
+                      ? "#ffffff"
+                      : "#1f2937",
                   border: isOutOfStock
                     ? "1px solid #e5e7eb"
                     : isCurrentlyInCartWithThisSize
@@ -530,21 +623,25 @@ function ProductDetails() {
                 }}
               >
                 <IoMdCart />{" "}
-                {isOutOfStock ? "Out of Stock" : isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
+                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
               </button>
             </div>
             <button
               className="btn-buy-now"
               onClick={handleProceedToCheckoutDirectly}
               disabled={isOutOfStock}
-              style={isOutOfStock ? {
-                backgroundColor: "#e5e7eb",
-                color: "#9ca3af",
-                cursor: "not-allowed",
-                border: "none",
-              } : {}}
+              style={
+                isOutOfStock
+                  ? {
+                      backgroundColor: "#e5e7eb",
+                      color: "#9ca3af",
+                      cursor: "not-allowed",
+                      border: "none",
+                    }
+                  : {}
+              }
             >
-              {isOutOfStock ? "Out of Stock" : "Buy Now"}
+              Buy Now
             </button>
 
             <div className="delivery-box mt-4">
@@ -786,13 +883,16 @@ function ProductDetails() {
                             style={{
                               width: "32px",
                               height: "32px",
-                              background: "linear-gradient(135deg, #7c3aed, #9061f9)",
+                              background:
+                                "linear-gradient(135deg, #7c3aed, #9061f9)",
                               fontSize: "14px",
                               flexShrink: 0,
                               textShadow: "0 1px 1px rgba(0,0,0,0.1)",
                             }}
                           >
-                            {(review.customerName || review.name || "Anonymous").charAt(0).toUpperCase()}
+                            {(review.customerName || review.name || "Anonymous")
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
                           <p
                             className="reviewer-name fw-bold m-0 small"
@@ -828,13 +928,23 @@ function ProductDetails() {
                           style={{ fontSize: "0.7rem" }}
                         >
                           {review.date?.toDate
-                            ? review.date.toDate().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
+                            ? review.date
+                                .toDate()
+                                .toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
                             : review.date}
                         </span>
                         <div className="helpful-btns d-flex gap-2">
                           <button
                             style={{
-                              color: (review.likes || []).includes(currentUser?.uid) ? "#058aff" : "#6c757d",
+                              color: (review.likes || []).includes(
+                                currentUser?.uid,
+                              )
+                                ? "#058aff"
+                                : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
@@ -858,14 +968,20 @@ function ProductDetails() {
                           </button>
                           <button
                             style={{
-                              color: (review.dislikes || []).includes(currentUser?.uid) ? "#f25858" : "#6c757d",
+                              color: (review.dislikes || []).includes(
+                                currentUser?.uid,
+                              )
+                                ? "#f25858"
+                                : "#6c757d",
                               background: "none",
                               border: "none",
                               fontSize: "16px",
                             }}
                             onClick={() => handleFeedback(review, "dislike")}
                           >
-                            {(review.dislikes || []).includes(currentUser?.uid) ? (
+                            {(review.dislikes || []).includes(
+                              currentUser?.uid,
+                            ) ? (
                               <BiSolidDislike />
                             ) : (
                               <BiDislike />
@@ -924,10 +1040,7 @@ function ProductDetails() {
             }}
           >
             <div className="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-              <h4
-                className="title m-0 fw-bold"
-                style={{ fontSize: "1.4rem" }}
-              >
+              <h4 className="title m-0 fw-bold" style={{ fontSize: "1.4rem" }}>
                 Select delivery address
               </h4>
               <button
