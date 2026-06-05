@@ -79,6 +79,10 @@ function Profile() {
 
   const handleSave = async () => {
     setIsEditing(false);
+    
+    // Detect if the name is being changed
+    const nameChanged = tempData.name !== formData.name;
+    
     setFormData({ ...tempData });
     try {
       if (currentUser) {
@@ -91,6 +95,23 @@ function Profile() {
           photo: tempData.photo || "",
           updatedAt: new Date().toISOString(),
         });
+
+        // ─── If name changed, update past reviews ───
+        if (nameChanged && tempData.name) {
+          const { collection, query, where, getDocs, writeBatch } = await import("firebase/firestore");
+          const q = query(
+            collection(db, "reviews"),
+            where("customerId", "==", currentUser.uid)
+          );
+          const snapshot = await getDocs(q);
+          if (!snapshot.empty) {
+            const batch = writeBatch(db);
+            snapshot.forEach((reviewDoc) => {
+              batch.update(reviewDoc.ref, { customerName: tempData.name });
+            });
+            await batch.commit();
+          }
+        }
       }
     } catch (error) {
       console.error("Error updating profile:", error);
