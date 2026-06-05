@@ -143,7 +143,11 @@ const Coupons = () => {
       const currentSuffix = codeParts.length === 3 ? codeParts[2] : '';
       const codeSuffix = currentSuffix || Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       
+<<<<<<< HEAD
       const subCat = value === 'Bag' ? (formData.subCategory || 'Hand Bag') : '';
+=======
+      const subCat = value === 'Bag' ? (formData.subCategory || 'All Bags') : '';
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
       
       setFormData(prev => ({ ...prev, [name]: value, subCategory: subCat, code: `SBC-${prefix}-${codeSuffix}` }));
     } else {
@@ -157,7 +161,11 @@ const Coupons = () => {
       setFormData(coupon);
     } else {
       setFormData({
+<<<<<<< HEAD
         id: null, code: '', minOrder: '', usageLimit: '', discount: '', category: 'Bag', subCategory: 'Hand bag', desc: '', startDate: '', endDate: '', status: 'Active'
+=======
+        id: null, code: '', minOrder: '', usageLimit: '', discount: '', category: 'Bag', subCategory: 'All Bags', desc: '', startDate: '', endDate: '', status: 'Active'
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
       });
     }
     setShowModal(true);

@@ -53,6 +53,27 @@ function SignUpVerification() {
       inputRefs.current[index - 1]?.focus();
   };
 
+<<<<<<< HEAD
+  const handleResend = () => {
+    setResending(true);
+    setError("");
+    
+    // Reset inputs and restart countdown instantly for smooth UX
+    setTimer(119);
+    setTimerActive(true);
+    setOtp(["", "", "", ""]);
+    inputRefs.current[0]?.focus();
+
+    // Send the email in the background
+    sendOtp(email, "signup")
+      .catch((err) => {
+        console.error("Resend OTP background fail:", err);
+        setError("Failed to resend code. Please try again.");
+      })
+      .finally(() => {
+        setResending(false);
+      });
+=======
   const handleResend = async () => {
     setResending(true);
     try {
@@ -67,6 +88,7 @@ function SignUpVerification() {
     } finally {
       setResending(false);
     }
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
   };
 
   const handleVerify = (e) => {

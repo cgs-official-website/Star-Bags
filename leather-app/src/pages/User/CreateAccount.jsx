@@ -128,10 +128,19 @@ const CreateAccount = () => {
           gender: "Male"
         }));
 
+<<<<<<< HEAD
+        // ─── Generate OTP, store in sessionStorage, send to email (non-blocking) ───
+        sendOtp(user.email, "signup").catch((err) => {
+          console.error("Background OTP sending failed:", err);
+        });
+
+        // Redirect to OTP verification page immediately
+=======
         // ─── Generate OTP, store in sessionStorage, send to email ───
         await sendOtp(user.email, "signup");
 
         // Redirect to OTP verification page
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
         navigate("/signup-verification");
       } catch (err) {
         console.error("Firebase Registration Error:", err);
