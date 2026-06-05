@@ -1,6 +1,6 @@
 import { useState, useCallback, memo } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import "../../assets/styles/FilterSideBar.css";
+import "../../assets/styles/FilterSidebar.css";
 
 // ── Static Data ───────────────────────────────────────────────────────────────
 

@@ -13,25 +13,54 @@ import OrderSummary from "../../components/User/OrderSummary";
 import Navbar from "../../components/User/Navbar";
 import Footer from "../../components/User/Footer";
 import { useWishlist } from "../../context/WishlistContext";
-import CouponCard, { couponsDataList } from "../../components/User/CouponCard";
+import CouponCard from "../../components/User/CouponCard";
 import { useAuth } from "../../context/AuthContext";
 import { AddressSkeleton } from "../../components/User/UserSkeleton";
 
 import { db } from "../../firebase";
-import { doc, getDoc, updateDoc, collection, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  getDocs,
+} from "firebase/firestore";
 
 import "../../assets/styles/Cart.css";
 import "../../assets/styles/checkout.css";
+
+// ─── HELPER: normalize subCategory string for comparison ───
+const normSub = (str = "") => str.toLowerCase().trim();
+
+// ─── HELPER: get subtotal for a coupon based on category/subCategory ───
+const getCouponSubtotal = (coupon, subtotals) => {
+  const cat = (coupon.category || "").toLowerCase().trim();
+  const sub = normSub(coupon.subCategory);
+
+  if (cat === "all products") return subtotals.base;
+  if (cat === "wallet") return subtotals.wallet;
+  if (cat === "belt") return subtotals.belt;
+  if (cat === "bag") {
+    if (sub === "hand bag") return subtotals.handBag;
+    if (sub === "sling bag") return subtotals.slingBag;
+    if (sub === "tolly bag" || sub === "trolley bag") return subtotals.tollyBag;
+    if (sub === "travel bag") return subtotals.travelBag;
+    if (sub === "school bag") return subtotals.schoolBag;
+    if (sub === "office bag") return subtotals.officeBag;
+    if (sub === "lunch bag") return subtotals.lunchBag;
+    if (sub === "laptop bag") return subtotals.laptopBag;
+    return subtotals.totalBag;
+  }
+  return 0;
+};
 
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
   const { toggleWishlist } = useWishlist();
- 
 
-
-  // ─── 2. ALL STATE INITIALIZATIONS ───
+  // ─── STATE ───
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [loadingAddresses, setLoadingAddresses] = useState(true);
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -56,46 +85,7 @@ const Checkout = () => {
   );
   const [dbCoupons, setDbCoupons] = useState([]);
 
-  // ─── FIXED TRICK: DIRECT FIRESTORE REAL-TIME ADAPTER SYNC LAYER ───
-  useEffect(() => {
-    const fetchAddressesDirectly = async () => {
-      if (!currentUser) return;
-      try {
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userSnap = await getDoc(userDocRef);
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          if (data.addresses && Array.isArray(data.addresses)) {
-            setSavedAddresses(data.addresses);
-            localStorage.setItem(
-              "savedAddresses",
-              JSON.stringify(data.addresses),
-            );
-
-            if (location.state?.returnedAddressId) {
-              setSelectedAddressId(location.state.returnedAddressId);
-            } else if (data.addresses.length > 0) {
-              setSelectedAddressId(data.addresses[0].id);
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Firebase Sync error inside checkout ledger:", err);
-      } finally {
-        setLoadingAddresses(false);
-      }
-    };
-    fetchAddressesDirectly();
-  }, [currentUser, location.state]);
-
-  useEffect(() => {
-    if (initialSelected.length === 0) {
-      navigate("/cart");
-    }
-    window.scrollTo(0, 0);
-  }, [initialSelected, navigate]);
-
-
+  // ─── FETCH ADDRESSES ───
   useEffect(() => {
     if (!currentUser) return;
     const fetchAddresses = async () => {
@@ -104,7 +94,7 @@ const Checkout = () => {
         if (snap.exists()) {
           const addrs = snap.data().addresses ?? [];
           setSavedAddresses(addrs);
-          
+          localStorage.setItem("savedAddresses", JSON.stringify(addrs));
           if (location.state?.returnedAddressId) {
             setSelectedAddressId(location.state.returnedAddressId);
           } else if (addrs.length > 0) {
@@ -121,14 +111,18 @@ const Checkout = () => {
   }, [currentUser, location.state?.returnedAddressId]);
 
   useEffect(() => {
+    if (initialSelected.length === 0) navigate("/cart");
+    window.scrollTo(0, 0);
+  }, [initialSelected, navigate]);
+
+  // ─── FETCH COUPONS FROM FIREBASE ───
+  useEffect(() => {
     const fetchDbCoupons = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "coupons"));
-        const list = [];
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Fetch current user's coupon usage
         let userUsedCoupons = {};
         if (currentUser) {
           try {
@@ -141,13 +135,11 @@ const Checkout = () => {
           }
         }
 
+        const list = [];
         querySnapshot.forEach((docSnap) => {
           const data = docSnap.data();
-          
-          // Verify status dynamically
           let isActive = true;
-          
-          // Verify dates if present
+
           if (data.startDate) {
             const startDate = new Date(data.startDate);
             startDate.setHours(0, 0, 0, 0);
@@ -158,26 +150,38 @@ const Checkout = () => {
             endDate.setHours(0, 0, 0, 0);
             if (endDate < today) isActive = false;
           }
-          
-          // Verify usage limit if present (checked per-user)
+
           const usageLimit = Number(data.usageLimit);
-          const userUsedCount = Number(userUsedCoupons[docSnap.id] || userUsedCoupons[data.code]) || 0;
-          if (!isNaN(usageLimit) && userUsedCount >= usageLimit) {
+          const userUsedCount =
+            Number(userUsedCoupons[docSnap.id] || userUsedCoupons[data.code]) ||
+            0;
+          if (
+            !isNaN(usageLimit) &&
+            usageLimit > 0 &&
+            userUsedCount >= usageLimit
+          ) {
             isActive = false;
           }
 
           if (isActive) {
+            const discountRaw = (data.discount || "").replace("%", "").trim();
+            const percentage = parseInt(discountRaw, 10) || 0;
+            const offer = `${percentage}%`;
+
             list.push({
               ...data,
               id: docSnap.id,
-              // Map DB fields to CouponCard structure
-              offer: data.discount.includes("%") ? data.discount : `${data.discount}%`,
-              percentage: parseInt(data.discount, 10) || 0,
+              offer,
+              percentage,
               minThreshold: Number(data.minOrder) || 0,
-              description: data.desc
+              description: data.desc || "",
+              subCategory: data.subCategory || "",
+              category: data.category || "",
+              code: data.code || docSnap.id,
             });
           }
         });
+
         setDbCoupons(list);
       } catch (err) {
         console.error("Error fetching coupons from DB:", err);
@@ -186,90 +190,115 @@ const Checkout = () => {
     fetchDbCoupons();
   }, [currentUser]);
 
-  // ─── 4. CALCULATIONS AND METRIC LEDGER PARSING ───
+  // ─── SUBTOTAL CALCULATIONS ───
+  const getSubtotalByCategory = (categoryName, subCategoryName = "all") => {
+    return checkoutItems
+      .filter((item) => {
+        const itemCat = (item.category || "").toLowerCase().trim();
+        const itemSub = normSub(item.subCategory);
+        const matchesCat = itemCat === categoryName.toLowerCase().trim();
+        if (subCategoryName === "all") return matchesCat;
+        return matchesCat && itemSub === subCategoryName.toLowerCase().trim();
+      })
+      .reduce((acc, item) => acc + Number(item.price) * (item.qty || 1), 0);
+  };
 
   const totalItemsCount = checkoutItems.reduce(
     (acc, item) => acc + (item.qty || 1),
     0,
   );
+
+  // rawTotal = sum of original (real/MRP) prices
   const rawTotal = checkoutItems.reduce((acc, item) => {
     const originalPrice = Number(item.realPrice) || Number(item.price) || 0;
     return acc + originalPrice * (item.qty || 1);
   }, 0);
+
+  // baseSubTotal = sum of discounted selling prices (after product-level markdown)
   const baseSubTotal = checkoutItems.reduce(
     (acc, item) => acc + Number(item.price) * (item.qty || 1),
     0,
   );
-  const discountTotal = rawTotal - baseSubTotal;
 
-  const getSubtotalFilter = (categoryName, subCategoryName = "All") => {
-    return checkoutItems
-      .filter((item) => {
-        const matchesCategory = item.name
-          .toLowerCase()
-          .includes(categoryName.toLowerCase());
-        if (subCategoryName === "All") return matchesCategory;
-        return (
-          matchesCategory &&
-          item.name.toLowerCase().includes(subCategoryName.toLowerCase())
-        );
-      })
-      .reduce((acc, item) => acc + Number(item.price) * (item.qty || 1), 0);
+  // productDiscountTotal = MRP - selling price (product-level savings only)
+  const productDiscountTotal = Math.round(rawTotal - baseSubTotal);
+
+  const subtotals = {
+    base: baseSubTotal,
+    wallet: getSubtotalByCategory("wallet"),
+    belt: getSubtotalByCategory("belt"),
+    handBag: getSubtotalByCategory("bag", "hand bag"),
+    slingBag: getSubtotalByCategory("bag", "sling bag"),
+    tollyBag: getSubtotalByCategory("bag", "tolly bag"),
+    travelBag: getSubtotalByCategory("bag", "travel bag"),
+    schoolBag: getSubtotalByCategory("bag", "school bag"),
+    officeBag: getSubtotalByCategory("bag", "office bag"),
+    lunchBag: getSubtotalByCategory("bag", "lunch bag"),
+    laptopBag: getSubtotalByCategory("bag", "laptop bag"),
+    totalBag: getSubtotalByCategory("bag"),
   };
 
-  const walletSubtotal = getSubtotalFilter("Wallet", "All");
-  const beltSubtotal = getSubtotalFilter("Belt", "All");
-  const handBagSubtotal = getSubtotalFilter("Bag", "Hand Bag");
-  const slingBagSubtotal = getSubtotalFilter("Bag", "Sling Bag");
-  const tollyBagSubtotal = getSubtotalFilter("Bag", "Tolly Bag");
-  const travelBagSubtotal = getSubtotalFilter("Bag", "Travel Bag");
-  const schoolBagSubtotal = getSubtotalFilter("Bag", "School Bag");
-  const officeBagSubtotal = getSubtotalFilter("Bag", "Office Bag");
-  const lunchBagSubtotal = getSubtotalFilter("Bag", "Lunch Bag");
-  const laptopBagSubtotal = getSubtotalFilter("Bag", "Laptop Bag");
-  const totalBagSubtotal = getSubtotalFilter("Bag", "All");
-
+  // ─── COUPON DISCOUNT CALCULATION ───
+  // couponDiscount = percentage off on the category-specific subtotal
   let calculatedCouponDiscount = 0;
   if (couponPercentLabel) {
     const matched = dbCoupons.find(
-      (c) => c.code === couponInput.trim().toUpperCase(),
+      (c) => (c.code || "").toUpperCase() === couponInput.trim().toUpperCase(),
     );
     if (matched) {
-      let activeSubtotal = 0;
-      if (matched.category === "All Products") {
-        activeSubtotal = baseSubTotal;
-      } else if (matched.category === "Wallet") {
-        activeSubtotal = walletSubtotal;
-      } else if (matched.category === "Belt") {
-        activeSubtotal = beltSubtotal;
-      } else if (matched.category === "Bag") {
-        if (matched.subCategory === "Hand Bag") activeSubtotal = handBagSubtotal;
-        else if (matched.subCategory === "Sling Bag" || matched.subCategory === "Sling bag") activeSubtotal = slingBagSubtotal;
-        else if (matched.subCategory === "Tolly Bag" || matched.subCategory === "Trolley Bag" || matched.subCategory === "Trolley bag") activeSubtotal = tollyBagSubtotal;
-        else if (matched.subCategory === "Travel Bag" || matched.subCategory === "Travel bag") activeSubtotal = travelBagSubtotal;
-        else if (matched.subCategory === "School Bag" || matched.subCategory === "School bag") activeSubtotal = schoolBagSubtotal;
-        else if (matched.subCategory === "Office Bag" || matched.subCategory === "Office bag") activeSubtotal = officeBagSubtotal;
-        else if (matched.subCategory === "Lunch Bag" || matched.subCategory === "Lunch bag") activeSubtotal = lunchBagSubtotal;
-        else if (matched.subCategory === "Laptop Bag" || matched.subCategory === "Laptop bag") activeSubtotal = laptopBagSubtotal;
-        else activeSubtotal = totalBagSubtotal;
-      }
-
+      const activeSubtotal = getCouponSubtotal(matched, subtotals);
       if (activeSubtotal >= matched.minThreshold) {
-        calculatedCouponDiscount = (activeSubtotal * matched.percentage) / 100;
+        calculatedCouponDiscount = Math.round((activeSubtotal * matched.percentage) / 100);
       }
     }
   }
 
-  const dynamicallyAdjustedSubTotal = baseSubTotal - calculatedCouponDiscount;
-  const mtGstInput =
-    dynamicallyAdjustedSubTotal > 0 ? dynamicallyAdjustedSubTotal : 0;
-  const gstTotal = Math.round(mtGstInput * 0.18);
-  const finalTotal = mtGstInput + gstTotal;
+  // subTotal = baseSubTotal - couponDiscount  (what GST is calculated on)
+  const subTotalAfterCoupon =Math.round(
+    baseSubTotal - calculatedCouponDiscount > 0
+      ? baseSubTotal - calculatedCouponDiscount
+      : 0
+  );
+
+  const gstTotal = Math.round(subTotalAfterCoupon * 0.18);
+  const finalTotal = Math.round(subTotalAfterCoupon + gstTotal);
 
   const activeSelectedAddress = savedAddresses.find(
     (addr) => addr.id === selectedAddressId,
   );
 
+  // ─── VISIBLE COUPONS FILTER ───
+  const visibleCoupons = dbCoupons.filter((c) => {
+    const activeSubtotal = getCouponSubtotal(c, subtotals);
+    return activeSubtotal > 0;
+  });
+
+  // ─── APPLY COUPON HANDLER ───
+  const handleApplyCoupon = () => {
+    const code = couponInput.trim().toUpperCase();
+    const matched = dbCoupons.find(
+      (c) => (c.code || "").toUpperCase() === code,
+    );
+
+    if (!matched) {
+      setCouponError("Invalid or expired coupon code");
+      return;
+    }
+
+    const activeSubtotal = getCouponSubtotal(matched, subtotals);
+
+    if (activeSubtotal >= matched.minThreshold) {
+      setCouponPercentLabel(matched.offer);
+      setCouponError("");
+    } else {
+      setCouponPercentLabel("");
+      setCouponError(
+        `Add minimum ₹${matched.minThreshold} of applicable products to use this coupon`,
+      );
+    }
+  };
+
+  // ─── QTY HANDLERS ───
   const handleQtyIncrease = (id) => {
     setCheckoutItems((prev) =>
       prev.map((item) =>
@@ -288,6 +317,7 @@ const Checkout = () => {
     );
   };
 
+  // ─── ADDRESS HANDLERS ───
   const promptDeleteAddress = (e, id) => {
     e.stopPropagation();
     setTargetDeleteId(id);
@@ -299,14 +329,13 @@ const Checkout = () => {
     setSavedAddresses(updated);
     localStorage.setItem("savedAddresses", JSON.stringify(updated));
     if (currentUser) {
-
       try {
-        const userDocRef = doc(db, "users", currentUser.uid);
-        await updateDoc(userDocRef, { addresses: updated });
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          addresses: updated,
+        });
       } catch (err) {
         console.error("Error saving addresses to DB:", err);
       }
-
     }
     if (selectedAddressId === targetDeleteId) {
       setSelectedAddressId(updated.length > 0 ? updated[0].id : null);
@@ -315,52 +344,37 @@ const Checkout = () => {
     setTargetDeleteId(null);
   };
 
+  // ─── PROCEED TO BILLING ───
   const handleProceedToBilling = () => {
     if (!activeSelectedAddress) {
       setShowAddressWarningModal(true);
       return;
     }
     const matchedCoupon = dbCoupons.find(
-      (c) => c.code === couponInput.trim().toUpperCase()
+      (c) => (c.code || "").toUpperCase() === couponInput.trim().toUpperCase(),
     );
     navigate("/BillAddress", {
       state: {
-        allCartItems: allCartItems,
+        allCartItems,
         cartItems: checkoutItems,
-        totalItemsCount: totalItemsCount,
-        rawTotal: rawTotal,
-        discountTotal: discountTotal + calculatedCouponDiscount,
-        subTotal: baseSubTotal,
-        couponDiscount: calculatedCouponDiscount,
+        totalItemsCount,
+        rawTotal,
+        // ─── Pass product discount and coupon discount SEPARATELY ───
+        productDiscountTotal,                           // MRP - selling price
+        couponDiscount: calculatedCouponDiscount,       // coupon savings
+        subTotal: subTotalAfterCoupon,                  // after both discounts
         couponPercentageLabel: couponPercentLabel,
-        appliedCouponCode: couponPercentLabel ? couponInput.trim().toUpperCase() : "",
-        appliedCouponId: couponPercentLabel && matchedCoupon ? matchedCoupon.id : "",
-        gstTotal: gstTotal,
-        finalTotal: finalTotal,
+        appliedCouponCode: couponPercentLabel
+          ? couponInput.trim().toUpperCase()
+          : "",
+        appliedCouponId:
+          couponPercentLabel && matchedCoupon ? matchedCoupon.id : "",
+        gstTotal,
+        finalTotal,
         selectedAddress: activeSelectedAddress,
       },
     });
   };
-
-  const visibleCoupons = dbCoupons.filter((c) => {
-    if (c.category === "All Products") {
-      return baseSubTotal > 0;
-    }
-    if (c.category === "Bag") {
-      if (c.subCategory === "Hand Bag") return handBagSubtotal > 0;
-      if (c.subCategory === "Sling Bag" || c.subCategory === "Sling bag") return slingBagSubtotal > 0;
-      if (c.subCategory === "Tolly Bag" || c.subCategory === "Trolley Bag" || c.subCategory === "Trolley bag") return tollyBagSubtotal > 0;
-      if (c.subCategory === "Travel Bag" || c.subCategory === "Travel bag") return travelBagSubtotal > 0;
-      if (c.subCategory === "School Bag" || c.subCategory === "School bag") return schoolBagSubtotal > 0;
-      if (c.subCategory === "Office Bag" || c.subCategory === "Office bag") return officeBagSubtotal > 0;
-      if (c.subCategory === "Lunch Bag" || c.subCategory === "Lunch bag") return lunchBagSubtotal > 0;
-      if (c.subCategory === "Laptop Bag" || c.subCategory === "Laptop bag") return laptopBagSubtotal > 0;
-      return totalBagSubtotal > 0;
-    }
-    if (c.category === "Wallet") return walletSubtotal > 0;
-    if (c.category === "Belt") return beltSubtotal > 0;
-    return false;
-  });
 
   return (
     <>
@@ -378,6 +392,7 @@ const Checkout = () => {
 
         <div className="cart-layout-grid">
           <div className="cart-left">
+            {/* ─── ADDRESS BOX ─── */}
             <div className="address-box mb-3">
               <div className="address-top-row">
                 <h4 className="section-subtitle-heading">Address</h4>
@@ -440,6 +455,7 @@ const Checkout = () => {
               )}
             </div>
 
+            {/* ─── CART ITEMS ─── */}
             <div className="cart-items">
               {checkoutItems.map((item) => (
                 <CartItem
@@ -456,11 +472,20 @@ const Checkout = () => {
           </div>
 
           <div className="cart-right">
+            {/*
+              ─── ORDER SUMMARY: correct breakdown ───
+              rawTotal          = MRP total
+              productDiscount   = MRP - selling price  (shown as "Discount")
+              couponDiscount    = coupon savings        (shown as "Coupon Discount")
+              subTotal          = selling price - couponDiscount
+              gstTotal          = subTotal × 18%
+              finalTotal        = subTotal + gstTotal
+            */}
             <OrderSummary
               totalItemsCount={totalItemsCount}
               rawTotal={rawTotal}
-              discountTotal={discountTotal + calculatedCouponDiscount}
-              subTotal={dynamicallyAdjustedSubTotal}
+              discountTotal={productDiscountTotal}
+              subTotal={subTotalAfterCoupon}
               couponDiscount={calculatedCouponDiscount}
               couponPercentageLabel={couponPercentLabel}
               gstTotal={gstTotal}
@@ -470,8 +495,11 @@ const Checkout = () => {
               handleCheckout={handleProceedToBilling}
             />
 
+            {/* ─── COUPON SECTION ─── */}
             <div className="coupon-section">
-              <h4 className="coupon-title" style={{paddingTop:"20px"}}>Apply coupon</h4>
+              <h4 className="coupon-title" style={{ paddingTop: "20px" }}>
+                Apply coupon
+              </h4>
               <div className="coupon-input-box">
                 <input
                   type="text"
@@ -483,42 +511,7 @@ const Checkout = () => {
                     setCouponError("");
                   }}
                 />
-                <button
-                  className="apply-btn"
-                  onClick={() => {
-                    const code = couponInput.trim().toUpperCase();
-                    const matched = dbCoupons.find((c) => c.code === code);
-                    if (matched) {
-                      let activeSubtotal = 0;
-                      if (matched.category === "All Products") {
-                        activeSubtotal = baseSubTotal;
-                      } else if (matched.category === "Wallet") {
-                        activeSubtotal = walletSubtotal;
-                      } else if (matched.category === "Belt") {
-                        activeSubtotal = beltSubtotal;
-                      } else if (matched.category === "Bag") {
-                        if (matched.subCategory === "Hand Bag") activeSubtotal = handBagSubtotal;
-                        else if (matched.subCategory === "Sling Bag" || matched.subCategory === "Sling bag") activeSubtotal = slingBagSubtotal;
-                        else if (matched.subCategory === "Tolly Bag" || matched.subCategory === "Trolley Bag" || matched.subCategory === "Trolley bag") activeSubtotal = tollyBagSubtotal;
-                        else if (matched.subCategory === "Travel Bag" || matched.subCategory === "Travel bag") activeSubtotal = travelBagSubtotal;
-                        else if (matched.subCategory === "School Bag" || matched.subCategory === "School bag") activeSubtotal = schoolBagSubtotal;
-                        else if (matched.subCategory === "Office Bag" || matched.subCategory === "Office bag") activeSubtotal = officeBagSubtotal;
-                        else if (matched.subCategory === "Lunch Bag" || matched.subCategory === "Lunch bag") activeSubtotal = lunchBagSubtotal;
-                        else if (matched.subCategory === "Laptop Bag" || matched.subCategory === "Laptop bag") activeSubtotal = laptopBagSubtotal;
-                        else activeSubtotal = totalBagSubtotal;
-                      }
-
-                      if (activeSubtotal >= matched.minThreshold) {
-                        setCouponPercentLabel(matched.offer);
-                        setCouponError("");
-                      } else {
-                        setCouponError(`Add minimum ₹${matched.minThreshold} of applicable products to use this coupon`);
-                      }
-                    } else {
-                      setCouponError("Invalid or expired coupon code");
-                    }
-                  }}
-                >
+                <button className="apply-btn" onClick={handleApplyCoupon}>
                   Apply
                 </button>
               </div>
@@ -529,46 +522,45 @@ const Checkout = () => {
                 </p>
               )}
 
+              {/* ─── COUPON CARDS ─── */}
               <div className="coupon-list" style={{ marginTop: "16px" }}>
-                {visibleCoupons.map((couponItem) => {
-                  let subTotalFeedValue = 0;
-                  if (couponItem.category === "All Products") {
-                    subTotalFeedValue = baseSubTotal;
-                  } else if (couponItem.category === "Wallet") {
-                    subTotalFeedValue = walletSubtotal;
-                  } else if (couponItem.category === "Belt") {
-                    subTotalFeedValue = beltSubtotal;
-                  } else if (couponItem.category === "Bag") {
-                    if (couponItem.subCategory === "Hand Bag") subTotalFeedValue = handBagSubtotal;
-                    else if (couponItem.subCategory === "Sling Bag" || couponItem.subCategory === "Sling bag") subTotalFeedValue = slingBagSubtotal;
-                    else if (couponItem.subCategory === "Tolly Bag" || couponItem.subCategory === "Trolley Bag" || couponItem.subCategory === "Trolley bag") subTotalFeedValue = tollyBagSubtotal;
-                    else if (couponItem.subCategory === "Travel Bag" || couponItem.subCategory === "Travel bag") subTotalFeedValue = travelBagSubtotal;
-                    else if (couponItem.subCategory === "School Bag" || couponItem.subCategory === "School bag") subTotalFeedValue = schoolBagSubtotal;
-                    else if (couponItem.subCategory === "Office Bag" || couponItem.subCategory === "Office bag") subTotalFeedValue = officeBagSubtotal;
-                    else if (couponItem.subCategory === "Lunch Bag" || couponItem.subCategory === "Lunch bag") subTotalFeedValue = lunchBagSubtotal;
-                    else if (couponItem.subCategory === "Laptop Bag" || couponItem.subCategory === "Laptop bag") subTotalFeedValue = laptopBagSubtotal;
-                    else subTotalFeedValue = totalBagSubtotal;
-                  }
-
-                  return (
-                    <CouponCard
-                      key={couponItem.code}
-                      coupon={couponItem}
-                      onSelectCoupon={(code) => {
-                        setCouponInput(code);
-                        setCouponPercentLabel(couponItem.offer);
-                        setCouponError("");
-                      }}
-                      currentSubTotal={subTotalFeedValue}
-                    />
-                  );
-                })}
+                {visibleCoupons.length === 0 ? (
+                  <p className="text-muted small">
+                    No coupons available for your cart items.
+                  </p>
+                ) : (
+                  visibleCoupons.map((couponItem) => {
+                    const subTotalFeedValue = getCouponSubtotal(
+                      couponItem,
+                      subtotals,
+                    );
+                    return (
+                      <CouponCard
+                        key={couponItem.code}
+                        coupon={couponItem}
+                        onSelectCoupon={(code) => {
+                          setCouponInput(code);
+                          setCouponPercentLabel("");
+                          setCouponError("");
+                          document
+                            .querySelector(".coupon-input")
+                            ?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "center",
+                            });
+                        }}
+                        currentSubTotal={subTotalFeedValue}
+                      />
+                    );
+                  })
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
+      {/* ─── ADDRESS MODAL ─── */}
       {isModalOpen && (
         <div
           className="address-popup-modal-overlay d-flex justify-content-center align-items-center"
@@ -640,7 +632,9 @@ const Checkout = () => {
               {savedAddresses.map((addr, index) => (
                 <div
                   key={addr.id}
-                  className={`popup-address-item-card p-3 mb-3 border rounded position-relative ${selectedAddressId === addr.id ? "selected-card" : ""}`}
+                  className={`popup-address-item-card p-3 mb-3 border rounded position-relative ${
+                    selectedAddressId === addr.id ? "selected-card" : ""
+                  }`}
                   onClick={() => {
                     setSelectedAddressId(addr.id);
                     setIsModalOpen(false);
@@ -736,6 +730,7 @@ const Checkout = () => {
         </div>
       )}
 
+      {/* ─── DELETE CONFIRM MODAL ─── */}
       {showDeleteModal && (
         <div
           className="modal-overlay-custom"
@@ -777,6 +772,7 @@ const Checkout = () => {
         </div>
       )}
 
+      {/* ─── ADDRESS WARNING MODAL ─── */}
       {showAddressWarningModal && (
         <div
           className="modal-overlay-custom"
@@ -841,6 +837,7 @@ const Checkout = () => {
           </div>
         </div>
       )}
+
       <Footer />
     </>
   );
