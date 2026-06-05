@@ -53,6 +53,7 @@ function SignUpVerification() {
       inputRefs.current[index - 1]?.focus();
   };
 
+<<<<<<< HEAD
   const handleResend = () => {
     setResending(true);
     setError("");
@@ -72,6 +73,22 @@ function SignUpVerification() {
       .finally(() => {
         setResending(false);
       });
+=======
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await sendOtp(email, "signup");
+      setTimer(119);
+      setTimerActive(true);
+      setOtp(["", "", "", ""]);
+      setError("");
+      inputRefs.current[0]?.focus();
+    } catch {
+      setError("Failed to resend code. Please try again.");
+    } finally {
+      setResending(false);
+    }
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
   };
 
   const handleVerify = (e) => {

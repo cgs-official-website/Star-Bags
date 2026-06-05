@@ -82,15 +82,22 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />
+<<<<<<< HEAD
           <Route path="/products" element={<Navigate to="/allProducts" replace />} />
           <Route path="/shop" element={<Navigate to="/allProducts" replace />} />
           <Route path="/bags" element={<Navigate to="/allProducts" replace />} />
+=======
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
 
           
 
 
           {/* User Protected Routes */}
+<<<<<<< HEAD
           <Route path="/cart" element={<Cart />} />
+=======
+          <Route path="/cart" element={<UserProtectedRoute><Cart /></UserProtectedRoute>} />
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
           <Route path="/orders" element={<UserProtectedRoute><Orders /></UserProtectedRoute>} />
           <Route path="/wishlist" element={<UserProtectedRoute><WishList /></UserProtectedRoute>} />
           <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />
