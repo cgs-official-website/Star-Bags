@@ -384,21 +384,25 @@ function ProductDetails() {
   };
 
   const handleProceedToCheckoutDirectly = () => {
-    const itemPayload = {
-      ...currentProduct,
-      qty: quantity,
-      size: selectedSize,
-    };
-    navigate("/checkout", {
-      state: {
-        allCartItems: [itemPayload],
-        cartItems: [itemPayload],
-        couponPercentageLabel: "",
-        returnedAddressId: selectedAddressId,
-      },
-    });
+  // Prevent action if out of stock
+  if (isOutOfStock) {
+    return;
+  }
+  
+  const itemPayload = {
+    ...currentProduct,
+    qty: quantity,
+    size: selectedSize,
   };
-
+  navigate("/checkout", {
+    state: {
+      allCartItems: [itemPayload],
+      cartItems: [itemPayload],
+      couponPercentageLabel: "",
+      returnedAddressId: selectedAddressId,
+    },
+  });
+};
   return (
     <div className="product-details-page" style={{ position: "relative" }}>
       <Navbar />
@@ -558,71 +562,82 @@ function ProductDetails() {
             )}
 
             <div className="d-flex align-items-center gap-3 mb-4">
-              <div
-                className="quantity-selector"
-                style={
-                  isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}
-                }
-              >
-                <button onClick={decreaseQuantity} disabled={isOutOfStock}>
-                  -
-                </button>
-                <input
-                  type="text"
-                  value={isOutOfStock ? 0 : quantity}
-                  readOnly
-                />
-                <button onClick={increaseQuantity} disabled={isOutOfStock}>
-                  +
-                </button>
-              </div>
+  {/* Quantity Selector - Disabled when out of stock */}
+  <div
+    className="quantity-selector"
+    style={
+      isOutOfStock ? { pointerEvents: "none", opacity: 0.5 } : {}
+    }
+  >
+    <button onClick={decreaseQuantity} disabled={isOutOfStock}>
+      -
+    </button>
+    <input
+      type="text"
+      value={isOutOfStock ? 0 : quantity}
+      readOnly
+    />
+    <button onClick={increaseQuantity} disabled={isOutOfStock}>
+      +
+    </button>
+  </div>
 
-              <button
-                className="btn-add-cart"
-                onClick={handleAddToCartAction}
-                disabled={isOutOfStock}
-                style={{
-                  backgroundColor: isOutOfStock
-                    ? "#e5e7eb"
-                    : isCurrentlyInCartWithThisSize
-                      ? "#4b5563"
-                      : "#f3f4f6",
-                  color: isOutOfStock
-                    ? "#9ca3af"
-                    : isCurrentlyInCartWithThisSize
-                      ? "#ffffff"
-                      : "#1f2937",
-                  border: isOutOfStock
-                    ? "1px solid #e5e7eb"
-                    : isCurrentlyInCartWithThisSize
-                      ? "none"
-                      : "1px solid #d1d5db",
-                  fontWeight: "600",
-                  transition: "all 0.2s ease",
-                  cursor: isOutOfStock ? "not-allowed" : "pointer",
-                }}
-              >
-                <IoMdCart />{" "}
-                {isCurrentlyInCartWithThisSize ? "Go to Cart" : "Add to Cart"}
-              </button>
-            </div>
-            <button
-              className="btn-buy-now"
-              onClick={handleProceedToCheckoutDirectly}
-              disabled={isOutOfStock}
-              style={
-                isOutOfStock
-                  ? {
-                      backgroundColor: "#e5e7eb",
-                      color: "#9ca3af",
-                      cursor: "not-allowed",
-                      border: "none",
-                    }
-                  : {}
-              }
-            >
-              Buy Now
-            </button>
+  {/* ADD TO CART BUTTON - Dull colors when out of stock */}
+  <button
+    className={`btn-add-cart ${isOutOfStock ? "out-of-stock" : ""}`}
+    onClick={handleAddToCartAction}
+    disabled={isOutOfStock}
+    style={{
+      backgroundColor: isOutOfStock
+        ? "#9ca3af"  // Dull gray color
+        : isCurrentlyInCartWithThisSize
+          ? "#4b5563"
+          : "#f3f4f6",
+      color: isOutOfStock
+        ? "#e5e7eb"  // Light dull text
+        : isCurrentlyInCartWithThisSize
+          ? "#ffffff"
+          : "#1f2937",
+      border: isOutOfStock
+        ? "1px solid #9ca3af"
+        : isCurrentlyInCartWithThisSize
+          ? "none"
+          : "1px solid #d1d5db",
+      fontWeight: "600",
+      transition: "none",  // No transition when out of stock
+      cursor: isOutOfStock ? "not-allowed" : "pointer",
+      opacity: isOutOfStock ? 0.6 : 1,
+    }}
+  >
+    <IoMdCart /> 
+    {isOutOfStock 
+      ? "Out of Stock" 
+      : isCurrentlyInCartWithThisSize 
+        ? "Go to Cart" 
+        : "Add to Cart"}
+  </button>
+</div>
+
+{/* BUY NOW BUTTON - Dull colors when out of stock */}
+<button
+  className={`btn-buy-now ${isOutOfStock ? "out-of-stock" : ""}`}
+  onClick={handleProceedToCheckoutDirectly}
+  disabled={isOutOfStock}
+  style={
+    isOutOfStock
+      ? {
+          backgroundColor: "#9ca3af",  // Dull gray color
+          color: "#e5e7eb",            // Light dull text
+          cursor: "not-allowed",
+          border: "none",
+          transition: "none",           // No transition/hover effects
+          opacity: 0.6,
+        }
+      : {}
+  }
+>
+  Buy Now
+</button>
 
             <div className="delivery-box mt-4">
               <div className="d-flex justify-content-between align-items-center mb-2">
