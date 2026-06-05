@@ -70,7 +70,8 @@
     border-radius: 10px;
     padding: 20px;
     background: #faf8ff;
-    overflow: visible;
+
+    overflow: visible;        /* ← fix: no clipping inside form box */
 }
 
 /* Form labels */

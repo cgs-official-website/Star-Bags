@@ -205,7 +205,9 @@
   transition: background 0.1s;
 }
 
-
+.price-option:active {
+  background: #f5f3ff;
+}
 
 /* Custom radio circle — state driven by inline styles from JS */
 .custom-radio {
@@ -537,7 +539,6 @@ body.dark-theme .show-more-btn:hover,
     background: inherit;
   }
 
-  
 
   body.dark-theme .price-option,
 [data-theme="dark"] .price-option {
@@ -550,5 +551,5 @@ body.dark-theme .price-option:active,
 [data-theme="dark"] .price-option:active {
   /* Define a subtle dark-grey highlight instead of a white flash */
   background: rgba(255, 255, 255, 0.05) !important;
-/* >>>>>>> b3419069926362b87388fcf907f840568f30ac6a */
+
 }

@@ -1,17 +1,15 @@
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useCallback, memo } from 'react';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "../../assets/styles/FilterSideBar.css";
 
 // ── Static Data ───────────────────────────────────────────────────────────────
 
-export const BAG_TYPES = ['College Bag', 'Hand Bag', 'Lunch Bag', 'Office Bag', 'School Bag', 'Travel Bag', 'Trolley Bag'];
-export const BRANDS    = ['American Tourister', 'Puma', 'Rubee bags', 'Safari', 'Sky bags', 'VIP', 'Wildcraft'];
-export const MATERIALS = ['Leather', 'Canvas'];
-export const SIZES     = ['Small', 'Medium', 'Large'];
-export const PATTERNS  = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
+export const BAG_TYPES  = ['College Bag', 'Hand Bag', 'Lunch Bag', 'Office Bag', 'School Bag', 'Travel Bag', 'Trolley Bag'];
+export const BRANDS     = ['American Tourister', 'Puma', 'Rubee bags', 'Safari', 'Sky bags', 'VIP', 'Wildcraft'];
+export const MATERIALS  = ['Leather', 'Canvas'];
+export const SIZES      = ['Small', 'Medium', 'Large'];
+export const PATTERNS   = ['Plain', 'Snake Leather', 'Crocodile', 'Ostrich'];
 export const CAPACITIES = ['20L', '30L', '40L'];
-
-// Belt uses the same SIZES but without XL
 export const BELT_SIZES = ['Small', 'Medium', 'Large'];
 
 export const PRICE_RANGES = [
@@ -31,10 +29,9 @@ export const DEFAULT_FILTERS = {
   capacities: [],
 };
 
-// ── Flipkart-style collapsible section ─────────────────────────────────────────
+// ── Collapsible Section ────────────────────────────────────────────────────────
 const FilterSection = ({ title, children, defaultOpen = true }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  
   return (
     <div className="filter-section">
       <div className="filter-section-header" onClick={() => setIsOpen(!isOpen)}>
@@ -46,12 +43,11 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
   );
 };
 
-// ── Checkbox List Component with Show More/Less ─────────────────────────────
+// ── Checkbox List ──────────────────────────────────────────────────────────────
 const CheckboxList = ({ options, selected, onChange, color = '#8b5cf6', initialLimit = 4 }) => {
   const [showAll, setShowAll] = useState(false);
   const visibleOptions = showAll ? options : options.slice(0, initialLimit);
   const hasMore = options.length > initialLimit;
-
   return (
     <div className="checkbox-list-wrapper">
       <div className="checkbox-list">
@@ -76,12 +72,11 @@ const CheckboxList = ({ options, selected, onChange, color = '#8b5cf6', initialL
   );
 };
 
-// ── Size Buttons Component with Show More/Less ──────────────────────────────
+// ── Size Buttons ───────────────────────────────────────────────────────────────
 const SizeButtons = ({ options, selected = [], onChange, initialLimit = 3 }) => {
   const [showAll, setShowAll] = useState(false);
   const visibleOptions = showAll ? options : options.slice(0, initialLimit);
   const hasMore = options.length > initialLimit;
-
   return (
     <div className="size-wrapper">
       <div className="size-buttons">
@@ -91,12 +86,7 @@ const SizeButtons = ({ options, selected = [], onChange, initialLimit = 3 }) => 
             <button
               key={size}
               className={`size-btn ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                const next = isActive
-                  ? selected.filter((s) => s !== size)
-                  : [...selected, size];
-                onChange(next);
-              }}
+              onClick={() => onChange(isActive ? selected.filter((s) => s !== size) : [...selected, size])}
             >
               {size}
             </button>
@@ -112,12 +102,11 @@ const SizeButtons = ({ options, selected = [], onChange, initialLimit = 3 }) => 
   );
 };
 
-// ── Capacity Cards Component (card style with subtitle) ──────────────────────
+// ── Capacity Cards ─────────────────────────────────────────────────────────────
 const CapacityCards = ({ options, selected = [], onChange, initialLimit = 3 }) => {
   const [showAll, setShowAll] = useState(false);
   const visibleOptions = showAll ? options : options.slice(0, initialLimit);
   const hasMore = options.length > initialLimit;
-
   return (
     <div className="capacity-cards-wrapper">
       <div className="capacity-cards">
@@ -127,12 +116,7 @@ const CapacityCards = ({ options, selected = [], onChange, initialLimit = 3 }) =
             <button
               key={option}
               className={`capacity-card ${isActive ? 'active' : ''}`}
-              onClick={() => {
-                const next = isActive
-                  ? selected.filter((c) => c !== option)
-                  : [...selected, option];
-                onChange(next);
-              }}
+              onClick={() => onChange(isActive ? selected.filter((c) => c !== option) : [...selected, option])}
             >
               {isActive && (
                 <span className="capacity-check">
@@ -154,20 +138,15 @@ const CapacityCards = ({ options, selected = [], onChange, initialLimit = 3 }) =
   );
 };
 
-// ── Active Filter Tags Component ────────────────────────────────────────────
+// ── Active Filter Tags ─────────────────────────────────────────────────────────
 const ActiveFilterTags = ({ filters, onRemove }) => {
   if (!filters || filters.length === 0) return null;
-
   return (
     <div className="active-filters-tags">
       {filters.map((filter, index) => (
         <div key={index} className="active-filter-tag">
           <span className="filter-tag-label">{filter.type}: {filter.label}</span>
-          <button 
-            onClick={() => onRemove(index)} 
-            className="remove-filter-btn"
-            aria-label={`Remove ${filter.label} filter`}
-          >
+          <button onClick={() => onRemove(index)} className="remove-filter-btn" aria-label={`Remove ${filter.label} filter`}>
             ✕
           </button>
         </div>
@@ -176,157 +155,121 @@ const ActiveFilterTags = ({ filters, onRemove }) => {
   );
 };
 
-// ── Price Range Component with Custom Radio (OPTIMIZED FOR MOBILE) ───────────
-const PriceRangeSelector = ({ ranges, selected, onChange }) => {
-  // Local state for immediate UI feedback
-  const [localSelected, setLocalSelected] = useState(selected);
-  
-  // Sync local state with prop
-  useEffect(() => {
-    setLocalSelected(selected);
-  }, [selected]);
-  
-  // Optimized change handler with requestAnimationFrame
-  const handleChange = useCallback((value) => {
-    // Update local state immediately for UI feedback
-    setLocalSelected(value);
-    // Use requestAnimationFrame to batch the parent update
-    requestAnimationFrame(() => {
-      onChange(value);
-    });
-  }, [onChange]);
-  
-  return (
-    <div className="price-options">
-      {ranges.map((range) => (
-        <label 
-          key={range.value} 
+// ── Price Range Selector ───────────────────────────────────────────────────────
+const PriceRangeSelector = ({ ranges, selected, onChange }) => (
+  <div className="price-options">
+    {ranges.map((range) => {
+      const isActive = selected === range.value;
+      return (
+        <div
+          key={range.value}
           className="price-option"
-          onTouchEnd={(e) => {
-            e.preventDefault(); // Prevent double-firing on mobile
-            handleChange(range.value);
-          }}
-          onClick={(e) => {
-            // Handle click for desktop
-            e.preventDefault();
-            handleChange(range.value);
-          }}
+          onClick={() => onChange(range.value)}
         >
-          <input
-            type="radio"
-            name="price"
-            checked={localSelected === range.value}
-            onChange={() => {}} // Empty onChange, handled by label
-            className="custom-radio"
-          />
-          {/* <span className="custom-radio"></span> */}
-          <span className="price-label">{range.label}</span>
-        </label>
-      ))}
-    </div>
-  );
-};
 
-// ── Main FilterSideBar (Memoized for performance) ────────────────────────────
-const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveTag, onClearAll }) => {
-  const category = filters.category ?? '';
-  const bags = filters.bags ?? [];
-  const brands = filters.brands ?? [];
-  const material = filters.material ?? [];
-  const sizes = filters.sizes ?? [];
+          <span
+            className="custom-radio"
+            style={isActive ? { borderColor: '#8b5cf6', backgroundColor: '#8b5cf6' } : {}}
+          >
+            {isActive && (
+              <span style={{
+                display: 'block',
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                backgroundColor: '#fff',
+                flexShrink: 0,
+              }} />
+            )}
+          </span>
+          <span className="price-label">{range.label}</span>
+        </div>
+      );
+    })}
+  </div>
+);
+
+// ── Main FilterSideBar ─────────────────────────────────────────────────────────
+const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveTag, onClearAll, hideHeader = false }) => {
+  const category   = filters.category   ?? '';
+  const bags       = filters.bags       ?? [];
+  const brands     = filters.brands     ?? [];
+  const material   = filters.material   ?? [];
+  const sizes      = filters.sizes      ?? [];
   const priceRange = filters.priceRange ?? '';
   const capacities = filters.capacities ?? [];
 
-  // Optimized update function
   const update = useCallback((key, value) => {
     onChange({ ...DEFAULT_FILTERS, ...filters, [key]: value });
   }, [filters, onChange]);
 
   const handleBagToggle = useCallback((type) => {
-    const next = bags.includes(type) ? bags.filter((t) => t !== type) : [...bags, type];
-    update('bags', next);
+    update('bags', bags.includes(type) ? bags.filter((t) => t !== type) : [...bags, type]);
   }, [bags, update]);
 
   const handleBrandToggle = useCallback((brand) => {
-    const next = brands.includes(brand) ? brands.filter((b) => b !== brand) : [...brands, brand];
-    update('brands', next);
+    update('brands', brands.includes(brand) ? brands.filter((b) => b !== brand) : [...brands, brand]);
   }, [brands, update]);
 
   const handleMaterialToggle = useCallback((materialItem) => {
-    const next = material.includes(materialItem) 
-      ? material.filter((m) => m !== materialItem) 
-      : [...material, materialItem];
-    update('material', next);
+    update('material', material.includes(materialItem)
+      ? material.filter((m) => m !== materialItem)
+      : [...material, materialItem]);
   }, [material, update]);
 
   const handleCategoryClick = useCallback((cat) => {
-    const resetFilters = { ...DEFAULT_FILTERS, category: category === cat ? '' : cat };
-    onChange(resetFilters);
+    onChange({ ...DEFAULT_FILTERS, category: category === cat ? '' : cat });
   }, [category, onChange]);
 
   const handlePriceRangeSelect = useCallback((rangeValue) => {
-    update('priceRange', priceRange === rangeValue ? '' : rangeValue);
-  }, [priceRange, update]);
+    update('priceRange', rangeValue);
+  }, [update]);
 
   const handleClearAll = () => {
-    if (onClearAll) {
-      onClearAll();
-    } else {
-      onChange(DEFAULT_FILTERS);
-    }
+    if (onClearAll) onClearAll();
+    else onChange(DEFAULT_FILTERS);
   };
 
-  const hasActiveFilters = () => {
-    return category !== '' || bags.length > 0 || brands.length > 0 || 
-           material.length > 0 || sizes.length > 0 || priceRange !== '' || capacities.length > 0;
-  };
-
-  const shouldShowFilters = () => {
-    return category !== '';
-  };
+  const hasActiveFilters =
+    category !== '' || bags.length > 0 || brands.length > 0 ||
+    material.length > 0 || sizes.length > 0 || priceRange !== '' || capacities.length > 0;
 
   return (
     <aside className="filter-sidebar-flipkart">
-      <div className="filter-header">
-        <h3 className="filter-title">Filters</h3>
-        {hasActiveFilters() && (
-          <button className="clear-all-btn" onClick={handleClearAll}>
-            CLEAR ALL
-          </button>
-        )}
-      </div>
+      {!hideHeader && (
+        <div className="filter-header">
+          <h3 className="filter-title">Filters</h3>
+          {hasActiveFilters && (
+            <button className="clear-all-btn" onClick={handleClearAll}>CLEAR ALL</button>
+          )}
+        </div>
+      )}
+      {hideHeader && hasActiveFilters && (
+        <div className="filter-header" style={{ paddingTop: 0 }}>
+          <span />
+          <button className="clear-all-btn" onClick={handleClearAll}>CLEAR ALL</button>
+        </div>
+      )}
 
       {activeTags && activeTags.length > 0 && (
-        <ActiveFilterTags 
-          filters={activeTags} 
-          onRemove={onRemoveTag}
-        />
+        <ActiveFilterTags filters={activeTags} onRemove={onRemoveTag} />
       )}
 
       <FilterSection title="CATEGORIES">
         <div className="category-buttons">
-          <button
-            className={`category-btn ${category === 'wallet' ? 'active' : ''}`}
-            onClick={() => handleCategoryClick('wallet')}
-          >
-            Wallets
-          </button>
-          <button
-            className={`category-btn ${category === 'belt' ? 'active' : ''}`}
-            onClick={() => handleCategoryClick('belt')}
-          >
-            Belts
-          </button>
-          <button
-            className={`category-btn ${category === 'bag' ? 'active' : ''}`}
-            onClick={() => handleCategoryClick('bag')}
-          >
-            Bags
-          </button>
+          {['wallet', 'belt', 'bag'].map((cat) => (
+            <button
+              key={cat}
+              className={`category-btn ${category === cat ? 'active' : ''}`}
+              onClick={() => handleCategoryClick(cat)}
+            >
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}s
+            </button>
+          ))}
         </div>
       </FilterSection>
 
-      {shouldShowFilters() && (
+      {category !== '' && (
         <>
           <FilterSection title="PRICE">
             <PriceRangeSelector
@@ -339,65 +282,33 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
           {category === 'bag' && (
             <>
               <FilterSection title="BAG TYPES">
-                <CheckboxList 
-                  options={BAG_TYPES}
-                  selected={bags}
-                  onChange={handleBagToggle}
-                  initialLimit={4}
-                />
+                <CheckboxList options={BAG_TYPES} selected={bags} onChange={handleBagToggle} initialLimit={4} />
               </FilterSection>
-
               <FilterSection title="BRANDS">
-                <CheckboxList 
-                  options={BRANDS}
-                  selected={brands}
-                  onChange={handleBrandToggle}
-                  initialLimit={4}
-                />
+                <CheckboxList options={BRANDS} selected={brands} onChange={handleBrandToggle} initialLimit={4} />
               </FilterSection>
-
               <FilterSection title="MATERIAL">
-                <CheckboxList 
-                  options={MATERIALS}
-                  selected={material}
-                  onChange={handleMaterialToggle}
-                  initialLimit={3}
-                />
+                <CheckboxList options={MATERIALS} selected={material} onChange={handleMaterialToggle} initialLimit={3} />
               </FilterSection>
-
               <FilterSection title="CAPACITY">
-                <CapacityCards
-                  options={CAPACITIES}
-                  selected={capacities}
-                  onChange={(value) => update('capacities', value)}
-                  initialLimit={3}
-                />
+                <CapacityCards options={CAPACITIES} selected={capacities} onChange={(v) => update('capacities', v)} initialLimit={3} />
               </FilterSection>
             </>
           )}
 
           {category === 'wallet' && (
-            <>
-              <FilterSection title="MATERIAL">
-                <CheckboxList 
-                  options={MATERIALS}
-                  selected={material}
-                  onChange={handleMaterialToggle}
-                  initialLimit={3}
-                />
-              </FilterSection>
-            </>
+            <FilterSection title="MATERIAL">
+              <CheckboxList options={MATERIALS} selected={material} onChange={handleMaterialToggle} initialLimit={3} />
+            </FilterSection>
           )}
 
           {category === 'belt' && (
             <>
+              <FilterSection title="MATERIAL">
+                <CheckboxList options={MATERIALS} selected={material} onChange={handleMaterialToggle} initialLimit={3} />
+              </FilterSection>
               <FilterSection title="SIZE">
-                <SizeButtons 
-                  options={BELT_SIZES}
-                  selected={sizes}
-                  onChange={(value) => update('sizes', value)}
-                  initialLimit={3}
-                />
+                <SizeButtons options={BELT_SIZES} selected={sizes} onChange={(v) => update('sizes', v)} initialLimit={3} />
               </FilterSection>
             </>
           )}
@@ -405,10 +316,7 @@ const FilterSideBar = memo(({ filters = {}, onChange, activeTags = [], onRemoveT
       )}
     </aside>
   );
-}, (prevProps, nextProps) => {
-  // Custom comparison to prevent unnecessary re-renders
-  return JSON.stringify(prevProps.filters) === JSON.stringify(nextProps.filters) &&
-         JSON.stringify(prevProps.activeTags) === JSON.stringify(nextProps.activeTags);
 });
+
 
 export default FilterSideBar;
