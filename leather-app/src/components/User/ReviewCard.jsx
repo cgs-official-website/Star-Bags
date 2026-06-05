@@ -4,6 +4,8 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { FiEdit2, FiTrash2, FiEyeOff } from 'react-icons/fi';
 import { BiLike, BiDislike, BiSolidLike, BiSolidDislike } from 'react-icons/bi';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { useProducts } from '../../context/ProductsContext';
 import { db } from '../../firebase';
 import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import '../../assets/styles/ReviewCard.css';
@@ -29,6 +31,8 @@ const formatDate = (ts) => {
 
 function ReviewCard({ review, onEdit, onDelete }) {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { products } = useProducts();
   const uid = currentUser?.uid;
 
   const liked    = (review.likes    || []).includes(uid);
@@ -49,6 +53,23 @@ function ReviewCard({ review, onEdit, onDelete }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleProductClick = () => {
+    const matchedProduct = products.find(
+      (p) =>
+        p.name === review.productName ||
+        p.id === review.productId ||
+        p.productId === review.productId
+    );
+    const productToNavigate = matchedProduct || {
+      name: review.productName,
+      id: review.productId || review.id,
+      image: review.productImage || review.image,
+    };
+    navigate("/product", {
+      state: { product: productToNavigate },
+    });
+  };
 
   const handleLike = async () => {
     if (!uid) return;
@@ -119,7 +140,12 @@ function ReviewCard({ review, onEdit, onDelete }) {
 
       {/* Header: product image + name | stars + menu */}
       <div className="d-flex align-items-center justify-content-between mb-2">
-        <div className="d-flex align-items-center gap-2">
+        <div 
+          className="d-flex align-items-center gap-2" 
+          onClick={handleProductClick} 
+          style={{ cursor: 'pointer' }}
+          title="View Product"
+        >
           <img
             src={review.productImage || review.image}
             alt={review.productName}
