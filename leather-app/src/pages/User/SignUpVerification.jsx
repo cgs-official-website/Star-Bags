@@ -53,20 +53,25 @@ function SignUpVerification() {
       inputRefs.current[index - 1]?.focus();
   };
 
-  const handleResend = async () => {
+  const handleResend = () => {
     setResending(true);
-    try {
-      await sendOtp(email, "signup");
-      setTimer(119);
-      setTimerActive(true);
-      setOtp(["", "", "", ""]);
-      setError("");
-      inputRefs.current[0]?.focus();
-    } catch {
-      setError("Failed to resend code. Please try again.");
-    } finally {
-      setResending(false);
-    }
+    setError("");
+    
+    // Reset inputs and restart countdown instantly for smooth UX
+    setTimer(119);
+    setTimerActive(true);
+    setOtp(["", "", "", ""]);
+    inputRefs.current[0]?.focus();
+
+    // Send the email in the background
+    sendOtp(email, "signup")
+      .catch((err) => {
+        console.error("Resend OTP background fail:", err);
+        setError("Failed to resend code. Please try again.");
+      })
+      .finally(() => {
+        setResending(false);
+      });
   };
 
   const handleVerify = (e) => {

@@ -82,12 +82,15 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />
+          <Route path="/products" element={<Navigate to="/allProducts" replace />} />
+          <Route path="/shop" element={<Navigate to="/allProducts" replace />} />
+          <Route path="/bags" element={<Navigate to="/allProducts" replace />} />
 
           
 
 
           {/* User Protected Routes */}
-          <Route path="/cart" element={<UserProtectedRoute><Cart /></UserProtectedRoute>} />
+          <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<UserProtectedRoute><Orders /></UserProtectedRoute>} />
           <Route path="/wishlist" element={<UserProtectedRoute><WishList /></UserProtectedRoute>} />
           <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />

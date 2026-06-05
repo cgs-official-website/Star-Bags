@@ -141,7 +141,6 @@ function OrderManagement() {
       toast.error("Failed to update order status");
     }
   };
-
   const getStatusClass = (status) => {
     switch (status) {
       case 'Delivered': return 'delivered';
