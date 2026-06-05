@@ -219,7 +219,7 @@ function SavedAddress() {
             <ProfileSideNav />
           </div>
 
-          <div className="col-lg-9 col-md-7 col-12">
+          <div className="col-lg-9  col-12">
             {loadingAddresses ? (
               <div className="saved-address-card">
                 <div className="d-flex justify-content-between align-items-center mb-3">
