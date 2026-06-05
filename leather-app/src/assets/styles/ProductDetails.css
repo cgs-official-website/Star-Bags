@@ -728,7 +728,10 @@ body.dark-theme .recent-products-outer-container,
 }
 
 body.dark-theme .main-image-container .arrow-btn,
-[data-theme="dark"] .main-image-container .arrow-btn { color: #ffc107 !important; }
+[data-theme="dark"] .main-image-container .arrow-btn { color: #ffffff !important; }
+
+body.dark-theme .rating-stars,
+[data-theme="dark"] .rating-stars { color: #ffc107 !important; }
 
 body.dark-theme .empty-address-viewport,
 [data-theme="dark"] .empty-address-viewport {
