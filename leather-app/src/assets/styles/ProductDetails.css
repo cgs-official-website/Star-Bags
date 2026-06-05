@@ -954,3 +954,43 @@ body.dark-theme .arrow-btn,
   border-radius: 0 !important;
   box-shadow: none !important;
 }
+/* Out of Stock Button Styles - Dull colors & No Hover Effects */
+.btn-add-cart.out-of-stock,
+.btn-buy-now.out-of-stock {
+  opacity: 0.6;
+  filter: grayscale(0.3);
+  pointer-events: none;
+}
+
+.btn-add-cart.out-of-stock:hover,
+.btn-buy-now.out-of-stock:hover {
+  background-color: #9ca3af !important;  /* Same dull color - no change on hover */
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.3) !important;
+  opacity: 0.6 !important;
+}
+
+/* Disable any hover effects on out of stock buttons */
+.btn-add-cart:disabled,
+.btn-buy-now:disabled {
+  cursor: not-allowed;
+}
+
+.btn-add-cart:disabled:hover,
+.btn-buy-now:disabled:hover {
+  transform: none;
+  background-color: #9ca3af;
+  box-shadow: none;
+}
+
+/* Also update the button base styles to prevent hover on disabled state */
+button:disabled {
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  transform: none !important;
+  background-color: inherit !important;
+  box-shadow: none !important;
+}
