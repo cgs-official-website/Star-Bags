@@ -38,7 +38,7 @@ import BannerManagement from './pages/Admin/BannerManagement';
 import OrderDetails from './pages/Admin/OrderDetails';
 import ReviewManagement from './pages/Admin/ReviewManagement';
 // import BillAddress from './pages/User/BillAddress';
-// import SignUpVerification from './pages/User/SignUpVerification';
+import SignUpVerification from './pages/User/SignUpVerification';
 import Checkout from './pages/User/Checkout';
 
 // Protected Route for Admin users
@@ -78,15 +78,26 @@ const App = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/forgotPassword" element={<ForgotPassword/>} />
           <Route path="/resetPassword" element={<ResetPassword/>} />
+          <Route path="/signup-verification" element={<SignUpVerification />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/allProducts" element={<Product />} />
           <Route path="/product" element={<ProductDetails />} />
+<<<<<<< HEAD
+          <Route path="/products" element={<Navigate to="/allProducts" replace />} />
+          <Route path="/shop" element={<Navigate to="/allProducts" replace />} />
+          <Route path="/bags" element={<Navigate to="/allProducts" replace />} />
+=======
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
 
           
 
 
           {/* User Protected Routes */}
+<<<<<<< HEAD
+          <Route path="/cart" element={<Cart />} />
+=======
           <Route path="/cart" element={<UserProtectedRoute><Cart /></UserProtectedRoute>} />
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
           <Route path="/orders" element={<UserProtectedRoute><Orders /></UserProtectedRoute>} />
           <Route path="/wishlist" element={<UserProtectedRoute><WishList /></UserProtectedRoute>} />
           <Route path="/profile" element={<UserProtectedRoute><Profile /></UserProtectedRoute>} />

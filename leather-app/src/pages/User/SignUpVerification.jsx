@@ -1,19 +1,30 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BiArrowBack } from "react-icons/bi";
+import { sendOtp, verifyOtp } from "../../utils/sendOtp";
 import loginImage from "../../assets/images/login-image.png";
 import "../../assets/styles/Login.css";
 
 function SignUpVerification() {
+  const navigate = useNavigate();
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const [timer, setTimer] = useState(119); // 1:59 in seconds
+  const [timer, setTimer] = useState(119);
   const [timerActive, setTimerActive] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [resending, setResending] = useState(false);
   const inputRefs = useRef([]);
 
-  // Countdown timer
+  const stored = JSON.parse(sessionStorage.getItem("signup_otp") || "{}");
+  const email = stored?.email || "your email";
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
   useEffect(() => {
     if (!timerActive || timer <= 0) return;
-    const interval = setInterval(() => {
+    const id = setInterval(() => {
       setTimer((t) => {
         if (t <= 1) {
           setTimerActive(false);
@@ -22,48 +33,84 @@ function SignUpVerification() {
         return t - 1;
       });
     }, 1000);
-    return () => clearInterval(interval);
+    return () => clearInterval(id);
   }, [timerActive, timer]);
 
-  const formatTime = (secs) => {
-    const m = String(Math.floor(secs / 60)).padStart(2, "0");
-    const s = String(secs % 60).padStart(2, "0");
-    return `${m}:${s}`;
-  };
+  const formatTime = (s) =>
+    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   const handleOtpChange = (index, value) => {
     if (!/^\d?$/.test(value)) return;
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    setOtp(newOtp);
+    const next = [...otp];
+    next[index] = value;
+    setOtp(next);
+    setError("");
     if (value && index < 3) inputRefs.current[index + 1]?.focus();
   };
 
   const handleKeyDown = (index, e) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
+    if (e.key === "Backspace" && !otp[index] && index > 0)
       inputRefs.current[index - 1]?.focus();
-    }
   };
 
+<<<<<<< HEAD
   const handleResend = () => {
+    setResending(true);
+    setError("");
+    
+    // Reset inputs and restart countdown instantly for smooth UX
     setTimer(119);
     setTimerActive(true);
     setOtp(["", "", "", ""]);
     inputRefs.current[0]?.focus();
+
+    // Send the email in the background
+    sendOtp(email, "signup")
+      .catch((err) => {
+        console.error("Resend OTP background fail:", err);
+        setError("Failed to resend code. Please try again.");
+      })
+      .finally(() => {
+        setResending(false);
+      });
+=======
+  const handleResend = async () => {
+    setResending(true);
+    try {
+      await sendOtp(email, "signup");
+      setTimer(119);
+      setTimerActive(true);
+      setOtp(["", "", "", ""]);
+      setError("");
+      inputRefs.current[0]?.focus();
+    } catch {
+      setError("Failed to resend code. Please try again.");
+    } finally {
+      setResending(false);
+    }
+>>>>>>> 4c403abcdc40aa46a6fde36f4783fed96d3e01ed
+  };
+
+  const handleVerify = (e) => {
+    e.preventDefault();
+    const entered = otp.join("");
+    if (entered.length < 4)
+      return setError("Please enter the complete 4-digit code.");
+    const result = verifyOtp(entered, "signup");
+    if (!result.valid) return setError(result.error);
+    setSuccess(true);
+    setTimeout(() => navigate("/"), 1200);
   };
 
   return (
     <div className="login">
-      {/* LEFT SIDE: IMAGE */}
       <div className="d-none d-lg-block col-lg-7 logo-image">
         <img src={loginImage} alt="Leather Bag" />
-
         <div className="login-content">
           <div className="brand-logo">
             <span>✦</span>
             <h5>Star Bags</h5>
           </div>
-
           <h3>
             Timeless Craft.
             <br />
@@ -77,24 +124,22 @@ function SignUpVerification() {
           </p>
         </div>
       </div>
-
-      {/* RIGHT SIDE: OTP FORM */}
       <div className="col-12 col-lg-5 form-section">
         <div className="login-form">
-          {/* Back to sign up */}
           <div className="mb-4">
-            <Link to="/signup" className="navigate d-inline-flex align-items-center gap-2">
+            <Link
+              to="/signup"
+              className="navigate d-inline-flex align-items-center gap-2"
+            >
               <BiArrowBack /> Back to sign up
             </Link>
           </div>
-
           <h6>Verify your account</h6>
           <p>
-            We sent a 4-digit verification code to your email. Please enter it below to complete your registration.
+            We sent a 4-digit verification code to <b>{email}</b>. Please enter
+            it below.
           </p>
-
-          <form onSubmit={(e) => e.preventDefault()}>
-            {/* OTP Input Boxes */}
+          <form onSubmit={handleVerify}>
             <div className="d-flex gap-3 mb-2 justify-content-between">
               {otp.map((digit, i) => (
                 <input
@@ -106,7 +151,7 @@ function SignUpVerification() {
                   value={digit}
                   onChange={(e) => handleOtpChange(i, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(i, e)}
-                  className="form-control text-center"
+                  className={`form-control text-center ${error ? "is-invalid" : success ? "is-valid" : ""}`}
                   style={{
                     width: "65px",
                     height: "65px",
@@ -116,42 +161,70 @@ function SignUpVerification() {
                 />
               ))}
             </div>
-
-            {/* Error Message */}
-            <div className="mb-3">
-              <span style={{ fontSize: "13px", color: "#ff4d4d", fontWeight: "600" }}>
-                The code you entered is incorrect. Please try again.
-              </span>
+            <div className="mb-3" style={{ minHeight: "20px" }}>
+              {error && (
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "#ff4d4d",
+                    fontWeight: "600",
+                  }}
+                >
+                  {error}
+                </span>
+              )}
+              {success && (
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "#28a745",
+                    fontWeight: "600",
+                  }}
+                >
+                  ✓ Verified! Redirecting...
+                </span>
+              )}
             </div>
-
-            {/* Resend + Timer */}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <span style={{ fontSize: "13px", color: "var(--gray)" }}>
                 Didn't receive it?{" "}
                 <button
                   type="button"
                   onClick={handleResend}
+                  disabled={timerActive || resending}
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: "var(--levender)",
-                    fontWeight: "700",
                     padding: 0,
+                    fontWeight: "700",
+                    color:
+                      timerActive || resending
+                        ? "var(--gray)"
+                        : "var(--levender)",
+                    cursor: timerActive || resending ? "default" : "pointer",
                   }}
                 >
-                  Resend code
+                  {resending ? "Sending..." : "Resend code"}
                 </button>
               </span>
-              <span style={{ fontSize: "13px", color: "var(--gray)", fontWeight: "700" }}>
+              <span
+                style={{
+                  fontSize: "13px",
+                  color: "var(--gray)",
+                  fontWeight: "700",
+                }}
+              >
                 {formatTime(timer)}
               </span>
             </div>
-
-            {/* Verify Button */}
             <div className="d-grid">
-              <NavLink to="/" className="btn login-btn d-flex align-items-center justify-content-center">
-                Confirm & Activate
-              </NavLink>
+              <button
+                type="submit"
+                className="btn login-btn"
+                disabled={success}
+              >
+                {success ? "Verified!" : "Confirm & Activate"}
+              </button>
             </div>
           </form>
         </div>
