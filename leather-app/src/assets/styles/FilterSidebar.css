@@ -537,6 +537,7 @@ body.dark-theme .show-more-btn:hover,
   .filter-section-header:hover {
     background: inherit;
   }
+
   
 
   body.dark-theme .price-option,
@@ -551,3 +552,4 @@ body.dark-theme .price-option:active,
   /* Define a subtle dark-grey highlight instead of a white flash */
   background: rgba(255, 255, 255, 0.05) !important;
 }
+
