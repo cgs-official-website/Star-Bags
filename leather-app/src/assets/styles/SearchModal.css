@@ -1,5 +1,3 @@
-
-
 /* ── Wrapper ── */
 .sm-wrapper {
   position: relative;
@@ -58,6 +56,28 @@
 .sm-bar-btn:hover {
   background: #7c3aed;
   color: #fff;
+}
+
+.sm-bar-clear {
+  background: transparent;
+  border: none;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #9ca3af;
+  font-size: 11px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sm-bar-clear:hover {
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
 /* ── Dropdown ── */
@@ -185,6 +205,10 @@
 .sm-thumb-fallback { font-size: 16px; }
 
 /* ── Item info ── */
+.sm-item-name strong {
+  font-weight: 500!important;
+  color: #1f2937;
+}
 .sm-item-info {
   flex: 1;
   display: flex;
@@ -294,6 +318,99 @@
 }
 
 /* ─────────────────────────────
+   MOBILE FULL-SCREEN OVERLAY
+───────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Dim backdrop */
+  .sm-overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1040;
+    animation: sm-fade-in 0.2s ease;
+  }
+
+  @keyframes sm-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* Wrapper becomes a full-screen overlay */
+  .sm-wrapper.sm-mobile-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    z-index: 1050;
+    background: #fff;
+    padding: 14px 14px 0;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+    animation: sm-slide-down 0.22s ease;
+    overflow: hidden;
+  }
+
+  @keyframes sm-slide-down {
+    from { transform: translateY(-100%); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+
+  /* Back button + search bar in one row */
+  .sm-overlay-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .sm-overlay-row .sm-bar {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+  }
+
+  .sm-back-btn {
+    background: none;
+    border: none;
+    color: #7c3aed;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .sm-back-btn:hover {
+    background: #f5f3ff;
+  }
+
+  /* Dropdown fills remaining screen height */
+  .sm-wrapper.sm-mobile-open .sm-dropdown {
+    position: static;
+    box-shadow: none;
+    border: none;
+    border-top: 0.5px solid #f3f0ff;
+    border-radius: 0;
+    flex: 1;
+    max-height: none;
+    overflow-y: auto;
+    padding: 4px 0;
+    margin-top: 8px;
+    animation: none;
+  }
+}
+
+/* ─────────────────────────────
    DARK MODE
 ───────────────────────────── */
 body.dark-theme .sm-bar,
@@ -321,7 +438,6 @@ body.dark-theme .sm-bar-input::placeholder,
 
 body.dark-theme .sm-bar-btn,
 [data-theme="dark"] .sm-bar-btn {
-  
   color: #fff;
 }
 
@@ -329,6 +445,17 @@ body.dark-theme .sm-bar-btn:hover,
 [data-theme="dark"] .sm-bar-btn:hover {
   background: #111;
   color: #fff;
+}
+
+body.dark-theme .sm-bar-clear,
+[data-theme="dark"] .sm-bar-clear {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+body.dark-theme .sm-bar-clear:hover,
+[data-theme="dark"] .sm-bar-clear:hover {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
 }
 
 body.dark-theme .sm-dropdown,
@@ -379,4 +506,32 @@ body.dark-theme .sm-thumb,
 body.dark-theme .sm-recent-section,
 [data-theme="dark"] .sm-recent-section {
   border-bottom-color: rgba(139, 92, 246, 0.15);
+}
+
+/* Dark mode overlay panel */
+body.dark-theme .sm-wrapper.sm-mobile-open,
+[data-theme="dark"] .sm-wrapper.sm-mobile-open {
+  background: #16131e;
+  box-shadow: none;
+}
+
+body.dark-theme .sm-overlay-title,
+[data-theme="dark"] .sm-overlay-title {
+  color: #f1f5f9;
+}
+
+body.dark-theme .sm-back-btn,
+[data-theme="dark"] .sm-back-btn {
+  color: #a78bfa;
+}
+
+body.dark-theme .sm-back-btn:hover,
+[data-theme="dark"] .sm-back-btn:hover {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+body.dark-theme .sm-wrapper.sm-mobile-open .sm-dropdown,
+[data-theme="dark"] .sm-wrapper.sm-mobile-open .sm-dropdown {
+  border-top-color: rgba(139, 92, 246, 0.15);
+  background: transparent;
 }
