@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { SearchProvider } from './context/SearchContext';
 import { useAuth } from './context/AuthContext';
 
@@ -65,12 +65,33 @@ const UserProtectedRoute = ({ children }) => {
 };
 
 
+import { useTheme } from './context/ThemeContext';
+
+const ThemeController = () => {
+  const location = useLocation();
+  const { isDark } = useTheme();
+
+  React.useEffect(() => {
+    if (location.pathname.startsWith('/admin')) {
+      document.body.classList.remove('dark-theme');
+    } else {
+      if (isDark) {
+        document.body.classList.add('dark-theme');
+      } else {
+        document.body.classList.remove('dark-theme');
+      }
+    }
+  }, [location.pathname, isDark]);
+
+  return null;
+};
 
 const App = () => {
   return (
 
     <SearchProvider> {/* Wrap everything with SearchProvider */}
       <BrowserRouter>
+        <ThemeController />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
